@@ -1,8 +1,7 @@
 import json
 import logging
-from collections.abc import Mapping
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from meowlauncher.config.emulator_config import emulator_configs
@@ -10,6 +9,7 @@ from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.util.region_info import get_language_by_english_name
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
@@ -46,7 +46,7 @@ def find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility 
 			pass
 	return None
 
-def get_duckstation_db_info(product_code: str) -> Optional[Mapping[Any, Any]]:
+def get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any]' | None:
 	gamedb_path = _duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:
 		return None

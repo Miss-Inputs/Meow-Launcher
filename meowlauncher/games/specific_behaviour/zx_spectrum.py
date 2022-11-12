@@ -1,10 +1,10 @@
-from collections.abc import Collection
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple
 from meowlauncher.common_types import ByteAmount
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 
 if TYPE_CHECKING:
+	from collections.abc import Collection
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
@@ -105,7 +105,7 @@ def _machine_from_tag(tag: str) -> ZXMachine | None:
 
 	return None	
 
-def _ram_requirement_from_tag(tag: str)	-> Optional[tuple[ByteAmount, ByteAmount]]:
+def _ram_requirement_from_tag(tag: str)	-> tuple[ByteAmount, ByteAmount] | None:
 	#Minimum, recommended
 	#TODO: Should this be a more generic function somewhere else?
 	if tag == '(16K)':
@@ -119,7 +119,7 @@ def _ram_requirement_from_tag(tag: str)	-> Optional[tuple[ByteAmount, ByteAmount
 		return ByteAmount(128 * 1024), ByteAmount(128 * 1024)
 	return None
 
-def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata') -> None:
+def add_speccy_filename_tags_info(tags: 'Collection[str]', metadata: 'Metadata') -> None:
 	for tag in tags:
 		if 'Machine' not in metadata.specific_info:
 			machine = _machine_from_tag(tag)

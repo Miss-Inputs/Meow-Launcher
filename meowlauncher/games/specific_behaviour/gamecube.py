@@ -1,7 +1,6 @@
 import logging
-from collections.abc import Mapping
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 try:
 	from PIL import Image
@@ -18,6 +17,7 @@ from .common.gamecube_wii_common import (NintendoDiscRegion,
                                          just_read_the_wia_rvz_header_for_now)
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 logger = logging.getLogger(__name__)
@@ -153,7 +153,7 @@ def add_apploader_date(header: bytes, metadata: Metadata) -> None:
 	except ValueError:
 		pass
 
-def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: Optional[Mapping[str, int]]=None) -> None:
+def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: 'Mapping[str, int]' | None=None) -> None:
 	#TODO: Use namedtuple/dataclass for tgc_data
 	metadata.platform = 'GameCube'
 

@@ -1,6 +1,5 @@
 import os
 from abc import ABC, abstractmethod
-from collections.abc import Collection, Mapping
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, final
 
@@ -11,19 +10,20 @@ from meowlauncher.metadata import Date
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
+	from collections.abc import Collection, Mapping
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredEmulator
 
 class ManuallySpecifiedGame(EmulatedGame, ABC):
 	#TODO: Should not necessarily be emulated
-	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig'):
+	def __init__(self, info: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.info = info
 		self.is_on_cd: bool = info.get('is_on_cd', False)
 		self.path: str = info['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
 		self.args = info.get('args', [])
 		self.cd_path: Path | None = None
-		self.other_cd_paths: Collection[PurePath] = set() #Could be None I guess, if cd_path not in info
+		self.other_cd_paths: 'Collection[PurePath]' = set() #Could be None I guess, if cd_path not in info
 		if 'cd_path' in info:
 			_cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
 			cd_paths = tuple(self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in _cd_paths)

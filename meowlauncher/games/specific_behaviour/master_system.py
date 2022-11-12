@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 from meowlauncher import input_metadata
@@ -9,6 +8,7 @@ from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
@@ -64,7 +64,7 @@ regions: dict[int, SMSRegion] = {
 	7: SMSRegion('International', True),
 }
 
-def _parse_standard_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
+def _parse_standard_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, Any]':
 	#TODO: Use namedtuple/dataclass instead
 	header_data: dict[str, Any] = {}
 	header = rom.read(seek_to=base_offset, amount=16)

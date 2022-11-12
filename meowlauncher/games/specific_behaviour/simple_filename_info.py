@@ -1,12 +1,12 @@
-from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-		from meowlauncher.metadata import Metadata
+	from collections.abc import Sequence
+	from meowlauncher.metadata import Metadata
 
 __doc__ = """Where we just want to detect stuff from filename tags, nothing fancy"""
 
-def _atari_st_machine_from_tags(tags: Sequence[str]) -> str | None:
+def _atari_st_machine_from_tags(tags: 'Sequence[str]') -> str | None:
 	if '(Mega ST)' in tags:
 		return 'Mega ST'
 	if '(Mega-STE)' in tags:
@@ -27,7 +27,7 @@ def _atari_st_machine_from_tags(tags: Sequence[str]) -> str | None:
 		return 'Falcon030'
 	return None
 
-def add_atari_st_info(tags: Sequence[str], metadata: 'Metadata') -> None:
+def add_atari_st_info(tags: 'Sequence[str]', metadata: 'Metadata') -> None:
 	"""Sets intended machine (ST, STe, Falcon, etc) according to filename"""
 	machine = _atari_st_machine_from_tags(tags)
 	if machine:

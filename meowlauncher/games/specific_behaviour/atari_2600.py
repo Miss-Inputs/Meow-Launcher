@@ -1,7 +1,6 @@
 import hashlib
 import subprocess
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -17,11 +16,12 @@ from .common import atari_controllers as controllers
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+	from collections.abc import Mapping
 
 _stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
-def get_stella_database() -> Mapping[str, Mapping[str, str]]:
+def get_stella_database() -> 'Mapping[str, Mapping[str, str]]':
 	proc = subprocess.run([_stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 
 	lines = proc.stdout.splitlines()
@@ -144,7 +144,7 @@ def _parse_stella_cart_note(metadata: 'Metadata', note: str) -> None:
 	else:
 		metadata.add_notes(note)
 
-def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, str | None]) -> None:
+def _parse_stella_db(metadata: 'Metadata', game_db_entry: 'Mapping[str, str | None]') -> None:
 	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
 	if stella_name:
 		metadata.add_alternate_name(stella_name, 'Stella Name')
@@ -234,7 +234,7 @@ class StellaDB():
 
 	__instance = None
 	@staticmethod
-	def get_stella_db() -> Optional[Mapping[str, Mapping[str, str]]]:
+	def get_stella_db() -> 'Mapping[str, Mapping[str, str]]' | None:
 		if StellaDB.__instance is None:
 			StellaDB.__instance = StellaDB.__StellaDB()
 		return StellaDB.__instance.db

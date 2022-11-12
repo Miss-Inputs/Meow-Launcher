@@ -1,4 +1,3 @@
-from collections.abc import MutableMapping, Collection, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
@@ -7,6 +6,7 @@ from meowlauncher.input_metadata import InputInfo
 from meowlauncher.util.region_info import Language, Region
 
 if TYPE_CHECKING:
+	from collections.abc import MutableMapping, Collection, Sequence
 	from PIL.Image import Image
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
@@ -66,18 +66,18 @@ class Date():
 class Metadata():
 	def __init__(self) -> None:
 		self.platform: str | None = None
-		self.categories: Sequence[str] = [] #TODO: I kinda want this to be a union with Sequence | str | None, if we can do that
+		self.categories: 'Sequence[str]' = [] #TODO: I kinda want this to be a union with Sequence | str | None, if we can do that
 		self.release_date: Date | None = None
 		self.emulator_name: str | None = None #TODO: Begone with this, if we are doing things correctly, or rather once we are, make_linux_desktop will set it automatically to whatever Runner object is used
 
 		self.genre: str | None = None
 		self.subgenre: str | None = None
-		self.languages: Collection[Language] = set() #TODO: Should this be mutable?
+		self.languages: 'Collection[Language]' = set() #TODO: Should this be mutable?
 		self.developer: str | None = None
 		self.publisher: str | None = None
 		self.save_type = SaveType.Unknown
 		self.product_code: str | None = None
-		self.regions: Collection[Region] = set() #TODO: Should this be mutable?
+		self.regions: 'Collection[Region]' = set() #TODO: Should this be mutable?
 		self.media_type: MediaType | None = None
 		self.notes: str | None = None
 		self.disc_number: int | None = None
@@ -87,13 +87,13 @@ class Metadata():
 
 		self.input_info = InputInfo() #hmm…
 
-		self.specific_info: MutableMapping[str, Any] = {} #Stuff that's too specific to put as an attribute here
+		self.specific_info: 'MutableMapping[str, Any]' = {} #Stuff that's too specific to put as an attribute here
 
-		self.images: MutableMapping[str, Union[Path, 'Image']] = {}
+		self.images: 'MutableMapping[str, Path | Image]' = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
-		self.names: MutableMapping[str, str] = {}
-		self.documents: MutableMapping[str, Union[str, Path]] = {} #Paths of either variety, or URLs
-		self.descriptions: MutableMapping[str, str] = {}
+		self.names: 'MutableMapping[str, str]' = {}
+		self.documents: 'MutableMapping[str, str | Path]' = {} #Paths of either variety, or URLs
+		self.descriptions: 'MutableMapping[str, str]' = {}
 
 	def add_alternate_name(self, name: str, field: str='Alternate Name') -> None:
 		if field in self.names:
@@ -117,10 +117,10 @@ class Metadata():
 		elif self.notes != notes:
 			self.notes += ';' + notes
 
-	def to_launcher_fields(self) -> MutableMapping[str, MutableMapping[str, Any]]:
-		fields: MutableMapping[str, MutableMapping[str, Any]] = {}
+	def to_launcher_fields(self) -> 'MutableMapping[str, MutableMapping[str, Any]]':
+		fields: 'MutableMapping[str, MutableMapping[str, Any]]' = {}
 
-		metadata_fields: MutableMapping[str, Any] = {
+		metadata_fields: 'MutableMapping[str, Any]' = {
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'Languages': tuple(language.native_name for language in self.languages),

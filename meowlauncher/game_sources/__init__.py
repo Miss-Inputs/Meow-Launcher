@@ -1,5 +1,4 @@
 import sys
-from collections.abc import Collection, Mapping
 from typing import TYPE_CHECKING
 
 from .dos import DOS
@@ -10,6 +9,7 @@ from .scummvm import ScummVM
 from .steam import Steam
 
 if TYPE_CHECKING:
+	from collections.abc import Collection, Mapping
 	from meowlauncher.game_source import GameSource
 
 _dos = DOS()
@@ -52,7 +52,7 @@ _mame = MAME(_driver_list_arg, _source_file_arg)
 _mame_inbuilt = MAMEInbuiltGames()
 
 #The order is not really important here, I guess, you only ever need to be iterating through it
-game_sources: Collection['GameSource'] = {
+game_sources: 'Collection[GameSource]' = {
 	_dos,
 	_mac,
 	_mame,
@@ -62,7 +62,7 @@ game_sources: Collection['GameSource'] = {
 	_steam,
 }
 
-game_types: Mapping[str, 'GameSource'] = {
+game_types: 'Mapping[str, GameSource]' = {
 	#For remove_existing_games basically
 	#TODO: Hmm can we just get this from some property of GameSource instead
 	'DOS': _dos,

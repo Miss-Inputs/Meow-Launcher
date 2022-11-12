@@ -1,5 +1,4 @@
-from collections.abc import Collection, MutableSequence
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
 from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
@@ -19,6 +18,7 @@ from .format_info import (atari_2600_cartridge_extensions,
                           mame_floppy_formats)
 
 if TYPE_CHECKING:
+	from collections.abc import Collection, MutableSequence
 	from meowlauncher.games.mame.mame_game import MAMEGame
 
 _bsnes_options = {
@@ -27,7 +27,7 @@ _bsnes_options = {
 	'sgb_enhanced_only': RunnerConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
 }
 
-_standalone_emulators: Collection[StandardEmulator] = {
+_standalone_emulators: 'Collection[StandardEmulator]' = {
 	StandardEmulator('A7800', EmulatorStatus.Good, 'a7800', command_lines.a7800, {'bin', 'a78'}, {'7z', 'zip'}),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
@@ -487,8 +487,8 @@ libretro_frontends = {frontend.name: frontend for frontend in _libretro_frontend
 
 #Basically this is here for the purpose of generating configs
 #TODO: Return an iterator and make a "has config" interface so we don't have to invent _JustHereForConfigValues
-#all_emulators: MutableSequence[Union[Emulator, LibretroFrontend]] = _standalone_emulators
-all_emulators: MutableSequence[Union[Emulator[EmulatedGame], LibretroFrontend, '_JustHereForConfigValues']] = []
+#all_emulators: 'MutableSequence[Emulator | LibretroFrontend]' = _standalone_emulators
+all_emulators: 'MutableSequence[Emulator[EmulatedGame] | LibretroFrontend | _JustHereForConfigValues]' = []
 all_emulators += _standalone_emulators
 all_emulators += _libretro_cores
 all_emulators += _dos_emulators

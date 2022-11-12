@@ -1,5 +1,4 @@
 import calendar
-from collections.abc import Mapping
 from dataclasses import dataclass
 from itertools import chain
 from typing import TYPE_CHECKING, Any
@@ -18,6 +17,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 from .common import snes_controllers as controllers
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
@@ -115,7 +115,7 @@ def _parse_sufami_turbo_header(rom: 'FileROM', metadata: 'Metadata') -> None:
 	#The SRAM is in the mini-cartridge, not the Sufami Turbo BIOS cart itself
 	metadata.save_type = SaveType.Cart if save_size > 0 else SaveType.Nothing
 
-def _parse_snes_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
+def _parse_snes_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, Any]':
 	#TODO: Use namedtuple/dataclass
 	#In order to make things simpler, we'll just ignore any carts that are out of line. You wouldn't be able to get interesting results from homebrew or bootleg games anyway
 	#Hence why we won't add metadata to the game object straight away, we'll store it in a dict first and add it all later, so we add nothing at all from invalid headers
@@ -237,7 +237,7 @@ def _add_normal_snes_header(rom: 'FileROM', metadata: 'Metadata') -> None:
 	#else:
 	#	print(rom.path, 'could not detect header because', ex)
 
-def _parse_satellaview_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
+def _parse_satellaview_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, Any]':
 	#TODO Use namedtuple/dataclass
 	header = rom.read(seek_to=base_offset, amount=0xe0)
 	metadata: dict[str, Any] = {}

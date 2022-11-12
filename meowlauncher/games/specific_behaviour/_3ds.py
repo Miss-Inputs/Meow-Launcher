@@ -6,7 +6,6 @@ except ModuleNotFoundError:
 
 import logging
 import os
-from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
@@ -28,6 +27,7 @@ from .common.nintendo_common import (DSi3DSAgeRatings, WiiU3DSRegionCode,
 from .static_platform_info import add_3ds_info
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
@@ -244,7 +244,7 @@ def _parse_smdh(rom: FileROM, metadata: 'Metadata', offset: int=0, length: int=-
 	smdh = rom.read(seek_to=offset, amount=length)
 	_parse_smdh_data(metadata, smdh)
 
-def _get_smdh_titles(smdh: bytes) -> tuple[Mapping[str, str], Mapping[str, str], Mapping[str, str | None]]:
+def _get_smdh_titles(smdh: bytes) -> tuple['Mapping[str, str]', 'Mapping[str, str]', 'Mapping[str, str | None]']:
 	short_titles: dict[str, str] = {}
 	long_titles: dict[str, str] = {}
 	publishers: dict[str, str | None] = {}

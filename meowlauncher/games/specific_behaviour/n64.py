@@ -1,10 +1,9 @@
 import hashlib
 import logging
-from collections.abc import Mapping
 from configparser import ParsingError
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -17,6 +16,7 @@ from meowlauncher.util.utils import (NoNonsenseConfigParser,
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+	from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def _get_mupen64plus_database_location() -> Path | None:
 	return None
 
 @lru_cache(maxsize=1)
-def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
+def _get_mupen64plus_database() -> 'Mapping[str, Mapping[str, str]]' | None:
 	location = _get_mupen64plus_database_location()
 	if not location:
 		return None

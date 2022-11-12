@@ -1,12 +1,12 @@
 import logging
-from collections.abc import Mapping
 from enum import Flag
-from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
 	from meowlauncher.metadata import Metadata
 
 logger = logging.getLogger(__name__)
@@ -131,9 +131,9 @@ title_languages = {
 
 }
 
-SFOValueType = Union[str, int] #Not sure if there is more than that…
+SFOValueType = str | int #Not sure if there is more than that…
 
-def _convert_sfo(sfo: bytes, rom_path_for_warning: Any=None) -> Mapping[bytes, SFOValueType]:
+def _convert_sfo(sfo: bytes, rom_path_for_warning: Any=None) -> 'Mapping[bytes, SFOValueType]':
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')

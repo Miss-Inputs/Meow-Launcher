@@ -1,4 +1,3 @@
-from collections.abc import Iterator
 from enum import Enum, auto
 from typing import TYPE_CHECKING, cast
 
@@ -13,6 +12,7 @@ from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
 if TYPE_CHECKING:
+	from collections.abc import Iterator
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
@@ -194,7 +194,7 @@ def add_pet_custom_info(game: 'ROMGame') -> None:
 				game.metadata.specific_info['Minimum RAM'] = ByteAmount(ram * 1024)
 				continue
 
-def _get_uapce_games() -> Iterator[Machine]:
+def _get_uapce_games() -> 'Iterator[Machine]':
 	try:
 		yield from _get_uapce_games.result #type: ignore[attr-defined]
 	except AttributeError:
