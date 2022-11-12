@@ -29,9 +29,9 @@ class EmulatorStatus(Enum):
 	Borked = 1
 
 class Emulator(Runner, Generic[EmulatorGameType_co]):
-	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
-	#Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc[EmulatorGameType_co]'], configs: Mapping[str, RunnerConfigValue]=None, host_platform: HostPlatform=HostPlatform.Native, config_name: str=None):
+	"""I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
+	Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes"""
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc[EmulatorGameType_co]'], configs: Mapping[str, RunnerConfigValue]|None=None, host_platform: HostPlatform=HostPlatform.Native, config_name: str|None=None):
 		super().__init__(host_platform)
 		self._name = name
 		self.config_name = config_name if config_name else name

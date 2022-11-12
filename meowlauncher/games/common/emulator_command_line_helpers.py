@@ -95,7 +95,7 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 
 	return args
 
-def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot: str=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: str=None) -> LaunchCommand:
+def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot: str | None=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: str | None=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
 	software = game.metadata.specific_info.get('MAME Software')	

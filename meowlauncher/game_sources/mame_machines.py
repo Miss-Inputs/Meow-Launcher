@@ -34,7 +34,7 @@ def _is_actually_machine(machine: Machine) -> bool:
 	return True
 
 class MAME(GameSource):
-	def __init__(self, driver_list: Sequence[str]=None, source_file: str=None) -> None:
+	def __init__(self, driver_list: Sequence[str] | None=None, source_file: str=None) -> None:
 		super().__init__()
 		self.driver_list = driver_list
 		self.source_file = source_file

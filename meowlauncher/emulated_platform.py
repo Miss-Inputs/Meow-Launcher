@@ -28,7 +28,7 @@ class ChooseableEmulatedPlatform(ABC):
 		return self.name.__hash__()
 		
 class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
-	def __init__(self, name: str, mame_drivers: Collection[str], software_list_names: Collection[str], emulators: Collection[str], file_types: Mapping[MediaType, Collection[str]]=None, options: Mapping[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: Collection[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], Optional[MediaType]]=None):
+	def __init__(self, name: str, mame_drivers: Collection[str], software_list_names: Collection[str], emulators: Collection[str], file_types: Mapping[MediaType, Collection[str]]|None=None, options: Mapping[str, PlatformConfigValue]|None=None, is_virtual: bool=False, dat_names: Collection[str]|None=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], Optional[MediaType]]|None=None):
 		super().__init__(emulators, name, options)
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.software_list_names = software_list_names

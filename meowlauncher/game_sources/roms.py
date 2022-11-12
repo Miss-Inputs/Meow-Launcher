@@ -223,7 +223,7 @@ def _iter_platform_sources(excluded_platforms: Collection[str]=None) -> Iterator
 		yield platform_source
 
 class ROMs(CompoundGameSource):
-	def __init__(self, only_platforms: Sequence[str]=None, excluded_platforms: Collection[str]=None) -> None:
+	def __init__(self, only_platforms: Sequence[str] | None=None, excluded_platforms: Collection[str]=None) -> None:
 		if only_platforms:
 			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms))
 		else:
