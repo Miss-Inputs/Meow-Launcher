@@ -2,14 +2,14 @@ from typing import TYPE_CHECKING, cast
 
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 
 from .common import snes_controllers
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
-def add_info_from_uze_header(header: bytes, metadata: Metadata) -> None:
+def add_info_from_uze_header(header: bytes, metadata: GameInfo) -> None:
 	#Header version: 6
 	#Target: 7 (0 = ATmega644, 1 = reserved for ATmega1284)
 	#Program size: 8-0xc (LE)
@@ -38,13 +38,13 @@ def add_uzebox_custom_info(game: 'ROMGame') -> None:
 	else:
 		has_header = True
 		cast(FileROM, game.rom).header_length_for_crc_calculation = 512
-		add_info_from_uze_header(header, game.metadata)
+		add_info_from_uze_header(header, game.info)
 		
-	game.metadata.specific_info['Headered?'] = has_header
+	game.info.specific_info['Headered?'] = has_header
 
 	software = game.get_software_list_entry()
 	if software:
-		add_generic_software_info(software, game.metadata)
-		if game.metadata.publisher == 'Belogic':
+		add_generic_software_info(software, game.info)
+		if game.info.publisher == 'Belogic':
 			#Belogic just make the console itself, but don't actually make games necessarily
-			game.metadata.publisher = game.metadata.developer
+			game.info.publisher = game.info.developer

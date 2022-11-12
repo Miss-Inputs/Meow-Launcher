@@ -18,10 +18,10 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 if TYPE_CHECKING:
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 	from collections.abc import Mapping
 
-def add_unity_metadata(data_folder: Path, metadata: 'Metadata') -> None:
+def add_unity_metadata(data_folder: Path, metadata: 'GameInfo') -> None:
 	icon_path = data_folder.joinpath('Resources', 'UnityPlayer.png')
 	if icon_path.is_file():
 		metadata.images['Icon'] = icon_path
@@ -43,7 +43,7 @@ def add_unity_metadata(data_folder: Path, metadata: 'Metadata') -> None:
 	except FileNotFoundError:
 		pass
 
-def add_unity_web_metadata(folder: Path, metadata: 'Metadata') -> None:
+def add_unity_web_metadata(folder: Path, metadata: 'GameInfo') -> None:
 	for file in folder.joinpath('Build').iterdir():
 		if file.suffix == '.json':
 			info_json = json.loads(file.read_text('utf-8'))
@@ -56,7 +56,7 @@ def add_unity_web_metadata(folder: Path, metadata: 'Metadata') -> None:
 			metadata.add_alternate_name(info_json.get('productName'), 'Engine Name')
 			break
 
-def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata: 'Metadata') -> None:
+def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata: 'GameInfo') -> None:
 	iterator = ElementTree.iterparse(application_xml)
 	for _, element in iterator:
 		#Namespaces are annoying
@@ -130,7 +130,7 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata:
 		if best_icon:
 			metadata.images['Icon'] = root_path / best_icon
 
-def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', metadata: 'Metadata') -> None:
+def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', metadata: 'GameInfo') -> None:
 	#main might come in handy (index.html, etc)
 	#no-edit-menu and position maybe not
 	#single-instance, dom_storage_quota, maybe? I dunno
@@ -160,14 +160,14 @@ def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', metadat
 		metadata.specific_info['Icon Relative Path'] = window.get('icon')
 		metadata.add_alternate_name(window.get('title'), 'Window Title')
 
-def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'Metadata') -> None:
+def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'GameInfo') -> None:
 	add_metadata_from_nw_package_json(json.loads(package_json_path.read_bytes()), metadata)
 	if 'Icon-Relative-Path' in metadata.specific_info:
 		icon_path = folder.joinpath(metadata.specific_info.pop('Icon Relative Path'))
 		if icon_path.is_file() and 'Icon' not in metadata.images:
 			metadata.images['Icon'] = icon_path
 
-def add_info_from_package_json_zip(package_nw_path: Path, metadata: 'Metadata') -> bool:
+def add_info_from_package_json_zip(package_nw_path: Path, metadata: 'GameInfo') -> bool:
 	with zipfile.ZipFile(package_nw_path) as package_nw:
 		try:
 			with package_nw.open('package.json', 'r') as package_json:
@@ -186,7 +186,7 @@ def add_info_from_package_json_zip(package_nw_path: Path, metadata: 'Metadata') 
 
 #Multiline string, translatable string, normal string and boolean respectively
 define_line = re.compile(r'^define\s+(?P<key>[\w.]+)\s+=\s+(?:_p\("""(?P<multiline_string>.+?)"""\)|_\("(?P<translated_string>.+?)"\)|"(?P<string>.+?)"|(?P<bool>True|False))', re.DOTALL | re.MULTILINE)
-def add_metadata_from_renpy_options(game_folder: Path, options_path: Path, metadata: 'Metadata') -> None:
+def add_metadata_from_renpy_options(game_folder: Path, options_path: Path, metadata: 'GameInfo') -> None:
 	options = options_path.read_text('utf-8', errors='ignore')
 	#d = {match[1]: match[2] if match[2] else (match[3] if match[3] else (match[4] if match[4] else bool(match[5]))) for match in define_line.finditer(options)}
 	for match in define_line.finditer(options):
@@ -212,7 +212,7 @@ def add_metadata_from_renpy_options(game_folder: Path, options_path: Path, metad
 			if icon_path.is_file():
 				metadata.images['Icon'] = icon_path
 				
-def add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
+def add_gamemaker_metadata(folder: Path, metadata: 'GameInfo') -> None:
 	options_ini_path = folder.joinpath('options.ini')
 	if not options_ini_path.is_file():
 		options_ini_path = folder.joinpath('assets', 'options.ini')
@@ -230,7 +230,7 @@ def add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
 	if icon_path.is_file():
 		metadata.images['Icon'] = icon_path
 
-def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metadata: 'Metadata') -> None:
+def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metadata: 'GameInfo') -> None:
 	info: 'Mapping[str, str]' = json.loads(info_json_path.read_bytes())
 	title = info.get('title')
 	author = info.get('author')
@@ -246,7 +246,7 @@ def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metada
 	if description:
 		metadata.descriptions['Pixel Game Maker MV Description'] = description
 		
-def add_piko_mednafen_info(folder: Path, data_path: Path, metadata: 'Metadata') -> None:
+def add_piko_mednafen_info(folder: Path, data_path: Path, metadata: 'GameInfo') -> None:
 	metadata.save_type = SaveType.Internal #You get savestates either way, so we won't use nosram to determine that
 	for line in data_path.read_text('utf-8').splitlines():
 		if '=' not in line:

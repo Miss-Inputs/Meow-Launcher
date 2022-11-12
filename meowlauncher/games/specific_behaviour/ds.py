@@ -11,7 +11,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import Region, regions_by_name
@@ -23,7 +23,7 @@ from .common.nintendo_common import DSi3DSAgeRatings, add_ratings_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def _load_tdb() -> TDB | None:
 		return None
 _tdb = _load_tdb()
 
-def _add_cover(metadata: 'Metadata', product_code: str) -> None:
+def _add_cover(metadata: 'GameInfo', product_code: str) -> None:
 	#Intended for the covers database from GameTDB
 	covers_path = platform_configs['DS'].options.get('covers_path')
 	if not covers_path:
@@ -102,7 +102,7 @@ def _parse_dsi_region_flags(region_flags: int) -> Collection[Region]:
 		regions.add(regions_by_name['Korea'])
 	return regions
 
-def _add_banner_title_metadata(metadata: 'Metadata', banner_title: str, language: str | None=None) -> None:
+def _add_banner_title_metadata(metadata: 'GameInfo', banner_title: str, language: str | None=None) -> None:
 	lines = banner_title.splitlines()
 	metadata_name = 'Banner Title'
 	if language:
@@ -122,7 +122,7 @@ def _add_banner_title_metadata(metadata: 'Metadata', banner_title: str, language
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
 			metadata.specific_info[metadata_name + ' Final Line'] = lines[-1]
 
-def _parse_banner(rom: FileROM, metadata: 'Metadata', header: bytes, is_dsi: bool, banner_offset: int) -> None:
+def _parse_banner(rom: FileROM, metadata: 'GameInfo', header: bytes, is_dsi: bool, banner_offset: int) -> None:
 	#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
 	banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
 	banner = rom.read(seek_to=banner_offset, amount=banner_size)
@@ -165,7 +165,7 @@ def _parse_banner(rom: FileROM, metadata: 'Metadata', header: bytes, is_dsi: boo
 				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
 				metadata.images['Icon'] = _decode_icon(icon_bitmap, icon_palette)
 
-def _add_info_from_ds_header(rom: FileROM, metadata: 'Metadata', header: bytes) -> None:
+def _add_info_from_ds_header(rom: FileROM, metadata: 'GameInfo', header: bytes) -> None:
 	if header[0:4] == b'.\0\0\xea':
 		metadata.specific_info['PassMe?'] = True
 	else:
@@ -223,14 +223,14 @@ def _add_info_from_ds_header(rom: FileROM, metadata: 'Metadata', header: bytes) 
 	if banner_offset:
 		_parse_banner(rom, metadata, header, is_dsi, banner_offset)
 
-def _add_ds_input_info(metadata: 'Metadata') -> None:
-	builtin_buttons = input_metadata.NormalController()
+def _add_ds_input_info(metadata: 'GameInfo') -> None:
+	builtin_buttons = input_info.NormalController()
 	builtin_buttons.dpads = 1
 	builtin_buttons.face_buttons = 4 #I forgot why we're not counting Start and Select but I guess that's a thing
 	builtin_buttons.shoulder_buttons = 2
-	builtin_gamepad = input_metadata.CombinedController([builtin_buttons, input_metadata.Touchscreen()])
+	builtin_gamepad = input_info.CombinedController([builtin_buttons, input_info.Touchscreen()])
 
-	bluetooth_keyboard = input_metadata.Keyboard()
+	bluetooth_keyboard = input_info.Keyboard()
 	bluetooth_keyboard.keys = 64 #If I counted correctly from the image...
 
 	if metadata.product_code:
@@ -262,5 +262,5 @@ def _add_ds_input_info(metadata: 'Metadata') -> None:
 def add_ds_custom_info(game: 'ROMGame') -> None:
 	rom = cast(FileROM, game.rom)
 	header = rom.read(amount=0x300)
-	_add_info_from_ds_header(rom, game.metadata, header)
-	_add_ds_input_info(game.metadata)
+	_add_info_from_ds_header(rom, game.info, header)
+	_add_ds_input_info(game.info)

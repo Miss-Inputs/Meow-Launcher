@@ -92,26 +92,26 @@ def add_commodore_64_custom_info(game: 'ROMGame') -> None:
 	magic = header[:16]
 	if magic == b'C64 CARTRIDGE   ':
 		headered = True
-		game.metadata.specific_info['Header Format'] = 'CCS64'
+		game.info.specific_info['Header Format'] = 'CCS64'
 		cart_type = int.from_bytes(header[22:24], 'big')
 		#I'm just gonna call it a mapper for consistency, even though that could be argued to be the wrong terminology, but... eh
-		game.metadata.specific_info['Mapper Number'] = cart_type
-		game.metadata.specific_info['Mapper'] = ccs64_cart_types.get(cart_type, f'CCS64 type {cart_type}')
+		game.info.specific_info['Mapper Number'] = cart_type
+		game.info.specific_info['Mapper'] = ccs64_cart_types.get(cart_type, f'CCS64 type {cart_type}')
 
 		try:
 			cartridge_name = header[0x20:0x3f].rstrip(b'\0').decode('ascii')
 			if cartridge_name:
-				game.metadata.specific_info['Header Title'] = cartridge_name
+				game.info.specific_info['Header Title'] = cartridge_name
 		except UnicodeDecodeError:
 			pass
 	else:
 		headered = False
 
-	game.metadata.specific_info['Headered?'] = headered
+	game.info.specific_info['Headered?'] = headered
 
 	software = get_commodore_64_software(game, headered)
 	if software:
-		add_generic_software_info(software, game.metadata)
+		add_generic_software_info(software, game.info)
 		#Usages that may be interesting:
 		#Enter 'SYS 32768' to run
 		#Commodore: Load "JINGLE",8,1 / Apple IIc and e: Self boots

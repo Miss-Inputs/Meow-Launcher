@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
@@ -20,7 +20,7 @@ _licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 _gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 
-def _add_peripherals_info(metadata: Metadata, peripherals: int) -> None:
+def _add_peripherals_info(metadata: GameInfo, peripherals: int) -> None:
 	metadata.specific_info['Uses Windows CE?'] = (peripherals & 1) > 0
 	metadata.specific_info['Supports VGA?'] = (peripherals & (1 << 4)) > 0
 	metadata.specific_info['Uses Other Expansions?'] = (peripherals & (1 << 8)) > 0 #How very vague and mysterious…
@@ -54,7 +54,7 @@ def _add_peripherals_info(metadata: Metadata, peripherals: int) -> None:
 _device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
 
-def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: int) -> None:
+def _add_info_from_main_track(metadata: GameInfo, track_path: Path, sector_size: int) -> None:
 	try:
 		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=256)
 	except NotImplementedError:
@@ -139,7 +139,7 @@ def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size:
 		
 	metadata.specific_info['Internal Title'] = header[128:256].rstrip(b'\0 ').decode('ascii', errors='backslashreplace')
 
-def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata) -> None:
+def add_dreamcast_rom_info(rom: FileROM, metadata: GameInfo) -> None:
 	if rom.extension == 'gdi':
 		data = rom.read().decode('utf8', errors='backslashreplace')
 		for line in data.splitlines():
@@ -155,11 +155,11 @@ def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata) -> None:
 
 def add_dreamcast_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension == 'gdi' and isinstance(game.rom, FileROM):
-		add_dreamcast_rom_info(game.rom, game.metadata)
+		add_dreamcast_rom_info(game.rom, game.info)
 
 	try:
 		software = game.get_software_list_entry()
 		if software:
-			add_generic_software_info(software, game.metadata)
+			add_generic_software_info(software, game.info)
 	except NotImplementedError:
 		pass

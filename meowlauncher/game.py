@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
-from meowlauncher.metadata import Metadata
+from meowlauncher.info import GameInfo
 
 class Game(ABC):
 	def __init__(self) -> None:
-		self.metadata = Metadata()
+		self.info = GameInfo()
 	
 	@property
 	@abstractmethod

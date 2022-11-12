@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame_common.machine import (
@@ -11,7 +11,7 @@ from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import NESPeripheral
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 _nes_config = platform_configs.get('NES')
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
-_standard_controller = input_metadata.NormalController()
+_standard_controller = input_info.NormalController()
 _standard_controller.dpads = 1
 _standard_controller.face_buttons = 2 #A B
 
@@ -291,7 +291,7 @@ default_expansion_devices = {
 
 }
 
-def add_fds_metadata(rom: FileROM, metadata: Metadata) -> None:
+def add_fds_metadata(rom: FileROM, metadata: GameInfo) -> None:
 	if _nes_config and _nes_config.options.get('set_fds_as_different_platform'):
 		metadata.platform = 'FDS'
 
@@ -318,7 +318,7 @@ def add_fds_metadata(rom: FileROM, metadata: Metadata) -> None:
 	if not metadata.release_date:
 		metadata.release_date = Date(year, month, day, True)
 	
-def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes) -> None:
+def add_ines_metadata(rom: FileROM, metadata: GameInfo, header: bytes) -> None:
 	metadata.specific_info['Headered?'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
@@ -430,13 +430,13 @@ def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: str, chr_crc: str) -> boo
 	return True
 
 def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Software']:
-	prg_crc32 = game.metadata.specific_info.get('PRG CRC')
-	chr_crc32 = game.metadata.specific_info.get('CHR CRC')
+	prg_crc32 = game.info.specific_info.get('PRG CRC')
+	chr_crc32 = game.info.specific_info.get('CHR CRC')
 	if not prg_crc32 and not chr_crc32:
-		prg_size = game.metadata.specific_info.pop('PRG Size', 0)
-		chr_size = game.metadata.specific_info.pop('CHR Size', 0)
+		prg_size = game.info.specific_info.pop('PRG Size', 0)
+		chr_size = game.info.specific_info.pop('CHR Size', 0)
 		#Is it even possible for prg_size to be 0 on a valid ROM?
-		prg_offset = 16 + 512 if game.metadata.specific_info.get('Has iNES Trainer?', False) else 16
+		prg_offset = 16 + 512 if game.info.specific_info.get('Has iNES Trainer?', False) else 16
 		chr_offset = prg_offset + prg_size
 
 		rom = cast(FileROM, game.rom)
@@ -448,7 +448,7 @@ def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Soft
 
 	return find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
-def parse_unif_chunk(metadata: Metadata, chunk_type: bytes, chunk_data: bytes) -> None:
+def parse_unif_chunk(metadata: GameInfo, chunk_type: bytes, chunk_data: bytes) -> None:
 	if chunk_type == b'PRG0':
 		metadata.specific_info['PRG CRC'] = get_crc32_for_software_list(chunk_data)
 	elif chunk_type.startswith(b'CHR'):
@@ -487,7 +487,7 @@ def parse_unif_chunk(metadata: Metadata, chunk_type: bytes, chunk_data: bytes) -
 	#WRTR/DINF: Dumping info, who cares
 	#VROR: Something to do with considering CHR-ROM as RAM, don't need to worry about this
 
-def add_unif_metadata(rom: FileROM, metadata: Metadata) -> None:
+def add_unif_metadata(rom: FileROM, metadata: GameInfo) -> None:
 	metadata.specific_info['Headered?'] = True
 	metadata.specific_info['Header Format'] = 'UNIF'
 
@@ -528,7 +528,7 @@ def find_equivalent_nes_arcade(name: str) -> Machine | None:
 	
 	return None
 
-def add_nes_software_list_metadata(software: 'Software', metadata: Metadata) -> None:
+def add_nes_software_list_metadata(software: 'Software', metadata: GameInfo) -> None:
 	software.add_standard_metadata(metadata)
 
 	nes_peripheral = None
@@ -539,12 +539,12 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata) -> 
 	peripheral = software.get_part_feature('peripheral')
 	if peripheral == 'zapper':
 		nes_peripheral = NESPeripheral.Zapper
-		zapper = input_metadata.LightGun()
+		zapper = input_info.LightGun()
 		zapper.buttons = 1
 		metadata.input_info.add_option(zapper)
 	elif peripheral == 'vaus':
 		nes_peripheral = NESPeripheral.ArkanoidPaddle
-		vaus = input_metadata.Paddle()
+		vaus = input_info.Paddle()
 		vaus.buttons = 1
 		metadata.input_info.add_option(vaus)
 		#Can still use standard controller
@@ -552,14 +552,14 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata) -> 
 	elif peripheral in {'powerpad', 'ftrainer', 'fffitness'}:
 		nes_peripheral = NESPeripheral.PowerPad
 
-		power_pad = input_metadata.NormalController()
+		power_pad = input_info.NormalController()
 		power_pad.face_buttons = 12 #"face"
 		metadata.input_info.add_option(power_pad)
 	elif peripheral == 'powerglove':
 		nes_peripheral = NESPeripheral.PowerGlove
 		#Hmm... apparently it functions as a standard NES controller, but there are 2 games specifically designed for glove usage? So it must do something extra I guess
 
-		power_glove = input_metadata.MotionControls()
+		power_glove = input_info.MotionControls()
 		#game.metadata.input_info.buttons = 11 #Standard A + B + 9 program buttons
 		metadata.input_info.add_option(power_glove)
 	elif peripheral == 'rob':
@@ -569,20 +569,20 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata) -> 
 	elif peripheral == 'fc_keyboard':
 		nes_peripheral = NESPeripheral.FamicomKeyboard
 
-		famicom_keyboard = input_metadata.Keyboard()
+		famicom_keyboard = input_info.Keyboard()
 		famicom_keyboard.keys = 72
 		metadata.input_info.add_option(famicom_keyboard)
 	elif peripheral == 'subor_keyboard':
 		nes_peripheral = NESPeripheral.SuborKeyboard
 
-		subor_keyboard = input_metadata.Keyboard()
+		subor_keyboard = input_info.Keyboard()
 		subor_keyboard.keys = 96
 		metadata.input_info.add_option(subor_keyboard)
 	elif peripheral == 'mpiano':
 		nes_peripheral = NESPeripheral.Piano
 		#Apparently, it's actually just a MIDI keyboard, hence the MAME driver adds MIDI in/out ports
 
-		miracle_piano = input_metadata.Custom('88-key piano')
+		miracle_piano = input_info.Custom('88-key piano')
 		#game.metadata.input_info.buttons = 88
 		metadata.input_info.add_option(miracle_piano)
 	else:
@@ -612,24 +612,24 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata) -> 
 def add_nes_custom_info(game: 'ROMGame') -> None:
 	rom = cast(FileROM, game.rom)
 	if game.rom.extension == 'fds':
-		add_fds_metadata(rom, game.metadata)
+		add_fds_metadata(rom, game.info)
 	else:
 		header = rom.read(amount=16)
 		magic = header[:4]
 		if magic in {b'NES\x00', b'NES\x1a'}:
-			add_ines_metadata(rom, game.metadata, header)
+			add_ines_metadata(rom, game.info, header)
 		elif magic == b'UNIF':
-			add_unif_metadata(rom, game.metadata)
+			add_unif_metadata(rom, game.info)
 		else:
-			game.metadata.specific_info['Headered?'] = False
+			game.info.specific_info['Headered?'] = False
 
 	software = None
-	if not game.metadata.specific_info.get('Headered?', False) or game.metadata.specific_info.get('Header Format') == 'fwNES':
+	if not game.info.specific_info.get('Headered?', False) or game.info.specific_info.get('Header Format') == 'fwNES':
 		software = game.get_software_list_entry()
-	elif game.metadata.specific_info.get('Header Format') in {'iNES', 'NES 2.0', 'UNIF'}:
+	elif game.info.specific_info.get('Header Format') in {'iNES', 'NES 2.0', 'UNIF'}:
 		software = _get_headered_nes_rom_software_list_entry(game)
 
-	game.metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
+	game.info.specific_info['Peripheral'] = NESPeripheral.NormalController
 
 	if software:
-		add_nes_software_list_metadata(software, game.metadata)
+		add_nes_software_list_metadata(software, game.info)

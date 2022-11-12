@@ -5,7 +5,7 @@ from datetime import datetime
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Union
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
@@ -14,7 +14,7 @@ from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import MegadriveRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
@@ -33,47 +33,47 @@ _copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 _t_with_zero = re.compile(r'^T-0')
 _t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
-def _parse_peripherals(metadata: Metadata, peripherals: Collection[int], object_for_logging: Any=None) -> None:
+def _parse_peripherals(metadata: GameInfo, peripherals: Collection[int], object_for_logging: Any=None) -> None:
 	for peripheral_char_code in peripherals:
 		peripheral_char = chr(peripheral_char_code)
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
-			mouse = input_metadata.Mouse()
+			mouse = input_info.Mouse()
 			mouse.buttons = 3
 			metadata.input_info.add_option(mouse)
 		elif peripheral_char == 'V':
 			#Is this just the SMS paddle?
-			metadata.input_info.add_option(input_metadata.Paddle())
+			metadata.input_info.add_option(input_info.Paddle())
 		elif peripheral_char == 'A':
-			xe_1_ap = input_metadata.NormalController()
+			xe_1_ap = input_info.NormalController()
 			xe_1_ap.face_buttons = 10
 			xe_1_ap.shoulder_buttons = 4
 			xe_1_ap.analog_sticks = 2 #The second one only has one axis, though
 			metadata.input_info.add_option(xe_1_ap)
 		elif peripheral_char == 'G':
-			menacer = input_metadata.LightGun()
+			menacer = input_info.LightGun()
 			menacer.buttons = 2 #Also pause button
 			metadata.input_info.add_option(menacer)
 		elif peripheral_char == 'K':
-			xband_keyboard = input_metadata.Keyboard()
+			xband_keyboard = input_info.Keyboard()
 			xband_keyboard.keys = 68 #I think I counted that right... I was just looking at the picture
 			metadata.input_info.add_option(xband_keyboard)
 		elif peripheral_char == 'J':
 			metadata.input_info.add_option(standard_gamepad)
 		elif peripheral_char == '6':
-			six_button_gamepad = input_metadata.NormalController()
+			six_button_gamepad = input_info.NormalController()
 			six_button_gamepad.face_buttons = 6
 			six_button_gamepad.dpads = 1
 			metadata.input_info.add_option(six_button_gamepad)
 			metadata.specific_info['Uses 6-Button Controller?'] = True
 		elif peripheral_char == '0':
-			sms_gamepad = input_metadata.NormalController()
+			sms_gamepad = input_info.NormalController()
 			sms_gamepad.face_buttons = 2
 			sms_gamepad.dpads = 1
 			metadata.input_info.add_option(sms_gamepad)
 		elif peripheral_char == 'L':
 			#Activator
-			metadata.input_info.add_option(input_metadata.MotionControls())
+			metadata.input_info.add_option(input_info.MotionControls())
 		elif peripheral_char in '4O':
 			#Team Play and J-Cart respectively
 			#num_players = 4
@@ -89,7 +89,7 @@ def _parse_peripherals(metadata: Metadata, peripherals: Collection[int], object_
 		#R: "RS232C Serial"
 		#T: "Tablet"
 
-def _add_info_from_copyright_string(metadata: Metadata, copyright_string: str) -> None:
+def _add_info_from_copyright_string(metadata: GameInfo, copyright_string: str) -> None:
 	metadata.specific_info['Copyright'] = copyright_string
 	copyright_match = _copyright_regex.match(copyright_string)
 	if copyright_match:
@@ -133,7 +133,7 @@ def _parse_region_codes(regions: bytes, object_for_logging: Any=None) -> Collect
 	#D - Brazil?
 	return region_codes
 
-def add_megadrive_info(metadata: Metadata, header: bytes, object_for_logging: Any=None) -> None:
+def add_megadrive_info(metadata: GameInfo, header: bytes, object_for_logging: Any=None) -> None:
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
@@ -271,7 +271,7 @@ def find_equivalent_mega_drive_arcade(game_name: str) -> Machine | None:
 
 	return None
 
-def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadata) -> None:
+def add_megadrive_software_list_metadata(software: 'Software', metadata: GameInfo) -> None:
 	add_generic_software_info(software, metadata)
 	if software.get_shared_feature('addon') == 'SVP':
 		metadata.specific_info['Expansion Chip'] = 'SVP'
@@ -324,8 +324,8 @@ def add_megadrive_custom_info(game: 'ROMGame') -> None:
 		header = _get_smd_header(game.rom) if game.rom.extension == 'smd' else game.rom.read(0x100, 0x100)
 
 	if header:
-		add_megadrive_info(game.metadata, header, game.rom)
+		add_megadrive_info(game.info, header, game.rom)
 
 	software = game.get_software_list_entry()
 	if software:
-		add_megadrive_software_list_metadata(software, game.metadata)
+		add_megadrive_software_list_metadata(software, game.info)

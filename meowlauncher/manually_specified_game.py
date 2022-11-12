@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, final
 from meowlauncher.common_types import MediaType
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
@@ -16,22 +16,22 @@ if TYPE_CHECKING:
 
 class ManuallySpecifiedGame(EmulatedGame, ABC):
 	#TODO: Should not necessarily be emulated
-	def __init__(self, info: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
+	def __init__(self, json: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
-		self.info = info
-		self.is_on_cd: bool = info.get('is_on_cd', False)
-		self.path: str = info['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
-		self.args = info.get('args', [])
+		self.json = json
+		self.is_on_cd: bool = json.get('is_on_cd', False)
+		self.path: str = json['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
+		self.args = json.get('args', [])
 		self.cd_path: Path | None = None
 		self.other_cd_paths: 'Collection[PurePath]' = set() #Could be None I guess, if cd_path not in info
-		if 'cd_path' in info:
-			_cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
+		if 'cd_path' in json:
+			_cd_paths = json['cd_path'] if isinstance(json['cd_path'], list) else [json['cd_path']]
 			cd_paths = tuple(self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in _cd_paths)
 			self.cd_path = Path(cd_paths[0])
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
 			raise KeyError('cd_path is mandatory if is_on_cd is true')
-		self._name: str = info.get('name', fix_name(self.fallback_name))
+		self._name: str = json.get('name', fix_name(self.fallback_name))
 
 	@property
 	def name(self) -> str:
@@ -57,23 +57,23 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 		return PurePath(self.path).stem
 	
 	@final
-	def add_metadata(self) -> None:
-		self.metadata.platform = self.platform_config.name #TODO Not necessarily a thing
-		self.metadata.media_type = MediaType.Executable
-		if 'developer' in self.info:
-			self.metadata.developer = self.info['developer']
-		if 'publisher' in self.info:
-			self.metadata.publisher = self.info['publisher']
-		if 'year' in self.info:
-			self.metadata.release_date = Date(self.info['year'])
-		if 'category' in self.info:
-			self.metadata.categories = [self.info['category']]
-		if 'genre' in self.info:
-			self.metadata.genre = self.info['genre']
-		if 'subgenre' in self.info:
-			self.metadata.subgenre = self.info['subgenre']
-		if 'notes' in self.info:
-			self.metadata.add_notes(self.info['notes'])
+	def add_info(self) -> None:
+		self.info.platform = self.platform_config.name #TODO Not necessarily a thing
+		self.info.media_type = MediaType.Executable
+		if 'developer' in self.json:
+			self.info.developer = self.json['developer']
+		if 'publisher' in self.json:
+			self.info.publisher = self.json['publisher']
+		if 'year' in self.json:
+			self.info.release_date = Date(self.json['year'])
+		if 'category' in self.json:
+			self.info.categories = [self.json['category']]
+		if 'genre' in self.json:
+			self.info.genre = self.json['genre']
+		if 'subgenre' in self.json:
+			self.info.subgenre = self.json['subgenre']
+		if 'notes' in self.json:
+			self.info.add_notes(self.json['notes'])
 		self.additional_metadata()
 
 	@property

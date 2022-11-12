@@ -32,7 +32,7 @@ from meowlauncher.games.steam.steam_utils import (format_genre,
                                                   normalize_developer,
                                                   store_categories,
                                                   translate_language_list)
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.util.desktop_files import has_been_done
 from meowlauncher.util.name_utils import normalize_name_case
 from meowlauncher.util.utils import remove_capital_article
@@ -152,7 +152,7 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 		else:
 			game.extra_launchers.setdefault(platform, [])
 			game.extra_launchers[platform] += platform_launchers[1:]
-			game.metadata.specific_info['Multiple Launchers?'] = True
+			game.info.specific_info['Multiple Launchers?'] = True
 			platform_launcher = platform_launchers[0]
 
 		game.launchers[platform] = platform_launcher
@@ -181,7 +181,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 		except IconNotFoundError:
 			continue
 		if icon:
-			game.metadata.images['Icon'] = icon
+			game.info.images['Icon'] = icon
 			icon_exception = None
 			found_an_icon = True
 			break
@@ -233,16 +233,16 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 		primary_genre_id = additional_genre_ids.pop(0)
 
 	if primary_genre_id:
-		game.metadata.genre = format_genre(primary_genre_id)
+		game.info.genre = format_genre(primary_genre_id)
 	#TODO: Combine additional genres where appropriate (e.g. Action + Adventure, Massively Multiplayer + RPG)
 	if additional_genre_ids:
-		game.metadata.specific_info['Additional Genres'] = tuple(format_genre(id) for id in additional_genre_ids)
+		game.info.specific_info['Additional Genres'] = tuple(format_genre(id) for id in additional_genre_ids)
 	if content_warning_ids:
-		game.metadata.specific_info['Content Warnings'] = tuple(format_genre(id) for id in content_warning_ids)
+		game.info.specific_info['Content Warnings'] = tuple(format_genre(id) for id in content_warning_ids)
 	#"genre" doesn't look like a word anymore
 
 def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
-	if 'Icon' not in game.metadata.images:
+	if 'Icon' not in game.info.images:
 		add_icon_from_common_section(game, common)
 
 	#eulas is a list, so it could be used to detect if game has third-party EULA
@@ -256,28 +256,28 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 	if not main_config.use_steam_as_platform:
 		#It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
 		if oslist == b'windows':
-			game.metadata.platform = 'Windows'
+			game.info.platform = 'Windows'
 		if oslist == b'macos':
-			game.metadata.platform = 'Mac'
+			game.info.platform = 'Mac'
 		if oslist == b'linux':
-			game.metadata.platform = 'Linux'
+			game.info.platform = 'Linux'
 		
 	#osarch is something like b'32' or b'64', osextended is sometimes 'macos64' etc
 
 	app_retired_publisher_request = common.get(b'app_retired_publisher_request')
 	if app_retired_publisher_request:
-		game.metadata.specific_info['No Longer Purchasable'] = app_retired_publisher_request.data == 1
+		game.info.specific_info['No Longer Purchasable'] = app_retired_publisher_request.data == 1
 	#You can't know if a game's delisted entirely unless you go to the store API to find if that returns success or not, because the appinfo stuff is a cache and holds on to data that no longer exists
 
 	language_list = common.get(b'languages')
 	if language_list:
-		game.metadata.languages = translate_language_list(language_list)
+		game.info.languages = translate_language_list(language_list)
 	else:
 		supported_languages = common.get(b'supported_languages')
 		if supported_languages:
 			#Hmm… this one goes into more detail actually, you have not just "supported" but "full_audio" and "subtitles"
 			#But for now let's just look at what else exists
-			game.metadata.languages = translate_language_list(supported_languages)
+			game.info.languages = translate_language_list(supported_languages)
 
 	add_genre(game, common)
 
@@ -293,84 +293,84 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 		
 	if release_date:
 		release_datetime = datetime.datetime.fromtimestamp(release_date.data)
-		game.metadata.release_date = Date(release_datetime.year, release_datetime.month, release_datetime.day)
+		game.info.release_date = Date(release_datetime.year, release_datetime.month, release_datetime.day)
 	if original_release_timestamp and steam_release_timestamp:
 		steam_release_datetime = datetime.datetime.fromtimestamp(steam_release_timestamp.data)
-		game.metadata.specific_info['Steam Release Date'] = Date(steam_release_datetime.year, steam_release_datetime.month, steam_release_datetime.day)
+		game.info.specific_info['Steam Release Date'] = Date(steam_release_datetime.year, steam_release_datetime.month, steam_release_datetime.day)
 
 	store_asset_mtime = common.get(b'store_asset_mtime')
 	if store_asset_mtime:
 		store_asset_timestamp = datetime.datetime.fromtimestamp(store_asset_mtime.data)
-		game.metadata.specific_info['Store Asset Modification Time'] = Date(store_asset_timestamp.year, store_asset_timestamp.month, store_asset_timestamp.day)
+		game.info.specific_info['Store Asset Modification Time'] = Date(store_asset_timestamp.year, store_asset_timestamp.month, store_asset_timestamp.day)
 
 	store_categories_list = common.get(b'category')
 	if store_categories_list:
 		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
 		#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
 		cats = {store_categories.get(key, key) for key in (key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys())}
-		game.metadata.specific_info['Store Categories'] = cats #meow
-		game.metadata.specific_info['Has Achievements?'] = 'Steam Achievements' in cats
-		game.metadata.specific_info['Has Trading Cards?'] = 'Steam Trading Cards' in cats
+		game.info.specific_info['Store Categories'] = cats #meow
+		game.info.specific_info['Has Achievements?'] = 'Steam Achievements' in cats
+		game.info.specific_info['Has Trading Cards?'] = 'Steam Trading Cards' in cats
 		is_single_player_only = True
 		for cat in cats:
 			if 'multiplayer' in cat.lower() or 'multi-player' in cat.lower() or 'co-op' in cat.lower() or 'split screen' in cat.lower():
 				is_single_player_only = False
 				break
 		if is_single_player_only:
-			game.metadata.specific_info['Number of Players'] = 1
+			game.info.specific_info['Number of Players'] = 1
 		
 	has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
 	if has_adult_content:
-		game.metadata.specific_info['Has Adult Content?'] = bool(has_adult_content.data)
+		game.info.specific_info['Has Adult Content?'] = bool(has_adult_content.data)
 	has_violence = common.get(b'has_adult_content_violence')
 	if has_violence:
-		game.metadata.specific_info['Has Violent Content?'] = bool(has_violence.data)
+		game.info.specific_info['Has Violent Content?'] = bool(has_violence.data)
 	has_sex = common.get(b'has_adult_content_sex') #uwu
 	if has_sex:
-		game.metadata.specific_info['Has Sexual Content?'] = bool(has_sex.data)
+		game.info.specific_info['Has Sexual Content?'] = bool(has_sex.data)
 	
 	only_vr = common.get(b'onlyvrsupport')
 	vr_support = common.get(b'openvrsupport')
 	if only_vr is not None and only_vr.data:
-		game.metadata.specific_info['VR Support'] = 'Required'
+		game.info.specific_info['VR Support'] = 'Required'
 	elif vr_support:
 		#b'1'
-		game.metadata.specific_info['VR Support'] = 'Optional'
+		game.info.specific_info['VR Support'] = 'Optional'
 
 	metacritic_score = common.get(b'metacritic_score')
 	if metacritic_score:
 		#Well why not
-		game.metadata.specific_info['Metacritic Score'] = metacritic_score.data
+		game.info.specific_info['Metacritic Score'] = metacritic_score.data
 	metacritic_url = common.get(b'metacritic_fullurl')
 	if metacritic_url:
-		game.metadata.documents['Metacritic Page'] = metacritic_url.decode('utf8', 'backslashreplace')
+		game.info.documents['Metacritic Page'] = metacritic_url.decode('utf8', 'backslashreplace')
 	metacritic_name = common.get(b'metacritic_name')
 	if metacritic_name:
-		game.metadata.add_alternate_name(metacritic_name.decode('utf8', 'backslashreplace'), 'Metacritic Name')
+		game.info.add_alternate_name(metacritic_name.decode('utf8', 'backslashreplace'), 'Metacritic Name')
 
 	review_score = common.get(b'review_score')
 	#This is Steam's own review section, I guess?
 	#This seems to be a number from 2 to 9 inclusive. Not sure what it means though
 	#There is also review_score_bombs? What the heck
 	if review_score:
-		game.metadata.specific_info['Review Score'] = review_score.data
+		game.info.specific_info['Review Score'] = review_score.data
 	review_percentage = common.get(b'review_percentage')
 	#Also seemingly related to Steam reviews, and there is also a review_percentage_bombs, but I still don't know exactly what this does
 	if review_percentage:
-		game.metadata.specific_info['Review Percentage'] = review_percentage.data
+		game.info.specific_info['Review Percentage'] = review_percentage.data
 	
 	sortas = common.get(b'sortas')
 	if sortas:
-		game.metadata.specific_info['Sort Name'] = sortas.decode('utf8', errors='backslashreplace')
+		game.info.specific_info['Sort Name'] = sortas.decode('utf8', errors='backslashreplace')
 
-	game.metadata.specific_info['Controlller Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
+	game.info.specific_info['Controlller Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
 	if steam_installation.localization:
 		store_tag_names = steam_installation.localization['localization']['english']['store_tags']
 		store_tag_ids_list = common.get(b'store_tags')
 		if store_tag_ids_list:
 			store_tags = {store_tag_names.get(id, id) for id in (str(value.data) for value in store_tag_ids_list.values())}
-			game.metadata.specific_info['Store Tags'] = store_tags
+			game.info.specific_info['Store Tags'] = store_tags
 
 	associations = common.get(b'associations')
 	if associations:
@@ -404,52 +404,52 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 		developers = tuple(zip(*developers))[1]
 		publishers = tuple(zip(*publishers))[1]
 
-		game.metadata.series = [franchise for franchise in franchises if franchise not in publishers]
-		game.metadata.specific_info['Mac Developer'] = [dev.removesuffix(' (Mac)') for dev in developers if dev.ensdwith(' (Mac)')]
-		game.metadata.specific_info['Linux Developer'] = [dev.removesuffix(' (Linux)') for dev in developers if dev.ensdwith(' (Linux)')]
-		game.metadata.developer = [dev for dev in developers if not dev.endswith((' (Mac)', ' (Linux)'))]
-		game.metadata.specific_info['Mac Publisher'] = [pub.removesuffix(' (Mac)') for pub in publishers if pub.ensdwith(' (Mac)')]
-		game.metadata.specific_info['Linux Publisher'] = [pub.removesuffix(' (Linux)') for pub in publishers if pub.ensdwith(' (Linux)')]
-		game.metadata.publisher = [game.metadata.developer[0] if pub == 'Self Published' and game.metadata.developer else pub for pub in publishers if not pub.endswith((' (Mac)', ' (Linux)'))]
+		game.info.series = [franchise for franchise in franchises if franchise not in publishers]
+		game.info.specific_info['Mac Developer'] = [dev.removesuffix(' (Mac)') for dev in developers if dev.ensdwith(' (Mac)')]
+		game.info.specific_info['Linux Developer'] = [dev.removesuffix(' (Linux)') for dev in developers if dev.ensdwith(' (Linux)')]
+		game.info.developer = [dev for dev in developers if not dev.endswith((' (Mac)', ' (Linux)'))]
+		game.info.specific_info['Mac Publisher'] = [pub.removesuffix(' (Mac)') for pub in publishers if pub.ensdwith(' (Mac)')]
+		game.info.specific_info['Linux Publisher'] = [pub.removesuffix(' (Linux)') for pub in publishers if pub.ensdwith(' (Linux)')]
+		game.info.publisher = [game.info.developer[0] if pub == 'Self Published' and game.info.developer else pub for pub in publishers if not pub.endswith((' (Mac)', ' (Linux)'))]
 			
 def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]) -> None:
-	if not game.metadata.developer:
+	if not game.info.developer:
 		developer = extended.get(b'developer')
 		if developer:
 			if isinstance(developer, appinfo.Integer):
 				#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
-				game.metadata.developer = str(developer.data)
+				game.info.developer = str(developer.data)
 			else:
-				game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
-	if not game.metadata.publisher:
+				game.info.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
+	if not game.info.publisher:
 		publisher = extended.get(b'publisher')
 		if publisher:
 			if isinstance(publisher, appinfo.Integer):
-				game.metadata.publisher = str(publisher.data)
+				game.info.publisher = str(publisher.data)
 			else:
 				publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
 				if publisher in {'none', 'Self Published'}:
-					game.metadata.publisher = game.metadata.developer
+					game.info.publisher = game.info.developer
 				else:
-					game.metadata.publisher = publisher
+					game.info.publisher = publisher
 
 	homepage = extended.get(b'homepage')
 	if homepage:
-		game.metadata.documents['Homepage'] = homepage.decode('utf-8', errors='backslashreplace')
+		game.info.documents['Homepage'] = homepage.decode('utf-8', errors='backslashreplace')
 	developer_url = extended.get(b'developer_url')
 	if developer_url:
-		game.metadata.documents['Developer Homepage'] = developer_url.decode('utf-8', errors='backslashreplace')
+		game.info.documents['Developer Homepage'] = developer_url.decode('utf-8', errors='backslashreplace')
 	gamemanualurl = extended.get(b'gamemanualurl')
 	if gamemanualurl:
-		game.metadata.documents['Manual'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
+		game.info.documents['Manual'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
 
 	isfreeapp = extended.get(b'isfreeapp')
 	if isfreeapp:
 		if isinstance(isfreeapp, bytes):
 			#Why do you do this?
-			game.metadata.specific_info['Is Free?'] = isfreeapp != b'0'
+			game.info.specific_info['Is Free?'] = isfreeapp != b'0'
 		elif isinstance(isfreeapp, appinfo.Integer):
-			game.metadata.specific_info['Is Free?'] = isfreeapp.data != 0
+			game.info.specific_info['Is Free?'] = isfreeapp.data != 0
 	#icon is either blank or something like 'steam/games/icon_garrysmod' which doesn't exist so no icon for you (not that way)
 	#order and noservers seem like they might mean something, but I dunno what
 	#state = eStateAvailable verifies that it is indeed available (wait maybe it doesn't)
@@ -483,20 +483,20 @@ def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes
 	if localization:
 		if b'richpresence' in localization:
 			#Keys of this are 'english' or presumably other languages and then 'tokens' and then it's a bunch of stuff
-			game.metadata.specific_info['Rich Presence?'] = True
+			game.info.specific_info['Rich Presence?'] = True
 
 	if b'ufs' in app_info_section:
-		game.metadata.save_type = SaveType.Cloud
+		game.info.save_type = SaveType.Cloud
 	else:
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
-		game.metadata.save_type = SaveType.Internal
+		game.info.save_type = SaveType.Internal
 
 def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 	if not launcher.exe:
 		return #I guess
 	extension = launcher.exe.suffix[1:].lower()
 	if extension:
-		game.metadata.specific_info['Extension'] = extension
+		game.info.specific_info['Extension'] = extension
 	#See what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, so.. hmm
 	#You can't detect that a game uses Origin that I can tell... dang
 	executable_basename = launcher.exe.name
@@ -505,40 +505,40 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 	# 		executable_basename = executable_basename.split('/')[-1]
 	# 	elif '\\' in executable_basename:
 	# 		executable_basename = executable_basename.split('\\')[-1]
-	game.metadata.specific_info['Executable Name'] = executable_basename
+	game.info.specific_info['Executable Name'] = executable_basename
 	launcher_full_path = game.install_dir.joinpath(launcher.exe)
 	if launcher_full_path.is_file():
-		add_metadata_for_raw_exe(str(launcher_full_path), game.metadata)
+		add_metadata_for_raw_exe(str(launcher_full_path), game.info)
 		#look_for_icon_for_file(launcher_full_path) would also be an option
-		engine = try_detect_engine_from_exe(launcher_full_path, game.metadata)
+		engine = try_detect_engine_from_exe(launcher_full_path, game.info)
 		if not engine and launcher.exe.parent != game.install_dir and game.install_dir.is_dir():
-			try_and_detect_engine_from_folder(game.install_dir, game.metadata)
+			try_and_detect_engine_from_folder(game.install_dir, game.info)
 		if engine:
-			game.metadata.specific_info['Engine'] = engine
+			game.info.specific_info['Engine'] = engine
 
 	if launcher.args and '-uplay_steam_mode' in launcher.args:
-		game.metadata.specific_info['Launcher'] = 'uPlay'
+		game.info.specific_info['Launcher'] = 'uPlay'
 	if not main_config.use_steam_as_platform:
 		launcher_platform = launcher.platform
 		if launcher_platform:
 			if 'linux' in launcher_platform.lower():
-				game.metadata.platform = 'Linux'
+				game.info.platform = 'Linux'
 			elif 'win' in launcher_platform.lower():
-				game.metadata.platform = 'Windows'
+				game.info.platform = 'Windows'
 			elif 'mac' in launcher_platform.lower():
 				#Why not
-				game.metadata.platform = 'Mac'
+				game.info.platform = 'Mac'
 
 def add_images(game: 'SteamGame') -> None:
 	#Do I wanna call header a banner
 	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
 	#What the hell is a "hero" oh well it's there
 	for image_filename, name in (('icon', 'Icon'), ('header', 'Header'), ('library_600x900', 'Cover'), ('library_hero', 'Hero'), ('logo', 'Logo')):
-		if name in game.metadata.images:
+		if name in game.info.images:
 			continue
 		image_path = steam_installation.find_image(game.appid, image_filename)
 		if image_path:
-			game.metadata.images[name] = image_path
+			game.info.images[name] = image_path
 
 def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user: bool) -> None:
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
@@ -564,10 +564,10 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			social_media = values.get('data')
 
 	if descriptions:
-		game.metadata.descriptions['Snippet'] = descriptions.get('strSnippet')
+		game.info.descriptions['Snippet'] = descriptions.get('strSnippet')
 		full_description = descriptions.get('strFullDescription')
 		if full_description and not full_description.startswith('#app_'):
-			game.metadata.descriptions['Full Description'] = full_description
+			game.info.descriptions['Full Description'] = full_description
 
 	if social_media:
 		social_media_types = {
@@ -584,7 +584,7 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 		for social_medium in social_media:
 			#strName is just the account's name on that platform I think?
 			key = social_media_types.get(social_medium.get('eType'), f'Unknown Social Media {social_medium.get("eType")}')
-			game.metadata.documents[key] = social_medium.get('strURL')
+			game.info.documents[key] = social_medium.get('strURL')
 
 	if is_single_user and achievements:
 		total_achievements = achievements.get('nTotal', 0)
@@ -603,13 +603,13 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			if unachieved_list:
 				unachieved_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values())
 				unachieved_percent = statistics.median(unachieved_stats)
-				game.metadata.specific_info['Median Global Unachieved Completion'] = f'{unachieved_percent:.0%}'
+				game.info.specific_info['Median Global Unachieved Completion'] = f'{unachieved_percent:.0%}'
 			if achieved_list:
 				achievement_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values())
 				achieved_percent = statistics.median(achievement_stats)
-				game.metadata.specific_info['Median Global Achieved Completion'] = f'{achieved_percent:.0%}'
+				game.info.specific_info['Median Global Achieved Completion'] = f'{achieved_percent:.0%}'
 	
-			game.metadata.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
+			game.info.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
 
 def add_info_from_user_cache(game: 'SteamGame') -> None:
 	user_list = steam_installation.user_ids
@@ -629,10 +629,10 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	assert steam_installation, 'process_game called without checking steam_state.is_steam_installed'
 	game = SteamGame(appid, folder, app_state, steam_installation)
 	if main_config.use_steam_as_platform:
-		game.metadata.platform = 'Steam'
+		game.info.platform = 'Steam'
 	else:
 		#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
-		game.metadata.platform = 'Windows'
+		game.info.platform = 'Windows'
 
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
@@ -655,18 +655,18 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 		tool_id = steamplay_overrides[appid_str]
 		if tool_id: #Would there be a situation in which this is none? Hmm I dunno
 			tool = tools.get(tool_id, (None, tool_id, None, None))
-			game.metadata.emulator_name = tool[1]
+			game.info.emulator_name = tool[1]
 			if tool[2] in game.launchers:
 				launcher = game.launchers[tool[2]]		
-			game.metadata.specific_info['Steam Play Forced?'] = True
+			game.info.specific_info['Steam Play Forced?'] = True
 	if appid_str in steamplay_whitelist:
 		if not override:
 			tool_id = steamplay_whitelist[appid_str]
 			tool = tools.get(tool_id, (None, tool_id, None, None))
-			game.metadata.emulator_name = tool[1]
+			game.info.emulator_name = tool[1]
 			if tool[2] in game.launchers:
 				launcher = game.launchers[tool[2]]
-		game.metadata.specific_info['Steam Play Whitelisted?'] = True
+		game.info.specific_info['Steam Play Whitelisted?'] = True
 	elif 'linux' in game.launchers:
 		launcher = game.launchers['linux']
 	elif 'linux_64' in game.launchers:
@@ -678,14 +678,14 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 		if global_tool_id:
 			#game.metadata.emulator_name = tools.get(global_tool, (None,global_tool))[1]
 			global_tool = tools.get(global_tool_id, (None, global_tool_id, None, None))
-			game.metadata.emulator_name = global_tool[1]
+			game.info.emulator_name = global_tool[1]
 			if global_tool[2] in game.launchers:
 				launcher = game.launchers[global_tool[2]]
 			#"tool" doesn't look like a word anymore help
-			game.metadata.specific_info['Steam Play Whitelisted?'] = False
+			game.info.specific_info['Steam Play Whitelisted?'] = False
 		else:
 			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
-			game.metadata.specific_info['No Valid Launchers?'] = True
+			game.info.specific_info['No Valid Launchers?'] = True
 			launcher = None
 			if not main_config.force_create_launchers:
 				raise GameNotSupportedException('Platform not supported and Steam Play not used')

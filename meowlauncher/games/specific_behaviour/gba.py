@@ -1,19 +1,19 @@
 from typing import TYPE_CHECKING
 from zlib import crc32
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
-def _parse_gba_header(metadata: 'Metadata', header: bytes) -> None:
+def _parse_gba_header(metadata: 'GameInfo', header: bytes) -> None:
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
@@ -30,7 +30,7 @@ def _parse_gba_header(metadata: 'Metadata', header: bytes) -> None:
 		if len(product_code) == 4:
 			game_type = product_code[0]
 			if game_type in {'K', 'R'}:
-				metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
+				metadata.input_info.input_options[0].inputs.append(input_info.MotionControls())
 			metadata.specific_info['Force Feedback?'] = game_type in {'R', 'V'}
 
 			metadata.product_code = product_code
@@ -79,7 +79,7 @@ def _look_for_sound_drivers_in_cart(entire_cart: bytes) -> str | None:
 
 	return None
 
-def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata') -> None:
+def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'GameInfo') -> None:
 	has_save = False
 	save_strings = (b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V')
 	for string in save_strings:
@@ -98,7 +98,7 @@ def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata') -> None:
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	
-def add_gba_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_gba_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	entire_cart = rom.read()
 	if len(entire_cart) >= 0xc0:
 		header = entire_cart[0:0xc0]

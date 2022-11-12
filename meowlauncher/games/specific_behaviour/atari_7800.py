@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import TVSystem
@@ -10,22 +10,22 @@ from .common.atari_controllers import xegs_gun
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
-standard_gamepad = input_metadata.NormalController()
+standard_gamepad = input_info.NormalController()
 standard_gamepad.dpads = 1
 standard_gamepad.face_buttons = 2
 input_types = {
 	1: standard_gamepad,
 	#The rest only have one button, for the record
 	2: xegs_gun,
-	3: input_metadata.Paddle(), #Is this valid? Some games which have this seem to actually use the lightgun
-	4: input_metadata.Trackball(), #Is this a valid value?
+	3: input_info.Paddle(), #Is this valid? Some games which have this seem to actually use the lightgun
+	4: input_info.Trackball(), #Is this a valid value?
 }
 
-def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes) -> None:
+def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'GameInfo', header: bytes) -> None:
 	metadata.input_info.set_inited()
 
 	header_version = header[0]
@@ -42,18 +42,18 @@ def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata',
 	left_controller_option = None
 	right_controller_option = None
 	if left_input_type != 0:
-		left_controller_option = input_metadata.InputOption()
+		left_controller_option = input_info.InputOption()
 		if left_input_type in input_types:
 			left_controller_option.inputs.append(input_types[left_input_type])
 		else:
-			left_controller_option.inputs.append(input_metadata.Custom(f'Unknown {left_input_type}'))
+			left_controller_option.inputs.append(input_info.Custom(f'Unknown {left_input_type}'))
 
 	if right_input_type != 0:
-		right_controller_option = input_metadata.InputOption()
+		right_controller_option = input_info.InputOption()
 		if right_input_type in input_types:
 			right_controller_option.inputs.append(input_types[right_input_type])
 		else:
-			right_controller_option.inputs.append(input_metadata.Custom(f'Unknown {right_input_type}'))
+			right_controller_option.inputs.append(input_info.Custom(f'Unknown {right_input_type}'))
 
 	if left_controller_option and right_controller_option:
 		number_of_players = 2 #I guess?
@@ -100,14 +100,14 @@ def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata',
 def add_atari_7800_custom_info(game: 'ROMGame') -> None:
 	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
-		game.metadata.specific_info['Headered?'] = True
+		game.info.specific_info['Headered?'] = True
 		cast(FileROM, game.rom).header_length_for_crc_calculation = 128
-		_add_atari_7800_header_info(str(game.rom), game.metadata, header)
+		_add_atari_7800_header_info(str(game.rom), game.info, header)
 	else:
-		game.metadata.specific_info['Headered?'] = False
+		game.info.specific_info['Headered?'] = False
 
 	software = game.get_software_list_entry()
 	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.add_notes(software.get_info('usage'))
+		software.add_standard_metadata(game.info)
+		game.info.add_notes(software.get_info('usage'))
 		#Don't need sharedfeat > compatibility to get TV type or feature > peripheral, unheadered roms won't work anyway

@@ -18,11 +18,11 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.util.utils import junk_suffixes
 
 if TYPE_CHECKING:
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def get_exe_properties(path: Path) -> tuple['Mapping[str, str] | None', datetime
 			pass
 	return None, None
 
-def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
+def add_metadata_for_raw_exe(path: str, metadata: 'GameInfo') -> None:
 	props, timedatestamp = get_exe_properties(path)
 	
 	if props:
@@ -195,7 +195,7 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Path |
 		return next((f for f in folder.iterdir() if f.suffix.lower() == '.ico'), None)
 	return None
 
-def check_for_interesting_things_in_folder(folder: Path, metadata: 'Metadata', find_wrappers: bool=False) -> None:
+def check_for_interesting_things_in_folder(folder: Path, metadata: 'GameInfo', find_wrappers: bool=False) -> None:
 	"""Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory"""
 	dir_entries = tuple(folder.iterdir())

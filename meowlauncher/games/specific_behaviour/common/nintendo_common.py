@@ -4,7 +4,7 @@ from enum import Enum, IntFlag, auto
 from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 class WiiU3DSRegionCode(IntFlag):
 	Japan = 1
@@ -99,7 +99,7 @@ class DSi3DSAgeRatings(NintendoAgeRatings):
 			return AgeRatingStatus.RatingPending
 		return AgeRatingStatus.Missing
 
-def add_ratings_info(metadata: 'Metadata', ratings: NintendoAgeRatings) -> None:
+def add_ratings_info(metadata: 'GameInfo', ratings: NintendoAgeRatings) -> None:
 	metadata.specific_info['CERO Rating'] = ratings[0]
 	metadata.specific_info['ESRB Rating'] = ratings[1]
 	metadata.specific_info['USK Rating'] = ratings[3]
@@ -110,7 +110,7 @@ def add_ratings_info(metadata: 'Metadata', ratings: NintendoAgeRatings) -> None:
 
 	metadata.specific_info['Age Rating'] = ratings.common_rating
 
-def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, str | None], region_codes: Collection[WiiU3DSRegionCode]) -> None:
+def add_info_from_local_titles(metadata: 'GameInfo', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, str | None], region_codes: Collection[WiiU3DSRegionCode]) -> None:
 	local_short_title = None
 	local_long_title = None
 	local_publisher: str | None = None

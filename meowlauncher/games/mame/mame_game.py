@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from meowlauncher.config.main_config import main_config
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
@@ -15,7 +15,7 @@ class MAMEGame(EmulatedGame):
 	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.machine = machine
-		self.metadata = Metadata()
+		self.metadata = GameInfo()
 
 		self._add_metadata_fields()
 

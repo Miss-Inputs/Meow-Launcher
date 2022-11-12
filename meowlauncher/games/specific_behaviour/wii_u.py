@@ -11,7 +11,7 @@ from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
 from meowlauncher.games.roms.rom import ROM, FolderROM
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.util.utils import load_dict
 
 from .common.gametdb import TDB, add_info_from_tdb
@@ -20,7 +20,7 @@ from .common.nintendo_common import (WiiU3DSRegionCode,
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -68,7 +68,7 @@ def _load_tdb() -> TDB | None:
 		return None
 _tdb = _load_tdb()
 
-def _add_cover(metadata: 'Metadata', product_code: str, licensee_code: str) -> None:
+def _add_cover(metadata: 'GameInfo', product_code: str, licensee_code: str) -> None:
 	#Intended for the covers database from GameTDB
 	covers_path = platform_configs['Wii U'].options.get('covers_path')
 	if not covers_path:
@@ -85,7 +85,7 @@ def _add_cover(metadata: 'Metadata', product_code: str, licensee_code: str) -> N
 			metadata.images['Cover'] = other_cover_path
 			break
 
-def _add_meta_xml_metadata(metadata: 'Metadata', meta_xml: ElementTree.ElementTree) -> None:
+def _add_meta_xml_metadata(metadata: 'GameInfo', meta_xml: ElementTree.ElementTree) -> None:
 	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, ext_dev_urcc = some kiosk related thingo
 	#logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
 	product_code = meta_xml.findtext('product_code')
@@ -192,7 +192,7 @@ def _add_meta_xml_metadata(metadata: 'Metadata', meta_xml: ElementTree.ElementTr
 
 	add_info_from_local_titles(metadata, short_names, long_names, publishers, region_codes)
 
-def _add_homebrew_meta_xml_metadata(rom: ROM, metadata: 'Metadata', meta_xml: ElementTree.ElementTree) -> None:
+def _add_homebrew_meta_xml_metadata(rom: ROM, metadata: 'GameInfo', meta_xml: ElementTree.ElementTree) -> None:
 	name = meta_xml.findtext('name')
 	if name:
 		rom.ignore_name = True
@@ -214,7 +214,7 @@ def _add_homebrew_meta_xml_metadata(rom: ROM, metadata: 'Metadata', meta_xml: El
 		metadata.descriptions['Long Description'] = long_description
 	metadata.specific_info['Homebrew Category'] = meta_xml.findtext('category') or 'None' #Makes me wonder if it's feasible to include an option to get categories not from folders…
 
-def _add_rpx_metadata(rom: ROM, metadata: 'Metadata') -> None:
+def _add_rpx_metadata(rom: ROM, metadata: 'GameInfo') -> None:
 	"""The .rpx itself is not interesting and basically just a spicy ELF
 	This is going to assume we are looking at a homebrew folder"""
 
@@ -231,7 +231,7 @@ def _add_rpx_metadata(rom: ROM, metadata: 'Metadata') -> None:
 	if homebrew_banner_path.is_file():
 		metadata.images['Banner'] = homebrew_banner_path
 
-def add_folder_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
+def add_folder_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
 	content_dir = rom.get_subfolder('content')
 	meta_dir = rom.get_subfolder('meta')
 	assert content_dir and meta_dir, 'It should be impossible for content_dir or meta_dir to be none, otherwise this would not have even been detected as a folder'
@@ -276,7 +276,7 @@ def add_folder_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 
 def add_wii_u_custom_info(game: 'ROMGame') -> None:
 	if game.rom.is_folder:
-		add_folder_metadata(cast(FolderROM, game.rom), game.metadata)
+		add_folder_metadata(cast(FolderROM, game.rom), game.info)
 	if game.rom.extension == 'rpx':
-		_add_rpx_metadata(game.rom, game.metadata)
+		_add_rpx_metadata(game.rom, game.info)
 	#We could leverage Cemu to get the meta.xml out of discs with -e <disc.wud> -p meta/meta.xml but that 1) sounds annoying to go back into emulator_config to get the path of Cemu and such and that might inevitably cause a recursive import 2) pops up a dialog box if the key for the wud isn't there or fails in some other way

@@ -86,7 +86,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 			if not app.is_valid:
 				logger.warning('Skipping %s as config is not valid', app)
 				return None
-			app.add_metadata()
+			app.add_info()
 			return self._get_launcher(app)
 			
 		except Exception: #pylint: disable=broad-except

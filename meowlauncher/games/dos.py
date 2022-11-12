@@ -36,9 +36,9 @@ class DOSApp(ManuallySpecifiedGame):
 
 	def additional_metadata(self) -> None:
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
-		self.metadata.specific_info['Executable Name'] = basename
-		self.metadata.specific_info['Extension'] = basename.split('.', 1)[-1].lower()
+		self.info.specific_info['Executable Name'] = basename
+		self.info.specific_info['Extension'] = basename.split('.', 1)[-1].lower()
 		if not self.is_on_cd:
 			icon = look_for_icon_for_file(Path(self.path))
 			if icon:
-				self.metadata.images['Icon'] = icon
+				self.info.images['Icon'] = icon

@@ -23,7 +23,7 @@ def _get_autoboot_script_by_name(name: str) -> str:
 	return os.path.join(root_dir, 'mame_autoboot', name + '.lua')
 
 def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Collection[str], detected_mappers: Collection[str]) -> None:
-	mapper = game.metadata.specific_info.get('Mapper', None)
+	mapper = game.info.specific_info.get('Mapper', None)
 
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
@@ -33,7 +33,7 @@ def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Collection[
 		#Literally everything will work with this
 		return
 
-	if game.metadata.specific_info.get('Override Mapper?', False) and mapper not in detected_mappers:
+	if game.info.specific_info.get('Override Mapper?', False) and mapper not in detected_mappers:
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
 		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
 		raise EmulationNotSupportedException(f'Overriding the mapper to {mapper} is not supported')
@@ -98,7 +98,7 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot: str | None=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: str | None=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
-	software = game.metadata.specific_info.get('MAME Software')	
+	software = game.info.specific_info.get('MAME Software')	
 	if software and compat_threshold > -1:
 		#We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
 		game_compatibility = software.emulation_status
@@ -133,7 +133,7 @@ def simple_gb_emulator(args: Sequence[str], mappers: Collection[str], autodetect
 
 def simple_md_emulator(args: Sequence[str], unsupported_mappers: Collection[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
 	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-		mapper = game.metadata.specific_info.get('Mapper')
+		mapper = game.info.specific_info.get('Mapper')
 		if mapper and mapper in unsupported_mappers:
 			raise EmulationNotSupportedException(mapper + ' not supported')
 		return LaunchCommand(emulator_config.exe_path, args)

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
 from zlib import crc32
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame_common.software_list_find_utils import (
@@ -17,7 +17,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +130,7 @@ _gbx_mappers = {
 	b'PKJD': 'Pokemon Jade/Diamond bootleg'
 }
 
-def _parse_slot(metadata: 'Metadata', slot: str) -> None:
+def _parse_slot(metadata: 'GameInfo', slot: str) -> None:
 	if slot in _mame_rom_slots:
 		original_mapper = metadata.specific_info.get('Mapper', 'None')
 
@@ -143,7 +143,7 @@ def _parse_slot(metadata: 'Metadata', slot: str) -> None:
 			metadata.specific_info['Mapper'] = new_mapper
 
 _nintendo_logo_crc32 = 0x46195417
-def _parse_gameboy_header(metadata: 'Metadata', header: bytes) -> None:
+def _parse_gameboy_header(metadata: 'GameInfo', header: bytes) -> None:
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == _nintendo_logo_crc32
 	metadata.specific_info['Nintendo Logo Valid'] = nintendo_logo_valid
@@ -185,7 +185,7 @@ def _parse_gameboy_header(metadata: 'Metadata', header: bytes) -> None:
 		metadata.specific_info['Force Feedback?'] = mapper.has_rumble
 		metadata.specific_info['Has RTC?'] = mapper.has_rtc
 		if mapper.has_accelerometer:
-			metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
+			metadata.input_info.input_options[0].inputs.append(input_info.MotionControls())
 
 	metadata.specific_info['Destination Code'] = header[0x4a]
 	#0 means Japan and 1 means not Japan. Not sure how reliable that is.
@@ -203,7 +203,7 @@ def _parse_gameboy_header(metadata: 'Metadata', header: bytes) -> None:
 			metadata.publisher = _nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]
 
-def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata') -> None:
+def _parse_gbx_footer(rom: FileROM, metadata: 'GameInfo') -> None:
 	footer = rom.read(seek_to=rom.size - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		logger.info('GBX footer in %s is invalid, siggy is %s', rom.path, footer[60:64])
@@ -233,7 +233,7 @@ def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata') -> None:
 	#4 = has battery, #5 = has rumble, #6 = has RTC
 	#RAM size: 12:16
 
-def _add_game_boy_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def _add_game_boy_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	#TODO: Make sure this doesn't make slot incorrect if we are reading .gbx
 	software.add_standard_metadata(metadata)
 	metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
@@ -244,25 +244,25 @@ def _add_game_boy_software_info(software: 'Software', metadata: 'Metadata') -> N
 		_parse_slot(metadata, slot)
 
 def add_game_boy_custom_info(game: 'ROMGame') -> None:
-	builtin_gamepad = input_metadata.NormalController()
+	builtin_gamepad = input_info.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
-	game.metadata.input_info.add_option(builtin_gamepad)
+	game.info.input_info.add_option(builtin_gamepad)
 
 	rom = cast(FileROM, game.rom)
 	header = rom.read(seek_to=0x100, amount=0x50)
-	_parse_gameboy_header(game.metadata, header)
+	_parse_gameboy_header(game.info, header)
 
 	if _game_boy_config and _game_boy_config.options.get('set_gbc_as_different_platform'):
-		if game.rom.extension == 'gbc' or game.metadata.specific_info.get('Is Colour?') == GameBoyColourFlag.Required:
-			game.metadata.platform = 'Game Boy Color'
+		if game.rom.extension == 'gbc' or game.info.specific_info.get('Is Colour?') == GameBoyColourFlag.Required:
+			game.info.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
-		_parse_gbx_footer(rom, game.metadata)
+		_parse_gbx_footer(rom, game.info)
 
 	if game.rom.extension == 'gbx':
 		software = find_in_software_lists(game.related_software_lists, matcher_args_for_bytes(rom.read(amount=rom.size - 64)))
 	else:
 		software = game.get_software_list_entry()
 	if software:
-		_add_game_boy_software_info(software, game.metadata)
+		_add_game_boy_software_info(software, game.info)

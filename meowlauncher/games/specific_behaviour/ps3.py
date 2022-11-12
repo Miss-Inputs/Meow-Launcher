@@ -16,7 +16,7 @@ from .common.playstation_common import parse_param_sfo, parse_product_code
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ _tdb = _load_tdb()
 
 rpcs3_vfs_config_path = Path('~/.config/rpcs3/vfs.yml').expanduser()
 
-def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
+def add_game_folder_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
 	param_sfo_path = rom.relevant_files['PARAM.SFO']
 	usrdir = rom.relevant_files['USRDIR']
 
@@ -121,7 +121,7 @@ def get_rpcs3_compat(product_code: str) -> RPCS3Compatibility | None:
 		pass
 	return None
 	
-def add_cover(metadata: 'Metadata', product_code: str) -> None:
+def add_cover(metadata: 'GameInfo', product_code: str) -> None:
 	#Intended for the covers database from GameTDB
 	try:
 		covers_path = platform_configs['PS3'].options['covers_path']
@@ -138,13 +138,13 @@ def add_cover(metadata: 'Metadata', product_code: str) -> None:
 
 def add_ps3_custom_info(game: 'ROMGame') -> None:
 	if game.rom.is_folder:
-		add_game_folder_metadata(cast(FolderROM, game.rom), game.metadata)
+		add_game_folder_metadata(cast(FolderROM, game.rom), game.info)
 
-	if game.metadata.product_code:
-		parse_product_code(game.metadata, game.metadata.product_code)
-		compat = get_rpcs3_compat(game.metadata.product_code)
+	if game.info.product_code:
+		parse_product_code(game.info, game.info.product_code)
+		compat = get_rpcs3_compat(game.info.product_code)
 		if compat:
-			game.metadata.specific_info['RPCS3 Compatibility'] = compat
+			game.info.specific_info['RPCS3 Compatibility'] = compat
 
-		add_info_from_tdb(_tdb, game.metadata, game.metadata.product_code)
-		add_cover(game.metadata, game.metadata.product_code)
+		add_info_from_tdb(_tdb, game.info, game.info.product_code)
+		add_cover(game.info, game.info.product_code)

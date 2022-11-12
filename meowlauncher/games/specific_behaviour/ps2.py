@@ -10,7 +10,7 @@ try:
 except ModuleNotFoundError:
 	have_pycdlib = False
 
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.region_info import TVSystem
 
 from .common.playstation_common import parse_product_code
@@ -24,7 +24,7 @@ _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 _other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
 _boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
-def add_info_from_system_cnf(metadata: Metadata, system_cnf: str) -> None:
+def add_info_from_system_cnf(metadata: GameInfo, system_cnf: str) -> None:
 	for line in system_cnf.splitlines():
 		boot_line_match = _boot_line_regex.match(line)
 		if boot_line_match:
@@ -47,7 +47,7 @@ def add_info_from_system_cnf(metadata: Metadata, system_cnf: str) -> None:
 					except ValueError:
 						pass
 
-def add_info_from_iso(iso: 'PyCdlib', metadata: 'Metadata', object_for_warning: Any) -> None:
+def add_info_from_iso(iso: 'PyCdlib', metadata: 'GameInfo', object_for_warning: Any) -> None:
 	try:
 		#I dunno what the ;1 is for
 		with iso.open_file_from_iso(iso_path='/SYSTEM.CNF;1') as system_cnf_file:
@@ -82,7 +82,7 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 		try:
 			iso.open(str(game.rom.path))
 			try:
-				add_info_from_iso(iso, game.metadata, game.rom)
+				add_info_from_iso(iso, game.info, game.rom)
 			finally:
 				iso.close()	
 		except PyCdlibInvalidISO:
@@ -90,5 +90,5 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 		except struct.error:
 			logger.info('%s is invalid ISO and has some struct.error', game.rom, exc_info=True)
 	#.elf is just a standard ordinary whole entire .elf
-	if game.metadata.product_code:
-		parse_product_code(game.metadata, game.metadata.product_code)
+	if game.info.product_code:
+		parse_product_code(game.info, game.info.product_code)

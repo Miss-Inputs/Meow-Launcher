@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 	from meowlauncher.launch_command import LaunchCommand
 	from meowlauncher.launcher import Launcher
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 section_prefix = 'X-Meow Launcher '
 metadata_section_name = 'Metadata'
@@ -62,12 +62,12 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
 	name = remove_filename_tags(name)
 
 	if launcher.runner.is_emulated:
-		launcher.game.metadata.emulator_name = launcher.runner.name
+		launcher.game.info.emulator_name = launcher.runner.name
 
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
-	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
+	_make_linux_desktop(launcher.command, name, launcher.game.info, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
+def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'GameInfo', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
 	path = ensure_unique_path(Path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True)).with_suffix('.desktop'))
 
 	configwriter = NoNonsenseConfigParser()
@@ -128,7 +128,7 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 	#Set executable, but also set everything else because whatever, partially because I can't remember what I would need to do to get the original mode and | it with executable
 	path.chmod(0o7777)
 
-def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'Metadata', id_type: str, unique_id: str) -> None:
+def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'GameInfo', id_type: str, unique_id: str) -> None:
 	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)

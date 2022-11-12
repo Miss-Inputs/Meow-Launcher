@@ -27,7 +27,7 @@ except ImportError:
 from meowlauncher.common_types import ByteAmount
 from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
                                                   ManuallySpecifiedLauncher)
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
@@ -315,23 +315,23 @@ class MacApp(ManuallySpecifiedGame):
 
 	def _add_version_resource_info(self, vers: 'macresources.Resource') -> None:
 		version, revision = vers[0:2]
-		self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join(f'{revision:x}')
+		self.info.specific_info['Version'] = str(version) + '.' + '.'.join(f'{revision:x}')
 		if vers[2] != 0x80:
 			try:
-				self.metadata.specific_info['Build Stage'] = BuildStage(vers[2])
+				self.info.specific_info['Build Stage'] = BuildStage(vers[2])
 			except ValueError:
 				pass
-			if not self.metadata.categories:
-				self.metadata.categories = ('Betas', )
+			if not self.info.categories:
+				self.info.categories = ('Betas', )
 		if vers[3]: #"Non-release" / build number
-			self.metadata.specific_info['Revision'] = vers[3]
+			self.info.specific_info['Revision'] = vers[3]
 
 		language_code = int.from_bytes(vers[4:6], 'big') #Or is it a country? I don't know
 		try:
 			#TODO: Fill out region/language fields using this
-			self.metadata.specific_info['Language Code'] = CountryCode(language_code)
+			self.info.specific_info['Language Code'] = CountryCode(language_code)
 		except ValueError:
-			self.metadata.specific_info['Language Code'] = language_code
+			self.info.specific_info['Language Code'] = language_code
 			
 		try:
 			short_version_length = vers[6] #Pascal style strings
@@ -341,7 +341,7 @@ class MacApp(ManuallySpecifiedGame):
 			if short_version_length:
 				short_version = vers[7:7+short_version_length].decode('mac-roman')
 				if short_version.startswith('©'):
-					self.metadata.specific_info['Short Copyright'] = short_version
+					self.info.specific_info['Short Copyright'] = short_version
 				else:
 					actual_short_version = short_version
 			if long_version_length:
@@ -359,19 +359,19 @@ class MacApp(ManuallySpecifiedGame):
 					copyright_string = copyright_string.rstrip('\0')
 					if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in {',', ' '}):
 						copyright_year = Date(year=copyright_string[:4], is_guessed=True)
-						if copyright_year.is_better_than(self.metadata.release_date):
-							self.metadata.release_date = copyright_year
-					self.metadata.specific_info['Copyright'] = '©' + copyright_string
+						if copyright_year.is_better_than(self.info.release_date):
+							self.info.release_date = copyright_year
+					self.info.specific_info['Copyright'] = '©' + copyright_string
 			if actual_short_version:
-				self.metadata.specific_info['Version'] = actual_short_version
+				self.info.specific_info['Version'] = actual_short_version
 			if actual_long_version and actual_long_version != actual_short_version:
-				self.metadata.specific_info['Long Version'] = actual_long_version
+				self.info.specific_info['Long Version'] = actual_long_version
 		except UnicodeDecodeError:
 			pass
 
 	def _add_additional_metadata_from_resources(self, file: 'Union[machfs.Folder, machfs.File]') -> None:
 		if have_pillow:
-			self.metadata.images['Icon'] = self._get_icon()
+			self.info.images['Icon'] = self._get_icon()
 
 		sizes = self._get_resources().get(b'SIZE')
 		if sizes:
@@ -396,22 +396,22 @@ class MacApp(ManuallySpecifiedGame):
 					#TODO: I don't think this does what I think it does
 					#	self.metadata.specific_info['Has User Interface?'] = False
 					if size[1] & (1 << (15 - 8)) == 0: #Wait is that even correct, and if these size resources are just ints, should they be combined to make this easier
-						self.metadata.specific_info['Not 32 Bit Clean?'] = True
-				self.metadata.specific_info['Minimum RAM'] = ByteAmount(int.from_bytes(size[6:10], 'big'))
+						self.info.specific_info['Not 32 Bit Clean?'] = True
+				self.info.specific_info['Minimum RAM'] = ByteAmount(int.from_bytes(size[6:10], 'big'))
 
-		if file.type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
+		if file.type == b'APPL' and 'Architecture' not in self.info.specific_info:
 			#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work
 			has_ppc = b'cfrg' in self._get_resources() #Code fragment, ID always 0
 			has_68k = b'CODE' in self._get_resources()
 			if has_ppc:
 				if has_68k:
-					self.metadata.specific_info['Architecture'] = 'Fat'
+					self.info.specific_info['Architecture'] = 'Fat'
 				else:
-					self.metadata.specific_info['Architecture'] = 'PPC'
+					self.info.specific_info['Architecture'] = 'PPC'
 			elif has_68k:
-				self.metadata.specific_info['Architecture'] = '68k'
+				self.info.specific_info['Architecture'] = '68k'
 			else:
-				self.metadata.specific_info['Architecture'] = 'Unknown' #Maybe this will happen for really old stuff
+				self.info.specific_info['Architecture'] = 'Unknown' #Maybe this will happen for really old stuff
 	
 		verses = self._get_resources().get(b'vers', {})
 		vers = verses.get(1, verses.get(128)) #There are other vers resources too but 1 is the main one (I think?), 128 is used in older apps? maybe?
@@ -420,26 +420,26 @@ class MacApp(ManuallySpecifiedGame):
 	
 
 	def additional_metadata(self) -> None:
-		self.metadata.specific_info['Executable Name'] = self.path.split(':')[-1]
+		self.info.specific_info['Executable Name'] = self.path.split(':')[-1]
 		if have_machfs:
 			if not self._file:
 				raise ValueError('Somehow MacApp.additional_metadata was called with invalid file')
 
 			carbon_path = self._carbon_path
 			if carbon_path:
-				self.metadata.specific_info['Is Carbon?'] = True
-				self.metadata.specific_info['Carbon Path'] = carbon_path
-				self.metadata.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
+				self.info.specific_info['Is Carbon?'] = True
+				self.info.specific_info['Carbon Path'] = carbon_path
+				self.info.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
 			creator = self._file.creator
 			if creator in {b'PJ93', b'PJ97'}:
-				self.metadata.specific_info['Engine'] = 'Macromedia Director'
-			self.metadata.specific_info['Creator Code'] = creator.decode('mac-roman', errors='backslashreplace')
+				self.info.specific_info['Engine'] = 'Macromedia Director'
+			self.info.specific_info['Creator Code'] = creator.decode('mac-roman', errors='backslashreplace')
 
 			#Can also get mddate if wanted
 			creation_datetime = mac_epoch + datetime.timedelta(seconds=self._file.crdate)
 			creation_date = Date(creation_datetime.year, creation_datetime.month, creation_datetime.day, True)
-			if creation_date.is_better_than(self.metadata.release_date):
-				self.metadata.release_date = creation_date
+			if creation_date.is_better_than(self.info.release_date):
+				self.info.release_date = creation_date
 
 			#self.metadata.specific_info['File Flags'] = file.flags
 			if have_macresources:
@@ -448,7 +448,7 @@ class MacApp(ManuallySpecifiedGame):
 
 		if 'arch' in self.info:
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
-			self.metadata.specific_info['Architecture'] = self.info['arch']
+			self.info.specific_info['Architecture'] = self.info['arch']
 				
 class MacLauncher(ManuallySpecifiedLauncher):
 	def __init__(self, app: MacApp, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:

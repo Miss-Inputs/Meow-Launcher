@@ -1,18 +1,18 @@
 import re
 from typing import TYPE_CHECKING
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import ByteAmount, SaveType
 #We can then add more metadata on top of this, if we're fine with usage and such being unparsed and just added automatically
 from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 #Straightforward stuff that doesn't really warrant going into its own source file I think
 
-def add_pc_booter_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_pc_booter_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'PC Booter':
@@ -23,30 +23,30 @@ def add_pc_booter_software_info(software: 'Software', metadata: 'Metadata') -> N
 	#Original Publisher = Nihon Falcom
 	metadata.specific_info['Version'] = software.infos.get('version')
 
-def add_super_cassette_vision_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_super_cassette_vision_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	add_generic_software_info(software, metadata)
 	metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
-def add_microtan_65_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_microtan_65_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires Joystick':
-		joystick = input_metadata.NormalController() #1 start button
+		joystick = input_info.NormalController() #1 start button
 		joystick.dpads = 1
 		joystick.face_buttons = 2
 		metadata.input_info.add_option(joystick)
 	elif usage == 'Requires Hex Keypad':
-		hex_keypad = input_metadata.Keypad()
+		hex_keypad = input_info.Keypad()
 		hex_keypad.keys = 20
 		metadata.input_info.add_option(hex_keypad)
 	elif usage in {'Requires ASCII Keyboard', 'Requires ASCII Keyboard: A=Up, Z=Down, <=Left, >=Right'}:
-		keyboard = input_metadata.Keyboard()
+		keyboard = input_info.Keyboard()
 		keyboard.keys = 62
 		metadata.input_info.add_option(keyboard)
 	else:
 		metadata.add_notes(usage)
 
-def add_pc_engine_cd_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_pc_engine_cd_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 	usage = software.get_info('usage')
@@ -54,14 +54,14 @@ def add_pc_engine_cd_software_info(software: 'Software', metadata: 'Metadata') -
 		#This is already specified by "requirement"
 		metadata.add_notes(usage)
 	
-def add_amstrad_pcw_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_amstrad_pcw_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires CP/M':
 		metadata.specific_info['Requires CP/M?'] = True
 
 _requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
-def add_fm_towns_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_fm_towns_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage:
@@ -71,7 +71,7 @@ def add_fm_towns_software_info(software: 'Software', metadata: 'Metadata') -> No
 			if match.end() < len(usage):
 				metadata.add_notes(usage)
 
-def add_sord_m5_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_sord_m5_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	#Input info if I cared: 55 key keyboard + 0 button joystick
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
@@ -80,7 +80,7 @@ def add_sord_m5_software_info(software: 'Software', metadata: 'Metadata') -> Non
 	else:
 		metadata.add_notes(usage)
 	
-def add_msx_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_msx_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage in {'Requires a Japanese system', 'Requires a Japanese system for the Japanese text'}:
@@ -95,7 +95,7 @@ def add_msx_software_info(software: 'Software', metadata: 'Metadata') -> None:
 		metadata.specific_info['PCB'] = cart_part.get_feature('pcb')
 		metadata.specific_info['Mapper'] = cart_part.get_feature('mapper')
 
-def add_sg1000_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_sg1000_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	metadata.save_type = SaveType.Nothing #Until proven otherwise
 
 	software.add_standard_metadata(metadata)
@@ -105,14 +105,14 @@ def add_sg1000_software_info(software: 'Software', metadata: 'Metadata') -> None
 	if uses_tablet:
 		#A drawing tablet, but that's more or less a touchscreen
 		#No buttons here?
-		metadata.input_info.add_option(input_metadata.Touchscreen())
+		metadata.input_info.add_option(input_info.Touchscreen())
 	else:
-		normal_controller = input_metadata.NormalController()
+		normal_controller = input_info.NormalController()
 		normal_controller.face_buttons = 2
 		normal_controller.dpads = 1
 		metadata.input_info.add_option(normal_controller)
 	
-def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_virtual_boy_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	add_generic_software_info(software, metadata)
 	
 	#We won't need to get serial here I guess
@@ -120,7 +120,7 @@ def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata') ->
 	#I am making assumptions about how saving works and I could be wrong
 	metadata.save_type = SaveType.Cart if has_save_hardware else SaveType.Nothing
 
-def add_atari_5200_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_atari_5200_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
@@ -130,14 +130,14 @@ def add_atari_5200_software_info(software: 'Software', metadata: 'Metadata') -> 
 	metadata.specific_info['Uses Trackball?'] = uses_trackball
 
 	if uses_trackball:
-		metadata.input_info.add_option(input_metadata.Trackball())
+		metadata.input_info.add_option(input_info.Trackball())
 	else:
-		normal_controller = input_metadata.NormalController()
+		normal_controller = input_info.NormalController()
 		normal_controller.face_buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
 		normal_controller.analog_sticks = 1
 		metadata.input_info.add_option(normal_controller)
 
-def add_intellivision_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_intellivision_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 
 	usage = software.get_info('usage')

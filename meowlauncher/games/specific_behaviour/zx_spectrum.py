@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 	from collections.abc import Collection
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 class ZXHardware(NamedTuple):
 	machine: ZXMachine
@@ -33,7 +33,7 @@ _zx_hardware: dict[int, ZXHardware] = {
 	16: ZXHardware(ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_z80_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	#https://www.worldofspectrum.org/faq/reference/z80format.htm
 	header = rom.read(amount=86)
 	flags = header[29]
@@ -81,7 +81,7 @@ def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 
 	metadata.specific_info['ROM Format'] = f'Z80 v{header_version}'
 
-def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata') -> None:
+def add_speccy_software_list_metadata(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.infos.get('usage')
 	if usage == 'Requires Multiface':
@@ -119,7 +119,7 @@ def _ram_requirement_from_tag(tag: str)	-> tuple[ByteAmount, ByteAmount] | None:
 		return ByteAmount(128 * 1024), ByteAmount(128 * 1024)
 	return None
 
-def add_speccy_filename_tags_info(tags: 'Collection[str]', metadata: 'Metadata') -> None:
+def add_speccy_filename_tags_info(tags: 'Collection[str]', metadata: 'GameInfo') -> None:
 	for tag in tags:
 		if 'Machine' not in metadata.specific_info:
 			machine = _machine_from_tag(tag)
@@ -134,10 +134,10 @@ def add_speccy_filename_tags_info(tags: 'Collection[str]', metadata: 'Metadata')
 def add_speccy_custom_info(game: 'ROMGame') -> None:
 	if isinstance(game.rom, FileROM):
 		if game.rom.extension == 'z80':
-			add_z80_metadata(game.rom, game.metadata)
+			add_z80_metadata(game.rom, game.info)
 
-	add_speccy_filename_tags_info(game.filename_tags, game.metadata)
+	add_speccy_filename_tags_info(game.filename_tags, game.info)
 
 	software = game.get_software_list_entry()
 	if software:
-		add_speccy_software_list_metadata(software, game.metadata)
+		add_speccy_software_list_metadata(software, game.info)

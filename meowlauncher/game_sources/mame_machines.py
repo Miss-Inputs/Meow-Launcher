@@ -169,7 +169,7 @@ class MAMEInbuiltGames(GameSource):
 		machine = get_machine(machine_name, self.emu.executable)
 		
 		game = MAMEInbuiltGame(machine_name, inbuilt_game, platform_config, bios_name)
-		add_status(machine, game.metadata)
+		add_status(machine, game.info)
 		return MAMEInbuiltLauncher(game, self.emu)
 
 	def iter_launchers(self) -> Iterator[MAMEInbuiltLauncher]:

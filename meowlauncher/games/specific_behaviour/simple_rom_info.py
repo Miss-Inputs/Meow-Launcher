@@ -1,15 +1,15 @@
 from typing import TYPE_CHECKING
 from meowlauncher.common_types import SaveType
 
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
-def add_ngp_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_ngp_header_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	header = rom.read(amount=64)
 	copyright_string = header[:28]
 	metadata.specific_info['Copyright'] = copyright_string.decode('ascii', 'backslashreplace')
@@ -24,7 +24,7 @@ def add_ngp_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	if internal_title:
 		metadata.specific_info['Internal Title'] = internal_title
 
-def add_vectrex_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_vectrex_header_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	try:
 		year = convert_alphanumeric(rom.read(seek_to=6, amount=4))
 		try:
@@ -37,14 +37,14 @@ def add_vectrex_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	except NotAlphanumericException:
 		pass
 
-def add_doom_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_doom_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	magic = rom.read(amount=4)
 	if magic == b'PWAD':
 		metadata.specific_info['Is PWAD?'] = True
 	
 	metadata.save_type = SaveType.Internal #Hmm this would be more of a static system info thing, oh well
 
-def add_pokemini_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_pokemini_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	header = rom.read(seek_to=0x21ac, amount=16)
 	#https://github.com/pokemon-mini/pm-dev-docs/wiki/PM_Cartridge - we are only bothering to read a small part of the thing, which is really all that's there
 	product_code_bytes = header[0:4]

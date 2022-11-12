@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Metadata
+from meowlauncher.info import GameInfo
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -36,7 +36,7 @@ def _load_tdb() -> TDB | None:
 		return None
 _tdb = _load_tdb()
 
-def add_cover(metadata: Metadata, product_code: str, licensee_code: str) -> None:
+def add_cover(metadata: GameInfo, product_code: str, licensee_code: str) -> None:
 	#Intended for the covers database from GameTDB
 	if 'Wii' not in platform_configs:
 		return
@@ -51,7 +51,7 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str) -> None
 			metadata.images['Cover'] = potential_cover_path
 			return
 
-def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes) -> None:
+def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: GameInfo, header: bytes) -> None:
 	internal_title = header[32:128]
 	metadata.specific_info['Internal Title'] = internal_title.rstrip(b'\0 ').decode('ascii', errors='backslashreplace')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
@@ -100,7 +100,7 @@ def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: byt
 	elif metadata.platform == 'GameCube' and not is_gamecube:
 		logger.info('%s lacks GameCube disc magic', rom)
 	
-def just_read_the_wia_rvz_header_for_now(rom: FileROM, metadata: Metadata) -> None:
+def just_read_the_wia_rvz_header_for_now(rom: FileROM, metadata: GameInfo) -> None:
 	#I'll get around to it I swear
 	wia_header = rom.read(amount=0x48)
 	wia_disc_struct_size = int.from_bytes(wia_header[12:16], 'big')

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import MediaType
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import TVSystem
@@ -10,10 +10,10 @@ from .common import atari_controllers as controllers
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 
-def add_info_from_software_list(metadata: 'Metadata', software: 'Software') -> None:
+def add_info_from_software_list(metadata: 'GameInfo', software: 'Software') -> None:
 	software.add_standard_metadata(metadata)
 	compatibility = software.compatibility
 	if compatibility:
@@ -26,21 +26,21 @@ def add_info_from_software_list(metadata: 'Metadata', software: 'Software') -> N
 
 	peripheral = software.get_part_feature('peripheral')
 
-	joystick = input_metadata.NormalController()
+	joystick = input_info.NormalController()
 	joystick.dpads = 1
 	joystick.face_buttons = 2
-	keyboard = input_metadata.Keyboard()
+	keyboard = input_info.Keyboard()
 	keyboard.keys = 57 #From looking at photos so I may have lost count; XL/XE might have more keys
 
 	if peripheral == 'cx77_touch':
 		#Tablet
-		metadata.input_info.add_option(input_metadata.Touchscreen())
+		metadata.input_info.add_option(input_info.Touchscreen())
 	elif peripheral == 'cx75_pen':
 		#Light pen
-		metadata.input_info.add_option(input_metadata.LightGun())
+		metadata.input_info.add_option(input_info.LightGun())
 	elif peripheral == 'koala_pad,koala_pen':
 		#Combination tablet/light pen
-		metadata.input_info.add_option([input_metadata.LightGun(), input_metadata.Touchscreen()])
+		metadata.input_info.add_option([input_info.LightGun(), input_info.Touchscreen()])
 	elif peripheral == 'trackball':
 		metadata.input_info.add_option(controllers.cx22_trackball)
 	elif peripheral == 'lightgun':
@@ -86,7 +86,7 @@ def add_info_from_software_list(metadata: 'Metadata', software: 'Software') -> N
 def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 	headered = False
 
-	if game.metadata.media_type == MediaType.Cartridge:
+	if game.info.media_type == MediaType.Cartridge:
 		header = cast(FileROM, game.rom).read(amount=16)
 		magic = header[:4]
 		if magic == b'CART':
@@ -94,30 +94,30 @@ def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 			cast(FileROM, game.rom).header_length_for_crc_calculation = 16
 			cart_type = int.from_bytes(header[4:8], 'big')
 			#TODO: Have nice table of cart types like with Game Boy mappers
-			game.metadata.specific_info['Mapper'] = cart_type
-			game.metadata.specific_info['Slot'] = 'Right' if cart_type in {21, 59} else 'Left'
+			game.info.specific_info['Mapper'] = cart_type
+			game.info.specific_info['Slot'] = 'Right' if cart_type in {21, 59} else 'Left'
 
-	game.metadata.specific_info['Headered?'] = headered
+	game.info.specific_info['Headered?'] = headered
 
 	software = game.get_software_list_entry()
 	if software:
-		add_info_from_software_list(game.metadata, software)
+		add_info_from_software_list(game.info, software)
 
-	if 'Machine' not in game.metadata.specific_info:
+	if 'Machine' not in game.info.specific_info:
 		for tag in game.filename_tags:
 			if tag in {'(XL)', '[XL]'}:
-				game.metadata.specific_info['Machine'] = 'XL'
+				game.info.specific_info['Machine'] = 'XL'
 				break
 			if tag in {'(XL-XE)', '[XL-XE]'}:
-				game.metadata.specific_info['Machine'] = 'XL/XE'
+				game.info.specific_info['Machine'] = 'XL/XE'
 				break
 			if tag in {'(XE)', '[XE]'}:
-				game.metadata.specific_info['Machine'] = 'XE'
+				game.info.specific_info['Machine'] = 'XE'
 				break
 			if tag == '(130XE)':
-				game.metadata.specific_info['Machine'] = '130XE'
+				game.info.specific_info['Machine'] = '130XE'
 				break
 	if '[BASIC]' in game.filename_tags:
-		game.metadata.specific_info['Requires BASIC?'] = True
+		game.info.specific_info['Requires BASIC?'] = True
 	if '[req OSb]' in game.filename_tags or '[OS-B]' in game.filename_tags:
-		game.metadata.specific_info['Requires OS B?'] = True
+		game.info.specific_info['Requires OS B?'] = True

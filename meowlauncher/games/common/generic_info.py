@@ -17,11 +17,11 @@ from meowlauncher.util.utils import load_list
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 	
 _not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
-def add_generic_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_generic_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	metadata.add_notes(software.get_info('usage'))
 	metadata.add_notes(software.get_info('comment'))
@@ -75,7 +75,7 @@ def find_equivalent_arcade_game(game_name: str, game_alt_names: Collection[str],
 			return machine
 	return None
 
-def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') -> None:
+def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'GameInfo') -> None:
 	"""Parses dump status from TOSEC naming standard
 	"As noted at the start of Single Image Sets chapter, the order of those flags is important and
 	#should be kept correct. The order should always be:
@@ -148,7 +148,7 @@ def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') ->
 		#(Demo) (Beta) (Proto) etc etc
 		#(Alt) [a] etc etc
 
-def add_generic_info_from_filename_tags(tags: Sequence[str], metadata: 'Metadata') -> None:
+def add_generic_info_from_filename_tags(tags: Sequence[str], metadata: 'GameInfo') -> None:
 	filename_date = get_date_from_filename_tags(tags)
 	if filename_date:
 		if filename_date.is_better_than(metadata.release_date):

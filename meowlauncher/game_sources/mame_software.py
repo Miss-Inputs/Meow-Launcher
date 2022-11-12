@@ -13,7 +13,7 @@ from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_find_utils import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand
-from meowlauncher.metadata import Metadata
+from meowlauncher.info import GameInfo
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.region_info import TVSystem
 
@@ -81,7 +81,7 @@ class SoftwareLauncher():
 		self.platform = platform
 		self.media_type = media_type
 
-		self.metadata = Metadata()
+		self.metadata = GameInfo()
 
 	@property
 	def id(self):
@@ -99,7 +99,7 @@ class SoftwareLauncher():
 
 def add_software_metadata(software: SoftwareLauncher) -> None:
 	software.metadata.emulator_name = 'MAME' #Will probably always be the case
-	#TODO: Metadata:
+	#TODO: Info:
 	#categories (but how?)
 	#languages (detect from regions)
 	#save_type

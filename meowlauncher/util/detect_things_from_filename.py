@@ -3,7 +3,7 @@
 import re
 from collections.abc import Sequence
 
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 
 from . import region_info
 

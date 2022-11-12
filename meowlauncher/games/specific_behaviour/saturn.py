@@ -2,18 +2,18 @@ import logging
 from enum import Enum, auto
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
 from meowlauncher.util.utils import load_dict
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -27,34 +27,34 @@ class SaturnPeripheral(Enum):
 	Mouse = auto()
 	Wheel = auto()
 
-_standard_controller = input_metadata.NormalController()
+_standard_controller = input_info.NormalController()
 _standard_controller.face_buttons = 6 # A B C X Y Z #yeah I had to count them because I have 0 brain cells sorry
 _standard_controller.shoulder_buttons = 2 #L R
 _standard_controller.dpads = 1
 
-_analog_controller = input_metadata.NormalController()
+_analog_controller = input_info.NormalController()
 _analog_controller.face_buttons = 6 # A B C X Y Z
 _analog_controller.analog_triggers = 2
 _analog_controller.analog_sticks = 1
 _analog_controller.dpads = 1
 
-_mission_stick_main_part = input_metadata.NormalController()
+_mission_stick_main_part = input_info.NormalController()
 _mission_stick_main_part.analog_sticks = 1
 _mission_stick_main_part.face_buttons = 10 #The usual + L and R are located there instead of what would be considered a shoulder button, plus 2 extra on the stick
-_throttle_wheel = input_metadata.Dial()
-_mission_stick = input_metadata.CombinedController([_mission_stick_main_part, _throttle_wheel])
+_throttle_wheel = input_info.Dial()
+_mission_stick = input_info.CombinedController([_mission_stick_main_part, _throttle_wheel])
 
-_virtua_gun = input_metadata.LightGun()
+_virtua_gun = input_info.LightGun()
 _virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
 
-_keyboard = input_metadata.Keyboard()
+_keyboard = input_info.Keyboard()
 _keyboard.keys = 101
 #Japan keyboard has 89 keys... bleh, it doesn't seem to say which keyboard it refers to
 
-_mouse = input_metadata.Mouse()
+_mouse = input_info.Mouse()
 _mouse.buttons = 3
 
-def _parse_peripherals(metadata: 'Metadata', peripherals: str, rom_path_for_warning: str=None) -> None:
+def _parse_peripherals(metadata: 'GameInfo', peripherals: str, rom_path_for_warning: str=None) -> None:
 	for peripheral in peripherals:
 		if peripheral == 'J':
 			metadata.input_info.add_option(_standard_controller)
@@ -74,7 +74,7 @@ def _parse_peripherals(metadata: 'Metadata', peripherals: str, rom_path_for_warn
 			metadata.input_info.add_option(_mouse)
 			metadata.specific_info['Uses Mouse?'] = True
 		elif peripheral == 'S':
-			metadata.input_info.add_option(input_metadata.SteeringWheel())
+			metadata.input_info.add_option(input_info.SteeringWheel())
 			metadata.specific_info['Uses Steering Wheel?'] = True
 		elif peripheral == 'T':
 			metadata.specific_info['Supports Multitap?'] = True
@@ -100,7 +100,7 @@ def _parse_peripherals(metadata: 'Metadata', peripherals: str, rom_path_for_warn
 		#U = Sonic Z-Treme?
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
-def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes) -> None:
+def add_saturn_info(rom_path_for_warning: str, metadata: 'GameInfo', header: bytes) -> None:
 	hardware_id = header[0:16]
 	if hardware_id != b'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
@@ -215,11 +215,11 @@ def add_saturn_custom_info(game: 'ROMGame') -> None:
 	else:
 		return
 
-	add_saturn_info(str(game.rom), game.metadata, header)
+	add_saturn_info(str(game.rom), game.info, header)
 
 	try:
 		software = game.get_software_list_entry()
 		if software:
-			add_generic_software_info(software, game.metadata)
+			add_generic_software_info(software, game.info)
 	except NotImplementedError:
 		pass

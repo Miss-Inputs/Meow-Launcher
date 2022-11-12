@@ -12,7 +12,7 @@ from meowlauncher.util.region_info import (Language,
 from .mame_helpers import default_mame_configuration
 
 if TYPE_CHECKING:
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 class HistoryXML():
 	def __init__(self, path: Path) -> None:
@@ -141,7 +141,7 @@ def parse_history(history: str) -> History:
 				sections[name] = None
 	return History(**sections)
 
-def add_history(metadata: 'Metadata', machine_or_softlist: str, software_name: str | None=None, history_xml: HistoryXML | None=None) -> None:
+def add_history(metadata: 'GameInfo', machine_or_softlist: str, software_name: str | None=None, history_xml: HistoryXML | None=None) -> None:
 	if not history_xml:
 		history_xml = get_default_history_xml()
 		if not history_xml:

@@ -12,7 +12,7 @@ except ModuleNotFoundError:
 
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM, FolderROM
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
@@ -25,7 +25,7 @@ from .common.nintendo_common import AgeRatingStatus, NintendoAgeRatings, add_rat
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class WiiRatings(NintendoAgeRatings):
 			return AgeRatingStatus.Banned
 		return NintendoAgeRatings._get_rating_status(byte)
 
-def _parse_tmd(metadata: 'Metadata', tmd: bytes) -> None:
+def _parse_tmd(metadata: 'GameInfo', tmd: bytes) -> None:
 	#Stuff that I dunno about: 0 - 388
 	if tmd[387]:
 		metadata.specific_info['Is vWii?'] = True
@@ -106,7 +106,7 @@ def _parse_tmd(metadata: 'Metadata', tmd: bytes) -> None:
 	#Access rights: 472-476
 	metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
-def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes) -> None:
+def _parse_opening_bnr(metadata: 'GameInfo', opening_bnr: bytes) -> None:
 	#We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort
 	imet = opening_bnr[64:]
 	#I don't know why this is 64 bytes in, aaaa
@@ -163,7 +163,7 @@ def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes) -> None:
 		if title != local_title:
 			metadata.add_alternate_name(title, f'{lang} Banner Title')
 	
-def _add_wad_metadata(rom: FileROM, metadata: 'Metadata') -> None:
+def _add_wad_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 	header = rom.read(amount=0x40)
 	header_size = int.from_bytes(header[0:4], 'big')
 	#WAD type: 4-8
@@ -191,7 +191,7 @@ def _add_wad_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 	footer = rom.read(seek_to=footer_offset, amount=_round_up_to_multiple(footer_size, 64))
 	_parse_opening_bnr(metadata, footer)
 
-def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
+def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
 	metadata.specific_info['Executable Name'] = rom.relevant_files['boot.dol'].name
 
 	icon_path = rom.get_file('icon.png', True)
@@ -254,7 +254,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 		except ElementTree.ParseError:
 			logger.info('Ah bugger Wii homebrew XML in %s has problems', rom, exc_info=True)
 
-def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata') -> None:
+def _add_wii_disc_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 	wii_header = rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None
@@ -329,16 +329,16 @@ def add_wii_custom_info(game: 'ROMGame') -> None:
 			header = rom.read(0, 0x2450)
 		elif game.rom.extension == 'wbfs':
 			header = rom.read(amount=0x2450, seek_to=0x200)
-		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
-		_add_wii_disc_metadata(rom, game.metadata)
+		add_gamecube_wii_disc_metadata(rom, game.info, header)
+		_add_wii_disc_metadata(rom, game.info)
 	elif game.rom.extension == 'wad':
-		_add_wad_metadata(cast(FileROM, game.rom), game.metadata)
+		_add_wad_metadata(cast(FileROM, game.rom), game.info)
 	elif game.rom.is_folder:
-		add_wii_homebrew_metadata(cast(FolderROM, game.rom), game.metadata)
+		add_wii_homebrew_metadata(cast(FolderROM, game.rom), game.info)
 	elif game.rom.extension in {'dol', 'elf'}:
 		if game.rom.name.lower() == 'boot': #Shouldn't happen I guess if homebrew detection works correctly but sometimes it be like that
-			game.metadata.categories = game.metadata.categories[:-1]
-			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
+			game.info.categories = game.info.categories[:-1]
+			game.info.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension in {'wia', 'rvz'}:
-		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)
+		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.info)

@@ -52,4 +52,4 @@ def add_intellivision_custom_info(game: 'ROMGame') -> None:
 	rom = cast(FileROM, game.rom)
 	software = find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_intellivision_part_match, [rom.read()])
 	if software:
-		add_intellivision_software_info(software, game.metadata)
+		add_intellivision_software_info(software, game.info)

@@ -9,7 +9,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.games.roms.rom import ROM, FileROM
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.utils import format_byte_size
 
 from .common.gamecube_wii_common import (NintendoDiscRegion,
@@ -47,7 +47,7 @@ def convert_rgb5a3(colour: int) -> tuple[int, int, int, int]:
 		blue = convert5BitColor(colour & 0b0_00000_00000_11111)
 	return (red, green, blue, alpha)
 
-def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding: str, lang: str | None=None) -> None:
+def parse_gamecube_banner_text(metadata: GameInfo, banner_bytes: bytes, encoding: str, lang: str | None=None) -> None:
 	short_title_line_1 = banner_bytes[0:0x20].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
 	short_title_line_2 = banner_bytes[0x20:0x40].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
 	title_line_1 = banner_bytes[0x40:0x80].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
@@ -91,7 +91,7 @@ def decode_icon(banner: bytes) -> 'Image.Image':
 	image.putdata(data)
 	return image
 
-def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes) -> None:
+def add_banner_info(rom: ROM, metadata: GameInfo, banner: bytes) -> None:
 	banner_magic = banner[:4]
 	if banner_magic in {b'BNR1', b'BNR2'}:
 		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
@@ -118,7 +118,7 @@ def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes) -> None:
 	else:
 		logger.debug('Invalid banner magic %s in %s', banner_magic, rom)
 
-def add_fst_info(rom: FileROM, metadata: Metadata, fst_offset: int, fst_size: int, offset: int=0) -> None:
+def add_fst_info(rom: FileROM, metadata: GameInfo, fst_offset: int, fst_size: int, offset: int=0) -> None:
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
 		fst = rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
@@ -139,7 +139,7 @@ def add_fst_info(rom: FileROM, metadata: Metadata, fst_offset: int, fst_size: in
 				banner = rom.read(file_offset, file_length)
 				add_banner_info(rom, metadata, banner)
 
-def add_apploader_date(header: bytes, metadata: Metadata) -> None:
+def add_apploader_date(header: bytes, metadata: GameInfo) -> None:
 	try:
 		apploader_date = header[0x2440:0x2450].rstrip(b'\0').decode('ascii')
 		actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
@@ -153,7 +153,7 @@ def add_apploader_date(header: bytes, metadata: Metadata) -> None:
 	except ValueError:
 		pass
 
-def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: 'Mapping[str, int] | None'=None) -> None:
+def _add_gamecube_disc_metadata(rom: FileROM, metadata: GameInfo, header: bytes, tgc_data: 'Mapping[str, int] | None'=None) -> None:
 	#TODO: Use namedtuple/dataclass for tgc_data
 	metadata.platform = 'GameCube'
 
@@ -182,7 +182,7 @@ def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes,
 	except (IndexError, ValueError):
 		logger.exception('%s encountered error when parsing FST', rom.path)
 
-def add_tgc_metadata(rom: FileROM, metadata: Metadata) -> None:
+def add_tgc_metadata(rom: FileROM, metadata: GameInfo) -> None:
 	tgc_header = rom.read(0, 60) #Actually it is bigger than that
 	magic = tgc_header[0:4]
 	if magic != b'\xae\x0f8\xa2':
@@ -212,9 +212,9 @@ def add_gamecube_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension in {'gcz', 'iso', 'gcm'}:
 		rom = cast(FileROM, game.rom)
 		header = rom.read(0, 0x2450)
-		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
-		_add_gamecube_disc_metadata(rom, game.metadata, header)
+		add_gamecube_wii_disc_metadata(rom, game.info, header)
+		_add_gamecube_disc_metadata(rom, game.info, header)
 	elif game.rom.extension == 'tgc':
-		add_tgc_metadata(cast(FileROM, game.rom), game.metadata)
+		add_tgc_metadata(cast(FileROM, game.rom), game.info)
 	elif game.rom.extension in {'wia', 'rvz'}:
-		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)
+		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.info)

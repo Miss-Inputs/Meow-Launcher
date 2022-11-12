@@ -4,7 +4,7 @@ from meowlauncher.common_types import SaveType
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 publishers = {
 	1: 'Bandai',
@@ -52,7 +52,7 @@ publishers = {
 	#47: E3 Staff or Gust
 }
 
-def add_wonderswan_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_wonderswan_header_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	rom_size = rom.size
 	header_start_position = rom_size - 10
 	header = rom.read(seek_to=header_start_position, amount=10)

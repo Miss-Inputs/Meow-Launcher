@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Any, NamedTuple
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.platform_types import SMSPeripheral
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
@@ -11,14 +11,14 @@ if TYPE_CHECKING:
 	from collections.abc import Mapping
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 def _decode_bcd_multi(i: bytes) -> int:
 	return (decode_bcd(i[1]) * 100) + decode_bcd(i[0])
 
-def parse_sdsc_header(rom: 'FileROM', metadata: 'Metadata', header: bytes) -> None:
+def parse_sdsc_header(rom: 'FileROM', metadata: 'GameInfo', header: bytes) -> None:
 	major_version = decode_bcd(header[0])
 	minor_version = decode_bcd(header[1])
 	metadata.specific_info['Version'] = f'v{major_version}.{minor_version}'
@@ -99,7 +99,7 @@ def _parse_standard_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, An
 
 	return header_data
 
-def add_info_from_standard_header(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_info_from_standard_header(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	rom_size = rom.size
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
@@ -130,7 +130,7 @@ def add_info_from_standard_header(rom: 'FileROM', metadata: 'Metadata') -> None:
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
 		metadata.specific_info['Japanese Only?'] = True
 
-def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_sms_gg_software_list_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
@@ -174,7 +174,7 @@ def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata') ->
 
 
 	if metadata.platform == 'Master System':
-		builtin_gamepad = input_metadata.NormalController()
+		builtin_gamepad = input_info.NormalController()
 		builtin_gamepad.dpads = 1
 		builtin_gamepad.face_buttons = 2
 
@@ -185,20 +185,20 @@ def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata') ->
 		#All of these peripherals have 2 buttons as well?
 		if controller_1 == 'graphic':
 			peripheral = SMSPeripheral.Tablet
-			metadata.input_info.add_option(input_metadata.Touchscreen())
+			metadata.input_info.add_option(input_info.Touchscreen())
 		elif controller_1 == 'lphaser':
 			peripheral = SMSPeripheral.Lightgun
-			light_phaser = input_metadata.LightGun()
+			light_phaser = input_info.LightGun()
 			light_phaser.buttons = 1
 			metadata.input_info.add_option(light_phaser)
 		elif controller_1 == 'paddle':
 			peripheral = SMSPeripheral.Paddle
-			paddle = input_metadata.Paddle()
+			paddle = input_info.Paddle()
 			paddle.buttons = 2
 			metadata.input_info.add_option(paddle)
 		elif controller_1 == 'sportspad':
 			peripheral = SMSPeripheral.SportsPad
-			sports_pad = input_metadata.Trackball()
+			sports_pad = input_info.Trackball()
 			sports_pad.buttons = 2
 			metadata.input_info.add_option(sports_pad)
 		else:
@@ -207,7 +207,7 @@ def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata') ->
 
 		metadata.specific_info['Peripheral'] = peripheral
 
-def add_sms_gg_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_sms_gg_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	sdsc_header = rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
 		parse_sdsc_header(rom, metadata, sdsc_header[4:])

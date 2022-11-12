@@ -2,7 +2,7 @@ import logging
 from collections.abc import Mapping
 from pathlib import Path
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
@@ -153,39 +153,39 @@ class ScummVMGame(Game):
 		
 
 	def add_metadata(self) -> None:
-		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
-		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
-		self.metadata.categories = ('Games', ) #Safe to assume this by default
+		self.info.input_info.add_option([input_info.Mouse(), input_info.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
+		self.info.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
+		self.info.categories = ('Games', ) #Safe to assume this by default
 		if self.options.get('gameid') == 'agi-fanmade':
-			self.metadata.categories = ('Homebrew', )
+			self.info.categories = ('Homebrew', )
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect
 		
 		engine = self.engine
 		if engine:
-			self.metadata.specific_info['Engine'] = engine
+			self.info.specific_info['Engine'] = engine
 		extra = self.options.get('extra')
 		if extra:
-			self.metadata.specific_info['Version'] = extra #Hmm, I guess that'd be how we should use this properly…
+			self.info.specific_info['Version'] = extra #Hmm, I guess that'd be how we should use this properly…
 			if 'demo' in extra.lower():
 				#Keeping the category names consistent with everything else here, though people might like to call it "Demos" or whatever instead and technically there's no reason why we can't do that and this should be an option and I will put this ramble here to remind myself to make it an option eventually
 				#TODO How about you put a TODO comment instead
-				self.metadata.categories = ('Trials', )
+				self.info.categories = ('Trials', )
 		
 		if main_config.use_original_platform:
-			self.metadata.platform = self.original_platform
+			self.info.platform = self.original_platform
 
 		language = self.language		
 		if language:
-			self.metadata.languages = [language]
+			self.info.languages = [language]
 
 		path = self.path
 		if path:
 			if path.is_dir():
 				icon = look_for_icon_in_folder(Path(path))
 				if icon:
-					self.metadata.images['Icon'] = icon
+					self.info.images['Icon'] = icon
 			elif not path.exists():
 				logger.warning('Aaaa! %s has non-existent path: %s', self, path)
 		else:

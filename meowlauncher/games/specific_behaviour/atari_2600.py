@@ -2,7 +2,7 @@ import hashlib
 import subprocess
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.games.mame_common.software_list_find_utils import (
@@ -15,7 +15,7 @@ from .common import atari_controllers as controllers
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 	from collections.abc import Mapping
 
 _stella_configs = emulator_configs.get('Stella')
@@ -79,7 +79,7 @@ def _controller_from_stella_db_name(controller: str) -> Atari2600Controller:
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
-def _parse_stella_cart_note(metadata: 'Metadata', note: str) -> None:
+def _parse_stella_cart_note(metadata: 'GameInfo', note: str) -> None:
 	#Adventures in the Park
 	#Featuring Panama Joe
 	#Hack of Adventure
@@ -144,7 +144,7 @@ def _parse_stella_cart_note(metadata: 'Metadata', note: str) -> None:
 	else:
 		metadata.add_notes(note)
 
-def _parse_stella_db(metadata: 'Metadata', game_db_entry: 'Mapping[str, str | None]') -> None:
+def _parse_stella_db(metadata: 'GameInfo', game_db_entry: 'Mapping[str, str | None]') -> None:
 	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
 	if stella_name:
 		metadata.add_alternate_name(stella_name, 'Stella Name')
@@ -181,7 +181,7 @@ def _parse_stella_db(metadata: 'Metadata', game_db_entry: 'Mapping[str, str | No
 	if note:
 		_parse_stella_cart_note(metadata, note)
 
-def _add_input_info_from_peripheral(metadata: 'Metadata', peripheral: Atari2600Controller) -> None:
+def _add_input_info_from_peripheral(metadata: 'GameInfo', peripheral: Atari2600Controller) -> None:
 	if peripheral == Atari2600Controller.Nothing:
 		return
 		
@@ -208,9 +208,9 @@ def _add_input_info_from_peripheral(metadata: 'Metadata', peripheral: Atari2600C
 	elif peripheral == Atari2600Controller.Trackball:
 		metadata.input_info.add_option(controllers.cx22_trackball)
 	elif peripheral == Atari2600Controller.Other:
-		metadata.input_info.add_option(input_metadata.Custom())
+		metadata.input_info.add_option(input_info.Custom())
 
-def _parse_peripherals(metadata: 'Metadata') -> None:
+def _parse_peripherals(metadata: 'GameInfo') -> None:
 	left = metadata.specific_info.get('Left Peripheral')
 	right = metadata.specific_info.get('Right Peripheral')
 
@@ -247,32 +247,32 @@ def add_atari_2600_custom_info(game: 'ROMGame') -> None:
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
 		if md5 in stella_db:
 			game_info = stella_db[md5]
-			_parse_stella_db(game.metadata, game_info)
+			_parse_stella_db(game.info, game_info)
 
 	software = find_in_software_lists(game.related_software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.add_notes(software.get_info('usage'))
+		software.add_standard_metadata(game.info)
+		game.info.add_notes(software.get_info('usage'))
 		
-		if game.metadata.publisher == 'Homebrew':
+		if game.info.publisher == 'Homebrew':
 			#For consistency. There's no company literally called "Homebrew"
-			game.metadata.publisher = game.metadata.developer
+			game.info.publisher = game.info.developer
 
 		if software.get_shared_feature('requirement') == 'scharger':
-			game.metadata.specific_info['Uses Supercharger?'] = True
+			game.info.specific_info['Uses Supercharger?'] = True
 		if 'cart' in software.parts:
 			#"cass" and "cass1" "cass2" "cass3" etc are also possible but a2600_cass doesn't have peripheral in it so it'll be fine
 			cart_part = software.get_part('cart')
 			peripheral = cart_part.get_feature('peripheral')
 			if peripheral in {"Kid's Controller", 'kidscontroller'}:
 				#The Kids Controller is functionally identical to the Keyboard Controller, but there is only one of them and it goes in the left
-				game.metadata.specific_info['Left Peripheral'] = Atari2600Controller.KeyboardController
-				game.metadata.specific_info['Right Peripheral'] = Atari2600Controller.Nothing
+				game.info.specific_info['Left Peripheral'] = Atari2600Controller.KeyboardController
+				game.info.specific_info['Right Peripheral'] = Atari2600Controller.Nothing
 			elif peripheral == 'paddles':
-				game.metadata.specific_info['Left Peripheral'] = Atari2600Controller.Paddle
+				game.info.specific_info['Left Peripheral'] = Atari2600Controller.Paddle
 				#Does the right one go in there too? Maybe
 			elif peripheral == 'keypad':
-				game.metadata.specific_info['Left Peripheral'] = Atari2600Controller.KeyboardController
-				game.metadata.specific_info['Right Peripheral'] = Atari2600Controller.KeyboardController
+				game.info.specific_info['Left Peripheral'] = Atari2600Controller.KeyboardController
+				game.info.specific_info['Right Peripheral'] = Atari2600Controller.KeyboardController
 
-	_parse_peripherals(game.metadata)
+	_parse_peripherals(game.info)

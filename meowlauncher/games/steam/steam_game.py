@@ -95,27 +95,27 @@ class SteamGame(Game):
 
 	def add_metadata(self) -> None:
 		#Hmmm… may make sense for this to go on individual SteamLauncher, if we add some metadata based on that
-		self.metadata.specific_info['Steam AppID'] = self.appid
-		self.metadata.specific_info['Library Folder'] = self.library_folder
-		self.metadata.media_type = MediaType.Digital
+		self.info.specific_info['Steam AppID'] = self.appid
+		self.info.specific_info['Library Folder'] = self.library_folder
+		self.info.media_type = MediaType.Digital
 		lowviolence = self.app_state.get('UserConfig', {}).get('lowviolence')
 		if lowviolence:
-			self.metadata.specific_info['Low Violence?'] = lowviolence == '1'
+			self.info.specific_info['Low Violence?'] = lowviolence == '1'
 
 		app_type = self.type
 		#https://github.com/fire64/opensteamworks/blob/master/EAppType.h (but it is in Title Case here… usually?)
 		if app_type in {'game', 'Game'}:
 			#This makes the categories consistent with other stuff
-			self.metadata.categories = ('Games', )
+			self.info.categories = ('Games', )
 		elif app_type in {'Application', 'software'}:
-			self.metadata.categories = ('Applications', )
+			self.info.categories = ('Applications', )
 		elif app_type == 'Tool':
 			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
-			self.metadata.categories = ('Tools', )
+			self.info.categories = ('Tools', )
 		elif app_type == 'Demo':
-			self.metadata.categories = ('Trials', )
+			self.info.categories = ('Trials', )
 		elif app_type:
-			self.metadata.categories = [app_type]
+			self.info.categories = [app_type]
 
 		try:
 			self.poke_around_in_install_dir()
@@ -129,15 +129,15 @@ class SteamGame(Game):
 			#Hmm I would need to make this case insensitive for some cases
 			return
 
-		if not self.metadata.specific_info.get('Engine'):
-			engine = detect_engine_recursively(install_dir, self.metadata)
+		if not self.info.specific_info.get('Engine'):
+			engine = detect_engine_recursively(install_dir, self.info)
 			if engine:
-				self.metadata.specific_info['Engine'] = engine
+				self.info.specific_info['Engine'] = engine
 
-		check_for_interesting_things_in_folder(install_dir, self.metadata, find_wrappers=True)
+		check_for_interesting_things_in_folder(install_dir, self.info, find_wrappers=True)
 		for f in install_dir.iterdir():
 			if f.is_dir():
-				check_for_interesting_things_in_folder(f, self.metadata, find_wrappers=True)
+				check_for_interesting_things_in_folder(f, self.info, find_wrappers=True)
 		
 class _SteamRunner(Runner):
 	@property

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from meowlauncher.common_types import MediaType, SaveType
-from meowlauncher.input_metadata import InputInfo
+from meowlauncher.input_info import InputInfo
 from meowlauncher.util.region_info import Language, Region
 
 if TYPE_CHECKING:
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
 #to_info_fields should probably be in desktop_files
-_metadata_section_name = 'Metadata'
+_info_section_name = 'Game Info'
 _junk_section_name = 'Junk'
 _image_section_name = 'Images'
 _name_section_name = 'Names'
@@ -63,7 +63,7 @@ class Date():
 			s += '?'
 		return s
 
-class Metadata():
+class GameInfo():
 	def __init__(self) -> None:
 		self.platform: str | None = None
 		self.categories: 'Sequence[str]' = [] #TODO: I kinda want this to be a union with Sequence | str | None, if we can do that
@@ -120,7 +120,7 @@ class Metadata():
 	def to_launcher_fields(self) -> 'MutableMapping[str, MutableMapping[str, Any]]':
 		fields: 'MutableMapping[str, MutableMapping[str, Any]]' = {}
 
-		metadata_fields: 'MutableMapping[str, Any]' = {
+		info_fields: 'MutableMapping[str, Any]' = {
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'Languages': tuple(language.native_name for language in self.languages),
@@ -141,14 +141,14 @@ class Metadata():
 			'Series Index': self.series_index,
 		}
 		if self.release_date and self.release_date.year:
-			metadata_fields['Year'] = self.release_date.year + '?' if self.release_date.is_guessed else self.release_date.year
+			info_fields['Year'] = self.release_date.year + '?' if self.release_date.is_guessed else self.release_date.year
 		if self.input_info.is_inited:
-			metadata_fields['Standard Input'] = self.input_info.has_standard_inputs
-			metadata_fields['Input Methods'] = self.input_info.describe()
+			info_fields['Standard Input'] = self.input_info.has_standard_inputs
+			info_fields['Input Methods'] = self.input_info.describe()
 
-		metadata_fields.update(self.specific_info)
+		info_fields.update(self.specific_info)
 
-		fields[_metadata_section_name] = metadata_fields
+		fields[_info_section_name] = info_fields
 		fields[_junk_section_name] = {}
 
 		if self.images:

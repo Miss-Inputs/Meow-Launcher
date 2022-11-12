@@ -5,7 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
@@ -15,7 +15,7 @@ from meowlauncher.util.utils import (NoNonsenseConfigParser,
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 	from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ def _get_mupen64plus_database() -> 'Mapping[str, Mapping[str, str]] | None':
 
 	return database
 
-def parse_n64_header(metadata: 'Metadata', header: bytes) -> None:
+def parse_n64_header(metadata: 'GameInfo', header: bytes) -> None:
 	#Clock rate, apparently? 0:4
 	#Program counter: 4-8
 	#Release address: 8-12
@@ -86,7 +86,7 @@ def parse_n64_header(metadata: 'Metadata', header: bytes) -> None:
 		pass
 	metadata.specific_info['Revision'] = header[63]
 
-def add_info_from_database_entry(metadata: 'Metadata', database_entry: 'Mapping[str, str]') -> None:
+def add_info_from_database_entry(metadata: 'GameInfo', database_entry: 'Mapping[str, str]') -> None:
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
 	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
 	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)
@@ -117,7 +117,7 @@ def add_info_from_database_entry(metadata: 'Metadata', database_entry: 'Mapping[
 	if database_entry.get('Rumble', 'No') == 'Yes':
 		metadata.specific_info['Force Feedback?'] = True
 	if database_entry.get('Biopak', 'No') == 'Yes':
-		metadata.input_info.input_options[0].inputs.append(input_metadata.Biological())
+		metadata.input_info.input_options[0].inputs.append(input_info.Biological())
 	if database_entry.get('Transferpak', 'No') == 'Yes':
 		metadata.specific_info['Uses Transfer Pak?'] = True
 	#Unfortunately nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
@@ -129,34 +129,34 @@ def add_n64_custom_info(game: 'ROMGame') -> None:
 
 	is_byteswapped = False
 	if magic == b'\x80\x37\x12\x40':
-		game.metadata.specific_info['ROM Format'] = 'Z64'
+		game.info.specific_info['ROM Format'] = 'Z64'
 	elif magic == b'\x37\x80\x40\x12':
 		is_byteswapped = True
-		game.metadata.specific_info['ROM Format'] = 'V64'
+		game.info.specific_info['ROM Format'] = 'V64'
 	else:
-		game.metadata.specific_info['ROM Format'] = 'Unknown'
+		game.info.specific_info['ROM Format'] = 'Unknown'
 		return
 
 	header = entire_rom[:64]
 	if is_byteswapped:
 		header = byteswap(header)
 
-	parse_n64_header(game.metadata, header)
+	parse_n64_header(game.info, header)
 
-	normal_controller = input_metadata.NormalController()
+	normal_controller = input_info.NormalController()
 	normal_controller.face_buttons = 6 #A, B, 4 * C
 	normal_controller.shoulder_buttons = 3 #L, R, and I guess Z will have to be counted as a shoulder button
 	normal_controller.analog_sticks = 1
 	normal_controller.dpads = 1
-	game.metadata.input_info.add_option(normal_controller)
+	game.info.input_info.add_option(normal_controller)
 
 	database = _get_mupen64plus_database()
 	if database:
 		rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
 		database_entry = database.get(rom_md5)
 		if database_entry:
-			add_info_from_database_entry(game.metadata, database_entry)
+			add_info_from_database_entry(game.info, database_entry)
 
 	software = game.get_software_list_entry()
 	if software:
-		add_generic_software_info(software, game.metadata)
+		add_generic_software_info(software, game.info)

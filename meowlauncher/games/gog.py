@@ -140,15 +140,15 @@ class GOGGame(Game, ABC):
 	def add_metadata(self) -> None:
 		icon = self.icon
 		if icon:
-			self.metadata.images['Icon'] = icon
-		self.metadata.specific_info['Version'] = self.info.version
-		self.metadata.specific_info['Dev Version'] = self.info.dev_version
-		self.metadata.specific_info['Language Code'] = self.info.language
-		self.metadata.specific_info['GOG Product ID'] = self.info.gameid
+			self.info.images['Icon'] = icon
+		self.info.specific_info['Version'] = self.info.version
+		self.info.specific_info['Dev Version'] = self.info.dev_version
+		self.info.specific_info['Language Code'] = self.info.language
+		self.info.specific_info['GOG Product ID'] = self.info.gameid
 
-		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
-		self.metadata.media_type = MediaType.Digital
-		self.metadata.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
+		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
+		self.info.media_type = MediaType.Digital
+		self.info.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
 
 	@property
@@ -170,28 +170,28 @@ class GOGGame(Game, ABC):
 		
 	def make_launcher(self) -> None:
 		params = LaunchCommand(str(self.start_script), [], working_directory=str(self.folder))
-		make_launcher(params, self.name, self.metadata, 'GOG', str(self.folder))
+		make_launcher(params, self.name, self.info, 'GOG', str(self.folder))
 
 class NormalGOGGame(GOGGame):
 	def add_metadata(self) -> None:
 		super().add_metadata()
 		game_data_folder = self.folder.joinpath('game')
-		engine = try_and_detect_engine_from_folder(game_data_folder, self.metadata)
+		engine = try_and_detect_engine_from_folder(game_data_folder, self.info)
 		if engine:
-			self.metadata.specific_info['Engine'] = engine
+			self.info.specific_info['Engine'] = engine
 		#TODO: Should this just be in GOGGame? Is NormalGOGGame a needed class? I guess you don't want to do engine_detect stuff on a DOS/ScummVM game as it takes time and probably won't get anything
 		for file in game_data_folder.iterdir():
 			if file.name.startswith('goggame-') and file.suffix == '.info':
 				json_info = GOGJSONGameInfo(file)
 				#This isn't always here, usually this is used for Windows games, but might as well poke at it if it's here
-				self.metadata.specific_info['Build ID'] = json_info.build_id
-				self.metadata.specific_info['Client ID'] = json_info.client_id
-				self.metadata.specific_info['GOG Product ID'] = json_info.game_id
+				self.info.specific_info['Build ID'] = json_info.build_id
+				self.info.specific_info['Client ID'] = json_info.client_id
+				self.info.specific_info['GOG Product ID'] = json_info.game_id
 				lang_name = json_info.language_name
 				if lang_name:
 					lang = region_info.get_language_by_english_name(lang_name)
 					if lang:
-						self.metadata.languages = {lang}
+						self.info.languages = {lang}
 				#We won't do anything special with playTasks, not sure it's completely accurate as it doesn't seem to include arguments to executables where that would be expected (albeit this is in the case of Pushover, which is a DOSBox game hiding as a normal game)
 				#Looking at 'category' for the task with 'isPrimary' = true though might be interesting
 				#TODO: But we totally should though, start_script also could be parsed maybe
@@ -201,14 +201,14 @@ class DOSBoxGOGGame(GOGGame):
 	#TODO: Let user use native DOSBox
 	def add_metadata(self) -> None:
 		super().add_metadata()
-		self.metadata.specific_info['Wrapper'] = 'DOSBox'
+		self.info.specific_info['Wrapper'] = 'DOSBox'
 
 class ScummVMGOGGame(GOGGame):
 	#TODO: Let user use native ScummVM
 	def add_metadata(self) -> None:
 		super().add_metadata()
 		#TODO: Detect engine from scummvm.ini
-		self.metadata.specific_info['Wrapper'] = 'ScummVM'
+		self.info.specific_info['Wrapper'] = 'ScummVM'
 
 #I think there can be Wine bundled with a game sometimes too?
 
@@ -271,26 +271,26 @@ class WindowsGOGGame(Game):
 	def add_metadata(self) -> None:
 		icon = self.icon
 		if icon:
-			self.metadata.images['Icon'] = icon
+			self.info.images['Icon'] = icon
 
-		self.metadata.specific_info['GOG Product ID'] = self.info.game_id
+		self.info.specific_info['GOG Product ID'] = self.info.game_id
 		lang_name = self.info.language_name
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
 			if lang:
-				self.metadata.languages = {lang}
+				self.info.languages = {lang}
 
-		engine = try_and_detect_engine_from_folder(self.folder, self.metadata)
+		engine = try_and_detect_engine_from_folder(self.folder, self.info)
 		if engine:
-			self.metadata.specific_info['Engine'] = engine
+			self.info.specific_info['Engine'] = engine
 
-		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Windows'
-		self.metadata.media_type = MediaType.Digital
-		self.metadata.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
+		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Windows'
+		self.info.media_type = MediaType.Digital
+		self.info.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
 
-		if self.id_file and not self.metadata.specific_info.get('Build ID'):
-			self.metadata.specific_info['Build ID'] = self.id_file.get('buildId')
+		if self.id_file and not self.info.specific_info.get('Build ID'):
+			self.info.specific_info['Build ID'] = self.id_file.get('buildId')
 
 	@property
 	def is_demo(self) -> bool:
@@ -349,7 +349,7 @@ class WindowsGOGGame(Game):
 		if not task.path: #It already won't be, just satisfying automated code checkers
 			return
 		
-		task_metadata = copy.deepcopy(self.metadata)
+		task_metadata = copy.deepcopy(self.info)
 		if task.category == 'tool':
 			task_metadata.categories = ('Applications', )
 		task_metadata.emulator_name = emulator_name
@@ -400,6 +400,6 @@ class WindowsGOGGame(Game):
 			else:
 				actual_tasks.add(task)
 		for task in chain(self.info.support_tasks, documents):
-			self.metadata.documents[task.name] = task.link if task.task_type == 'URLTask' else _find_subpath_case_insensitive(self.folder, task.path)
+			self.info.documents[task.name] = task.link if task.task_type == 'URLTask' else _find_subpath_case_insensitive(self.folder, task.path)
 		for task in actual_tasks:
 			self.make_launcher(task)

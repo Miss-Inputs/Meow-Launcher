@@ -5,7 +5,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -28,7 +28,7 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
-def add_virtual_boy_rom_info(rom: FileROM, metadata: 'Metadata') -> None:
+def add_virtual_boy_rom_info(rom: FileROM, metadata: 'GameInfo') -> None:
 	rom_size = rom.size
 	header_start_position = rom_size - 544 #Wait wouldn't that make it a footer sorta
 	header = rom.read(seek_to=header_start_position, amount=32)

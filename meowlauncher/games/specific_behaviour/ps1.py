@@ -11,7 +11,7 @@ from meowlauncher.util.region_info import get_language_by_english_name
 if TYPE_CHECKING:
 	from collections.abc import Mapping
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 _duckstation_config = emulator_configs.get('DuckStation')
@@ -65,7 +65,7 @@ def get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any] | None':
 			return db_game
 	return None
 
-def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'Metadata') -> None:
+def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'GameInfo') -> None:
 	metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
 	languages = db_entry.get('languages')
 	if languages:
@@ -90,7 +90,7 @@ def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'Metadata'
 		metadata.specific_info['Compatible Controllers'] = controllers
 		metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
 
-def add_info_from_product_code(product_code: str, metadata: 'Metadata') -> None:
+def add_info_from_product_code(product_code: str, metadata: 'GameInfo') -> None:
 	if _duckstation_config:
 		compat = find_duckstation_compat_info(product_code)
 		if compat:
@@ -103,9 +103,9 @@ def add_ps1_custom_info(game: 'ROMGame') -> None:
 	try:
 		software = game.get_software_list_entry()
 		if software:
-			add_generic_software_info(software, game.metadata)
+			add_generic_software_info(software, game.info)
 	except NotImplementedError:
 		pass
 
-	if game.metadata.product_code:
-		add_info_from_product_code(game.metadata.product_code, game.metadata)
+	if game.info.product_code:
+		add_info_from_product_code(game.info.product_code, game.info)

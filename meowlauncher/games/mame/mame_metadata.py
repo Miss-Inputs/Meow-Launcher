@@ -4,7 +4,7 @@ from collections.abc import Collection, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional, cast
 from xml.etree import ElementTree
 
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.games.mame_common.machine import Machine, mame_statuses
 from meowlauncher.games.mame_common.mame_helpers import get_image
@@ -21,7 +21,7 @@ from meowlauncher.util.region_info import (Language,
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 if TYPE_CHECKING:
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 	from .mame_game import MAMEGame
 
@@ -183,7 +183,7 @@ def add_save_type(game: 'MAMEGame') -> None:
 		#This may be wrong!!!!!!!!!!! but it seems to hold true for plug & play TV games and electronic handheld games so that'd be the main idea
 		game.metadata.save_type = SaveType.Internal if has_nvram or has_i2cmem else SaveType.Nothing
 
-def add_status(machine: Machine, metadata: 'Metadata') -> None:
+def add_status(machine: Machine, metadata: 'GameInfo') -> None:
 	#See comments for overall_status property for what that actually means
 	metadata.specific_info['MAME Overall Emulation Status'] = machine.overall_status
 	metadata.specific_info['MAME Emulation Status'] = machine.emulation_status
@@ -408,11 +408,11 @@ def add_input_info(game: 'MAMEGame') -> None:
 		logger.info('Oi m8 %s has no input', game.machine)
 		return
 
-	controller = input_metadata.CombinedController()
+	controller = input_info.CombinedController()
 
 	has_normal_input = False
 	has_added_vii_motion_controls = False
-	normal_input = input_metadata.NormalController()
+	normal_input = input_info.NormalController()
 
 	has_control_elements = False
 
@@ -450,14 +450,14 @@ def add_input_info(game: 'MAMEGame') -> None:
 				if buttons > 0:
 					has_normal_input = True
 					normal_input.face_buttons += buttons
-				controller.components.append(input_metadata.SteeringWheel())
+				controller.components.append(input_info.SteeringWheel())
 			elif game.machine.basename == 'vii':
 				#Uses 3 "paddle" inputs to represent 3-axis motion and I guess I'll have to deal with that
 				if not has_added_vii_motion_controls:
-					controller.components.append(input_metadata.MotionControls())
+					controller.components.append(input_info.MotionControls())
 					has_added_vii_motion_controls = True
 			else:
-				paddle = input_metadata.Paddle()
+				paddle = input_info.Paddle()
 				paddle.buttons = buttons
 				controller.components.append(paddle)
 		elif input_type == 'stick':
@@ -468,47 +468,47 @@ def add_input_info(game: 'MAMEGame') -> None:
 			if buttons > 0:
 				has_normal_input = True
 				normal_input.face_buttons += buttons
-			pedal = input_metadata.Pedal()
+			pedal = input_info.Pedal()
 			controller.components.append(pedal)
 		elif input_type == 'lightgun':
 			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
-			light_gun = input_metadata.LightGun()
+			light_gun = input_info.LightGun()
 			light_gun.buttons = buttons
 			controller.components.append(light_gun)
 		elif input_type == 'positional':
 			#What _is_ a positional exactly
-			positional = input_metadata.Positional()
+			positional = input_info.Positional()
 			controller.components.append(positional)
 		elif input_type == 'dial':
-			dial = input_metadata.Dial()
+			dial = input_info.Dial()
 			dial.buttons = buttons
 			controller.components.append(dial)
 		elif input_type == 'trackball':
-			trackball = input_metadata.Trackball()
+			trackball = input_info.Trackball()
 			trackball.buttons = buttons
 			controller.components.append(trackball)
 		elif input_type == 'mouse':
-			mouse = input_metadata.Mouse()
+			mouse = input_info.Mouse()
 			mouse.buttons = buttons
 			controller.components.append(mouse)
 		elif input_type == 'keypad':
-			keypad = input_metadata.Keypad()
+			keypad = input_info.Keypad()
 			keypad.keys = buttons
 			controller.components.append(keypad)
 		elif input_type == 'keyboard':
-			keyboard = input_metadata.Keyboard()
+			keyboard = input_info.Keyboard()
 			keyboard.keys = buttons
 			controller.components.append(keyboard)
 		elif input_type == 'mahjong':
-			mahjong = input_metadata.Mahjong()
+			mahjong = input_info.Mahjong()
 			mahjong.buttons = buttons
 			controller.components.append(mahjong)
 		elif input_type == 'hanafuda':
-			hanafuda = input_metadata.Hanafuda()
+			hanafuda = input_info.Hanafuda()
 			hanafuda.buttons = buttons
 			controller.components.append(hanafuda)
 		elif input_type == 'gambling':
-			gambling = input_metadata.Gambling()
+			gambling = input_info.Gambling()
 			gambling.buttons = buttons
 			controller.components.append(gambling)
 		else:
@@ -516,7 +516,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 				description = f'Custom input device with {pluralize(buttons, "button")}'
 			else:
 				description = 'Custom input device'
-			controller.components.append(input_metadata.Custom(description))
+			controller.components.append(input_info.Custom(description))
 
 	if has_normal_input:
 		controller.components.append(normal_input)
@@ -526,7 +526,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
 		#playable just fine, so we'll leave them in
 		if game.machine.number_of_players > 0:
-			game.metadata.input_info.add_option(input_metadata.Custom('Unknown input device'))
+			game.metadata.input_info.add_option(input_info.Custom('Unknown input device'))
 		return
 
 	game.metadata.input_info.add_option(controller)

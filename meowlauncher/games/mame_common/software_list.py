@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 
 from .mame_helpers import get_image, verify_software_list
 from .mame_support_files import add_history
@@ -39,7 +39,7 @@ def get_crc32_for_software_list(data: bytes) -> str:
 
 _split_preserve_brackets = re.compile(r', (?![^(]*\))')
 _ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
-def _add_alt_titles(metadata: Metadata, alt_title: str) -> None:
+def _add_alt_titles(metadata: GameInfo, alt_title: str) -> None:
 	#Argh this is annoying because we don't want to split in the middle of brackets
 	for piece in _split_preserve_brackets.split(alt_title):
 		ends_with_brackets_match = _ends_with_brackets.match(piece)
@@ -368,7 +368,7 @@ class Software():
 	def serial(self) -> str | None:
 		return self.infos.get('serial')
 
-	def add_standard_metadata(self, metadata: Metadata) -> None:
+	def add_standard_metadata(self, metadata: GameInfo) -> None:
 		metadata.specific_info['MAME Software'] = self
 		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
 		#TODO: Whatever is checking metadata.names needs to just check for game.software etc manually rather than this being here, I think
@@ -441,7 +441,7 @@ class Software():
 
 		add_history(metadata, self.software_list_name, self.name)
 
-	def add_related_images(self, metadata: Metadata) -> None:
+	def add_related_images(self, metadata: GameInfo) -> None:
 		for image_name, config_key in image_config_keys.items():
 			image = get_image(config_key, self.software_list_name, self.name)
 			if image:

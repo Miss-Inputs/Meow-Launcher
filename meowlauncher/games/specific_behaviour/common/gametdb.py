@@ -5,7 +5,7 @@ from xml.etree import ElementTree
 from meowlauncher.common_types import SaveType
 from meowlauncher.data.name_cleanup.gametdb_company_name_cleanup import \
     company_name_cleanup
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.utils import junk_suffixes
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class TDB():
 								break
 		return main_genres
 
-	def parse_genre(self, metadata: Metadata, genre_list: str) -> None:
+	def parse_genre(self, metadata: GameInfo, genre_list: str) -> None:
 		#genres = [g.title() for g in genre_list.split(',')]
 		genres = genre_list.split(',')
 		if 'software' in genres:
@@ -81,7 +81,7 @@ def _clean_up_company_name(company_name: str) -> str:
 
 	return ', '.join(sorted(cleaned_names))
 
-def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: Metadata) -> None:
+def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: GameInfo) -> None:
 	metadata.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
 	#(Pylint is on drugs if I don't add more text here) id: What we just found
 	#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
@@ -171,7 +171,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 				metadata.specific_info['Optional Additional Controls'] = optional_controls
 				metadata.specific_info['Required Additional Controls'] = required_controls
 
-def add_info_from_tdb(tdb: TDB | None, metadata: Metadata, search_key: str) -> None:
+def add_info_from_tdb(tdb: TDB | None, metadata: GameInfo, search_key: str) -> None:
 	if not tdb:
 		return
 

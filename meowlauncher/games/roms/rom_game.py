@@ -39,7 +39,7 @@ class ROMGame(EmulatedGame):
 	def __init__(self, rom: ROM, platform: 'StandardEmulatedPlatform', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.rom = rom
-		self.metadata.platform = platform.name
+		self.info.platform = platform.name
 		self.platform = platform
 		self.filename_tags = find_filename_tags_at_end(rom.path.stem)
 
@@ -52,8 +52,8 @@ class ROMGame(EmulatedGame):
 	def name(self) -> str:
 		#TODO: This should be better…
 		name = self.rom.name
-		if self.rom.ignore_name and self.metadata.names:
-			name = self.metadata.names.get('Name', next(iter(self.metadata.names.values())))
+		if self.rom.ignore_name and self.info.names:
+			name = self.info.names.get('Name', next(iter(self.info.names.values())))
 			
 		return name
 
@@ -74,8 +74,8 @@ class ROMGame(EmulatedGame):
 
 		if not software and self.platform_config.options.get('find_software_by_name', False):
 			software = find_software_by_name(software_lists, self.rom.name)
-		if not software and (self.platform_config.options.get('find_software_by_product_code', False) and self.metadata.product_code):
-			software = find_in_software_lists_with_custom_matcher(software_lists, _software_list_product_code_matcher, [self.metadata.product_code])
+		if not software and (self.platform_config.options.get('find_software_by_product_code', False) and self.info.product_code):
+			software = find_in_software_lists_with_custom_matcher(software_lists, _software_list_product_code_matcher, [self.info.product_code])
 
 		return software
 

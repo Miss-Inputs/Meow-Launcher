@@ -1,4 +1,4 @@
-from meowlauncher import input_metadata
+from meowlauncher import input_info
 
 __doc__ = """Contains input_metadata.Controller info for SNES controllers, which are shared between both SNES and Uzebox
 Other controllers: Miracle Piano (same as NES?)
@@ -6,16 +6,16 @@ Stuff not available as MAME slot device so it wuoldn't appear in software lists 
 Barcode Battler goes in the controller slot but from what I can tell it's not really a controller?
 """
 
-controller = input_metadata.NormalController()
+controller = input_info.NormalController()
 controller.dpads = 1
 controller.face_buttons = 4 #also Select + Start
 controller.shoulder_buttons = 2
 
-mouse = input_metadata.Mouse()
+mouse = input_info.Mouse()
 mouse.buttons = 2
 
-gun = input_metadata.LightGun() #pew pew
+gun = input_info.LightGun() #pew pew
 gun.buttons = 2 #Also pause and turbo
 
-pachinko = input_metadata.Paddle()
+pachinko = input_info.Paddle()
 pachinko.buttons = 1

@@ -19,14 +19,14 @@ except ModuleNotFoundError:
 	have_pycdlib = False
 
 from meowlauncher.games.roms.rom import FileROM, FolderROM
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 
 from .common.playstation_common import parse_param_sfo, parse_product_code
 from .static_platform_info import add_psp_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	except OSError:
 		return None
 
-def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'Metadata', pbp_file: bytes) -> None:
+def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'GameInfo', pbp_file: bytes) -> None:
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -90,7 +90,7 @@ def get_image_from_iso(iso: 'PyCdlib', path: Path, object_for_warning: Any=None)
 		pass
 	return None
 
-def add_psp_iso_info(path: Path, metadata: 'Metadata') -> None:
+def add_psp_iso_info(path: Path, metadata: 'GameInfo') -> None:
 	iso = PyCdlib()
 	try:
 		iso.open(str(path))
@@ -130,23 +130,23 @@ def add_psp_iso_info(path: Path, metadata: 'Metadata') -> None:
 		logger.info('%s is invalid ISO and has some struct.error', path, exc_info=True)
 		
 def add_psp_custom_info(game: 'ROMGame') -> None:
-	add_psp_info(game.metadata)
+	add_psp_info(game.info)
 
 	if game.rom.is_folder:
 		pbp = cast(FolderROM, game.rom).relevant_files['pbp']
-		game.metadata.specific_info['Executable Name'] = pbp.name #Probably just EBOOT.PBP but you never know eh
-		add_info_from_pbp(str(game.rom), game.metadata, pbp.read_bytes())
+		game.info.specific_info['Executable Name'] = pbp.name #Probably just EBOOT.PBP but you never know eh
+		add_info_from_pbp(str(game.rom), game.info, pbp.read_bytes())
 	elif game.rom.extension == 'pbp':
 		#Unlikely to happen now that we have a folder check
-		game.metadata.categories = game.metadata.categories[:-1]
-		add_info_from_pbp(str(game.rom), game.metadata, cast(FileROM, game.rom).read())
+		game.info.categories = game.info.categories[:-1]
+		add_info_from_pbp(str(game.rom), game.info, cast(FileROM, game.rom).read())
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		if game.rom.name.lower() == 'eboot':
-			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
+			game.info.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension == 'iso' and have_pycdlib:
-		add_psp_iso_info(game.rom.path, game.metadata)
+		add_psp_iso_info(game.rom.path, game.info)
 
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
-	if game.metadata.product_code:
-		parse_product_code(game.metadata, game.metadata.product_code)
+	if game.info.product_code:
+		parse_product_code(game.info, game.info.product_code)

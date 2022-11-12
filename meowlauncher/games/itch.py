@@ -16,7 +16,7 @@ from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, look_for_icon_for_file)
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
-from meowlauncher.metadata import Date
+from meowlauncher.info import Date
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
@@ -96,9 +96,9 @@ class ItchGame(Game):
 		return self._name
 
 	def _add_metadata_from_folder(self) -> None:
-		engine = detect_engine_recursively(self.path, self.metadata)
+		engine = detect_engine_recursively(self.path, self.info)
 		if engine:
-			self.metadata.specific_info['Engine'] = engine
+			self.info.specific_info['Engine'] = engine
 
 	def _add_metadata_from_receipt(self) -> None:
 		if not self.receipt:
@@ -111,12 +111,12 @@ class ItchGame(Game):
 		title = game.get('title')
 		if title:
 			self._name = fix_name(title)
-		self.metadata.specific_info['Game ID'] = game.get('id')
-		self.metadata.documents['Homepage'] = game.get('url')
+		self.info.specific_info['Game ID'] = game.get('id')
+		self.info.documents['Homepage'] = game.get('url')
 
 		description = game.get('shortText')
 		if description:
-			self.metadata.descriptions['Description'] = description
+			self.info.descriptions['Description'] = description
 
 		self.game_type = game.get('type', 'default') #Default, flash, unity, java, html
 		self.category = game.get('classification', 'game') #game, tool, assets, game_mod, physical_game, soundtrack, other, comic, book
@@ -124,10 +124,10 @@ class ItchGame(Game):
 		published_at = game.get('publishedAt')
 		if created_at:
 			creation_date = datetime.date.fromisoformat(created_at[:10])
-			self.metadata.specific_info['Creation Date'] = Date(creation_date.year, creation_date.month, creation_date.day)
+			self.info.specific_info['Creation Date'] = Date(creation_date.year, creation_date.month, creation_date.day)
 		if published_at:
 			release_date = datetime.date.fromisoformat(published_at[:10])
-			self.metadata.release_date = Date(release_date.year, release_date.month, release_date.day)
+			self.info.release_date = Date(release_date.year, release_date.month, release_date.day)
 		
 		#coverUrl, stillCoverUrl might be useful? I dunno
 		#platforms is what platforms the game _can_ be available for, but it doesn't tell us about this exe
@@ -139,29 +139,29 @@ class ItchGame(Game):
 			if not user_name:
 				user_name = user.get('username')
 			if user_name:
-				self.metadata.developer = self.metadata.publisher = user_name
+				self.info.developer = self.info.publisher = user_name
 			#developer and pressUser here just indicate if this user (who has uploaded the game) has ticked a box saying they are a developer or press, which doesn't seem to matter
-			self.metadata.documents['Developer Homepage'] = user.get('url')
+			self.info.documents['Developer Homepage'] = user.get('url')
 
 		if upload:
 			build_name = upload.get('displayName')
 			if not build_name:
 				build_name = upload.get('filename')
-			self.metadata.specific_info['Build Name'] = build_name
+			self.info.specific_info['Build Name'] = build_name
 			self.is_demo = upload.get('demo')
 			if self.is_demo and not 'demo' in self.name.lower():
 				self._name += ' (Demo)'
-			self.metadata.specific_info['Upload Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
+			self.info.specific_info['Upload Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
 			self.platforms = tuple(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
 			#Not sure what channelName or preorder does
 			upload_created_at = upload.get('createdAt')
 			upload_updated_at = upload.get('updatedAt')
 			if upload_created_at:
 				upload_creation_date = datetime.date.fromisoformat(upload_created_at[:10])
-				self.metadata.specific_info['Upload Creation Date'] = Date(upload_creation_date.year, upload_creation_date.month, upload_creation_date.day)
+				self.info.specific_info['Upload Creation Date'] = Date(upload_creation_date.year, upload_creation_date.month, upload_creation_date.day)
 			if upload_updated_at:
 				upload_date = datetime.date.fromisoformat(upload_updated_at[:10])
-				self.metadata.specific_info['Upload Date'] = Date(upload_date.year, upload_date.month, upload_date.day)
+				self.info.specific_info['Upload Date'] = Date(upload_date.year, upload_date.month, upload_date.day)
 
 		#build often is not there, but it has its own user field? The rest is not useful sadly
 
@@ -177,7 +177,7 @@ class ItchGame(Game):
 		elif self.category != 'game':
 			category = self.category.replace('_', ' ').title()
 			
-		self.metadata.categories = [category]
+		self.info.categories = [category]
 
 		platform = None
 		if main_config.use_itch_io_as_platform:
@@ -190,8 +190,8 @@ class ItchGame(Game):
 			platform = 'HTML'
 		else:
 			platform = '/'.join('Mac' if plat == 'osx' else plat.title() for plat in self.platforms)
-		self.metadata.specific_info['Game Type'] = self.game_type
-		self.metadata.platform = platform
+		self.info.specific_info['Game Type'] = self.game_type
+		self.info.platform = platform
 
 	def _try_and_find_exe(self, os_filter: str | None=None, no_arch_filter: bool=False) -> Iterator[tuple[str | None, Path, Optional[Mapping[str, bool]]]]:
 		#This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
@@ -210,7 +210,7 @@ class ItchGame(Game):
 		return
 
 	def _make_exe_launcher(self, flavour: str | None, exe_path: Path, windows_info: Optional[Mapping[str, bool]]) -> None:
-		metadata = copy.deepcopy(self.metadata)
+		metadata = copy.deepcopy(self.info)
 		executable_name = exe_path.name
 		metadata.specific_info['Executable Name'] = executable_name
 		extension = exe_path.suffix
@@ -235,7 +235,7 @@ class ItchGame(Game):
 
 		if exe_path.is_file():
 			#Might be a folder if Mac, I guess
-			add_metadata_for_raw_exe(str(exe_path), self.metadata)
+			add_metadata_for_raw_exe(str(exe_path), self.info)
 			if 'icon' not in metadata.images:
 				icon = look_for_icon_for_file(exe_path)
 				if icon:
@@ -244,7 +244,7 @@ class ItchGame(Game):
 		params = get_launch_params(flavour, exe_path, windows_info)
 		if not params:
 			if flavour not in ('app-macos', 'macos'):
-				logger.debug('Not dealing with %s %s %s %s %s at this point in time', self.path, flavour, exe_path, self.platforms, self.metadata.platform)
+				logger.debug('Not dealing with %s %s %s %s %s at this point in time', self.path, flavour, exe_path, self.platforms, self.info.platform)
 			return
 		if params[1]:
 			metadata.emulator_name = params[1]

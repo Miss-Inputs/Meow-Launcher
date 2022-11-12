@@ -4,7 +4,7 @@ from meowlauncher.common_types import ByteAmount
 
 from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import AppleIIHardware
 from meowlauncher.util.region_info import get_language_by_english_name
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-def _parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes) -> None:
+def _parse_woz_info_chunk(metadata: GameInfo, chunk_data: bytes) -> None:
 	info_version = chunk_data[0]
 	#1: Disk type = 5.25" if 1 else 3.25 if 2
 	#2: 1 if write protected
@@ -57,7 +57,7 @@ woz_meta_machines = {
 	'3+': AppleIIHardware.AppleIIIPlus,
 }
 
-def _parse_woz_kv(metadata: Metadata, key: str, value: str, object_for_warning: Any=None) -> None:
+def _parse_woz_kv(metadata: GameInfo, key: str, value: str, object_for_warning: Any=None) -> None:
 	""""Parses key/values from WOZ META chunk
 	@param object_for_warning: Just here to format any logging messages with, suggest you use a ROM object 
 	"""
@@ -119,7 +119,7 @@ def _parse_woz_kv(metadata: Metadata, key: str, value: str, object_for_warning: 
 	else:
 		logger.info('Unknown Woz META key %s with value %s in %s', key, value, object_for_warning)
 
-def _parse_woz_meta_chunk(metadata: Metadata, chunk_data: bytes, object_for_warning: Any=None) -> None:
+def _parse_woz_meta_chunk(metadata: GameInfo, chunk_data: bytes, object_for_warning: Any=None) -> None:
 	rows = chunk_data.split(b'\x0a')
 	for row in rows:
 		try:
@@ -129,7 +129,7 @@ def _parse_woz_meta_chunk(metadata: Metadata, chunk_data: bytes, object_for_warn
 
 		_parse_woz_kv(metadata, key, value, object_for_warning)
 
-def _parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
+def _parse_woz_chunk(rom: 'FileROM', metadata: GameInfo, position: int) -> int:
 	chunk_header = rom.read(seek_to=position, amount=8)
 	chunk_id = chunk_header[0:4]
 	chunk_data_size = int.from_bytes(chunk_header[4:8], 'little')
@@ -144,7 +144,7 @@ def _parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 
 	return position + chunk_data_size + 8
 
-def add_woz_metadata(rom: 'FileROM', metadata: Metadata) -> None:
+def add_woz_metadata(rom: 'FileROM', metadata: GameInfo) -> None:
 	#https://applesaucefdc.com/woz/reference1/
 	#https://applesaucefdc.com/woz/reference2/
 	magic = rom.read(amount=8)
@@ -165,7 +165,7 @@ def add_woz_metadata(rom: 'FileROM', metadata: Metadata) -> None:
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
 		metadata.add_alternate_name(metadata.names['Header Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header Title with Subtitle')
 
-def add_apple_ii_software_info(software: 'Software', metadata: 'Metadata') -> None:
+def add_apple_ii_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
@@ -197,6 +197,6 @@ def add_apple_ii_software_info(software: 'Software', metadata: 'Metadata') -> No
 				#Apple IIc+ doesn't show up in this list so far
 			metadata.specific_info['Machine'] = machines
 
-def add_apple_ii_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
+def add_apple_ii_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	if rom.extension == 'woz':
 		add_woz_metadata(rom, metadata)

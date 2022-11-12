@@ -67,12 +67,12 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		game = ROMGame(rom, self.platform, self.platform_config)
 
 		categories = subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
-		game.metadata.categories = categories
+		game.info.categories = categories
 			
 		add_metadata(game)
 
-		if not game.metadata.categories and game.metadata.platform:
-			game.metadata.categories = (game.metadata.platform, )
+		if not game.info.categories and game.info.platform:
+			game.info.categories = (game.info.platform, )
 
 		exception_reason = None
 		launcher = None

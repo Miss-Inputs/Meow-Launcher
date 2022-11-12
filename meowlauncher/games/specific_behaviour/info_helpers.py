@@ -54,7 +54,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.metadata import Metadata
+	from meowlauncher.info import GameInfo
 
 __doc__ = """Dispatches to whatever module in specific_behaviour is appropriate, depending on platform
 
@@ -123,7 +123,7 @@ custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	'Sega Pico': add_megadrive_custom_info,
 }
 
-static_info_funcs: Mapping[str, Callable[['Metadata'], None]] = {
+static_info_funcs: Mapping[str, Callable[['GameInfo'], None]] = {
 	#Stuff that has nothing to do with the game at all
 	#Generally just InputInfo… but also SaveType if we assume it's Nothing, maybe we shouldn't
 	#TODO: Feel like this should be moved to being held by EmulatedPlatform
@@ -160,7 +160,7 @@ static_info_funcs: Mapping[str, Callable[['Metadata'], None]] = {
 	'WonderSwan': add_wonderswan_info,
 }
 
-rom_file_info_funcs: Mapping[str, Callable[['FileROM', 'Metadata'], None]] = {
+rom_file_info_funcs: Mapping[str, Callable[['FileROM', 'GameInfo'], None]] = {
 	'Apple II': add_apple_ii_rom_file_info,
 	'Atari 5200': add_atari_5200_footer_garbage_info,
 	'Benesse Pocket Challenge V2': add_wonderswan_header_info,
@@ -178,7 +178,7 @@ rom_file_info_funcs: Mapping[str, Callable[['FileROM', 'Metadata'], None]] = {
 	'WonderSwan': add_wonderswan_header_info,
 }
 
-software_info_funcs: Mapping[str, Callable[['Software', 'Metadata'], None]] = {
+software_info_funcs: Mapping[str, Callable[['Software', 'GameInfo'], None]] = {
 	'Amstrad PCW': add_amstrad_pcw_software_info,
 	'Apple II': add_apple_ii_software_info,
 	'Atari 5200': add_atari_5200_software_info,
@@ -199,7 +199,7 @@ software_info_funcs: Mapping[str, Callable[['Software', 'Metadata'], None]] = {
 	'Virtual Boy': add_virtual_boy_software_info,
 }
 
-filename_tag_info_funcs: Mapping[str, Callable[[Sequence[str], 'Metadata'], None]] = {
+filename_tag_info_funcs: Mapping[str, Callable[[Sequence[str], 'GameInfo'], None]] = {
 	'Atari ST': add_atari_st_info
 }
 
