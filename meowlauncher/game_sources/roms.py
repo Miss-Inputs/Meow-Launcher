@@ -209,7 +209,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
 
-def _iter_platform_sources(excluded_platforms: Collection[str]=None) -> Iterator[ROMPlatform]:
+def _iter_platform_sources(excluded_platforms: Collection[str] | None=None) -> Iterator[ROMPlatform]:
 	for platform_name, platform_config in platform_configs.items():
 		platform = platforms.get(platform_name)
 		if not platform:
@@ -223,7 +223,7 @@ def _iter_platform_sources(excluded_platforms: Collection[str]=None) -> Iterator
 		yield platform_source
 
 class ROMs(CompoundGameSource):
-	def __init__(self, only_platforms: Sequence[str] | None=None, excluded_platforms: Collection[str]=None) -> None:
+	def __init__(self, only_platforms: Sequence[str] | None=None, excluded_platforms: Collection[str] | None=None) -> None:
 		if only_platforms:
 			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms))
 		else:

@@ -97,7 +97,7 @@ class Cnmt():
 	type: SwitchContentMetaType
 	contents: dict[bytes, tuple[int, ContentType]] = field(compare=False)
 
-def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None) -> None:
+def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes] | None=None) -> None:
 	if not titles:
 		return
 	found_first_lang = False
