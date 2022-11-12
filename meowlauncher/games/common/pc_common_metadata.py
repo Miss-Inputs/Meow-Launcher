@@ -41,10 +41,10 @@ def _get_pe_string_table(pe: 'pefile.PE') -> 'Mapping[str, str] | None':
 		pass
 	return None
 
-def get_exe_properties(path: str) -> tuple['Mapping[str, str] | None', datetime.datetime | None]:
+def get_exe_properties(path: Path) -> tuple['Mapping[str, str] | None', datetime.datetime | None]:
 	if have_pefile:
 		try:
-			pe = pefile.PE(path, fast_load=True)
+			pe = pefile.PE(str(path), fast_load=True)
 			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
 			try:
 				timestamp = datetime.datetime.fromtimestamp(pe.FILE_HEADER.TimeDateStamp)

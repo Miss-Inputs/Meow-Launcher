@@ -75,9 +75,9 @@ def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'Metadata', pbp_f
 			if pic1:
 				metadata.images['Background Image'] = pic1
 
-def get_image_from_iso(iso: 'PyCdlib', path: str, object_for_warning: Any=None) -> 'Image':
+def get_image_from_iso(iso: 'PyCdlib', path: Path, object_for_warning: Any=None) -> 'Image':
 	try:
-		with iso.open_file_from_iso(iso_path=path) as image_data:
+		with iso.open_file_from_iso(iso_path=str(path)) as image_data:
 			try:
 				image = Image.open(image_data)
 				image.load() #Force Pillow to figure out if the image is valid or not, and also copy the image data
