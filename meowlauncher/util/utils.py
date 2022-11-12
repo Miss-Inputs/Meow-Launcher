@@ -194,20 +194,6 @@ def decode_bcd(i: int) -> int:
 	hi = (i & 0xf0) >> 4
 	lo = i & 0x0f
 	return (hi * 10) + lo
-	
-# class ColouredStreamHandler(logging.StreamHandler):
-# 	def emit(self, record: logging.LogRecord) -> None:
-# 		try:
-# 			msg = self.format(record)
-# 			if have_termcolor:
-# 				#TODO: This should be configurable lol
-# 				msg = termcolor.colored(msg, {logging.WARNING: 'yellow', logging.ERROR: 'red', logging.DEBUG: 'green'}.get(record.levelno))
-# 			print(msg, file=self.stream)
-# 			self.flush()
-# 		except RecursionError:
-# 			raise
-# 		except Exception:
-# 			self.handleError(record)
 
 class ColouredFormatter(logging.Formatter):
 	"""Formats stuff as different colours with termcolor (if it can) depending on log level"""

@@ -64,8 +64,7 @@ class NormalController(Controller):
 		return ' + '.join(description)
 
 class Biological(Controller):
-	#e.g. Mindlink for Atari 2600 (actually just senses muscle movement); N64 heart rate sensor
-	pass
+	"""e.g. Mindlink for Atari 2600 (actually just senses muscle movement); N64 heart rate sensor"""
 
 class Dial(Controller):
 	def __init__(self) -> None:

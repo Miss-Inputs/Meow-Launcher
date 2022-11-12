@@ -20,7 +20,8 @@ def parse_path_list(value: str) -> Sequence[Path]:
 	return tuple(Path(p).expanduser() for p in parse_string_list(value))
 
 def parse_bool(value: str) -> bool:
-	#I swear there was some inbuilt way to do this oh well
+	"""Parses various forms of yes/true or no/false into bool, for command line/option file purposes
+	I swear there was some inbuilt way to do this oh well"""
 	lower = value.lower()
 	if lower in {'yes', 'true', 'on', 't', 'y', 'yeah'}:
 		return True

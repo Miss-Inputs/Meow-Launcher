@@ -33,13 +33,13 @@ class RunnerConfig():
 		self.exe_path = exe_path
 		self.options = options if options else {}
 
-#Hmm pointless class so far… what am I doing
 class EmulatorConfig(RunnerConfig):
+	"""Hmm pointless class so far… what am I doing"""
 	pass
 	
 @dataclass(frozen=True)
 class RunnerConfigValue():
-	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
+	"""This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno"""
 	type: ConfigValueType
 	default_value: TypeOfConfigValue
 	description: str

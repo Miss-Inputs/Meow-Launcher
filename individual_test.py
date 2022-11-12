@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-#TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in meowlauncher/__main__.py and you can have one or many
-#Until then this will duplicate code from there so I am sorry
-#TODO: Just need to deal with itch.io/GOG/MAME software…
+__doc__ = """
+TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in meowlauncher/__main__.py and you can have one or many
+Until then this will duplicate code from there so I am sorry
+TODO: Just need to deal with itch.io/GOG/MAME software…"""
 
 import locale
 import logging

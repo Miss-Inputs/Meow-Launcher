@@ -19,7 +19,7 @@ _document_section_name = 'Documents'
 _description_section_name = 'Descriptions'
 
 class Date():
-	#Class to hold a maybe-incorrect/maybe-guessed/maybe-incomplete date, but I thought MaybeIncompleteMaybeGuessedDate was a bit too much of a mouthful and I'm not clever enough to know what else to call it
+	"""Class to hold a maybe-incorrect/maybe-guessed/maybe-incomplete date, but I thought MaybeIncompleteMaybeGuessedDate was a bit too much of a mouthful and I'm not clever enough to know what else to call it"""
 	def __init__(self, year: Union[int, str, None]=None, month: Union[int, str, None]=None, day: Union[int, str, None]=None, is_guessed: bool=False) -> None:
 		self.year = str(year) if year else None
 		self.month = str(month) if month else None

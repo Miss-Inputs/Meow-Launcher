@@ -94,7 +94,7 @@ def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[r
 	return None
 
 def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[Sequence[region_info.Region]]:
-	#Only of the form (Region 1, Region 2) strictly
+	"""Only of the form (Region 1, Region 2) strictly (e.g. as with No-Intro naming convention)"""
 	for tag in tags:
 		if not (tag.startswith('(') and tag.endswith(')')):
 			continue
@@ -121,7 +121,7 @@ def get_regions_from_filename_tags_loosely(tags: Sequence[str]) -> Sequence[regi
 	return regions
 
 def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Region]]:
-	#Only something like (JP-US)
+	"""Only something like (JP-US), as specified in TOSEC naming convention"""
 	found_year_tag = False
 	found_publisher_tag = False
 

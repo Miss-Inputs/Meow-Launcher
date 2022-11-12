@@ -119,8 +119,8 @@ def first_available_romset(driver_list: Collection[str]) -> Optional[str]:
 			return driver
 	return None
 
-#This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
 def simple_emulator(args: Sequence[str]=None) -> 'GenericLaunchCommandFunc[ROMGame]':
+	"""This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here"""
 	def inner(_, __, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner

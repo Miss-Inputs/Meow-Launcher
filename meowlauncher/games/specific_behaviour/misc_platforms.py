@@ -1,6 +1,3 @@
-#Not worth putting these in their own source file I think
-#TODO: Yeah sure but they still belong somewhere else??
-
 from collections.abc import Iterator
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, cast
@@ -19,6 +16,9 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+
+__doc__ = """Not worth putting these in their own source file I think
+#TODO: Yeah sure but they still belong somewhere else??"""
 
 def add_vic10_custom_info(game: 'ROMGame') -> None:
 	#Input info: Keyboard or joystick

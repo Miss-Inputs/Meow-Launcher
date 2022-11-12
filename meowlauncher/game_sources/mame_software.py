@@ -19,10 +19,11 @@ from meowlauncher.util.region_info import TVSystem
 
 logger = logging.getLogger(__name__)
 
-#TODO: Actually put this in game_sources, once we are more comfy this works nicely as per below todos etc, mainly the first two
-#TODO: Each platform should be an option; maybe something like there's a list config item for "use these software platforms" and then anything in there which is the name of something in software_list_platforms is used for anything specific, and anything else it just launches the software with machine name = software name, or tries to and skips if something fails
-#TODO: Don't blow up if MAME's not installed or anything like that
-#TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such, which isn't in there anyway). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't
+__doc__ = """This would be a game source for MAME software… but I haven't actually finished it yet
+TODO: Actually put this in game_sources, once we are more comfy this works nicely as per below todos etc, mainly the first two
+TODO: Each platform should be an option; maybe something like there's a list config item for "use these software platforms" and then anything in there which is the name of something in software_list_platforms is used for anything specific, and anything else it just launches the software with machine name = software name, or tries to and skips if something fails
+TODO: Don't blow up if MAME's not installed or anything like that
+TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such, which isn't in there anyway). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't"""
 
 class SoftwareListPlatform():
 	def __init__(self, name: str, lists: Mapping[MediaType, Collection['str']], launch_params_function) -> None:

@@ -21,8 +21,10 @@ if TYPE_CHECKING:
 	                                                          SoftwareList)
 
 logger = logging.getLogger(__name__)
+__doc__ = """Classes for abstracting various kinds of ROM files, etc"""
 
 class ROM(ABC):
+	"""Base abstract class for all kinds of ROMs"""
 	def __init__(self, path: Path) -> None:
 		self.path = path
 		self.ignore_name: bool = False
@@ -32,20 +34,25 @@ class ROM(ABC):
 	def __str__(self) -> str:
 		return str(self.path)
 
-	#To word a different way: Does this point to other files, or should anything else be considered part of this
 	@property
 	def contains_other_files(self) -> bool:
+		"""To word a different way: Does this point to other files, or should anything else be considered part of this"""
 		return False
 
 	@property
 	def contained_files(self) -> Collection[Path]:
+		"""If contains_other_files, files referenced (or "contained") (hmm I suck at wording) by this ROM, so you know not to look at any of that
+		For example, children of a folder, or individual parts referenced in an m3u playlist"""
 		return tuple()
 
 	@property
 	def should_read_whole_thing(self) -> bool:
+		"""Call this before calling read_whole_thing to find out if you should do that or not… does that really make sense? Hrm"""
 		return False
 
 	def read_whole_thing(self) -> None:
+		"""As an optimization, slurp the whole ROM internally so that when read() is called it will do it from memory
+		TODO: Should this be on FileROM instead, if read() is not defined here? Should read() be defined here?"""
 		raise NotImplementedError(f'Do not read_whole_thing on {type(self)}, check should_read_whole_thing first')
 
 	@property
@@ -62,14 +69,17 @@ class ROM(ABC):
 
 	@property
 	def extension(self) -> str:
+		"""The extension of a file, lowercase and without the dot, and if archives are involved this should be the extension of the file inside the archive and not the archive itself"""
 		return self._extension
 
 	@abstractmethod
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> Optional['Software']:
-		pass
+		"""Gets Software object (from MAME software lists) for this ROM, or None if not applicable or not found"""
+		return None
 
 	@cached_property
 	def size(self) -> ByteAmount:
+		"""Total size of this ROM (and all contained files)"""
 		if self.contains_other_files:
 			return ByteAmount(sum(contained_file.stat().st_size for contained_file in self.contained_files))
 		return ByteAmount(self.path.stat().st_size)
@@ -347,6 +357,7 @@ def _parse_m3u(path: Path) -> Iterator[ROM]:
 				logger.info('M3U file %s has a broken line: %s', path, line)
 
 class M3UPlaylist(ROM):
+	"""Represents an .m3u file"""
 	def __init__(self, path: Path):
 		super().__init__(path)
 		self.subroms = tuple(_parse_m3u(path))
@@ -370,6 +381,7 @@ class M3UPlaylist(ROM):
 		return self.subroms[0].get_software_list_entry(software_lists, needs_byteswap)
 
 def get_rom(path: Path) -> ROM:
+	"""Helper to construct the appropriate subclass of ROM"""
 	if path.is_dir():
 		return FolderROM(path)
 	ext = path.suffix
@@ -378,7 +390,7 @@ def get_rom(path: Path) -> ROM:
 			return GCZFileROM(path)
 		if ext[1:].lower() == 'chd':
 			return CHDFileROM(path)
-		if ext[1:].lower() == 'm3u':
+		if ext[1:].lower() in {'m3u', 'm3u8'}:
 			return M3UPlaylist(path)
 		if ext[1:].lower() in archives.compressed_exts:
 			return CompressedROM(path)

@@ -62,7 +62,7 @@ def parse_icon(rom: 'FileROM', icon_bank: int, icon_offset_x: int, icon_offset_y
 
 	return whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
 
-def parse_rom_header(rom: 'FileROM', metadata: 'Metadata', header: bytes) -> None:
+def _parse_rom_header(rom: 'FileROM', metadata: 'Metadata', header: bytes) -> None:
 	#Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of
 	metadata.specific_info['Internal Title'] = header[17:26].rstrip(b' ').decode('ascii', 'backslashreplace')
 	#26:28: Game ID, but does that have any relation to product code?
@@ -80,4 +80,4 @@ def add_game_com_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 		rom_header = rom.read(amount=31, seek_to=0x40000)
 	if rom_header[5:14] == b'TigerDMGC':
 		#If it still isn't there, never mind
-		parse_rom_header(rom, metadata, rom_header)
+		_parse_rom_header(rom, metadata, rom_header)

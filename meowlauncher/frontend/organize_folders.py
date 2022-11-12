@@ -16,9 +16,9 @@ from meowlauncher.util.io_utils import sanitize_name
 if TYPE_CHECKING:
 	from configparser import RawConfigParser
 
-#This is sort of considered separate from the main launcher generator.
-#Consider it to be its own kind of frontend, perhaps.
-#This code sucks titty balls
+__doc__ = """This is sort of considered separate from the main launcher generator.
+Consider it to be its own kind of frontend, perhaps.
+This code sucks titty balls, so it will probably all be thrown out the window and redone at some point"""
 
 def copy_to_folder(path: Path, *dest_folder_components: str) -> None:
 	dest_folder = Path(*dest_folder_components)
@@ -42,7 +42,9 @@ def delete_existing_output_dir() -> None:
 			rmdir_recursive(f)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path: Path, desktop: 'RawConfigParser', subfolder: str, keys: str, missing_value: str=None) -> None:
+def _move_into_extra_subfolder(path: Path, desktop: 'RawConfigParser', subfolder: str, keys: str, missing_value: str=None) -> None:
+	"""Aw jeez what the fuck? Nah what the fuck is this
+	This is like the ugliest code I've ever written, or at the very least, the ugliest code in Meow Launcher"""
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders: list[list[str]] = []
@@ -135,7 +137,7 @@ def move_into_extra_subfolder(path: Path, desktop: 'RawConfigParser', subfolder:
 		else:
 			copy_to_folder(path, main_config.organized_output_folder, subfolder)
 
-def move_into_subfolders(path: Path) -> None:
+def _move_into_subfolders(path: Path) -> None:
 	desktop = get_desktop(path)
 	platform = get_field(desktop, 'Platform')
 	categories = get_array(desktop, 'Categories')
@@ -160,16 +162,16 @@ def move_into_subfolders(path: Path) -> None:
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 	copy_to_folder(path, main_config.organized_output_folder, 'By category and platform', sanitize_name(category) + ' - ' + sanitize_name(platform))
 
-	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre')
-	move_into_extra_subfolder(path, desktop, 'By subgenre', 'Genre,Subgenre')
-	move_into_extra_subfolder(path, desktop, 'By developer', 'Developer')
-	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher')
+	_move_into_extra_subfolder(path, desktop, 'By genre', 'Genre')
+	_move_into_extra_subfolder(path, desktop, 'By subgenre', 'Genre,Subgenre')
+	_move_into_extra_subfolder(path, desktop, 'By developer', 'Developer')
+	_move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher')
 	#move_into_extra_subfolder(path, desktop, 'By platform and category', 'Platform,Categories*') #We might just only care about first category...
-	move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
-	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
-	move_into_extra_subfolder(path, desktop, 'By arcade system', 'Arcade-System')
-	move_into_extra_subfolder(path, desktop, 'By emulator', 'Emulator')
-	move_into_extra_subfolder(path, desktop, 'By engine', 'Engine')
+	_move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
+	_move_into_extra_subfolder(path, desktop, 'By series', 'Series')
+	_move_into_extra_subfolder(path, desktop, 'By arcade system', 'Arcade-System')
+	_move_into_extra_subfolder(path, desktop, 'By emulator', 'Emulator')
+	_move_into_extra_subfolder(path, desktop, 'By engine', 'Engine')
 
 	if len(languages) == 1:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
@@ -188,7 +190,7 @@ def move_into_folders() -> None:
 		for f in files:
 			path = Path(root, f)
 			if path.suffix == '.desktop':
-				move_into_subfolders(path)
+				_move_into_subfolders(path)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
@@ -218,7 +220,7 @@ def main() -> None:
 				path = Path(root, f)
 				if path.suffix == '.desktop':
 					desktop = get_desktop(path)
-					move_into_extra_subfolder(path, desktop, sanitize_name(name, safe_for_fat32=True), key, missing_value)
+					_move_into_extra_subfolder(path, desktop, sanitize_name(name, safe_for_fat32=True), key, missing_value)
 		if main_config.print_times:
 			time_ended = time.perf_counter()
 			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

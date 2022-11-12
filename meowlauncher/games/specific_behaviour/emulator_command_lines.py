@@ -272,8 +272,9 @@ def mame_colecovision(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_conf
 	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_dreamcast(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	#Possibly dctream (Treamcast) could be useful here
-	#dcdev doesn't run retail stuff
+	"""MAME Dreamcast driver, selects correct one based on region code
+	Maybe dctream (Treamcast) could be useful here as an option?
+	dcdev doesn't run retail stuff"""
 	if game.metadata.specific_info.get('Uses Windows CE?', False):
 		raise EmulationNotSupportedException('Windows CE-based games not supported')
 

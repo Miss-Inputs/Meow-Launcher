@@ -12,10 +12,16 @@ from typing import Optional
 
 from meowlauncher.common_types import ByteAmount
 
-#Use a number of different ways to crack open some archive formats and feast on the juicy file goo inside, depending on what the user has installed
-#Use inbuilt Python libraries for zip and gz
-#Would libarchive be faster than inbuilt gzip/zipfile? Not even sure, don't feel like finding out that much
-#As a worst case scenario, try running 7z in a subprocess, which is slow and clunky but it will open anything and I suspect it is often installed
+__doc__ = """Use a number of different ways to open some archive formats and feast on the juicy file goo inside, depending on what the user has installed
+Use inbuilt Python libraries for zip and gz
+Would libarchive be faster than inbuilt gzip/zipfile? Not even sure, haven't been bothered benchmarking it
+As a worst case scenario, try running 7z in a subprocess, which is slow and clunky but it will open… almost anything, in theory
+
+7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
+rar might need that one package and shouldn't exist but anyway
+We still do need to detect by extension, because otherwise .jar and .solarus and .dosz and other things deliberately acting as not a zip would be a zip
+For that reason this might not work as expected with ".tar.gz" instead of ".tgz" etc (but who stores their ROMs like that?)
+"""
 
 try:
 	import py7zr
@@ -40,15 +46,11 @@ except (subprocess.CalledProcessError, OSError):
 FilenameWithMaybeSizeAndCRC = tuple[str, Optional[ByteAmount], Optional[int]]
 
 compressed_exts = {'7z', 'zip', 'gz', 'bz2', 'xz', 'tar', 'tgz', 'tbz', 'txz', 'rar'}
-#7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
-#rar might need that onen package and shouldn't exist but anyway
-#We still do need to detect by extension, because otherwise .jar and .solarus and .dosz and other things deliberately acting as not a zip would be a zip
-#For that reason this might not work as expected with ".tar.gz" instead of ".tgz" etc
 
 #-- Stuff to read archive files that have no native Python support via 7z command line (we still need this for some obscure types if we do have py7zr)
 
 class BadSubprocessedArchiveError(Exception):
-	pass
+	"""7z subprocess failed"""
 
 class BadArchiveError(Exception):
 	pass
@@ -188,7 +190,8 @@ def gzip_get(path: Path, offset: int=0, amount: int=-1) -> bytes:
 		return gzip_file.read(amount)
 
 def gzip_getsize(path: Path) -> ByteAmount:
-	#Filename is ignored, there is only one in there
+	""""Gets size of a .gz file by opening it and seeking to the end, so it better be seekable
+	Filename is ignored, there is only one in there"""
 	with gzip.GzipFile(path, 'rb') as f:
 		f.seek(0, io.SEEK_END)
 		return ByteAmount(f.tell())

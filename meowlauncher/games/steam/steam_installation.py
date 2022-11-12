@@ -19,7 +19,8 @@ from meowlauncher.config.main_config import main_config
 
 
 class StateFlags(IntFlag):
-	#https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/EAppState.h
+	"""See also https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/EAppState.h
+	Used in .acf manifests"""
 	Invalid = 0
 	Uninstalled = 1
 	UpdateRequired = 2

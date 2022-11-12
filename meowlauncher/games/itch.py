@@ -22,10 +22,11 @@ from meowlauncher.util.name_utils import fix_name
 
 logger = logging.getLogger(__name__)
 
-#TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
+__doc__ = """Game source for installed itch.io games (anything installed with the client, and no weird games that use non-recommended install methods) that is not a GameSource yet
+TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
 #…But "find any executables in the game dir" is kind of what butler does, albeit with a bit more spicy
 #So given we have to filter out butler's detected executables anyway… might as well redo it
-#GOG would appreciate a "find likely executables in a folder" function too
+#GOG would appreciate a "find likely executables in a folder" function too"""
 
 @lru_cache(maxsize=1)
 def _find_butler() -> Optional[Path]:

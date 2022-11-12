@@ -76,10 +76,11 @@ def find_equivalent_arcade_game(game_name: str, game_alt_names: Collection[str],
 	return None
 
 def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') -> None:
-	#"As noted at the start of Single Image Sets chapter, the order of those flags is important and
+	"""Parses dump status from TOSEC naming standard
+	"As noted at the start of Single Image Sets chapter, the order of those flags is important and
 	#should be kept correct. The order should always be:
 	#[cr][f][h][m][p][t][tr][o][u][v][b][a][!]"
-	#In case that matters to anyone, but it doesn't
+	#In case that matters to anyone (I don't think it would)"""
 	for tag in tags:
 		if tag.startswith('[cr '):
 			metadata.specific_info['Cracked By'] = tag.removeprefix('[cr ')[:-1]

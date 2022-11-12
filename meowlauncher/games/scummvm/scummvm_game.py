@@ -19,9 +19,9 @@ from .scummvm_config import scummvm_config
 logger = logging.getLogger(__name__)
 
 def format_platform(platform: str) -> str:
-	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
+	"""Converts short platform code into something more human readable (uses same names as emulated_platforms)
+	See also https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28"""
 	return {
-		#We'll use the same formatting as in emulated_platforms
 		'2gs': 'Apple IIgs',
 		'apple2': 'Apple II',
 		'3do': '3DO',

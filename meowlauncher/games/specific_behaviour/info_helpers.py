@@ -56,20 +56,20 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-#I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
+__doc__ = """Dispatches to whatever module in specific_behaviour is appropriate, depending on platform
 
-#Stuff that can be extracted from the ROM but we haven't done that because it's not worth doing:
-#ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something), title
-#APF: Menu text
-#Vectrex: Title screen text
-#Konami Picno: Product code
-#Xbox: Publisher, year/month/day; albeit just for executables and not discs, so I'm not gonna bother since we only launch discs right now
+Stuff that can be extracted from the ROM but we haven't done that because it's not worth doing:
+ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something), title
+APF: Menu text
+Vectrex: Title screen text
+Konami Picno: Product code
+Xbox: Publisher, year/month/day; albeit just for executables and not discs, so I'm not gonna bother since we only launch discs right now
 
-#If I had them emulated/added to system info there can be metadatum extracted, but there's no point implementing them here yet:
-#64DD: Publisher, product code, version
-#e-Reader: Hmm. Not a lot actually, but which "region" (Japan, export, Japan+) would end up being necessary I think
-#RCA Studio 2 (community-developed .st2 header): developer, product code
-#Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
+If I had them emulated/added to system info there can be metadatum extracted, but there's no point implementing them here yet:
+64DD: Publisher, product code, version
+e-Reader: Hmm. Not a lot actually, but which "region" (Japan, export, Japan+) would end up being necessary I think
+RCA Studio 2 (community-developed .st2 header): developer, product code
+Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)"""
 
 custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	#TODO: Ideally we should work out a way to dismantle all of these
