@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from zlib import crc32
 
 from meowlauncher import input_metadata

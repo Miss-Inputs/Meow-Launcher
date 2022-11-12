@@ -19,4 +19,3 @@ gun.buttons = 2 #Also pause and turbo
 
 pachinko = input_metadata.Paddle()
 pachinko.buttons = 1
-

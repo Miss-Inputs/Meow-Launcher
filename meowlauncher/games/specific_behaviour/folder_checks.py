@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import MediaType
 if TYPE_CHECKING:

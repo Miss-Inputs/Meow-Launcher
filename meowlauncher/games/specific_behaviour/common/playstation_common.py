@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Mapping
 from enum import Flag
-from typing import TYPE_CHECKING, Any, NamedTuple, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, Union, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.util.name_utils import fix_name

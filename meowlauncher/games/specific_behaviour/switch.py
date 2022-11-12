@@ -8,7 +8,7 @@ from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
 from enum import Enum, Flag
 from shutil import rmtree
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 try:

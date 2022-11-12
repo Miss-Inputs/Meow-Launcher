@@ -3,7 +3,7 @@ import logging
 import os
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
 from meowlauncher.config.platform_config import platform_configs

@@ -2,7 +2,7 @@ import logging
 import os
 import struct
 from collections.abc import Collection, Sequence
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
 try:

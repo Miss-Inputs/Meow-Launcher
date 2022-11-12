@@ -7,7 +7,7 @@ import sys
 import time
 from collections.abc import Callable, Collection
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field

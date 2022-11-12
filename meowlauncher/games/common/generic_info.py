@@ -1,6 +1,6 @@
 from collections.abc import Collection, Sequence
 from functools import lru_cache
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from meowlauncher.games.mame_common.machine import (Machine,
                                                     does_machine_match_name,

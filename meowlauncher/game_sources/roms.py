@@ -4,7 +4,7 @@ import logging
 import os
 from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config

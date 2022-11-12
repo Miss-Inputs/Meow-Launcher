@@ -6,7 +6,7 @@ import re
 import zipfile
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType

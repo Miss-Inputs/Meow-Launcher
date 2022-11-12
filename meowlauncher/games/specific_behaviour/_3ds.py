@@ -8,7 +8,7 @@ import logging
 import os
 from collections.abc import Mapping
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata

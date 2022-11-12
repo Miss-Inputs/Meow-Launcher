@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import ByteAmount, MediaType

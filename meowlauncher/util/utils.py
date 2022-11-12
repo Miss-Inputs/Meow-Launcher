@@ -4,7 +4,7 @@ import json
 import logging
 import re
 from collections.abc import Collection, Sequence, Mapping
-from typing import Any, Optional, Union
+from typing import Any
 
 from meowlauncher.exceptions import NotLaunchableException
 
@@ -139,7 +139,7 @@ def byteswap(b: bytes) -> bytes:
 	return bytes(byte_array)
 
 _dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
-def load_dict(subpackage: str | None, resource: str) -> Mapping[Union[int, str], str]:
+def load_dict(subpackage: str | None, resource: str) -> Mapping[int | str, str]:
 	d = {}
 	package = 'meowlauncher.data'
 	if subpackage:
@@ -149,7 +149,7 @@ def load_dict(subpackage: str | None, resource: str) -> Mapping[Union[int, str],
 			continue
 		match = _dict_line_regex.match(line)
 		if match:
-			key: Union[int, str] = match['key']
+			key: int | str = match['key']
 			if not match['kquote']:
 				key = int(key)
 			d[key] = match['value']

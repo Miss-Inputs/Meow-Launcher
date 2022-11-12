@@ -8,7 +8,7 @@ import statistics
 from collections.abc import Collection, Iterator, Mapping, MutableMapping
 from functools import lru_cache
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 try:
 	from steamfiles import acf, appinfo

@@ -2,7 +2,7 @@ import calendar
 from collections.abc import Mapping
 from dataclasses import dataclass
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (

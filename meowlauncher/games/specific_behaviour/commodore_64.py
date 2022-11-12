@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.software_list import Software

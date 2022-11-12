@@ -3,7 +3,7 @@ import re
 from collections.abc import Collection, Iterator
 from datetime import datetime
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType

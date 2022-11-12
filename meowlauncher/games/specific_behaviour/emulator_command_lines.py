@@ -4,7 +4,7 @@ import re
 import shlex
 from collections.abc import Collection, Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,

@@ -3,7 +3,7 @@ import os
 import statistics
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 from meowlauncher.common_types import ByteAmount
 

@@ -5,7 +5,7 @@ from collections.abc import (Collection, Iterable, Iterator, MutableSet,
                              Sequence)
 from functools import cache
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
