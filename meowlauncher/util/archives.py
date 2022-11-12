@@ -240,6 +240,7 @@ def libarchive_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> 
 			for item in a:
 				if item.pathname == filename:
 					#Stream returned by readstream() doesn't support seek() by the looks of it
+					data: bytes
 					if amount != -1:
 						with a.readstream(item.size) as streamy_boi:
 							if not offset:

@@ -8,6 +8,7 @@ from typing import Optional, Union
 TypeOfConfigValue = Optional[Union[bool, str, Path, int, str, Sequence[str], Sequence[Path]]]
 
 class ConfigValueType(Enum):
+	"""TODO: This should be thrown out the window, and we should use typing hints + introspection instead"""
 	Bool = auto()
 	FilePath = auto()
 	FolderPath = auto()
@@ -35,7 +36,6 @@ class RunnerConfig():
 
 class EmulatorConfig(RunnerConfig):
 	"""Hmm pointless class so far… what am I doing"""
-	pass
 	
 @dataclass(frozen=True)
 class RunnerConfigValue():

@@ -217,7 +217,7 @@ def add_megadrive_info(metadata: Metadata, header: bytes, object_for_logging: An
 		metadata.specific_info['Region Code'] = [MegadriveRegionCodes.USA]
 
 def _get_smd_header(rom: FileROM) -> bytes:
-	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
+	"""Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)"""
 	block = rom.read(seek_to=512, amount=16384)
 
 	buf = bytearray(16386)

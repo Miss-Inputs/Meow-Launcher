@@ -46,4 +46,4 @@ def remove_nonexistent_games() -> None:
 		time_ended = time.perf_counter()
 		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-__doc__ = remove_nonexistent_games.__doc__
+__doc__ = remove_nonexistent_games.__doc__ or "Shut up mypy"
