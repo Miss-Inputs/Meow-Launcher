@@ -1,18 +1,18 @@
 import inspect
 import logging
 import sys
+from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
 from collections.abc import Collection, Mapping, MutableMapping
 from functools import wraps
 from pathlib import Path, PurePath
+from typing import Any
 
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 from meowlauncher.util.io_utils import ensure_exist
-from meowlauncher.util.name_utils import sentence_case
-from meowlauncher.util.utils import NoNonsenseConfigParser
+from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
 
-from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
-                            parse_value)
+from ._config_utils import ConfigValue, parse_path_list, parse_value
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +41,8 @@ _config_ini_values = {
 	'simple_disambiguate': ConfigValue('General', ConfigValueType.Bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
 	'normalize_name_case': ConfigValue('General', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
 	'logging_level': ConfigValue('General', ConfigValueType.String, logging.getLevelName(logger.getEffectiveLevel()), 'Logging level', 'Logging level (e.g. INFO, DEBUG, WARNING, etc)'),
+
+	#TODO: This should be some kind of per-source options, whichever the best way to do that might be
 	
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, (), 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
@@ -92,36 +94,27 @@ def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 def get_runtime_options() -> Mapping[str, ConfigValue]:
 	return {name: opt for name, opt in _config_ini_values.items() if opt.section == _runtime_option_section}
 
-def _get_command_line_arguments() -> Mapping[str, TypeOfConfigValue]:
-	d: MutableMapping[str, TypeOfConfigValue] = {}
-	for i, arg in enumerate(sys.argv):
-		if not arg.startswith('--'):
-			continue
-		arg = arg[2:]
-
-		for name, option in _config_ini_values.items():
-			expected_arg = name.replace('_', '-')
-
-			if option.type == ConfigValueType.Bool:
-				if arg == '--no-' + expected_arg:
-					d[name] = False
-				elif arg == expected_arg:
-					d[name] = True
-
-			elif arg == expected_arg:
-				value = sys.argv[i + 1]
-				#TODO: If value = another argument starts with --, invalid?
-				#if option.type == ConfigValueType.Bool: #or do I wanna do that
-				#	d[name] = parse_command_line_bool(value)
-				if option.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
-					d[name] = Path(value).expanduser()
-				elif option.type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
-					d[name] = parse_path_list(value)
-				elif option.type == ConfigValueType.StringList:
-					d[name] = parse_string_list(value)
-				else:
-					d[name] = value
-	return d
+def get_command_line_arguments() -> ArgumentParser:
+	"""Use with parents= kwarg of ArgumentParser
+	Hmm still not sure if this is the best way…"""
+	p = ArgumentParser()
+	section_groups: dict[str, Any | ArgumentParser]  = {}
+	#We lie somewhat to the type checker here because it bugs me that _ArgumentGroup is a private type and so we can't really type hint it with that, but this will be close enough
+	for name, option in _config_ini_values.items():
+		name = name.replace('_', '-')
+		section = option.section
+		group = section_groups.setdefault(section, p.add_argument_group(section)) #Should have a description innit
+		#Hmm ConfigValueType sucks whoops
+		if option.type == ConfigValueType.Bool:
+			group.add_argument(f'--{name}', action=BooleanOptionalAction, help=option.description, default=SUPPRESS)
+		elif option.type in {ConfigValueType.FilePathList, ConfigValueType.FolderPathList}:
+			group.add_argument(f'--{name}', nargs='?', type=Path, help=option.description, default=SUPPRESS)
+		elif option.type == ConfigValueType.StringList:
+			group.add_argument(f'--{name}', nargs='?', help=option.description, default=SUPPRESS)
+		else:
+			typey = {ConfigValueType.String: str, ConfigValueType.Integer: int, ConfigValueType.FolderPath: Path, ConfigValueType.FilePath: Path}[option.type]
+			group.add_argument(f'--{name}', type=typey, help=option.description, default=SUPPRESS)
+	return p
 
 def _load_ignored_directories() -> Collection[PurePath]:
 	ignored_directories: set[PurePath] = set()
@@ -147,7 +140,9 @@ class Config():
 			for name, config in _config_ini_values.items():
 				self.values[name] = config.default_value
 
-			self.runtime_overrides = _get_command_line_arguments()
+			#For now, just parse what is known… ideally we want ArgumentParser to be the main thing
+			borf = get_command_line_arguments().parse_known_intermixed_args()
+			self.runtime_overrides = vars(borf[0])
 			parser = NoNonsenseConfigParser()
 			self.parser = parser
 			ensure_exist(_main_config_path)

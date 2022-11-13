@@ -8,6 +8,7 @@ TODO: Just need to deal with itch.io/GOG/MAME software…"""
 import locale
 import logging
 import sys
+first_arg = sys.argv.pop(1) #TODO Just getting it before main_config parses it, because everything is all wrong for now
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.frontend import organize_folders, series_detect
@@ -31,31 +32,31 @@ def main() -> None:
 			for f in main_config.output_folder.iterdir():
 				f.unlink()
 
-	if sys.argv[1] == 'gog':
+	if first_arg == 'gog':
 		gog.do_gog_games()
-	elif sys.argv[1] == 'itchio':
+	elif first_arg == 'itchio':
 		itch_io.do_itch_io_games()
-	elif sys.argv[1] == 'mame_software':
+	elif first_arg == 'mame_software':
 		mame_software.add_mame_software()
 	
-	elif sys.argv[1] == 'series_detect':
+	elif first_arg == 'series_detect':
 		series_detect.detect_series_for_all_desktops()
-	elif sys.argv[1] == 'remove_nonexistent_games':
+	elif first_arg == 'remove_nonexistent_games':
 		remove_nonexistent_games()
-	elif sys.argv[1] == 'disambiguate':
+	elif first_arg == 'disambiguate':
 		disambiguate_names()
-	elif sys.argv[1] == 'organize_folders':
+	elif first_arg == 'organize_folders':
 		#This one's a bit jank and I should clean it up I guess
 		organize_folders.main()
 	else:
 		source = None
 		for game_source in game_sources:
-			if sys.argv[1] in {game_source.name, game_source.name.lower()}:
+			if first_arg in {game_source.name, game_source.name.lower()}:
 				source = game_source
 				break
 
 		if not source:
-			logger.error('Unknown game source: %s', sys.argv[1])
+			logger.error('Unknown game source: %s', first_arg)
 			return
 		if not source.is_available:
 			logger.error('%s is not available', source)

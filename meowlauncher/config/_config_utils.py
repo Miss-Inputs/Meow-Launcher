@@ -51,6 +51,6 @@ class ConfigValue():
 	section: str
 	type: ConfigValueType
 	default_value: TypeOfConfigValue
-	name: str #This is for humans to read! I guess I could have called it display_name
+	readable_name: str
 	description: str
 	

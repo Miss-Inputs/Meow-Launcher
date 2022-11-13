@@ -1,9 +1,9 @@
-from configparser import RawConfigParser
 import importlib.resources
 import json
 import logging
 import re
-from collections.abc import Collection, Sequence, Mapping
+from collections.abc import Collection, Mapping, Sequence
+from configparser import RawConfigParser
 from typing import Any
 
 from meowlauncher.exceptions import NotLaunchableException
@@ -223,3 +223,8 @@ class NoNonsenseConfigParser(RawConfigParser):
 
 	def optionxform(self, optionstr: str) -> str:
 		return optionstr
+
+def sentence_case(s: str) -> str:
+	words = s.lower().split(' ')
+	return ' '.join([words[0].title(), ' '] + words[1:])
+	
