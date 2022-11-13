@@ -201,7 +201,7 @@ class NormalGOGGame(GOGGame):
 
 class DOSBoxGOGGame(GOGGame):
 	"""DOS game that is packaged with DOSBox
-	TODO: Let user use native DOSBox""""
+	TODO: Let user use native DOSBox"""
 	def add_metadata(self) -> None:
 		super().add_metadata()
 		self.info.specific_info['Wrapper'] = 'DOSBox'
