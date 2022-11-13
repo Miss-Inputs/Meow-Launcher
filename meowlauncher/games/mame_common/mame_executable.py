@@ -12,14 +12,14 @@ from meowlauncher.config.main_config import main_config
 logger = logging.getLogger(__name__)
 
 class MachineNotFoundException(Exception):
-	#This shouldn't be thrown unless I'm an idiot, but that may well happen
-	pass
+	"""This shouldn't be thrown unless I'm an idiot, but then of course that doesn't mean it won't happen
+	Although maybe it means I should use asserts instead"""
 
 class MAMENotInstalledException(Exception):
-	#This should always end up being caught, because I shouldn't assume the user has stuff installed
-	pass
+	"""Not having MAME installed is a normal thing, even if suboptimal. So remember to always catch this one! Well, mostly a reminder to myself to actually test for that case"""
 
 class MAMEExecutable():
+	"""Represents a MAME executable that may or may not exist (raises MAMENotInstalledException in the constructor if it doesn't)"""
 	def __init__(self, path: str='mame'):
 		self.executable = path
 		self.version = self._get_version()

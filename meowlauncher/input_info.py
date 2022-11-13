@@ -154,8 +154,7 @@ class Pedal(Controller):
 	pass
 
 class Positional(Controller):
-	#What the heck is this
-	pass
+	"""Not entirely sure what this is, but it's in some MAME machines"""
 
 class SteeringWheel(Controller):
 	def describe(self) -> str:

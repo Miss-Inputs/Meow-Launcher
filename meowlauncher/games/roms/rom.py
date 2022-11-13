@@ -250,7 +250,9 @@ class UnsupportedCHDError(Exception):
 	pass
 
 class CHDFileROM(ROM):
-	#There is an argument to be made that this _could_ be a FileROM that raises NotImplementedError on read() I guess… maybe if/once we can read from it and then don't need to throw that exception, otherwise it's a good way to avoid accidentally thinking we can
+	""".chd file, v4 or v5 (anything else is weird)
+	Currently does not read data, just gets the sha1 and also stops you doing anything else funny
+	There is an argument to be made that this _could_ be a FileROM that raises NotImplementedError on read() I guess… maybe if/once we can read from it and then don't need to throw that exception, otherwise it's a good way to avoid accidentally thinking we can"""
 	@property
 	def should_read_whole_thing(self) -> bool:
 		return False

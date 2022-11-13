@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class PlatformConfigValue():
-	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
+	"""This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno"""
 	type: ConfigValueType
 	default_value: TypeOfConfigValue
 	description: str
@@ -52,7 +52,8 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 		return next((media_type for media_type, extensions in self.file_types.items() if rom.extension in extensions), None)
 
 class ManuallySpecifiedPlatform(ChooseableEmulatedPlatform):
-	#TODO: Not necessarily emulated! But it does need to be treated as a platform, so like I dunno, maybe we just pretend it is and that works out
+	"""Platform where you manually specify what games exist and where
+	TODO: Not necessarily emulated! But it does need to be treated as a platform, so like I dunno, maybe we just pretend it is and that works out"""
 	def __init__(self, name: str, json_name: str, emulators: 'Collection[str]', options: 'Mapping[str, PlatformConfigValue] | None'=None):
 		super().__init__(emulators, name, options)
 		self.json_name = json_name

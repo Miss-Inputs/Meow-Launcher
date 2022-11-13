@@ -20,7 +20,8 @@ if TYPE_CHECKING:
 	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame] #Was hoping that if I'm inside StandardEmulator, I wouldn't have to manually specify that because it should know already that I'm emulating a ROMGame, but it doesn't work that way
 
 class EmulatorStatus(Enum):
-	#I have not actually thought of concrete definitions for what these mean
+	"""How good an emulator is last time we checked and decided to form an opinion on it. Hmm I'm not sure why I needed this, maybe for a frontend to choose the allegedly best emulator automatically? Yeah it'd probs be that
+	I have not actually thought of concrete definitions for what these mean"""
 	Good = 6
 	Imperfect = 5
 	ExperimentalButSeemsOkay = 4

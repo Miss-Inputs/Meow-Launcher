@@ -46,7 +46,8 @@ class GOGGameInfo():
 				pass
 
 class GOGJSONGameInfo():
-	#File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
+	"""File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
+	Hmm maybe this also needs a renamerooni"""
 	def __init__(self, path: Path):
 		j = json.loads(path.read_bytes())
 		self.game_id = j.get('gameId')
@@ -199,13 +200,15 @@ class NormalGOGGame(GOGGame):
 				break
 
 class DOSBoxGOGGame(GOGGame):
-	#TODO: Let user use native DOSBox
+	"""DOS game that is packaged with DOSBox
+	TODO: Let user use native DOSBox""""
 	def add_metadata(self) -> None:
 		super().add_metadata()
 		self.info.specific_info['Wrapper'] = 'DOSBox'
 
 class ScummVMGOGGame(GOGGame):
-	#TODO: Let user use native ScummVM
+	"""Adventure game that is packaged with ScummVM
+	#TODO: Let user use native ScummVM"""
 	def add_metadata(self) -> None:
 		super().add_metadata()
 		#TODO: Detect engine from scummvm.ini
