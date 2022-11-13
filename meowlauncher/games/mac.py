@@ -166,7 +166,7 @@ class CountryCode(Enum):
 
 mac_epoch = datetime.datetime(1904, 1, 1)
 
-def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: str=None) -> Optional['Image.Image']:
+def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: Any=None) -> Optional['Image.Image']:
 	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 	if icn_resource:
 		if len(icn_resource) != 256:
@@ -207,9 +207,9 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 	return icon_bw
 
 class MacApp(ManuallySpecifiedGame):
-	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig') -> None:
-		super().__init__(info, platform_config)
-		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(info['hfv_path'])
+	def __init__(self, json: Mapping[str, Any], platform_config: 'PlatformConfig') -> None:
+		super().__init__(json, platform_config)
+		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(json['hfv_path'])
 		
 	@property
 	def _carbon_path(self) -> PathInsideHFS | None:
@@ -446,9 +446,9 @@ class MacApp(ManuallySpecifiedGame):
 				#If you have machfs you do have macresources too, but still
 				self._add_additional_metadata_from_resources(self._file)
 
-		if 'arch' in self.info:
+		if 'arch' in self.json:
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
-			self.info.specific_info['Architecture'] = self.info['arch']
+			self.info.specific_info['Architecture'] = self.json['arch']
 				
 class MacLauncher(ManuallySpecifiedLauncher):
 	def __init__(self, app: MacApp, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:

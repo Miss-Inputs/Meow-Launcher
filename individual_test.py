@@ -8,7 +8,8 @@ TODO: Just need to deal with itch.io/GOG/MAME software…"""
 import locale
 import logging
 import sys
-first_arg = sys.argv.pop(1) #TODO Just getting it before main_config parses it, because everything is all wrong for now
+
+first_arg = sys.argv.pop(1) #TODO Just getting it before main_config parses it, because everything is all wrong for now, so yes, I do know the import order is bad thank you pylint
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.frontend import organize_folders, series_detect

@@ -24,7 +24,8 @@ from meowlauncher.util import name_utils, region_info
 logger = logging.getLogger(__name__)
 
 class GOGGameInfo():
-	#File named "gameinfo" for Linux games
+	"""File named "gameinfo" for Linux games
+	Shit now we need to name this something else shitshitshit"""
 	def __init__(self, path: Path):
 		self.name = path.name
 		self.version = None
@@ -129,22 +130,22 @@ class GOGGame(Game, ABC):
 	def __init__(self, game_folder: Path, info: GOGGameInfo, start_script: Path, support_folder: Path):
 		super().__init__()
 		self.folder = game_folder
-		self.info = info
+		self.info_file = info
 		self.start_script = start_script
 		self.support_folder = support_folder #Is this necessary to pass as an argument? I guess not but I've already found it in look_in_linux_gog_folder
 
 	@property
 	def name(self) -> str:
-		return name_utils.fix_name(self.info.name)
+		return name_utils.fix_name(self.info_file.name)
 
 	def add_metadata(self) -> None:
 		icon = self.icon
 		if icon:
 			self.info.images['Icon'] = icon
-		self.info.specific_info['Version'] = self.info.version
-		self.info.specific_info['Dev Version'] = self.info.dev_version
-		self.info.specific_info['Language Code'] = self.info.language
-		self.info.specific_info['GOG Product ID'] = self.info.gameid
+		self.info.specific_info['Version'] = self.info_file.version
+		self.info.specific_info['Dev Version'] = self.info_file.dev_version
+		self.info.specific_info['Language Code'] = self.info_file.language
+		self.info.specific_info['GOG Product ID'] = self.info_file.gameid
 
 		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
 		self.info.media_type = MediaType.Digital
@@ -162,9 +163,9 @@ class GOGGame(Game, ABC):
 	@property
 	def is_demo(self) -> bool:
 		#The API doesn't even say this for a given product ID, we'll just have to figure it out ourselves
-		if self.info.version and 'demo' in self.info.version.lower():
+		if self.info_file.version and 'demo' in self.info_file.version.lower():
 			return True
-		if self.info.dev_version and 'demo' in self.info.dev_version.lower():
+		if self.info_file.dev_version and 'demo' in self.info_file.dev_version.lower():
 			return True
 		return any(f'({demo_suffix.lower()})' in self.name.lower() for demo_suffix in name_utils.demo_suffixes)
 		
@@ -251,18 +252,18 @@ def _find_subpath_case_insensitive(path: Path, subpath: str) -> Path:
 class WindowsGOGGame(Game):
 	def __init__(self, folder: Path, info_file: Path, game_id: str) -> None:
 		super().__init__()
-		self.info = GOGJSONGameInfo(info_file)
+		self.json_info = GOGJSONGameInfo(info_file)
 		self.id_file = None
 		id_path = info_file.with_suffix('.id')
 		if id_path.is_file():
 			self.id_file = json.loads(id_path.read_bytes())
 
 		self.game_id = game_id
-		if game_id != self.info.game_id:
-			logger.debug('Interesting, in %s game ID is %s but in the info file it is %s', folder, game_id, self.info.game_id)
+		if game_id != self.json_info.game_id:
+			logger.debug('Interesting, in %s game ID is %s but in the info file it is %s', folder, game_id, self.json_info.game_id)
 		self.folder = folder
 
-		self.original_name = self.info.name
+		self.original_name = self.json_info.name
 
 	@property
 	def name(self) -> str:
@@ -273,8 +274,8 @@ class WindowsGOGGame(Game):
 		if icon:
 			self.info.images['Icon'] = icon
 
-		self.info.specific_info['GOG Product ID'] = self.info.game_id
-		lang_name = self.info.language_name
+		self.info.specific_info['GOG Product ID'] = self.json_info.game_id
+		lang_name = self.json_info.language_name
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
 			if lang:
@@ -388,7 +389,7 @@ class WindowsGOGGame(Game):
 	def make_launchers(self) -> None:
 		actual_tasks = set()
 		documents = set()
-		for task in self.info.play_tasks:
+		for task in self.json_info.play_tasks:
 			if task.category == 'document':
 				documents.add(task)
 			elif task.name and name_utils.is_probably_documentation(task.name):
@@ -399,7 +400,7 @@ class WindowsGOGGame(Game):
 				continue
 			else:
 				actual_tasks.add(task)
-		for task in chain(self.info.support_tasks, documents):
+		for task in chain(self.json_info.support_tasks, documents):
 			self.info.documents[task.name] = task.link if task.task_type == 'URLTask' else _find_subpath_case_insensitive(self.folder, task.path)
 		for task in actual_tasks:
 			self.make_launcher(task)

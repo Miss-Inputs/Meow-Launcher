@@ -157,7 +157,7 @@ class MAMEInbuiltGames(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not default_mame_executable or not default_mame_executable.verifyroms(game_id.split(':')[0])
 
-	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str=None) -> MAMEInbuiltLauncher | None:
+	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None=None) -> MAMEInbuiltLauncher | None:
 		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
 		if not default_mame_executable.verifyroms(machine_name):
 			return None

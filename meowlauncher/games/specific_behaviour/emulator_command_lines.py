@@ -146,7 +146,7 @@ def mame_atari_jaguar(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_conf
 	elif game.info.media_type == MediaType.Executable:
 		slot = 'quik'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 	return mame_driver(game, emulator_config, 'jaguar', slot)
 
 def mame_atari_7800(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -259,7 +259,7 @@ def mame_coleco_adam(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 	elif game.info.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, 'adam', slot, slot_options, has_keyboard=True)
 
@@ -299,7 +299,7 @@ def mame_fm_towns(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 	elif game.info.media_type == MediaType.OpticalDisc:
 		slot = 'cdrom'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 	
 	#Give us 10 meganbytes of RAM because we can (some software requires 4MB ram for example)
 	#Hopefully nothing requires 2MB explicitly or less
@@ -313,7 +313,7 @@ def mame_fm_towns_marty(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_co
 	elif game.info.media_type == MediaType.OpticalDisc:
 		slot = 'cdrom'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 	
 	#Give us 4 meganbytes of RAM just in case we need it (some do, see software list info=usage)
 	#Hopefully nothing requires 2MB explicitly or less
@@ -360,7 +360,7 @@ def mame_ibm_pcjr(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 		#Floppy is the only other kind of rom we accept at this time
 		slot = 'flop'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 	return mame_driver(game, emulator_config, 'ibmpcjr', slot, has_keyboard=True)
 
 def mame_intellivision(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -547,7 +547,7 @@ def mame_msx1(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emu
 	elif game.info.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -579,7 +579,7 @@ def mame_msx2(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emu
 	elif game.info.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -598,7 +598,7 @@ def mame_msx2plus(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 	elif game.info.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -753,7 +753,7 @@ def mame_sg1000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 		slot = 'cart'
 		slot_options['sgexp'] = 'fm' #Can also put sk1100 in here. Can't detect yet what uses which though
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard)
 
@@ -887,7 +887,7 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 	elif game.info.media_type == MediaType.Executable:
 		slot = 'quik'
 	else:
-		assert True, (f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.info.media_type} unsupported')
 
 	if not system:
 		system = 'spec128' #Probably a good default
@@ -1482,8 +1482,8 @@ def _macemu_args(app: 'MacApp', autoboot_txt_path: str, emulator_config: 'Emulat
 	args = []
 	if not app.is_on_cd:
 		args += ['--disk', os.fspath(app.hfv_path)]
-	if 'max_resolution' in app.info:
-		width, height = app.info['max_resolution']
+	if 'max_resolution' in app.json:
+		width, height = app.json['max_resolution']
 		args += ['--screen', f'dga/{width}/{height}']
 	
 	if app.cd_path:
@@ -1496,18 +1496,18 @@ def _macemu_args(app: 'MacApp', autoboot_txt_path: str, emulator_config: 'Emulat
 		LaunchCommand('sh', ['-c', f'echo {shlex.quote(app_path)} > {shlex.quote(autoboot_txt_path)}']), #Hack because I can't be fucked refactoring MultiCommandLaunchCommand to do pipey bois/redirecty bois
 		#TODO: Actually could we just have a WriteAFileLaunchCommand or something
 	]
-	if 'max_bit_depth' in app.info:
+	if 'max_bit_depth' in app.json:
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
 		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
 		pre_commands += [
-			LaunchCommand('sh', ['-c', f'echo {app.info["max_bit_depth"]} >> {shlex.quote(autoboot_txt_path)}'])
+			LaunchCommand('sh', ['-c', f'echo {app.json["max_bit_depth"]} >> {shlex.quote(autoboot_txt_path)}'])
 		]
 	return MultiLaunchCommands(pre_commands, LaunchCommand(emulator_config.exe_path, args), [LaunchCommand('rm', [autoboot_txt_path])])
 
 def basilisk_ii(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if app.info.specific_info.get('Architecture') == 'PPC':
 		raise EmulationNotSupportedException('PPC not supported')
-	if app.info.get('ppc_enhanced', False) and emulator_config.options.get('skip_if_ppc_enhanced', False):
+	if app.json.get('ppc_enhanced', False) and emulator_config.options.get('skip_if_ppc_enhanced', False):
 		raise EmulationNotSupportedException('PPC enhanced')
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
@@ -1547,7 +1547,7 @@ def sheepshaver(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 	
 _mount_line_regex = re.compile(r'^MOUNT ([A-Z]) ')
-def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: Collection[str]=None) -> str:
+def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: 'Collection[str] | None'=None) -> str:
 	automounted_letters = []
 	with dosbox_config_path.open('rt', encoding='utf-8') as f:
 		found_autoexec = False
@@ -1575,15 +1575,15 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 	if noautoexec:
 		args.append('-noautoexec')	
 
-	if 'required_hardware' in app.info:
-		if 'for_xt' in app.info['required_hardware']:
-			if app.info['required_hardware']['for_xt']:
+	if 'required_hardware' in app.json:
+		if 'for_xt' in app.json['required_hardware']:
+			if app.json['required_hardware']['for_xt']:
 				#machine=cga?
 				cycles_for_about_477 = emulator_config.options['cycles_for_477_mhz']
 				args += ['-c', f'config -set "cpu cycles {cycles_for_about_477}"']
 
-		if 'max_graphics' in app.info['required_hardware']:
-			graphics = app.info['required_hardware']['max_graphics']
+		if 'max_graphics' in app.json['required_hardware']:
+			graphics = app.json['required_hardware']['max_graphics']
 			machine = 'svga_s3' if graphics == 'svga' else graphics
 			args += ['-machine', machine]
 	
@@ -1643,16 +1643,16 @@ def dosbox_x(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> LaunchComma
 		raise EmulationNotSupportedException('This might not work from CD I think unless it does')
 	#TODO: Does this even support -c? I can't remember
 
-	if 'required_hardware' in app.info:
-		if 'for_xt' in app.info['required_hardware']:
-			if app.info['required_hardware']['for_xt']:
+	if 'required_hardware' in app.json:
+		if 'for_xt' in app.json['required_hardware']:
+			if app.json['required_hardware']['for_xt']:
 				#confs['cputype'] = '8086'
 				#This doesn't even work anyway, it's just the best we can do I guess
 				confs['machine'] = 'cga'
 				confs['cycles'] = 'fixed 315'
 
-		if 'max_graphics' in app.info['required_hardware']:
-			graphics = app.info['required_hardware']['max_graphics']
+		if 'max_graphics' in app.json['required_hardware']:
+			graphics = app.json['required_hardware']['max_graphics']
 			confs['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	args = ['-exit', '-noautoexec', '-fullscreen', '-fastlaunch']

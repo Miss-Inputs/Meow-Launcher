@@ -11,7 +11,7 @@ from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
 
-from ._config_utils import ConfigValue, parse_path_list, parse_value, parse_string_list
+from ._config_utils import ConfigValue, parse_path_list, parse_string_list
 
 logger = logging.getLogger(__name__)
 

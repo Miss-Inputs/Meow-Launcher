@@ -60,8 +60,8 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		for chosen_emulator in self.iter_chosen_emulators():
 			emulator_config = emulator_configs[chosen_emulator.config_name]
 			try:
-				if 'compat' in app.info:
-					if not app.info['compat'].get(chosen_emulator.config_name, True):
+				if 'compat' in app.json:
+					if not app.json['compat'].get(chosen_emulator.config_name, True):
 						raise EmulationNotSupportedException('Apparently not supported')
 				potential_emulator = ConfiguredEmulator(chosen_emulator, emulator_config)
 				#TODO: This doesn't seem right… why are we just throwing away the result here

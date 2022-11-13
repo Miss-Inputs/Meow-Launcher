@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 	from meowlauncher.data.machines_with_inbuilt_games import InbuiltGame
 
 class MAMEInbuiltGame(EmulatedGame):
-	def __init__(self, machine_name: str, inbuilt_game: 'InbuiltGame', platform_config: 'PlatformConfig', bios_name: str=None) -> None:
+	def __init__(self, machine_name: str, inbuilt_game: 'InbuiltGame', platform_config: 'PlatformConfig', bios_name: str | None=None) -> None:
 		super().__init__(platform_config)
 		self.machine_name = machine_name
 		self.inbuilt_game = inbuilt_game #Yeahhh this should be a dataclass/named tuple

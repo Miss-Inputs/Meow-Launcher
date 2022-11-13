@@ -42,7 +42,7 @@ def delete_existing_output_dir() -> None:
 			rmdir_recursive(f)
 			#Only files here, no directories
 
-def _move_into_extra_subfolder(path: Path, desktop: 'RawConfigParser', subfolder: str, keys: str, missing_value: str=None) -> None:
+def _move_into_extra_subfolder(path: Path, desktop: 'RawConfigParser', subfolder: str, keys: str, missing_value: str | None=None) -> None:
 	"""Aw jeez what the fuck? Nah what the fuck is this
 	This is like the ugliest code I've ever written, or at the very least, the ugliest code in Meow Launcher"""
 	subsubfolder = []

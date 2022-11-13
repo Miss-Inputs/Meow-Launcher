@@ -151,7 +151,7 @@ def _add_titles(metadata: 'GameInfo', titles: Mapping[str, tuple[str, str]], ico
 	for prefix, icon in other_icons.items():
 		metadata.images[prefix + ' Icon'] = Image.open(io.BytesIO(icon))
 
-def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: Mapping[str, bytes]=None) -> None:
+def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: 'Mapping[str, bytes] | None'=None) -> None:
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]
@@ -435,7 +435,7 @@ def add_nsp_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	else:
 		logger.debug('Uh oh no cnmt.nca in %s?', rom.path)
 	
-def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount=None) -> Mapping[str, tuple[int, ByteAmount]]:
+def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount | None=None) -> 'Mapping[str, tuple[int, ByteAmount]]':
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
