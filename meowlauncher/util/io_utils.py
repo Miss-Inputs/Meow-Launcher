@@ -1,4 +1,5 @@
 import pathlib
+import re
 
 
 def ensure_exist(path: pathlib.Path) -> None:
@@ -74,8 +75,14 @@ def ensure_unique_path(path: pathlib.Path) -> pathlib.Path:
 	"""BEEP BOOP BEEP BOOP yes there is probably an alarm sounding for anyone familiar with the words "race condition", anyway this "ensures" that a filename is unique by incrementing a number at the end if it is not"""
 	new_path = path
 
-	i = 2
+	i = 1
 	while new_path.is_file():
-		new_path = new_path.with_stem(new_path.stem + str(i))
-		i += 1
+		existing_stem = new_path.stem
+		numbers_match = re.search(r'(\d+)$', existing_stem)
+		#If we already have numbers at the end of the filename, count from there
+		if numbers_match:
+			i = int(numbers_match[1])
+			existing_stem = existing_stem[:numbers_match.start()]
+		i += 1 #Effectively starts appending numbers from 2
+		new_path = new_path.with_stem(existing_stem + str(i))
 	return new_path
