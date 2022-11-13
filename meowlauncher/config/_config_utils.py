@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
@@ -49,8 +49,8 @@ def parse_value(section: 'configparser.SectionProxy', name: str, value_type: Con
 @dataclass(frozen=True)
 class ConfigValue():
 	section: str
-	type: ConfigValueType
-	default_value: TypeOfConfigValue
+	type: type
+	default_value: Any
 	readable_name: str
 	description: str
 	
