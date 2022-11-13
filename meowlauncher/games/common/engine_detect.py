@@ -50,7 +50,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['GameInfo'], executable: 
 			add_unity_metadata(unity_data_folder, metadata)
 
 		try:
-			props = get_exe_properties(str(folder / 'UnityPlayer.dll'))[0]
+			props = get_exe_properties(folder / 'UnityPlayer.dll')[0]
 			if props:
 				unity_version = props.get('UnityVersion', props.get('Unity Version'))
 				if unity_version:
@@ -62,7 +62,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['GameInfo'], executable: 
 		else:
 			exe_path = folder.joinpath(unity_data_folder.name.removesuffix('_Name') + '.exe')
 		if exe_path.is_file():
-			props = get_exe_properties(str(exe_path))[0]
+			props = get_exe_properties(exe_path)[0]
 			if props:
 				unity_version = props.get('UnityVersion', props.get('Unity Version'))
 				if unity_version:
@@ -312,9 +312,9 @@ def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['GameInfo'], exe
 		
 		product_names = {'RPG Maker 2000': '2000', 'RPG Maker 2000 Value!': '2000', 'RPG Maker 2003': '2003'}
 		if executable:
-			props = get_exe_properties(str(executable))
-			if props:
-				product_name = props.get('ProductName')
+			props = get_exe_properties(executable)
+			if props[0]:
+				product_name = props[0].get('ProductName')
 				if product_name in product_names:
 					return 'RPG Maker ' + product_names[product_name]
 			
@@ -324,16 +324,16 @@ def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['GameInfo'], exe
 			if not executable and file.suffix.lower() == '.exe':
 				#Usually RPG_RT.exe but can be renamed (often to Game.exe)
 				#There are some with a blank ProductName and a ProductVersion of 1.0.8.0 but I dunno what that corresponds to
-				props = get_exe_properties(str(file))
-				if props:
-					product_name = props.get('ProductName')
+				props = get_exe_properties(file)
+				if props[0]:
+					product_name = props[0].get('ProductName')
 					if product_name in product_names:
 						return 'RPG Maker ' + product_names[product_name]
 					break
 			if file.name.lower() == 'ultimate_rt_eb.dll':
-				props = get_exe_properties(str(file))
-				if props:
-					product_name = props.get('ProductName')
+				props = get_exe_properties(file)
+				if props[0]:
+					product_name = props[0].get('ProductName')
 					if product_name in product_names:
 						return 'RPG Maker ' + product_names[product_name]
 					break
@@ -480,9 +480,9 @@ def _try_detect_cryengine(folder: Path) -> str | None:
 
 	engine_version = 'CryEngine'
 	#If we don't have pefile, this will safely return none and it's not so bad to just say "CryEngine" when it's specifically CryEngine 2
-	info = get_exe_properties(str(cryengine_dll))
-	if info:
-		if info.get('ProductName') == 'CryEngine2':
+	info = get_exe_properties(cryengine_dll)
+	if info[0]:
+		if info[0].get('ProductName') == 'CryEngine2':
 			engine_version = 'CryEngine 2'
 	return engine_version
 
@@ -627,34 +627,34 @@ def _try_detect_engines_from_filenames(folder: Path) -> str | None:
 	
 	return None
 
-def try_detect_engine_from_exe_properties(exe_path: Path, metadata: Optional['GameInfo']) -> str | None:
+def try_detect_engine_from_exe_properties(exe_path: Path, game_info: 'GameInfo | None') -> str | None:
 	if exe_path.suffix.lower() != '.exe':
 		#Since .dll can't be launched, exe would be the only valid extension for this
 		return None
-	props = get_exe_properties(str(exe_path))
-	if props:
-		file_description = props.get('FileDescription')
+	props = get_exe_properties(exe_path)
+	if props[0]:
+		file_description = props[0].get('FileDescription')
 		if file_description == 'Wintermute Engine Runtime':
 			return 'Wintermute'
 		if file_description == 'Clickteam Fusion Application Runtime':
 			return 'Clickteam Fusion'
 		if file_description == 'Pixel Game Maker MV player':
-			if metadata:
+			if game_info:
 				info_json = exe_path.parent.joinpath('Resources', 'data', 'info.json')
-				add_metadata_from_pixel_game_maker_mv_info_json(info_json, metadata)
+				add_metadata_from_pixel_game_maker_mv_info_json(info_json, game_info)
 			return 'Pixel Game Maker MV'
-		internal_name = props.get('InternalName')
+		internal_name = props[0].get('InternalName')
 		if internal_name and internal_name.startswith('LuaSTG'):
 			return internal_name
 
 	return None
 
-def try_detect_engine_from_exe(exe_path: Path, metadata: 'GameInfo | None') -> str | None:
-	engine = try_detect_engine_from_exe_properties(exe_path, metadata)
+def try_detect_engine_from_exe(exe_path: Path, game_info: 'GameInfo | None') -> str | None:
+	engine = try_detect_engine_from_exe_properties(exe_path, game_info)
 	if engine:
 		return engine
 
-	engine = try_and_detect_engine_from_folder(exe_path.parent, metadata, exe_path)
+	engine = try_and_detect_engine_from_folder(exe_path.parent, game_info, exe_path)
 	if engine:
 		return engine
 
