@@ -93,7 +93,7 @@ atari_5200_charset = {
 	0xe1: ' ', #Not sure about this one, but it really does display as blank. Maybe all unknown characters just display as blank?
 }
 
-def add_atari_5200_footer_garbage_info(rom: 'FileROM', metadata: GameInfo) -> None:
+def add_atari_5200_footer_garbage_info(rom: 'FileROM', game_info: GameInfo) -> None:
 	footer = rom.read(seek_to=rom.size - 24, amount=24)
 	year = footer[20:22] #Y2K incompliant whee
 	#Entry point: 22-23, lil' endian
@@ -101,13 +101,13 @@ def add_atari_5200_footer_garbage_info(rom: 'FileROM', metadata: GameInfo) -> No
 		title_bytes = footer[:20].rstrip(b'\0')
 		if title_bytes:
 			title = ''.join(atari_5200_charset.get(b, f'0x{b:x}') for b in title_bytes)
-			metadata.add_alternate_name(title.strip(), 'Banner Title')
+			game_info.add_alternate_name(title.strip(), 'Banner Title')
 		try:
 			year_first_digit = int(atari_5200_charset[year[0]])
 			year_second_digit = int(atari_5200_charset[year[1]])
 			terrible_date = Date(year=1900 + (year_first_digit * 10) + year_second_digit, is_guessed=True)
-			if terrible_date.is_better_than(metadata.release_date):
-				metadata.release_date = terrible_date
+			if terrible_date.is_better_than(game_info.release_date):
+				game_info.release_date = terrible_date
 		except (ValueError, KeyError):
 			pass
 		

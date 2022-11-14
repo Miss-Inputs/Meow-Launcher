@@ -47,7 +47,7 @@ def convert_rgb5a3(colour: int) -> tuple[int, int, int, int]:
 		blue = convert5BitColor(colour & 0b0_00000_00000_11111)
 	return (red, green, blue, alpha)
 
-def parse_gamecube_banner_text(metadata: GameInfo, banner_bytes: bytes, encoding: str, lang: str | None=None) -> None:
+def parse_gamecube_banner_text(game_info: GameInfo, banner_bytes: bytes, encoding: str, lang: str | None=None) -> None:
 	short_title_line_1 = banner_bytes[0:0x20].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
 	short_title_line_2 = banner_bytes[0x20:0x40].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
 	title_line_1 = banner_bytes[0x40:0x80].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
@@ -57,11 +57,11 @@ def parse_gamecube_banner_text(metadata: GameInfo, banner_bytes: bytes, encoding
 	prefix = 'Banner'
 	if lang:
 		prefix = f'{lang} {prefix}'
-	metadata.add_alternate_name(short_title_line_1, f'{prefix} Short Title')
-	metadata.specific_info[f'{prefix} Short Title Line 2'] = short_title_line_2
-	metadata.add_alternate_name(title_line_1, f'{prefix} Title')
-	metadata.specific_info[f'{prefix} Title Line 2'] = title_line_2
-	metadata.descriptions[f'{prefix} Description'] = description
+	game_info.add_alternate_name(short_title_line_1, f'{prefix} Short Title')
+	game_info.specific_info[f'{prefix} Short Title Line 2'] = short_title_line_2
+	game_info.add_alternate_name(title_line_1, f'{prefix} Title')
+	game_info.specific_info[f'{prefix} Title Line 2'] = title_line_2
+	game_info.descriptions[f'{prefix} Description'] = description
 
 def decode_icon(banner: bytes) -> 'Image.Image':
 	width = 96
@@ -91,14 +91,14 @@ def decode_icon(banner: bytes) -> 'Image.Image':
 	image.putdata(data)
 	return image
 
-def add_banner_info(rom: ROM, metadata: GameInfo, banner: bytes) -> None:
+def add_banner_info(rom: ROM, game_info: GameInfo, banner: bytes) -> None:
 	banner_magic = banner[:4]
 	if banner_magic in {b'BNR1', b'BNR2'}:
 		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
 		#Dolphin uses line 2 as Publisher field but that's not always accurate (e.g. Paper Mario: The Thousand Year Door puts subtitle of the game's name on line 2) so it won't be used here
 		#Very often, short title and not-short title are exactly the same, but not always. I guess it just be like that
-		encoding = 'shift_jis' if metadata.specific_info['Region Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
-		parse_gamecube_banner_text(metadata, banner[0x1820:0x1960], encoding)
+		encoding = 'shift_jis' if game_info.specific_info['Region Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
+		parse_gamecube_banner_text(game_info, banner[0x1820:0x1960], encoding)
 
 		if banner_magic == b'BNR2':
 			languages = {
@@ -111,14 +111,14 @@ def add_banner_info(rom: ROM, metadata: GameInfo, banner: bytes) -> None:
 			}
 			for i, lang_name in languages.items():
 				offset = 0x1820 + (i * 0x140)
-				parse_gamecube_banner_text(metadata, banner[offset: offset + 0x140], encoding, lang_name)
+				parse_gamecube_banner_text(game_info, banner[offset: offset + 0x140], encoding, lang_name)
 
 		if have_pillow:
-			metadata.images['Banner'] = decode_icon(banner)
+			game_info.images['Banner'] = decode_icon(banner)
 	else:
 		logger.debug('Invalid banner magic %s in %s', banner_magic, rom)
 
-def add_fst_info(rom: FileROM, metadata: GameInfo, fst_offset: int, fst_size: int, offset: int=0) -> None:
+def add_fst_info(rom: FileROM, game_info: GameInfo, fst_offset: int, fst_size: int, offset: int=0) -> None:
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
 		fst = rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
@@ -137,33 +137,33 @@ def add_fst_info(rom: FileROM, metadata: GameInfo, fst_offset: int, fst_size: in
 				file_offset = int.from_bytes(entry[4:8], 'big') + offset
 				file_length = int.from_bytes(entry[8:12], 'big')
 				banner = rom.read(file_offset, file_length)
-				add_banner_info(rom, metadata, banner)
+				add_banner_info(rom, game_info, banner)
 
-def add_apploader_date(header: bytes, metadata: GameInfo) -> None:
+def add_apploader_date(header: bytes, game_info: GameInfo) -> None:
 	try:
 		apploader_date = header[0x2440:0x2450].rstrip(b'\0').decode('ascii')
 		actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
 		year = actual_date.year
 		month = actual_date.month
 		day = actual_date.day
-		metadata.specific_info['Build Date'] = Date(year, month, day)
+		game_info.specific_info['Build Date'] = Date(year, month, day)
 		guessed_release_date =  Date(year, month, day, True)
-		if guessed_release_date.is_better_than(metadata.release_date):
-			metadata.release_date = guessed_release_date
+		if guessed_release_date.is_better_than(game_info.release_date):
+			game_info.release_date = guessed_release_date
 	except ValueError:
 		pass
 
-def _add_gamecube_disc_metadata(rom: FileROM, metadata: GameInfo, header: bytes, tgc_data: 'Mapping[str, int] | None'=None) -> None:
+def _add_gamecube_disc_metadata(rom: FileROM, game_info: GameInfo, header: bytes, tgc_data: 'Mapping[str, int] | None'=None) -> None:
 	#TODO: Use namedtuple/dataclass for tgc_data
-	metadata.platform = 'GameCube'
+	game_info.platform = 'GameCube'
 
 	if rom.extension != 'tgc':
 		#Not gonna bother working out what's going on with apploader offsets in tgc
-		add_apploader_date(header, metadata)
+		add_apploader_date(header, game_info)
 
 	region_code = int.from_bytes(header[0x458:0x45c], 'big')
 	try:
-		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
+		game_info.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
 
@@ -176,13 +176,13 @@ def _add_gamecube_disc_metadata(rom: FileROM, metadata: GameInfo, header: bytes,
 
 	try:
 		if tgc_data:
-			add_fst_info(rom, metadata, fst_offset, fst_size, tgc_data['file offset'])
+			add_fst_info(rom, game_info, fst_offset, fst_size, tgc_data['file offset'])
 		else:
-			add_fst_info(rom, metadata, fst_offset, fst_size)
+			add_fst_info(rom, game_info, fst_offset, fst_size)
 	except (IndexError, ValueError):
 		logger.exception('%s encountered error when parsing FST', rom.path)
 
-def add_tgc_metadata(rom: FileROM, metadata: GameInfo) -> None:
+def add_tgc_metadata(rom: FileROM, game_info: GameInfo) -> None:
 	tgc_header = rom.read(0, 60) #Actually it is bigger than that
 	magic = tgc_header[0:4]
 	if magic != b'\xae\x0f8\xa2':
@@ -200,7 +200,7 @@ def add_tgc_metadata(rom: FileROM, metadata: GameInfo) -> None:
 
 	header = rom.read(tgc_header_size, 0x460)
 
-	_add_gamecube_disc_metadata(rom, metadata, header, {
+	_add_gamecube_disc_metadata(rom, game_info, header, {
 		#'apploader offset': apploader_real_offset,
 		#'apploader size': apploader_real_size,
 		'fst offset': fst_real_offset,

@@ -39,7 +39,7 @@ def get_crc32_for_software_list(data: bytes) -> str:
 
 _split_preserve_brackets = re.compile(r', (?![^(]*\))')
 _ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
-def _add_alt_titles(metadata: GameInfo, alt_title: str) -> None:
+def _add_alt_titles(game_info: GameInfo, alt_title: str) -> None:
 	#Argh this is annoying because we don't want to split in the middle of brackets
 	for piece in _split_preserve_brackets.split(alt_title):
 		ends_with_brackets_match = _ends_with_brackets.match(piece)
@@ -47,20 +47,20 @@ def _add_alt_titles(metadata: GameInfo, alt_title: str) -> None:
 			name_type = ends_with_brackets_match[2]
 			if name_type in {'Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'}:
 				#There must be a better way for me to do this…
-				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title() + ' Title')
+				game_info.add_alternate_name(ends_with_brackets_match[1], name_type.title() + ' Title')
 			elif name_type in {'Box, Cart', 'Box/Card'}:
 				#Grr
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box Title')
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Cart Title')
+				game_info.add_alternate_name(ends_with_brackets_match[1], 'Box Title')
+				game_info.add_alternate_name(ends_with_brackets_match[1], 'Cart Title')
 			elif name_type == 'Japan':
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Japanese Name')
+				game_info.add_alternate_name(ends_with_brackets_match[1], 'Japanese Name')
 			elif name_type == 'China':
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Chinese Name')
+				game_info.add_alternate_name(ends_with_brackets_match[1], 'Chinese Name')
 			else:
 				#Sometimes the brackets are actually part of the name
-				metadata.add_alternate_name(piece, name_type)
+				game_info.add_alternate_name(piece, name_type)
 		else:
-			metadata.add_alternate_name(piece)
+			game_info.add_alternate_name(piece)
 
 def _parse_size_attribute(attrib: str | None) -> int | None:
 	if not attrib:
@@ -328,12 +328,12 @@ class Software():
 		return None
 
 	def get_part_feature(self, name: str) -> str | None:
-		#Hmm we should remove this, it doesn't make sense here
+		"""Hmm we should remove this, it doesn't make sense here"""
 		return self.get_part().get_feature(name)
 
 	def has_data_area(self, name: str) -> bool:
-		#Hmm is this function really useful to have around
-		#Is part.has_data_area really that useful either?
+		"""Hmm is this function really useful to have around
+		#Is part.has_data_area really that useful either?"""
 		return self.get_part().has_data_area(name)
 
 	@property
@@ -368,32 +368,32 @@ class Software():
 	def serial(self) -> str | None:
 		return self.infos.get('serial')
 
-	def add_standard_metadata(self, metadata: GameInfo) -> None:
-		metadata.specific_info['MAME Software'] = self
+	def add_standard_metadata(self, game_info: GameInfo) -> None:
+		game_info.specific_info['MAME Software'] = self
 		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
 		#TODO: Whatever is checking metadata.names needs to just check for game.software etc manually rather than this being here, I think
-		metadata.add_alternate_name(self.description, 'Software List Name')
+		game_info.add_alternate_name(self.description, 'Software List Name')
 
-		metadata.specific_info['MAME Software List'] = self.software_list
+		game_info.specific_info['MAME Software List'] = self.software_list
 
-		if not metadata.product_code:
-			metadata.product_code = self.serial
+		if not game_info.product_code:
+			game_info.product_code = self.serial
 		barcode = self.infos.get('barcode')
 		if barcode:
-			metadata.specific_info['Barcode'] = barcode
+			game_info.specific_info['Barcode'] = barcode
 		ring_code = self.infos.get('ring_code')
 		if ring_code:
-			metadata.specific_info['Ring Code'] = ring_code
+			game_info.specific_info['Ring Code'] = ring_code
 		
 		version = self.infos.get('version')
 		if version:
 			if version[0].isdigit():
 				version = 'v' + version
-			metadata.specific_info['Version'] = version
+			game_info.specific_info['Version'] = version
 
 		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
 		if alt_title:
-			_add_alt_titles(metadata, alt_title)
+			_add_alt_titles(game_info, alt_title)
 
 		year_text = self.xml.findtext('year')
 		if year_text:
@@ -403,8 +403,8 @@ class Software():
 				year_guessed = True
 				year_text = year_text[:-1]
 			year = Date(year_text, is_guessed=year_guessed)
-			if year.is_better_than(metadata.release_date):
-				metadata.release_date = year
+			if year.is_better_than(game_info.release_date):
+				game_info.release_date = year
 
 		release = self.infos.get('release')
 		release_date: Date | None = None
@@ -412,8 +412,8 @@ class Software():
 			release_date = _parse_release_date(release)
 
 		if release_date:
-			if release_date.is_better_than(metadata.release_date):
-				metadata.release_date = release_date
+			if release_date.is_better_than(game_info.release_date):
+				game_info.release_date = release_date
 
 		developer = consistentify_manufacturer(self.infos.get('developer'))
 		if not developer:
@@ -421,13 +421,13 @@ class Software():
 		if not developer:
 			developer = consistentify_manufacturer(self.infos.get('programmer'))
 		if developer:
-			metadata.developer = developer
+			game_info.developer = developer
 
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
 		if publisher:
-			already_has_publisher = metadata.publisher and (not metadata.publisher.startswith('<unknown'))
+			already_has_publisher = game_info.publisher and (not game_info.publisher.startswith('<unknown'))
 			if publisher in {'<doujin>', '<homebrew>', '<unlicensed>'} and developer:
-				metadata.publisher = developer
+				game_info.publisher = developer
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:
 					publishers: Collection[str] = set(cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
@@ -435,22 +435,22 @@ class Software():
 						publishers = sorted(publishers)
 					publisher = ', '.join(publishers)
 
-				metadata.publisher = publisher
+				game_info.publisher = publisher
 
-		self.add_related_images(metadata)
+		self.add_related_images(game_info)
 
-		add_history(metadata, self.software_list_name, self.name)
+		add_history(game_info, self.software_list_name, self.name)
 
-	def add_related_images(self, metadata: GameInfo) -> None:
+	def add_related_images(self, game_info: GameInfo) -> None:
 		for image_name, config_key in image_config_keys.items():
 			image = get_image(config_key, self.software_list_name, self.name)
 			if image:
-				metadata.images[image_name] = image
+				game_info.images[image_name] = image
 				continue
 			if self.parent_name:
 				image = get_image(config_key, self.software_list_name, self.parent_name)
 				if image:
-					metadata.images[image_name] = image
+					game_info.images[image_name] = image
 
 
 @dataclass(frozen=True)

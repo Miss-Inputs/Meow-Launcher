@@ -41,7 +41,7 @@ class TDB():
 								break
 		return main_genres
 
-	def parse_genre(self, metadata: GameInfo, genre_list: str) -> None:
+	def parse_genre(self, game_info: GameInfo, genre_list: str) -> None:
 		#genres = [g.title() for g in genre_list.split(',')]
 		genres = genre_list.split(',')
 		if 'software' in genres:
@@ -53,15 +53,15 @@ class TDB():
 		
 		items = tuple(self._organize_genres(genres).items())
 		if items:
-			metadata.genre = items[0][0].title()
+			game_info.genre = items[0][0].title()
 			subgenres = items[0][1]
 			if subgenres:
-				metadata.subgenre = ', '.join(s.title() for s in subgenres)
+				game_info.subgenre = ', '.join(s.title() for s in subgenres)
 			if len(items) > 1:
-				metadata.specific_info['Additional Genres'] = ', '.join(g[0].title() for g in items[1:])
+				game_info.specific_info['Additional Genres'] = ', '.join(g[0].title() for g in items[1:])
 				additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
 				if additional_subgenres:
-					metadata.specific_info['Additional Subgenres'] = ', '.join(additional_subgenres)
+					game_info.specific_info['Additional Subgenres'] = ', '.join(additional_subgenres)
 			
 
 def _clean_up_company_name(company_name: str) -> str:
@@ -81,8 +81,8 @@ def _clean_up_company_name(company_name: str) -> str:
 
 	return ', '.join(sorted(cleaned_names))
 
-def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: GameInfo) -> None:
-	metadata.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
+def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info: GameInfo) -> None:
+	game_info.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
 	#(Pylint is on drugs if I don't add more text here) id: What we just found
 	#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
 	#region: PAL, etc (we can see region code already)
@@ -96,38 +96,38 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 
 	developer = db_entry.findtext('developer')
 	if developer and developer != 'N/A':
-		metadata.developer = _clean_up_company_name(developer)
+		game_info.developer = _clean_up_company_name(developer)
 	publisher = db_entry.findtext('publisher')
 	if publisher:
-		metadata.publisher =  _clean_up_company_name(publisher)
+		game_info.publisher =  _clean_up_company_name(publisher)
 	date = db_entry.find('date')
 	if date is not None:
 		year = date.attrib.get('year')
 		month = date.attrib.get('month')
 		day = date.attrib.get('day')
 		if any([year, month, day]):
-			metadata.release_date = Date(year, month, day)
+			game_info.release_date = Date(year, month, day)
 
 	genre = db_entry.findtext('genre')
 	if genre:
-		tdb.parse_genre(metadata, genre)
+		tdb.parse_genre(game_info, genre)
 
 	for locale in db_entry.iterfind('locale'):
 		synopsis = locale.findtext('synopsis')
 		if synopsis:
 			key_name = f"Synopsis-{locale.attrib.get('lang')}" if 'lang' in locale.attrib else 'Synopsis'
-			metadata.descriptions[key_name] = synopsis
+			game_info.descriptions[key_name] = synopsis
 	
 	rating = db_entry.find('rating')
 	if rating is not None:
 		#Rating board (attrib "type") is implied by region (db_entrys released in e.g. both Europe and Australia just tend to not have this here)
 		value = rating.attrib.get('value')
 		if value:
-			metadata.specific_info['Age Rating'] = value
+			game_info.specific_info['Age Rating'] = value
 
 		descriptors = {e.text for e in rating.iterfind('descriptor')}
 		if descriptors:
-			metadata.specific_info['Content Warnings'] = descriptors
+			game_info.specific_info['Content Warnings'] = descriptors
 
 	#This stuff will depend on platform…
 
@@ -136,17 +136,17 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 		blocks = save.attrib.get('blocks')
 		#Other platforms may have "size" instead, also there are "copy" and "move" attributes which we'll ignore
 		if blocks:
-			if metadata.platform == 'Wii':
-				metadata.save_type = SaveType.Internal
-			elif metadata.platform == 'GameCube':
-				metadata.save_type = SaveType.MemoryCard
+			if game_info.platform == 'Wii':
+				game_info.save_type = SaveType.Internal
+			elif game_info.platform == 'GameCube':
+				game_info.save_type = SaveType.MemoryCard
 		#Have not seen a db_entry with blocks = 0 or missing blocks or size
 
-	if metadata.platform != 'GameCube':
+	if game_info.platform != 'GameCube':
 		wifi = db_entry.find('wi-fi')
 		if wifi:
 			features = {feature.text for feature in wifi.iterfind('feature')}
-			metadata.specific_info['Wifi Features'] = features
+			game_info.specific_info['Wifi Features'] = features
 			#online, download, score, nintendods
 	
 	input_element = db_entry.find('input')
@@ -154,9 +154,9 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 		#TODO: DS has players-multi-cart and players-single-cart instead (which one do I want?)
 		number_of_players = input_element.attrib.get('players', None)
 		if number_of_players is not None: #Maybe 0 could be a valid amount? For like demos or something
-			metadata.specific_info['Number of Players'] = number_of_players
+			game_info.specific_info['Number of Players'] = number_of_players
 		
-		if metadata.platform != 'GameCube':
+		if game_info.platform != 'GameCube':
 			#wiimote, nunchuk, motionplus, db_entrycube, nintendods, classiccontroller, wheel, zapper, balanceboard, wiispeak, microphone, guitar, drums, dancepad, keyboard, draw
 			optional_controls = set()
 			required_controls = set()
@@ -168,13 +168,13 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 					optional_controls.add(control_type)
 				
 				#cbf setting up input_info just yet
-				metadata.specific_info['Optional Additional Controls'] = optional_controls
-				metadata.specific_info['Required Additional Controls'] = required_controls
+				game_info.specific_info['Optional Additional Controls'] = optional_controls
+				game_info.specific_info['Required Additional Controls'] = required_controls
 
-def add_info_from_tdb(tdb: TDB | None, metadata: GameInfo, search_key: str) -> None:
+def add_info_from_tdb(tdb: TDB | None, game_info: GameInfo, search_key: str) -> None:
 	if not tdb:
 		return
 
 	game = tdb.find_game(search_key)
 	if game is not None:
-		_add_info_from_tdb_entry(tdb, game, metadata)
+		_add_info_from_tdb_entry(tdb, game, game_info)

@@ -5,7 +5,7 @@ import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
@@ -22,11 +22,11 @@ from .pc_common_metadata import get_exe_properties
 if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 
-def _try_detect_unity(folder: Path, metadata: Optional['GameInfo'], executable: Optional['Path']) -> str | None:
+def _try_detect_unity(folder: Path, game_info: 'GameInfo | None', executable: Optional['Path']) -> str | None:
 	if folder.joinpath('Build', 'UnityLoader.js').is_file():
 		#Web version of Unity, there should be some .unityweb files here
-		if metadata:
-			add_unity_web_metadata(folder, metadata)
+		if game_info:
+			add_unity_web_metadata(folder, game_info)
 		return 'Unity Web'
 
 	unity_data_folder = None
@@ -46,8 +46,8 @@ def _try_detect_unity(folder: Path, metadata: Optional['GameInfo'], executable: 
 					unity_data_folder = f
 
 	if unity_data_folder:
-		if metadata:
-			add_unity_metadata(unity_data_folder, metadata)
+		if game_info:
+			add_unity_metadata(unity_data_folder, game_info)
 
 		try:
 			props = get_exe_properties(folder / 'UnityPlayer.dll')[0]
@@ -94,7 +94,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['GameInfo'], executable: 
 
 	return None
 
-def _try_detect_ue4(folder: Path, metadata: Optional['GameInfo']) -> bool:
+def _try_detect_ue4(folder: Path, game_info: 'GameInfo | None') -> bool:
 	if folder.joinpath(folder.name + '.uproject').is_file():
 		return True
 
@@ -140,8 +140,8 @@ def _try_detect_ue4(folder: Path, metadata: Optional['GameInfo']) -> bool:
 		return False
 	
 	if binaries_folder.joinpath('Linux', project_name + '-Linux-Shipping').is_file() or binaries_folder.joinpath('Linux', project_name).is_file() or binaries_folder.joinpath('Win64', project_name + '-Win64-Shipping.exe').is_file():
-		if metadata:
-			metadata.specific_info['Internal Title'] = project_name
+		if game_info:
+			game_info.specific_info['Internal Title'] = project_name
 		return True
 	
 	return False
@@ -173,14 +173,14 @@ def _try_detect_ue3(folder: Path) -> bool:
 					return True
 	return False
 
-def _try_detect_gamemaker(folder: Path, metadata: Optional['GameInfo']) -> bool:
+def _try_detect_gamemaker(folder: Path, game_info: 'GameInfo | None') -> bool:
 	possible_data_file_paths = [folder / 'data.win', folder / 'game.unx', folder.joinpath('assets', 'data.win'), folder.joinpath('assets', 'game.unx')]
 	for data_file_path in possible_data_file_paths:
 		try:
 			with data_file_path.open('rb') as f:
 				if f.read(4) == b'FORM':
-					if metadata:
-						add_gamemaker_metadata(folder, metadata)
+					if game_info:
+						add_gamemaker_metadata(folder, game_info)
 					return True
 		except FileNotFoundError:
 			continue
@@ -210,17 +210,17 @@ def _try_detect_source(folder: Path) -> bool:
 	
 	return False
 
-def _try_detect_adobe_air(folder: Path, metadata: Optional['GameInfo']) -> bool:
+def _try_detect_adobe_air(folder: Path, game_info: 'GameInfo | None') -> bool:
 	metainf_dir = folder.joinpath('META-INF', 'AIR')
 	if metainf_dir.is_dir():
 		application_xml = metainf_dir.joinpath('application.xml')
 		if application_xml.is_file() and metainf_dir.joinpath('hash').is_file():
-			if metadata:
-				add_metadata_for_adobe_air(folder, application_xml, metadata)
+			if game_info:
+				add_metadata_for_adobe_air(folder, application_xml, game_info)
 			return True
 	
 	share = folder / 'share'
-	if share.is_dir() and _try_detect_adobe_air(folder / 'share', metadata):
+	if share.is_dir() and _try_detect_adobe_air(folder / 'share', game_info):
 		return True
 
 	if folder.joinpath('Adobe AIR').is_dir():
@@ -236,7 +236,7 @@ def _try_detect_adobe_air(folder: Path, metadata: Optional['GameInfo']) -> bool:
 
 	return False
 
-def _try_detect_nw(folder: Path, metadata: Optional['GameInfo']) -> str | None:
+def _try_detect_nw(folder: Path, game_info: 'GameInfo | None') -> str | None:
 	if not folder.joinpath('nw.pak').is_file() and not folder.joinpath('nw_100_percent.pak').is_file() and not folder.joinpath('nw_200_percent.pak').is_file():
 		return None
 	
@@ -245,8 +245,8 @@ def _try_detect_nw(folder: Path, metadata: Optional['GameInfo']) -> str | None:
 	package_nw_path = folder.joinpath('package.nw')
 	if package_json_path.is_file():
 		have_package = True
-		if metadata:
-			add_info_from_package_json_file(folder, package_json_path, metadata)
+		if game_info:
+			add_info_from_package_json_file(folder, package_json_path, game_info)
 	elif package_nw_path.is_file():
 		subengine = None
 		try:
@@ -259,8 +259,8 @@ def _try_detect_nw(folder: Path, metadata: Optional['GameInfo']) -> str | None:
 			return None
 
 		have_package = True
-		if metadata:
-			if not add_info_from_package_json_zip(package_nw_path, metadata):
+		if game_info:
+			if not add_info_from_package_json_zip(package_nw_path, game_info):
 				return None
 		if subengine: #If we detected something more specific in there
 			return subengine
@@ -290,25 +290,25 @@ def _try_detect_nw(folder: Path, metadata: Optional['GameInfo']) -> str | None:
 
 	return 'nw.js'
 
-def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['GameInfo'], executable: Path | None) -> str | None:
+def _try_detect_rpg_maker_200x(folder: Path, game_info: 'GameInfo | None', executable: Path | None) -> str | None:
 	rpg_rt_ini_path = folder / 'RPG_RT.ini' #This should always be here I think?
 	if rpg_rt_ini_path.is_file():
-		if metadata:
+		if game_info:
 			try:
 				rpg_rt_ini = NoNonsenseConfigParser()
 				rpg_rt_ini.read(rpg_rt_ini_path)
-				metadata.add_alternate_name(rpg_rt_ini['RPG_RT']['GameTitle'], 'Engine Name')
+				game_info.add_alternate_name(rpg_rt_ini['RPG_RT']['GameTitle'], 'Engine Name')
 				if 'FullPackageFlag' in rpg_rt_ini['RPG_RT']:
-					metadata.specific_info['Uses RTP?'] = rpg_rt_ini['RPG_RT']['FullPackageFlag'] == '0'
+					game_info.specific_info['Uses RTP?'] = rpg_rt_ini['RPG_RT']['FullPackageFlag'] == '0'
 			except KeyError:
 				pass
 			titles_path = folder / 'Title' / 'titles.png' #Sometimes this exists and title.png is a black screen
 			if titles_path.is_file():
-				metadata.images['Title Screen'] = titles_path
+				game_info.images['Title Screen'] = titles_path
 			else:
 				title_path = folder / 'Title' / 'title.png'
 				if title_path.is_file():
-					metadata.images['Title Screen'] = title_path
+					game_info.images['Title Screen'] = title_path
 		
 		product_names = {'RPG Maker 2000': '2000', 'RPG Maker 2000 Value!': '2000', 'RPG Maker 2003': '2003'}
 		if executable:
@@ -342,16 +342,16 @@ def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['GameInfo'], exe
 	return None
 
 version_tuple_definition = re.compile(r'^version_tuple\s*=\s*\((.+?)\)$')
-def _try_detect_renpy(folder: Path, metadata: Optional['GameInfo']) -> str | None:
+def _try_detect_renpy(folder: Path, game_info: 'GameInfo | None') -> str | None:
 	renpy_folder = folder / 'renpy'
 	if renpy_folder.is_dir():
-		if metadata:
+		if game_info:
 			game_folder = folder / 'game'
 			options = game_folder / 'options.rpy'
 			if options.is_file():
 				#Not always here, maybe only games that aren't compiled into .rpa
 				#There probably would be a way to use the Ren'Py library right there to open the rpa, but that seems like it might be a bit excessive
-				add_metadata_from_renpy_options(game_folder, options, metadata)
+				add_metadata_from_renpy_options(game_folder, options, game_info)
 
 		init = renpy_folder / '__init__.py'
 		#Don't worry we won't actually execute it or anything silly like that… just going to grab a variable
@@ -388,11 +388,11 @@ def _try_detect_rpg_paper_maker(folder: Path) -> bool:
 	try:
 		j = json.loads(package_json_path.read_bytes())
 		#This isn't a valid URL but it's what it is, I dunno
-		return j['homepage'] == 'https://github.com/RPG-Paper-Maker/Game#readme'
+		return cast(str, j['homepage']) == 'https://github.com/RPG-Paper-Maker/Game#readme'
 	except FileNotFoundError:
 		return False
 
-def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['GameInfo'], executable: Path | None) -> str | None:
+def _try_detect_rpg_maker_xp_vx(folder: Path, game_info: 'GameInfo | None', executable: Path | None) -> str | None:
 	engine_versions = {'rgss1': 'RPG Maker XP', 'rgss2': 'RPG Maker VX', 'rgss3': 'RPG Maker VX Ace'}
 	mkxp_path = folder / 'mkxp.conf'
 	engine = None
@@ -442,27 +442,27 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['GameInfo'], ex
 				#Also note that the DLL doesn't actually have to exist (as is the case with mkxp)
 				if library[:5] in engine_versions:
 					engine = engine_versions[library[:5]]
-				if metadata:
-					metadata.add_alternate_name(game['Title'], 'Engine Name')
+				if game_info:
+					game_info.add_alternate_name(game['Title'], 'Engine Name')
 					#Not sure if Fullscreen=1 implies it starts in fullscreen, or it always is
 					if 'Play_Music' in game:
-						metadata.specific_info['Has Music?'] = game['Play_Music'] == '1'
+						game_info.specific_info['Has Music?'] = game['Play_Music'] == '1'
 					if 'Play_Sound_Effects' in game:
-						metadata.specific_info['Has Sound Effects?'] = game['Play_Sound_Effects'] == '1'
+						game_info.specific_info['Has Sound Effects?'] = game['Play_Sound_Effects'] == '1'
 					if 'Mouse' in game:
-						metadata.specific_info['Uses Mouse?'] = game['Mouse'] == '1'
+						game_info.specific_info['Uses Mouse?'] = game['Mouse'] == '1'
 			except (KeyError, UnicodeDecodeError, configparser.ParsingError):
 				pass
 			#Sometimes there is a Fullscreen++ section, not sure what it could tell me, whether the game starts in fullscreen or supports it differently or what
 		if mkxp_path.is_file():
 			engine += ' (mkxp)'
-			if metadata:
+			if game_info:
 				for line in mkxp_path.read_text().splitlines():
 					if '=' not in line:
 						continue
 					k, v = line.strip().split('=', 1)
 					if k == 'iconPath':
-						metadata.images['Icon'] = folder / v
+						game_info.images['Icon'] = folder / v
 
 		return engine
 
@@ -486,40 +486,40 @@ def _try_detect_cryengine(folder: Path) -> str | None:
 			engine_version = 'CryEngine 2'
 	return engine_version
 
-def _try_detect_jackbox_games(folder: Path, metadata: Optional['GameInfo']) -> bool:
+def _try_detect_jackbox_games(folder: Path, game_info: 'GameInfo | None') -> bool:
 	jbg_config_jet_path = folder / 'jbg.config.jet'
 	if folder.joinpath('platform.swf').is_file() and jbg_config_jet_path.is_file():
-		if metadata:
+		if game_info:
 			jbg_config_jet = json.loads(jbg_config_jet_path.read_text())
 			game_name = jbg_config_jet.get('gameName')
 			if game_name:
-				metadata.specific_info['Internal Title'] = game_name
+				game_info.specific_info['Internal Title'] = game_name
 			#gameShortName (e.g. "q2i"), canPauseOnPressStart, needExitbutton, env ("pc"), uaVersionId (e.g. 0.1.0), isBundle, analyticsApi, pause-inputs, uaAppId (e.g. drawful2? Just uaAppName/gameName but lowercase?) may also be interesting
 			build_timestamp = jbg_config_jet.get('buildTimeStamp')
 			if build_timestamp:
 				try:
-					metadata.specific_info['Build Date'] = datetime.fromisoformat(build_timestamp)
+					game_info.specific_info['Build Date'] = datetime.fromisoformat(build_timestamp)
 				except ValueError:
 					pass
 			build_version = jbg_config_jet.get('buildVersion')
 			if build_version:
-				metadata.specific_info['Build Version'] = build_version
-			metadata.specific_info['Supports Fullscreen?'] = jbg_config_jet.get('supportsFullScreen', 'true') != 'false'
+				game_info.specific_info['Build Version'] = build_version
+			game_info.specific_info['Supports Fullscreen?'] = jbg_config_jet.get('supportsFullScreen', 'true') != 'false'
 			#Nothing these are strings representing bools, we're just seeing if they exist before looking at them
 			#I don't know if I want to mess with input info just yet, or if I want to give up on that idea anyway
 			supports_mouse = jbg_config_jet.get('supportsMouse')
 			supports_keyboard = jbg_config_jet.get('supportsKeyboard')
 			supports_gamepad_hotplug = jbg_config_jet.get('supportsJoysticksHotplugging')
 			if supports_mouse:
-				metadata.specific_info['Uses Mouse?'] = supports_mouse == 'true'
+				game_info.specific_info['Uses Mouse?'] = supports_mouse == 'true'
 			if supports_keyboard:
-				metadata.specific_info['Uses Keyboard?'] = supports_keyboard == 'true'
+				game_info.specific_info['Uses Keyboard?'] = supports_keyboard == 'true'
 			if supports_gamepad_hotplug:
-				metadata.specific_info['Supports Hotplugging Gamepads?'] = supports_gamepad_hotplug != 'false'
+				game_info.specific_info['Supports Hotplugging Gamepads?'] = supports_gamepad_hotplug != 'false'
 		return True
 	return False
 
-def _try_detect_piko_mednafen(folder: Path, metadata: Optional['GameInfo']) -> str | None:
+def _try_detect_piko_mednafen(folder: Path, game_info: 'GameInfo | None') -> str | None:
 	"""Piko's fork of Mednafen for emulated rereleases, probably has an actual name, but I don't know/care (also it is not really an engine)"""
 	data_path = folder / 'res' / 'data'
 	game_path = folder / 'res' / 'game'
@@ -527,8 +527,8 @@ def _try_detect_piko_mednafen(folder: Path, metadata: Optional['GameInfo']) -> s
 	if data_path.is_file() and (game_path.is_file() or game_cue_path.is_file()):
 		#Hopefully this should be enough to ensure a lack of false positives
 		#Actually, sometimes that's all there is other than back
-		if metadata:
-			add_piko_mednafen_info(folder, data_path, metadata)
+		if game_info:
+			add_piko_mednafen_info(folder, data_path, game_info)
 		#Big brain time: Detect what kind of game is being emulated
 		if game_cue_path.is_file():
 			#Making an assumption here, but I don't think they're brave enough to re-release games for any other disc-based systems yet (other than DOS stuff using DOSBox)
@@ -675,24 +675,24 @@ def try_detect_engine_from_exe(exe_path: Path, game_info: 'GameInfo | None') -> 
 
 	return None
 
-def try_and_detect_engine_from_folder(folder: Path, metadata: 'GameInfo | None'=None, executable: Path | None=None) -> str | None:
+def try_and_detect_engine_from_folder(folder: Path, game_info: 'GameInfo | None'=None, executable: Path | None=None) -> str | None:
 	#Get the most likely things out of the way first
-	unity_version = _try_detect_unity(folder, metadata, executable)
+	unity_version = _try_detect_unity(folder, game_info, executable)
 	if unity_version:
 		return unity_version
-	if _try_detect_ue4(folder, metadata):
+	if _try_detect_ue4(folder, game_info):
 		return 'Unreal Engine 4'
 	if _try_detect_ue3(folder):
 		return 'Unreal Engine 3'
-	renpy_version = _try_detect_renpy(folder, metadata)
+	renpy_version = _try_detect_renpy(folder, game_info)
 	if renpy_version:
 		return renpy_version
-	nw_version = _try_detect_nw(folder, metadata) #Not really the right name for this variable, it's to check if it's just nw.js or has RPG Maker MV/MZ inside
+	nw_version = _try_detect_nw(folder, game_info) #Not really the right name for this variable, it's to check if it's just nw.js or has RPG Maker MV/MZ inside
 	if nw_version:
 		return nw_version
-	if _try_detect_gamemaker(folder, metadata):
+	if _try_detect_gamemaker(folder, game_info):
 		return 'GameMaker'
-	rpg_maker_xp_version = _try_detect_rpg_maker_xp_vx(folder, metadata, executable)
+	rpg_maker_xp_version = _try_detect_rpg_maker_xp_vx(folder, game_info, executable)
 	if rpg_maker_xp_version:
 		return rpg_maker_xp_version
 
@@ -701,13 +701,13 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: 'GameInfo | None'=
 	if engine:
 		return engine
 
-	if _try_detect_adobe_air(folder, metadata):
+	if _try_detect_adobe_air(folder, game_info):
 		return 'Adobe AIR'
 	if _try_detect_build(folder):
 		return 'Build'
 	if _try_detect_godot(folder):
 		return 'Godot'
-	if _try_detect_jackbox_games(folder, metadata):
+	if _try_detect_jackbox_games(folder, game_info):
 		return 'Jackbox Games Engine'
 	if _try_detect_source(folder):
 		return 'Source'
@@ -715,10 +715,10 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: 'GameInfo | None'=
 	cryengine_version = _try_detect_cryengine(folder)
 	if cryengine_version:
 		return cryengine_version
-	piko_mednafen = _try_detect_piko_mednafen(folder, metadata)
+	piko_mednafen = _try_detect_piko_mednafen(folder, game_info)
 	if piko_mednafen:
 		return piko_mednafen
-	rpg_maker_200x_version = _try_detect_rpg_maker_200x(folder, metadata, executable)
+	rpg_maker_200x_version = _try_detect_rpg_maker_200x(folder, game_info, executable)
 	if rpg_maker_200x_version:
 		return rpg_maker_200x_version
 
@@ -726,21 +726,21 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: 'GameInfo | None'=
 		for f in folder.iterdir():
 			#Last ditch effort if we still didn't detect an engine from the folder… not great, since there could be all sorts of exes, but whaddya do
 			if f.is_file() and f.suffix.lower() == '.exe':
-				engine = try_detect_engine_from_exe_properties(f, metadata)
+				engine = try_detect_engine_from_exe_properties(f, game_info)
 				if engine:
 					return engine
 	
 	return None
 
-def detect_engine_recursively(folder: Path, metadata: Optional['GameInfo']=None) -> str | None:
+def detect_engine_recursively(folder: Path, game_info: 'GameInfo | None'=None) -> str | None:
 	#This can be slow, so maybe you should avoid using it
-	engine = try_and_detect_engine_from_folder(folder, metadata)
+	engine = try_and_detect_engine_from_folder(folder, game_info)
 	if engine:
 		return engine
 
 	for subdir in folder.iterdir():
 		if subdir.is_dir() and not subdir.is_symlink():
-			engine = detect_engine_recursively(subdir, metadata)
+			engine = detect_engine_recursively(subdir, game_info)
 			if engine:
 				return engine
 
