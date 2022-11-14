@@ -83,7 +83,7 @@ def get_image_from_iso(iso: 'PyCdlib', path: Path, object_for_warning: Any=None)
 				image.load() #Force Pillow to figure out if the image is valid or not, and also copy the image data
 				return image
 			except (OSError, SyntaxError):
-				logging.exception('Error getting image %s inside ISO %s', path, object_for_warning or iso)
+				logger.exception('Error getting image %s inside ISO %s', path, object_for_warning or iso)
 				return None
 	except PyCdlibInvalidInput:
 		#It is okay for a disc to be missing something

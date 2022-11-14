@@ -3,6 +3,7 @@
 import collections
 import datetime
 import itertools
+import logging
 from shutil import copymode
 import sys
 import time
@@ -23,10 +24,10 @@ from meowlauncher.util.utils import NoNonsenseConfigParser
 if TYPE_CHECKING:
 	import configparser
 
+logger = logging.getLogger(__name__)
 FormatFunction = Callable[[str, str], str | None]
 DesktopWithPath = tuple[Path, 'configparser.RawConfigParser']
 
-super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = section_prefix + 'Disambiguity'
 
 def _update_name(desktop: DesktopWithPath, disambiguator: str | None, disambiguation_method: str) -> None:
@@ -38,8 +39,7 @@ def _update_name(desktop: DesktopWithPath, disambiguator: str | None, disambigua
 		desktop[1].add_section(disambiguity_section_name)
 	disambiguity_section = desktop[1][disambiguity_section_name]
 
-	if super_debug:
-		print('Disambiguating', desktop_entry['Name'], 'with', disambiguator, 'using', disambiguation_method)
+	logger.debug('Disambiguating %s with %s using %s', desktop_entry['Name'], disambiguator, disambiguation_method)
 	if 'Ambiguous-Name' not in disambiguity_section:
 		disambiguity_section['Ambiguous-Name'] = desktop_entry['Name']
 

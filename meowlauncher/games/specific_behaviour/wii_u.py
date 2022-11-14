@@ -224,7 +224,7 @@ def _add_rpx_metadata(rom: ROM, metadata: 'GameInfo') -> None:
 		if metadata.categories[-1] == rom.path.parent.name:
 			metadata.categories = metadata.categories[:-1]
 	except ElementTree.ParseError:
-		logging.warning('Some parse error happened for %s', rom, exc_info=True)
+		logger.warning('Some parse error happened for %s', rom, exc_info=True)
 	except FileNotFoundError:
 		pass
 	homebrew_banner_path = rom.path.with_name('icon.png')

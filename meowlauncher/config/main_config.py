@@ -74,7 +74,6 @@ _config_ini_values = {
 	'full_rescan': ConfigValue(_runtime_option_section, bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
 	'organize_folders': ConfigValue(_runtime_option_section, bool, False, 'Organize folders', 'Use the organized folders frontend'),
 }
-#Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
 def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 	"""Returns the config definitions other than those intended to be set at runtime: {section: {name: ConfigValue}}

@@ -258,13 +258,13 @@ def _get_smdh_titles(smdh: bytes) -> tuple['Mapping[str, str]', 'Mapping[str, st
 			if short_title:
 				short_titles[language] = short_title
 		except UnicodeDecodeError:
-			logging.debug('Invalid short title', exc_info=True)
+			logger.debug('Invalid short title', exc_info=True)
 		try:
 			long_title = smdh[long_title_offset: publisher_offset].rstrip(b'\0').decode('utf16')
 			if long_title:
 				long_titles[language] = long_title
 		except UnicodeDecodeError:
-			logging.debug('Invalid long title', exc_info=True)
+			logger.debug('Invalid long title', exc_info=True)
 		try:
 			publisher = smdh[publisher_offset: publisher_offset + 0x80].rstrip(b'\0').decode('utf16')
 			if publisher:
@@ -272,7 +272,7 @@ def _get_smdh_titles(smdh: bytes) -> tuple['Mapping[str, str]', 'Mapping[str, st
 					publisher = junk_suffixes.sub('', publisher)
 				publishers[language] = consistentified_manufacturers.get(publisher, publisher)
 		except UnicodeDecodeError:
-			logging.debug('Invalid publisher', exc_info=True)
+			logger.debug('Invalid publisher', exc_info=True)
 	return short_titles, long_titles, publishers
 	
 def _parse_smdh_data(metadata: 'GameInfo', smdh: bytes) -> None:

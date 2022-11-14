@@ -485,7 +485,7 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount | None=None) ->
 		try:
 			files[name.decode('utf-8')] = (real_file_offset, size)
 		except UnicodeDecodeError:
-			logging.info('%s has invalid filename in string table: %s', rom, name, exc_info=True)
+			logger.info('%s has invalid filename in string table: %s', rom, name, exc_info=True)
 
 	return files
 
