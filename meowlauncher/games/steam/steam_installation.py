@@ -60,7 +60,7 @@ class SteamInstallation():
 		self.config: dict[str, Any] | None
 		try:
 			#That part manspreads over multiple lines and breaks steamfiles parsing which is annoying
-			config_file = re.sub(r'\n\s*"SDL_GamepadBind"\s+"(?:[^"]|[\r\n])+"', '', self.config_path.read_text(encoding='utf-8'))
+			config_file = re.sub(r'\n\s*"SDL_GamepadBind"\s+"(?:[^"]+|[\r\n]+)"', '', self.config_path.read_text(encoding='utf-8'))
 			self.config = acf.loads(config_file)
 		except FileNotFoundError:
 			self.config = None
