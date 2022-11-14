@@ -171,7 +171,7 @@ platforms = {
 			'common_key': PlatformConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
 			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
 		},
-		dat_names={'Nintendo - Wii'}, dat_uses_serial=True, #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any metadata
+		dat_names={'Nintendo - Wii'}, dat_uses_serial=True, #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any info
 		folder_check=folder_checks.is_wii_homebrew_folder
 	),
 	StandardEmulatedPlatform('Wii U',

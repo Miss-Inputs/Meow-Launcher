@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
-                                               metadata_section_name,
+                                               info_section_name,
                                                section_prefix)
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
@@ -17,12 +17,12 @@ def get_desktop(path: Path) -> 'RawConfigParser':
 	parser.read(path, encoding='utf-8')
 	return parser
 
-def destkop_contains(desktop: 'RawConfigParser', section: str=metadata_section_name) -> bool:
+def destkop_contains(desktop: 'RawConfigParser', section: str=info_section_name) -> bool:
 	if section not in standard_sections:
 		section = section_prefix + section
 	return section in desktop
 
-def get_field(desktop: 'RawConfigParser', name: str, section: str=metadata_section_name) -> str | None:
+def get_field(desktop: 'RawConfigParser', name: str, section: str=info_section_name) -> str | None:
 	if section not in standard_sections:
 		section = section_prefix + section
 
@@ -35,7 +35,7 @@ def get_field(desktop: 'RawConfigParser', name: str, section: str=metadata_secti
 
 	return None
 
-def get_array(desktop: 'RawConfigParser', name: str, section: str=metadata_section_name) -> Sequence[str]:
+def get_array(desktop: 'RawConfigParser', name: str, section: str=info_section_name) -> Sequence[str]:
 	field = get_field(desktop, name, section)
 	if field is None:
 		return ()

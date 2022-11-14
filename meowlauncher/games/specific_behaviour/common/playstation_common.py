@@ -253,12 +253,12 @@ def parse_param_sfo_kv(object_for_warning: Any, metadata: 'GameInfo', key: bytes
 	else:
 		logger.info('%s has unknown param.sfo key %s with value %s', object_for_warning, key, value)
 
-def parse_param_sfo(object_for_warning: Any, metadata: 'GameInfo', param_sfo: bytes) -> None:
+def parse_param_sfo(object_for_warning: Any, game_info: 'GameInfo', param_sfo: bytes) -> None:
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
 	for key, value in _convert_sfo(param_sfo, object_for_warning).items():
-		parse_param_sfo_kv(object_for_warning, metadata, key, value)
+		parse_param_sfo_kv(object_for_warning, game_info, key, value)
 
 def parse_product_code(metadata: 'GameInfo', product_code: str) -> None:
 	if len(product_code) == 9 and product_code[:4].isalpha() and product_code[-5:].isdigit():

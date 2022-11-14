@@ -101,7 +101,7 @@ def add_cover(metadata: 'GameInfo', product_code: str) -> None:
 			metadata.images['Cover'] = potential_cover_path
 			break
 
-def _parse_ncch(rom: FileROM, metadata: 'GameInfo', offset: int) -> None:
+def _parse_ncch(rom: FileROM, game_info: 'GameInfo', offset: int) -> None:
 	#Skip over SHA-256 siggy and magic
 	header = rom.read(seek_to=offset + 0x104, amount=0x100)
 	#Content size: 0-4 (media unit)
@@ -109,27 +109,27 @@ def _parse_ncch(rom: FileROM, metadata: 'GameInfo', offset: int) -> None:
 	try:
 		maker = convert_alphanumeric(header[12:14])
 		if maker in nintendo_licensee_codes:
-			metadata.publisher = nintendo_licensee_codes[maker]
+			game_info.publisher = nintendo_licensee_codes[maker]
 	except NotAlphanumericException:
 		pass
-	metadata.specific_info['NCCH Version'] = int.from_bytes(header[14:16], 'little') #Always 2?
+	game_info.specific_info['NCCH Version'] = int.from_bytes(header[14:16], 'little') #Always 2?
 	#Something about a hash: 16-20
 	#Program ID: 20-28
 	#Reserved: 28-44
 	#Logo region hash: 44-76
 	try:
 		product_code = header[76:86].decode('ascii')
-		metadata.product_code = product_code
+		game_info.product_code = product_code
 		#As usual, can get country and type from here, but it has more letters and as such you can also get category as well, or like... type 2 electric boogaloo. This also means we can't use convert_alphanumeric because it contains dashes, so I guess I need to fiddle with that method if I want to use it like that
 		#(To be precise: P = retail/cart, N = digital only, M = DLC, T = demos, U = patches)
 		try:
-			metadata.specific_info['Virtual Console Platform'] = _3DSVirtualConsolePlatform(product_code[6])
+			game_info.specific_info['Virtual Console Platform'] = _3DSVirtualConsolePlatform(product_code[6])
 		except ValueError:
 			pass
 		if len(product_code) == 10 and '\0' not in product_code:
 			short_product_code = product_code[6:]
-			add_info_from_tdb(_tdb, metadata, short_product_code)
-			add_cover(metadata, short_product_code)
+			add_info_from_tdb(_tdb, game_info, short_product_code)
+			add_cover(game_info, short_product_code)
 	except UnicodeDecodeError:
 		pass
 	#Extended header hash: 92-124
@@ -139,13 +139,13 @@ def _parse_ncch(rom: FileROM, metadata: 'GameInfo', offset: int) -> None:
 	is_data = (flags[5] & 1) > 0
 	is_executable = (flags[5] & 2) > 0
 	is_not_cxi = is_data and not is_executable
-	metadata.specific_info['Is CXI?'] = not is_not_cxi
+	game_info.specific_info['Is CXI?'] = not is_not_cxi
 	#Is system update = flags[5] & 4
 	#Is electronic manual = flags[5] & 8
-	metadata.specific_info['Is Trial?'] = (flags[5] & 16) > 0
+	game_info.specific_info['Is Trial?'] = (flags[5] & 16) > 0
 	#Is zero key encrypted = flags[7] & 1
 	is_decrypted = (flags[7] & 4) > 0
-	metadata.specific_info['Decrypted'] = is_decrypted
+	game_info.specific_info['Decrypted'] = is_decrypted
 
 	plain_region_offset = (int.from_bytes(header[140:144], 'little') * media_unit) + offset
 	plain_region_length = (int.from_bytes(header[144:148], 'little') * media_unit)
@@ -157,10 +157,10 @@ def _parse_ncch(rom: FileROM, metadata: 'GameInfo', offset: int) -> None:
 	#romfs_length = (int.from_bytes(header[176:180], 'little') * media_unit)
 
 	if plain_region_length:
-		_parse_plain_region(rom, metadata, plain_region_offset, plain_region_length)
+		_parse_plain_region(rom, game_info, plain_region_offset, plain_region_length)
 	#Logo region: Stuff and things
 	if exefs_length:
-		_parse_exefs(rom, metadata, exefs_offset)
+		_parse_exefs(rom, game_info, exefs_offset)
 	#RomFS: Filesystem really
 
 	if (not is_not_cxi) and is_decrypted:
@@ -171,7 +171,7 @@ def _parse_ncch(rom: FileROM, metadata: 'GameInfo', offset: int) -> None:
 		#RSA-2048 public key: 0x500:0x600
 		#Access control info 2: 0x600:0x800
 		
-		metadata.specific_info['Executable Name'] = system_control_info[0:8].rstrip(b'\0').decode('ascii', 'backslashreplace')
+		game_info.specific_info['Executable Name'] = system_control_info[0:8].rstrip(b'\0').decode('ascii', 'backslashreplace')
 		#Reserved: 0x8:0xd
 		#Flags (bit 0 = CompressExefsCode, bit 1 = SDApplication): 0xd
 		#Remaster version: 0xe:0x10
@@ -184,7 +184,7 @@ def _parse_ncch(rom: FileROM, metadata: 'GameInfo', offset: int) -> None:
 		#Dependency module ID list: 0x40:0x1c0
 		#SystemInfo: 0x1c0:0x200
 		save_size = int.from_bytes(system_control_info[0x1c0:0x1c8], 'little')
-		metadata.save_type = SaveType.Internal if save_size > 0 else SaveType.Nothing
+		game_info.save_type = SaveType.Internal if save_size > 0 else SaveType.Nothing
 		#access_control_info = extended_header[0x200:0x400]
 		#arm11_local_sys_capabilities = access_control_info[0:0x170]
 		#flag1 = arm11_local_sys_capabilities[0xc] Enable L2 cache, 804MHz CPU speed

@@ -55,7 +55,7 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	StandardEmulator('Kega Fusion', EmulatorStatus.Good, 'kega-fusion', 
 	simple_md_emulator(['-fullscreen', rom_path_argument], {'aqlian', 'sf002', 'sf004', 'smw64', 'topf', 'kof99', 'cjmjclub', 'pokestad', 'soulb', 'chinf3'}), 
 	{'bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'}, {'zip'}),
-	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
+	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_info/megadrive I've treated it specially and called it rom_kof99_pokemon
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
 	StandardEmulator('mGBA', EmulatorStatus.Good, 'mgba-qt', command_lines.mgba, {'gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'}, {'7z', 'zip'}),
 	#Doesn't really do GBX but it will ignore the footer

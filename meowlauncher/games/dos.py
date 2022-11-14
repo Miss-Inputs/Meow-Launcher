@@ -34,7 +34,7 @@ class DOSApp(ManuallySpecifiedGame):
 			return self.cd_path.stem
 		return PurePath(self.path).parent.name if dos_config.options['use_directory_as_fallback_name'] else super().fallback_name
 
-	def additional_metadata(self) -> None:
+	def additional_info(self) -> None:
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
 		self.info.specific_info['Executable Name'] = basename
 		self.info.specific_info['Extension'] = basename.split('.', 1)[-1].lower()

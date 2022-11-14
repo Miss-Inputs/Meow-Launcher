@@ -46,27 +46,27 @@ _config_ini_values = {
 
 	'force_create_launchers': ConfigValue('Steam', bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
 	'warn_about_missing_icons': ConfigValue('Steam', bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
-	'use_steam_as_platform': ConfigValue('Steam', bool, True, 'Use Steam as platform', 'Set platform in metadata to Steam instead of underlying platform'),
+	'use_steam_as_platform': ConfigValue('Steam', bool, True, 'Use Steam as platform', 'Set platform in game info to Steam instead of underlying platform'),
 
 	'skipped_subfolder_names': ConfigValue('Roms', list[str], (), 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
-	'find_equivalent_arcade_games': ConfigValue('Roms', bool, False, 'Find equivalent arcade games by name', 'Get metadata from MAME machines of the same name'),
+	'find_equivalent_arcade_games': ConfigValue('Roms', bool, False, 'Find equivalent arcade games by name', 'Get info from MAME machines of the same name'),
 	'max_size_for_storing_in_memory': ConfigValue('Roms', int, 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'),
-	'libretro_database_path': ConfigValue('Roms', Path, None, 'libretro-database path', 'Path to libretro database for yoinking metadata from'),
+	'libretro_database_path': ConfigValue('Roms', Path, None, 'libretro-database path', 'Path to libretro database for yoinking info from'),
 	'libretro_frontend': ConfigValue('Roms', str, 'RetroArch', 'libretro frontend', 'Name of libretro frontend to use'),
 	'libretro_cores_directory': ConfigValue('Roms', Path, None, 'libretro cores directory', 'Path to search for libretro cores if not explicitly specified'),
 
-	'use_original_platform': ConfigValue('ScummVM', bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
+	'use_original_platform': ConfigValue('ScummVM', bool, False, 'Use original platform', 'Set the platform in game info to the original platform instead of leaving blank'),
 	'scummvm_config_path': ConfigValue('ScummVM', Path, Path('~/.config/scummvm/scummvm.ini').expanduser(), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
 	'scummvm_exe_path': ConfigValue('ScummVM', Path, 'scummvm', 'ScummVM executable path', 'Path to scummvm executable, if not the default'),
 
 	'gog_folders': ConfigValue('GOG', list[Path], (), 'GOG folders', 'Folders where GOG games are installed'),
-	'use_gog_as_platform': ConfigValue('GOG', bool, False, 'Use GOG as platform', 'Set platform in metadata to GOG instead of underlying platform'),
+	'use_gog_as_platform': ConfigValue('GOG', bool, False, 'Use GOG as platform', 'Set platform in game info to GOG instead of underlying platform'),
 	'windows_gog_folders': ConfigValue('GOG', list[Path], (), 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
 	'use_system_dosbox': ConfigValue('GOG', bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
 	'dosbox_path': ConfigValue('GOG', Path, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
 
 	'itch_io_folders': ConfigValue('itch.io', list[Path], (), 'itch.io folders', 'Folders where itch.io games are installed'),
-	'use_itch_io_as_platform': ConfigValue('itch.io', bool, False, 'Use itch.io as platform', 'Set platform in metadata to itch.io instead of underlying platform'),
+	'use_itch_io_as_platform': ConfigValue('itch.io', bool, False, 'Use itch.io as platform', 'Set platform in game info to itch.io instead of underlying platform'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'print_times': ConfigValue(_runtime_option_section, bool, False, 'Print times', 'Print how long it takes to do things'),

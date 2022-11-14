@@ -63,7 +63,7 @@ def _add_metadata_from_arcade(game: 'ROMGame', machine: 'Machine') -> None:
 	#Well, I guess not much else can be inferred here. Still, though!
 	#TODO: Hell no there's not much else, get the history if it's not a bootleg, etc etc
 		
-def _add_alternate_names(rom: ROM, metadata: 'GameInfo') -> None:
+def _add_alternate_names(rom: ROM, game_info: 'GameInfo') -> None:
 	name, tags_at_end = find_tags(rom.name)
 	
 	#Unlikely that there would be an "aaa (bbb ~ ccc)" but still
@@ -95,7 +95,7 @@ def _add_alternate_names(rom: ROM, metadata: 'GameInfo') -> None:
 
 	#rom.name = primary_name #FIXME: That's a read only property, we shouldn't be changing the ROM's name logically speaking anyway; there should be a display_name type thing for Game
 	for alt_name in alt_names:
-		metadata.add_alternate_name(alt_name)
+		game_info.add_alternate_name(alt_name)
 
 def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: LibretroDatabaseType, key: Union[str, int]) -> bool:
 	database_entry = cast(Optional[dict[str, Any]], database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
@@ -276,7 +276,7 @@ def _add_platform_specific_metadata(game: 'ROMGame') -> None:
 	if equivalent_arcade:
 		game.info.specific_info['Equivalent Arcade'] = equivalent_arcade
 	
-def add_metadata(game: 'ROMGame') -> None:
+def add_info(game: 'ROMGame') -> None:
 	_add_alternate_names(game.rom, game.info)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
 

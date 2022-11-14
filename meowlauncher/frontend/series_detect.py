@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
-from meowlauncher.output.desktop_files import (metadata_section_name,
+from meowlauncher.output.desktop_files import (info_section_name,
                                                section_prefix)
 from meowlauncher.util.desktop_files import get_desktop, get_field
 from meowlauncher.util.name_utils import (chapter_matcher,
@@ -123,13 +123,13 @@ def _get_usable_name(desktop: 'RawConfigParser') -> str:
 
 def _add_series(desktop: 'RawConfigParser', path: Path, series: str | None, series_index: str | int | None=None) -> None:
 	#TODO: Encapsulate this better
-	metadata_section_with_prefix = section_prefix + metadata_section_name
-	if metadata_section_with_prefix not in desktop:
-		desktop.add_section(metadata_section_with_prefix)
+	info_section_with_prefix = section_prefix + info_section_name
+	if info_section_with_prefix not in desktop:
+		desktop.add_section(info_section_with_prefix)
 	if series is not None:
-		desktop[metadata_section_with_prefix]['Series'] = series
+		desktop[info_section_with_prefix]['Series'] = series
 	if series_index is not None:
-		desktop[metadata_section_with_prefix]['Series-Index'] = str(series_index)
+		desktop[info_section_with_prefix]['Series-Index'] = str(series_index)
 	with path.open('wt', encoding='utf-8') as f:
 		desktop.write(f)
 

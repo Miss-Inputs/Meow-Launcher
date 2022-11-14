@@ -71,7 +71,7 @@ def do_linux_gog_games() -> None:
 				logger.info('GOG subfolder does not have a GOG game (detection may have failed): %s', subfolder)
 				continue
 
-			game.add_metadata()
+			game.add_info()
 			game.make_launcher()
 
 def do_windows_gog_games() -> None:
@@ -91,7 +91,7 @@ def do_windows_gog_games() -> None:
 				logger.info('GOG subfolder does not have a GOG game (detection may have failed): %s', subfolder)
 				continue
 			
-			windows_game.add_metadata()
+			windows_game.add_info()
 			windows_game.make_launchers()
 
 def do_gog_games() -> None:

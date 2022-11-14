@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 
 section_prefix = 'X-Meow Launcher '
-metadata_section_name = 'Metadata'
+info_section_name = 'Game Info'
 id_section_name = 'ID'
 junk_section_name = 'Junk'
 image_section_name = 'Images'
@@ -128,10 +128,10 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 	#Set executable, but also set everything else because whatever, partially because I can't remember what I would need to do to get the original mode and | it with executable
 	path.chmod(0o7777)
 
-def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'GameInfo', id_type: str, unique_id: str) -> None:
+def make_launcher(launch_params: 'LaunchCommand', name: str, game_info: 'GameInfo', id_type: str, unique_id: str) -> None:
 	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)
 
 	#For very future use, this is where the underlying host platform is abstracted away. Right now we only run on Linux though so zzzzz
-	_make_linux_desktop(launch_params, display_name, metadata, filename_tags, id_type, unique_id)
+	_make_linux_desktop(launch_params, display_name, game_info, filename_tags, id_type, unique_id)

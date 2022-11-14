@@ -25,7 +25,7 @@ from meowlauncher.game_source import (ChooseableEmulatorGameSource,
                                       CompoundGameSource)
 from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
-from meowlauncher.games.roms.roms_metadata import add_metadata
+from meowlauncher.games.roms.rom_info import add_info
 from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
 
@@ -69,7 +69,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		categories = subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
 		game.info.categories = categories
 			
-		add_metadata(game)
+		add_info(game)
 
 		if not game.info.categories and game.info.platform:
 			game.info.categories = (game.info.platform, )

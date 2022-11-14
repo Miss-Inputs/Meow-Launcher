@@ -165,7 +165,7 @@ class ItchGame(Game):
 
 		#build often is not there, but it has its own user field? The rest is not useful sadly
 
-	def add_metadata(self) -> None:
+	def add_info(self) -> None:
 		self._add_metadata_from_folder()
 		self._add_metadata_from_receipt()
 		

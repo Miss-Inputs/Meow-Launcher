@@ -1,4 +1,4 @@
-#Enums etc to be used between platform_metadata and emulator_command_lines
+#Enums etc to be used between platform_info and emulator_command_lines
 
 from enum import Enum, IntEnum, auto
 

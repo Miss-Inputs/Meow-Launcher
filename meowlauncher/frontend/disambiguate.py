@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, cast
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
                                                junk_section_name,
-                                               metadata_section_name,
+                                               info_section_name,
                                                section_prefix)
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
@@ -61,7 +61,7 @@ def _update_name(desktop: DesktopWithPath, disambiguator: str | None, disambigua
 		copymode(desktop[0], new_path)
 		desktop[0].unlink()
 
-def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
+def _resolve_duplicates_by_info(group: Collection[DesktopWithPath], field: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
 	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
 	for dup in group:
 		field_value = get_field(dup[1], field, field_section)
@@ -178,7 +178,7 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]) -> None:
 
 			_update_name(dup, '(' + date_string + ')', 'date')
 
-def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
+def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
 	if method == 'tags':
 		_resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -186,9 +186,9 @@ def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_
 	elif method == 'date':
 		_resolve_duplicates_by_date(group)
 	else:
-		_resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
+		_resolve_duplicates_by_info(group, method, format_function, ignore_missing_values, field_section)
 
-def _fix_duplicate_names(method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
+def _fix_duplicate_names(method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
 	#TODO: output_folder needs to be unambigulously Path, that's the issue here
 	files = ((cast(Path, path), get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':

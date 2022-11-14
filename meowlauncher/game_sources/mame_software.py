@@ -48,7 +48,7 @@ def _neo_geo(software: 'SoftwareLauncher'):
 	return _launch_with_software('aes', software)
 
 def _super_cassette_vision(software: 'SoftwareLauncher'):
-	machine = 'scv_pal' if software.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'scv'
+	machine = 'scv_pal' if software.info.specific_info.get('TV Type') == TVSystem.PAL else 'scv'
 	return _launch_with_software(machine, software)
 
 software_list_platforms = {
@@ -81,7 +81,7 @@ class SoftwareLauncher():
 		self.platform = platform
 		self.media_type = media_type
 
-		self.metadata = GameInfo()
+		self.info = GameInfo()
 
 	@property
 	def id(self):
@@ -95,10 +95,10 @@ class SoftwareLauncher():
 
 		launch_params = LaunchCommand('mame', self.platform.get_launch_command(self))
 
-		make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
+		make_launcher(launch_params, self.software.description, self.info, 'MAME software', self.id)
 
 def add_software_metadata(software: SoftwareLauncher) -> None:
-	software.metadata.emulator_name = 'MAME' #Will probably always be the case
+	software.info.emulator_name = 'MAME' #Will probably always be the case
 	#TODO: Info:
 	#categories (but how?)
 	#languages (detect from regions)
@@ -109,10 +109,10 @@ def add_software_metadata(software: SoftwareLauncher) -> None:
 	#disc_number, disc_total: From part stuff
 	#tv_type: From region/tags
 	
-	software.metadata.platform = software.platform.name
-	software.metadata.media_type = software.media_type
+	software.info.platform = software.platform.name
+	software.info.media_type = software.media_type
 	
-	software.software.add_standard_metadata(software.metadata)
+	software.software.add_standard_metadata(software.info)
 
 def add_software(software: SoftwareLauncher) -> None:
 	add_software_metadata(software)

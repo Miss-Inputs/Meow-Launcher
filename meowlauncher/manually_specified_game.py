@@ -74,7 +74,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 			self.info.subgenre = self.json['subgenre']
 		if 'notes' in self.json:
 			self.info.add_notes(self.json['notes'])
-		self.additional_metadata()
+		self.additional_info()
 
 	@property
 	def is_valid(self) -> bool:
@@ -82,8 +82,8 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 		return os.path.isfile(self.path)
 
 	@abstractmethod
-	def additional_metadata(self) -> None:
-		'To be overriden by subclass - optional, put any other platform-specific metadata you want in here'
+	def additional_info(self) -> None:
+		'To be overriden by subclass - optional, put any other platform-specific info you want in here'
 
 class ManuallySpecifiedLauncher(EmulatorLauncher):
 	def __init__(self, app: ManuallySpecifiedGame, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:

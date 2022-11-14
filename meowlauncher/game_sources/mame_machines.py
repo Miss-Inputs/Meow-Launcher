@@ -14,7 +14,7 @@ from meowlauncher.games.mame.mame import ConfiguredMAME
 from meowlauncher.games.mame.mame_game import MAMEGame, MAMELauncher
 from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
                                                        MAMEInbuiltLauncher)
-from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
+from meowlauncher.games.mame.mame_info import add_info, add_status
 from meowlauncher.games.mame_common.machine import (
     Machine, get_machine, iter_machines, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
@@ -94,7 +94,7 @@ class MAME(GameSource):
 			#However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
 			return None
 
-		add_metadata(game)
+		add_info(game)
 		
 		return MAMELauncher(game, self.emu)
 

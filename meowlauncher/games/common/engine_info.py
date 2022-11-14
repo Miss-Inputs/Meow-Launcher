@@ -21,42 +21,42 @@ if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 	from collections.abc import Mapping
 
-def add_unity_metadata(data_folder: Path, metadata: 'GameInfo') -> None:
+def add_unity_metadata(data_folder: Path, game_info: 'GameInfo') -> None:
 	icon_path = data_folder.joinpath('Resources', 'UnityPlayer.png')
 	if icon_path.is_file():
-		metadata.images['Icon'] = icon_path
+		game_info.images['Icon'] = icon_path
 	screen_selector_path = data_folder.joinpath('ScreenSelector.png')
 	if screen_selector_path.is_file():
-		metadata.images['Banner'] = screen_selector_path #kind of a banner? We'll just call it that
+		game_info.images['Banner'] = screen_selector_path #kind of a banner? We'll just call it that
 	appinfo_path = data_folder.joinpath('app.info')
 	try:
 		with appinfo_path.open('rt', encoding='utf-8') as appinfo:
 			appinfo_lines = appinfo.readlines(2)
-			if not metadata.publisher and not metadata.developer:
+			if not game_info.publisher and not game_info.developer:
 				company_name = appinfo_lines[0]
 				if company_name:
 					while junk_suffixes.search(company_name):
 						company_name = junk_suffixes.sub('', company_name)
-					metadata.developer = metadata.publisher = company_name
+					game_info.developer = game_info.publisher = company_name
 			if len(appinfo_lines) > 1:
-				metadata.add_alternate_name(appinfo_lines[1], 'Engine Name')
+				game_info.add_alternate_name(appinfo_lines[1], 'Engine Name')
 	except FileNotFoundError:
 		pass
 
-def add_unity_web_metadata(folder: Path, metadata: 'GameInfo') -> None:
+def add_unity_web_metadata(folder: Path, game_info: 'GameInfo') -> None:
 	for file in folder.joinpath('Build').iterdir():
 		if file.suffix == '.json':
 			info_json = json.loads(file.read_text('utf-8'))
-			if not metadata.publisher and not metadata.developer:
+			if not game_info.publisher and not game_info.developer:
 				company_name = info_json.get('companyName')
 				if company_name:
 					while junk_suffixes.search(company_name):
 						company_name = junk_suffixes.sub('', company_name)
-					metadata.developer = metadata.publisher = company_name
-			metadata.add_alternate_name(info_json.get('productName'), 'Engine Name')
+					game_info.developer = game_info.publisher = company_name
+			game_info.add_alternate_name(info_json.get('productName'), 'Engine Name')
 			break
 
-def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata: 'GameInfo') -> None:
+def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, game_info: 'GameInfo') -> None:
 	iterator = ElementTree.iterparse(application_xml)
 	for _, element in iterator:
 		#Namespaces are annoying
@@ -64,27 +64,27 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata:
 	app_xml = iterator.root #type: ignore[attr-defined]
 	air_id = app_xml.findtext('id')
 	if air_id:
-		metadata.specific_info['Adobe AIR ID'] = air_id #Something like com.blah.whatever
+		game_info.specific_info['Adobe AIR ID'] = air_id #Something like com.blah.whatever
 	name = app_xml.find('name')
 	if name:
 		name_text = name.findtext('text')
-		metadata.add_alternate_name(name_text if name_text else name.text, 'Engine Name')
+		game_info.add_alternate_name(name_text if name_text else name.text, 'Engine Name')
 	version_number = app_xml.findtext('versionNumber')
 	version_label = app_xml.findtext('versionLabel')
 	if version_label:
-		metadata.specific_info['Version'] = version_label
-		metadata.specific_info['Version Number'] = version_number
+		game_info.specific_info['Version'] = version_label
+		game_info.specific_info['Version Number'] = version_number
 	else:
 		version = app_xml.findtext('version', version_number)
 		if version:
-			metadata.specific_info['Version'] = version
+			game_info.specific_info['Version'] = version
 	description = app_xml.find('description')
 	if description:
 		description_text = description.findtext('text')
-		metadata.descriptions['Adobe AIR Description'] = description_text if description_text else description.text
+		game_info.descriptions['Adobe AIR Description'] = description_text if description_text else description.text
 	copyright_text = app_xml.findtext('copyright')
 	if copyright_text:
-		metadata.specific_info['Copyright'] = copyright_text
+		game_info.specific_info['Copyright'] = copyright_text
 	#supportedProfiles (extendedDesktop desktop)? customUpdateUI? allowBrowserInvocation? installFolder? programMenuFolder?
 	initial_window = app_xml.find('initialWindow')
 	if initial_window:
@@ -92,21 +92,21 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata:
 		#systemChrome (?), transparent
 		title = initial_window.findtext('title')
 		if title:
-			metadata.add_alternate_name(title, 'Window Title')
-		metadata.specific_info['Minimizable?'] = initial_window.findtext('minimizable') == 'true'
-		metadata.specific_info['Maximizable?'] = initial_window.findtext('maximizable') == 'true'
+			game_info.add_alternate_name(title, 'Window Title')
+		game_info.specific_info['Minimizable?'] = initial_window.findtext('minimizable') == 'true'
+		game_info.specific_info['Maximizable?'] = initial_window.findtext('maximizable') == 'true'
 		resizable = initial_window.findtext('resizable', 'true') == 'true'
-		metadata.specific_info['Resizable?'] = resizable
+		game_info.specific_info['Resizable?'] = resizable
 		if not resizable:
 			width = initial_window.findtext('width')
 			height = initial_window.findtext('height')
 			if width and height:
-				metadata.specific_info['Display Resolution'] = f'{width}x{height}'
-		metadata.specific_info['Minimum Resolution'] = initial_window.findtext('minSize', '').replace(' ', 'x')
-		metadata.specific_info['Start in Fullscreen?'] = initial_window.findtext('fullScreen') == 'true'
+				game_info.specific_info['Display Resolution'] = f'{width}x{height}'
+		game_info.specific_info['Minimum Resolution'] = initial_window.findtext('minSize', '').replace(' ', 'x')
+		game_info.specific_info['Start in Fullscreen?'] = initial_window.findtext('fullScreen') == 'true'
 		render_mode = initial_window.findtext('renderMode')
-		metadata.specific_info['Render Mode'] = render_mode
-		metadata.specific_info['Start Visible?'] = initial_window.findtext('visible') == 'true'
+		game_info.specific_info['Render Mode'] = render_mode
+		game_info.specific_info['Start Visible?'] = initial_window.findtext('visible') == 'true'
 	icon = app_xml.find('icon')
 	if icon:
 		best_icon: str | None = None
@@ -128,7 +128,7 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata:
 					pass
 
 		if best_icon:
-			metadata.images['Icon'] = root_path / best_icon
+			game_info.images['Icon'] = root_path / best_icon
 
 def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', metadata: 'GameInfo') -> None:
 	#main might come in handy (index.html, etc)

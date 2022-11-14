@@ -139,7 +139,7 @@ class GOGGame(Game, ABC):
 	def name(self) -> str:
 		return name_utils.fix_name(self.info_file.name)
 
-	def add_metadata(self) -> None:
+	def add_info(self) -> None:
 		icon = self.icon
 		if icon:
 			self.info.images['Icon'] = icon
@@ -175,8 +175,8 @@ class GOGGame(Game, ABC):
 		make_launcher(params, self.name, self.info, 'GOG', str(self.folder))
 
 class NormalGOGGame(GOGGame):
-	def add_metadata(self) -> None:
-		super().add_metadata()
+	def add_info(self) -> None:
+		super().add_info()
 		game_data_folder = self.folder.joinpath('game')
 		engine = try_and_detect_engine_from_folder(game_data_folder, self.info)
 		if engine:
@@ -202,15 +202,15 @@ class NormalGOGGame(GOGGame):
 class DOSBoxGOGGame(GOGGame):
 	"""DOS game that is packaged with DOSBox
 	TODO: Let user use native DOSBox"""
-	def add_metadata(self) -> None:
-		super().add_metadata()
+	def add_info(self) -> None:
+		super().add_info()
 		self.info.specific_info['Wrapper'] = 'DOSBox'
 
 class ScummVMGOGGame(GOGGame):
 	"""Adventure game that is packaged with ScummVM
 	#TODO: Let user use native ScummVM"""
-	def add_metadata(self) -> None:
-		super().add_metadata()
+	def add_info(self) -> None:
+		super().add_info()
 		#TODO: Detect engine from scummvm.ini
 		self.info.specific_info['Wrapper'] = 'ScummVM'
 
@@ -272,7 +272,7 @@ class WindowsGOGGame(Game):
 	def name(self) -> str:
 		return name_utils.fix_name(self.original_name)
 
-	def add_metadata(self) -> None:
+	def add_info(self) -> None:
 		icon = self.icon
 		if icon:
 			self.info.images['Icon'] = icon

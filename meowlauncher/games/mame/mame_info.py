@@ -164,7 +164,7 @@ class DisplayCollection():
 		return _format_count(display.tag for display in self.displays if display.tag)
 
 def add_save_type(game: 'MAMEGame') -> None:
-	if game.metadata.platform == 'Arcade':
+	if game.info.platform == 'Arcade':
 		has_memory_card = False
 		for media_slot in game.machine.media_slots:
 			if not media_slot.instances: #Does this ever happen?
@@ -174,19 +174,19 @@ def add_save_type(game: 'MAMEGame') -> None:
 
 		has_memory_card = has_memory_card and (game.machine.family_basename not in _not_actually_save_supported)
 
-		game.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
+		game.info.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
 	else:
 		has_nvram = game.machine.uses_device('nvram')
 		has_i2cmem = game.machine.uses_device('i2cmem')
 
 		#Assume that if there's non-volatile memory that it's used for storing some kind of save data, and not like... stuff
 		#This may be wrong!!!!!!!!!!! but it seems to hold true for plug & play TV games and electronic handheld games so that'd be the main idea
-		game.metadata.save_type = SaveType.Internal if has_nvram or has_i2cmem else SaveType.Nothing
+		game.info.save_type = SaveType.Internal if has_nvram or has_i2cmem else SaveType.Nothing
 
-def add_status(machine: Machine, metadata: 'GameInfo') -> None:
+def add_status(machine: Machine, game_info: 'GameInfo') -> None:
 	#See comments for overall_status property for what that actually means
-	metadata.specific_info['MAME Overall Emulation Status'] = machine.overall_status
-	metadata.specific_info['MAME Emulation Status'] = machine.emulation_status
+	game_info.specific_info['MAME Overall Emulation Status'] = machine.overall_status
+	game_info.specific_info['MAME Emulation Status'] = machine.emulation_status
 	driver = machine.driver_element
 	savestate_status = None
 	cocktail_status = EmulationStatus.Unknown
@@ -200,8 +200,8 @@ def add_status(machine: Machine, metadata: 'GameInfo') -> None:
 		#Else I don't know
 
 	if savestate_status is not None:
-		metadata.specific_info['Supports Savestate?'] = savestate_status
-	metadata.specific_info['Cocktail Status'] = cocktail_status
+		game_info.specific_info['Supports Savestate?'] = savestate_status
+	game_info.specific_info['Cocktail Status'] = cocktail_status
 
 	unemulated_features = set()
 	for feature_type, feature_status in machine.feature_statuses.items():
@@ -210,27 +210,27 @@ def add_status(machine: Machine, metadata: 'GameInfo') -> None:
 		else:
 			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
 			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
-			metadata.specific_info[f'MAME {feature_type.capitalize()} Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
+			game_info.specific_info[f'MAME {feature_type.capitalize()} Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 
 	if unemulated_features:
-		metadata.specific_info['MAME Unemulated Features'] = unemulated_features
+		game_info.specific_info['MAME Unemulated Features'] = unemulated_features
 
 def add_metadata_from_category(game: 'MAMEGame', category: MachineCategory | None) -> None:
 	if not category:
 		#Not in catlist or user doesn't have catlist
 		return
 	if isinstance(category, ArcadeCategory):
-		game.metadata.specific_info['Has Adult Content?'] = category.is_mature
+		game.info.specific_info['Has Adult Content?'] = category.is_mature
 	catlist = organize_catlist(category)
 	if catlist.platform:
 		if catlist.definite_platform or not game.machine.is_system_driver:
-			game.metadata.platform = catlist.platform
+			game.info.platform = catlist.platform
 	if catlist.genre:
-		game.metadata.genre = catlist.genre
+		game.info.genre = catlist.genre
 	if catlist.subgenre:
-		game.metadata.subgenre = catlist.subgenre
-	if catlist.category and (catlist.definite_category or not game.metadata.categories):
-		game.metadata.categories = [catlist.category]
+		game.info.subgenre = catlist.subgenre
+	if catlist.category and (catlist.definite_category or not game.info.categories):
+		game.info.categories = [catlist.category]
 
 def add_metadata_from_catlist(game: 'MAMEGame') -> None:
 	category = get_category(game.machine.basename)
@@ -250,114 +250,114 @@ def add_metadata_from_catlist(game: 'MAMEGame') -> None:
 	#Board games
 	#Pinball: Arcade but we call it a different platform I guess
 	#Other non-game systems that are just like computers or whatever that aren't in emulated_platforms
-	game.metadata.media_type = MediaType.Standalone
+	game.info.media_type = MediaType.Standalone
 
 	filename_tags = find_filename_tags_at_end(game.machine.name)
 	for tag in filename_tags:
 		if 'prototype' in tag.lower() or 'location test' in tag.lower():
 			if game.machine.has_parent:
 				if cast(Machine, game.machine.parent).is_proto:
-					game.metadata.categories = ('Unreleased', )
+					game.info.categories = ('Unreleased', )
 				else:
-					game.metadata.categories = ('Betas', )
+					game.info.categories = ('Betas', )
 			else:
-				game.metadata.categories = ('Unreleased', )
+				game.info.categories = ('Unreleased', )
 			break
 		if 'bootleg' in tag.lower():
 			if game.machine.has_parent:
 				if cast(Machine, game.machine.parent).is_proto: #Ehh? I guess?
-					game.metadata.categories = ('Bootleg', )
+					game.info.categories = ('Bootleg', )
 				else:
-					game.metadata.categories = ('Hacks', )
+					game.info.categories = ('Hacks', )
 			else:
-				game.metadata.categories = ('Bootleg', )
+				game.info.categories = ('Bootleg', )
 			break
 		if 'hack' in tag.lower():
-			game.metadata.categories = ('Hacks', )
+			game.info.categories = ('Hacks', )
 	if game.machine.is_mechanical:
-		game.metadata.categories = ('Electromechanical', )
+		game.info.categories = ('Electromechanical', )
 	if game.machine.is_hack:
-		game.metadata.categories = ('Hacks', )
+		game.info.categories = ('Hacks', )
 	if game.machine.uses_device('coin_hopper'):
 		#Redemption games sometimes also have one, but then they will have their category set later by their subgenre being Redemption
-		game.metadata.categories = ('Gambling', )
+		game.info.categories = ('Gambling', )
 
 	#Now we separate things into additional platforms where relevant
 
 	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
 	if game.machine.source_file == 'cps1' and '(CPS Changer, ' in game.machine.name:
 		game.machine.name = game.machine.name.replace('CPS Changer, ', '')
-		game.metadata.platform = 'CPS Changer'
-		game.metadata.media_type = MediaType.Cartridge
-		if not game.metadata.categories:
-			game.metadata.categories = ('Games', )
+		game.info.platform = 'CPS Changer'
+		game.info.media_type = MediaType.Cartridge
+		if not game.info.categories:
+			game.info.categories = ('Games', )
 		return 
 	if game.machine.name.endswith('(XaviXPORT)'):
-		game.metadata.platform = 'XaviXPORT'
-		game.metadata.media_type = MediaType.Cartridge
-		if not game.metadata.categories:
-			game.metadata.categories = ('Games', )
+		game.info.platform = 'XaviXPORT'
+		game.info.media_type = MediaType.Cartridge
+		if not game.info.categories:
+			game.info.categories = ('Games', )
 		return
 	if game.machine.name.endswith('(Domyos Interactive System)'):
-		game.metadata.platform = 'Domyos Interactive System'
-		game.metadata.media_type = MediaType.Cartridge
-		if not game.metadata.categories:
-			game.metadata.categories = ('Games', )
+		game.info.platform = 'Domyos Interactive System'
+		game.info.media_type = MediaType.Cartridge
+		if not game.info.categories:
+			game.info.categories = ('Games', )
 		return
 	if game.machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		#Select-a-Game does not work this way since 0.221 but might as well keep that there for older versions
 		platform, _, game.machine.name = game.machine.name.partition(': ')
-		game.metadata.platform = platform
-		game.metadata.media_type = MediaType.Cartridge if platform in {'Select-A-Game', 'R-Zone'} else MediaType.Standalone
-		if not game.metadata.categories:
-			game.metadata.categories = ('Games', )
+		game.info.platform = platform
+		game.info.media_type = MediaType.Cartridge if platform in {'Select-A-Game', 'R-Zone'} else MediaType.Standalone
+		if not game.info.categories:
+			game.info.categories = ('Games', )
 		return
 
-	if not game.metadata.categories:
+	if not game.info.categories:
 		#If it has no coins then it doesn't meet the definition of "coin operated machine" I guess and it seems wrong to put it in the arcade category
-		game.metadata.categories = ('Non-Arcade', ) if game.machine.coin_slots == 0 else ('Arcade', )
-	if not game.metadata.platform:
+		game.info.categories = ('Non-Arcade', ) if game.machine.coin_slots == 0 else ('Arcade', )
+	if not game.info.platform:
 		#Ditto here, although I hesitate to actually name this lack of platform "Non-Arcade" but I don't want to overthink things
-		game.metadata.platform = 'Non-Arcade' if game.machine.coin_slots == 0 else 'Arcade'
+		game.info.platform = 'Non-Arcade' if game.machine.coin_slots == 0 else 'Arcade'
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
 def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
 	languages: Optional[Collection[Language]] = get_languages(game.machine.basename)
 	if languages:
-		game.metadata.languages = languages
+		game.info.languages = languages
 	else:
 		if game.machine.has_parent:
 			languages = get_languages(cast(str, game.machine.parent_basename))
 			if languages:
-				game.metadata.languages = languages
+				game.info.languages = languages
 				return
 
 		languages = get_languages_from_tags_directly(name_tags)
 		if languages:
-			game.metadata.languages = languages
-		elif game.metadata.regions:
-			region_language = get_common_language_from_regions(game.metadata.regions)
+			game.info.languages = languages
+		elif game.info.regions:
+			region_language = get_common_language_from_regions(game.info.regions)
 			if region_language:
-				game.metadata.languages = {region_language}
+				game.info.languages = {region_language}
 
 def add_images(game: 'MAMEGame') -> None:
 	for image_name, config_key in image_config_keys.items():
 		image = get_image(config_key, game.machine.basename)
 		if image:
-			game.metadata.images[image_name] = image
+			game.info.images[image_name] = image
 			continue
 		if game.machine.has_parent:
 			image = get_image(config_key, game.machine.parent_basename)
 			if image:
-				game.metadata.images[image_name] = image
+				game.info.images[image_name] = image
 				continue
 		if image_name == 'Icon' and game.machine.bios_basename:
 			image = get_image(config_key, game.machine.bios_basename)
 			if image:
-				game.metadata.images[image_name] = image
+				game.info.images[image_name] = image
 		
-def add_metadata(game: 'MAMEGame') -> None:
+def add_info(game: 'MAMEGame') -> None:
 	add_images(game)
 	add_metadata_from_catlist(game)
 
@@ -367,42 +367,42 @@ def add_metadata(game: 'MAMEGame') -> None:
 	name_tags = find_filename_tags_at_end(game.machine.name)
 	regions = get_regions_from_filename_tags(name_tags, loose=True)
 	if regions:
-		game.metadata.regions = regions
+		game.info.regions = regions
 
 	add_languages(game, name_tags)
 
 	revision = get_revision_from_filename_tags(name_tags)
 	if revision:
-		game.metadata.specific_info['Revision'] = revision
+		game.info.specific_info['Revision'] = revision
 	version = get_version_from_filename_tags(name_tags)
 	if version:
-		game.metadata.specific_info['Version'] = version
+		game.info.specific_info['Version'] = version
 
-	add_status(game.machine, game.metadata)
-	add_history(game.metadata, game.machine.basename)
+	add_status(game.machine, game.info)
+	add_history(game.info, game.machine.basename)
 
 	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in iter_cpus(game.machine.xml))	
 	displays = DisplayCollection(game.machine.xml.iterfind('display'))
 	
-	game.metadata.specific_info['Number of CPUs'] = cpu_info.number_of_cpus
+	game.info.specific_info['Number of CPUs'] = cpu_info.number_of_cpus
 	if cpu_info.number_of_cpus:
-		game.metadata.specific_info['Main CPU'] = cpu_info.chip_names
-		game.metadata.specific_info['Clock Speed'] = cpu_info.clock_speeds
-		game.metadata.specific_info['CPU Tags'] = cpu_info.tags
+		game.info.specific_info['Main CPU'] = cpu_info.chip_names
+		game.info.specific_info['Clock Speed'] = cpu_info.clock_speeds
+		game.info.specific_info['CPU Tags'] = cpu_info.tags
 
 	num_displays = len(displays)
-	game.metadata.specific_info['Number of Displays'] = num_displays
+	game.info.specific_info['Number of Displays'] = num_displays
 
 	if num_displays:
-		game.metadata.specific_info['Display Resolution'] = displays.resolutions
-		game.metadata.specific_info['Refresh Rate'] = displays.refresh_rates
-		game.metadata.specific_info['Aspect Ratio'] = displays.aspect_ratios
+		game.info.specific_info['Display Resolution'] = displays.resolutions
+		game.info.specific_info['Refresh Rate'] = displays.refresh_rates
+		game.info.specific_info['Aspect Ratio'] = displays.aspect_ratios
 
-		game.metadata.specific_info['Display Type'] = displays.display_types
-		game.metadata.specific_info['Display Tag'] = displays.display_tags
+		game.info.specific_info['Display Type'] = displays.display_types
+		game.info.specific_info['Display Tag'] = displays.display_tags
 
 def add_input_info(game: 'MAMEGame') -> None:
-	game.metadata.input_info.set_inited()
+	game.info.input_info.set_inited()
 	if game.machine.input_element is None:
 		#Seems like this doesn't actually happen
 		logger.info('Oi m8 %s has no input', game.machine)
@@ -445,7 +445,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 			normal_input.face_buttons += buttons
 			normal_input.dpads += 3
 		elif input_type == 'paddle':
-			if game.metadata.genre == 'Driving':
+			if game.info.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
 				if buttons > 0:
 					has_normal_input = True
@@ -526,7 +526,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
 		#playable just fine, so we'll leave them in
 		if game.machine.number_of_players > 0:
-			game.metadata.input_info.add_option(input_info.Custom('Unknown input device'))
+			game.info.input_info.add_option(input_info.Custom('Unknown input device'))
 		return
 
-	game.metadata.input_info.add_option(controller)
+	game.info.input_info.add_option(controller)

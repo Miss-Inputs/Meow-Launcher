@@ -42,7 +42,7 @@ def do_itch_io_games() -> None:
 			#TODO: Somehow, we need to add all the documentation etc to other folders with matching game IDs (they won't be launchable themselves)
 			#Well I guess technically they would be, by launching the file with xdg-open, but we don't want to do it that way and also haven't set that up
 
-			game.add_metadata()
+			game.add_info()
 			game.make_launcher()
 
 	if main_config.print_times:

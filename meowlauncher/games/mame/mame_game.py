@@ -15,7 +15,7 @@ class MAMEGame(EmulatedGame):
 	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.machine = machine
-		self.metadata = GameInfo()
+		self.info = GameInfo()
 
 		self._add_metadata_fields()
 
@@ -25,62 +25,62 @@ class MAMEGame(EmulatedGame):
 
 	def _add_metadata_fields(self) -> None:
 		self._has_inited_metadata = True
-		self.metadata.specific_info['Source File'] = self.machine.source_file
-		self.metadata.specific_info['Family'] = self.machine.family
+		self.info.specific_info['Source File'] = self.machine.source_file
+		self.info.specific_info['Family'] = self.machine.family
 		if self.machine.has_parent:
-			self.metadata.specific_info['Has Parent?'] = True
+			self.info.specific_info['Has Parent?'] = True
 
-		self.metadata.release_date = Date(self.machine.xml.findtext('year'))
+		self.info.release_date = Date(self.machine.xml.findtext('year'))
 
-		self.metadata.specific_info['Number of Players'] = self.machine.number_of_players
+		self.info.specific_info['Number of Players'] = self.machine.number_of_players
 		if self.machine.is_mechanical:
-			self.metadata.specific_info['Is Mechanical?'] = True
+			self.info.specific_info['Is Mechanical?'] = True
 		if self.machine.uses_device('ticket_dispenser'):
-			self.metadata.specific_info['Dispenses Tickets?'] = True
-		self.metadata.specific_info['Coin Slots'] = self.machine.coin_slots
+			self.info.specific_info['Dispenses Tickets?'] = True
+		self.info.specific_info['Coin Slots'] = self.machine.coin_slots
 		if self.machine.requires_chds:
-			self.metadata.specific_info['Requires CHD?'] = True
+			self.info.specific_info['Requires CHD?'] = True
 		if self.machine.romless:
-			self.metadata.specific_info['Romless'] = True
-		self.metadata.specific_info['Slot Names'] = {next(iter(slot.instances))[0] for slot in self.machine.media_slots if slot.instances} #I guess I only expect one?
-		self.metadata.specific_info['Software Lists'] = self.machine.software_list_names
-		self.metadata.series = self.machine.series
+			self.info.specific_info['Romless'] = True
+		self.info.specific_info['Slot Names'] = {next(iter(slot.instances))[0] for slot in self.machine.media_slots if slot.instances} #I guess I only expect one?
+		self.info.specific_info['Software Lists'] = self.machine.software_list_names
+		self.info.series = self.machine.series
 		bios = self.machine.bios
 		if bios:
-			self.metadata.specific_info['BIOS Used'] = bios
+			self.info.specific_info['BIOS Used'] = bios
 		if self.machine.samples_used:
-			self.metadata.specific_info['Samples Used'] = self.machine.samples_used
+			self.info.specific_info['Samples Used'] = self.machine.samples_used
 		arcade_system = self.machine.arcade_system
 		if arcade_system:
-			self.metadata.specific_info['Arcade System'] = arcade_system
+			self.info.specific_info['Arcade System'] = arcade_system
 
 		licensed_from = self.machine.licensed_from
 		if self.machine.licensed_from:
-			self.metadata.specific_info['Licensed From'] = licensed_from
+			self.info.specific_info['Licensed From'] = licensed_from
 
 		hacked_by = self.machine.hacked_by
 		if self.machine.hacked_by:
-			self.metadata.specific_info['Hacked By'] = hacked_by
+			self.info.specific_info['Hacked By'] = hacked_by
 
-		self.metadata.developer, self.metadata.publisher = self.machine.developer_and_publisher
+		self.info.developer, self.info.publisher = self.machine.developer_and_publisher
 
-		self.metadata.specific_info['BestGames Rating'] = self.machine.bestgames_opinion
-		self.metadata.specific_info['Version Added'] = self.machine.version_added
+		self.info.specific_info['BestGames Rating'] = self.machine.bestgames_opinion
+		self.info.specific_info['Version Added'] = self.machine.version_added
 
 		if self.machine.requires_artwork:
-			self.metadata.specific_info['Requires Artwork?'] = True
+			self.info.specific_info['Requires Artwork?'] = True
 		if self.machine.unofficial:
-			self.metadata.specific_info['Is Unofficial?'] = True
+			self.info.specific_info['Is Unofficial?'] = True
 		if self.machine.no_sound_hardware:
-			self.metadata.specific_info['Has No Sound Hardware?'] = True
+			self.info.specific_info['Has No Sound Hardware?'] = True
 		if self.machine.incomplete:
-			self.metadata.specific_info['Is Incomplete?'] = True
+			self.info.specific_info['Is Incomplete?'] = True
 
 	@property
 	def is_wanted(self) -> bool:
 		if main_config.exclude_pinball and self.machine.is_pinball:
 			return False
-		if main_config.exclude_non_arcade and self.metadata.platform == 'Non-Arcade':
+		if main_config.exclude_non_arcade and self.info.platform == 'Non-Arcade':
 			return False
 
 		return True
@@ -97,4 +97,4 @@ class MAMELauncher(EmulatorLauncher):
 
 	@property
 	def game_type(self) -> str:
-		return 'Arcade' if self.game.metadata.platform == 'Arcade' else 'MAME'
+		return 'Arcade' if self.game.info.platform == 'Arcade' else 'MAME'

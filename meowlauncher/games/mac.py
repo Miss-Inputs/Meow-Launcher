@@ -419,7 +419,7 @@ class MacApp(ManuallySpecifiedGame):
 			self._add_version_resource_info(vers)
 	
 
-	def additional_metadata(self) -> None:
+	def additional_info(self) -> None:
 		self.info.specific_info['Executable Name'] = self.path.split(':')[-1]
 		if have_machfs:
 			if not self._file:
