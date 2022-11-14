@@ -33,6 +33,7 @@ def _is_actually_machine(machine: Machine) -> bool:
 	return True
 
 class MAME(GameSource):
+	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here"""
 	def __init__(self, driver_list: Sequence[str] | None=None, source_file: str | None=None) -> None:
 		super().__init__()
 		self.driver_list = driver_list

@@ -1,5 +1,5 @@
+from pathlib import Path
 from meowlauncher.common_types import MediaType
-from meowlauncher.config_types import ConfigValueType
 from meowlauncher.emulated_platform import (ManuallySpecifiedPlatform, PlatformConfigValue,
                                             StandardEmulatedPlatform)
 from meowlauncher.games.specific_behaviour import folder_checks
@@ -36,8 +36,8 @@ platforms = {
 	platform.name: platform for platform in (
 	StandardEmulatedPlatform('3DS',
 		set(), set(), {'Citra'}, {MediaType.Cartridge: {'3ds'}, MediaType.Digital: {'cxi', 'cia'}, MediaType.Executable: {'3dsx', 'elf'}}, {
-		'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB 3dstdb.xml file (https://www.gametdb.com/3dstdb.zip)'),
-		'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
+		'tdb_path': PlatformConfigValue(Path, None, 'Path to GameTDB 3dstdb.xml file (https://www.gametdb.com/3dstdb.zip)'),
+		'covers_path': PlatformConfigValue(Path, None, 'Path to folder containing covers named after 4-letter product code'),
 		}, #There is a Nintendo - Nintendo 3DS.dat that could go in datnames but it is indexed by 4-letter serial so I'd have to do some trickery and then the info is already in GameTDB anyway
 	),
 	StandardEmulatedPlatform('Atari 2600',
@@ -51,8 +51,8 @@ platforms = {
 	),
 	StandardEmulatedPlatform('DS',
 		{'nds'}, set(), {'melonDS', 'Medusa'}, {MediaType.Cartridge: {'nds', 'dsi', 'ids', 'srl'}}, {
-		'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB dstdb.xml file (https://www.gametdb.com/dstdb.zip)'),
-		'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
+		'tdb_path': PlatformConfigValue(Path, None, 'Path to GameTDB dstdb.xml file (https://www.gametdb.com/dstdb.zip)'),
+		'covers_path': PlatformConfigValue(Path, None, 'Path to folder containing covers named after 4-letter product code'),
 		},
 		dat_names={'Nintendo - Nintendo DS'}
 	),
@@ -60,8 +60,8 @@ platforms = {
 		{'gameboy', 'gbcolor'}, {'gameboy', 'gbcolor'}, 
 		{'SameBoy (libretro)', 'Gearboy (libretro)', 'Gambatte', 'mGBA', 'mGBA (libretro)', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes', 'bsnes (libretro)', 'bsnes-hd beta (libretro)'}, {MediaType.Cartridge: {'gb', 'gbc', 'gbx', 'sgb', 'cgb', 'dmg'}},
 		{
-			'super_game_boy_bios_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),
-			'set_gbc_as_different_platform': PlatformConfigValue(ConfigValueType.Bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
+			'super_game_boy_bios_path': PlatformConfigValue(Path, None, 'Path to Super Game Boy BIOS to use'),
+			'set_gbc_as_different_platform': PlatformConfigValue(bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
 		},
 		dat_names={'Nintendo - Game Boy', 'Nintendo - Game Boy Color'}
 	),
@@ -94,7 +94,7 @@ platforms = {
 	),
 	StandardEmulatedPlatform('N64',
 		{'n64'}, {'n64', 'ique'}, {'Mupen64Plus', 'Mupen64Plus-Next (libretro)', 'MAME (N64)'}, {MediaType.Cartridge: {'z64', 'v64', 'n64', 'bin'}}, 
-		{'prefer_controller_pak_over_rumble': PlatformConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
+		{'prefer_controller_pak_over_rumble': PlatformConfigValue(bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
 		dat_names={'Nintendo - Nintendo 64'}, databases_are_byteswapped=True, autodetect_tv_type=True
 	),
 	StandardEmulatedPlatform('Neo Geo AES',
@@ -109,7 +109,7 @@ platforms = {
 	StandardEmulatedPlatform('NES',
 		{'nes', 'famicom', 'iq501', 'sb486'}, {'nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'}, 
 		{'Mesen (libretro)', 'Mednafen (NES)', 'MAME (NES)', 'cxNES'}, {MediaType.Cartridge: {'nes', 'unf', 'unif', 'fcn'}, MediaType.Floppy: {'fds', 'qd'}}, 
-		{'set_fds_as_different_platform': PlatformConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES')},
+		{'set_fds_as_different_platform': PlatformConfigValue(bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES')},
 		dat_names={'Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'}, autodetect_tv_type=True
 	),
 	StandardEmulatedPlatform('PC Engine',
@@ -128,8 +128,8 @@ platforms = {
 	StandardEmulatedPlatform('PS3',
 		#Tech tip: Add ~/.config/rpcs3/dev_hdd0/game to rom paths
 		set(), set(), {'RPCS3'}, {MediaType.OpticalDisc: {'iso'}, MediaType.Digital: {'pkg'}, MediaType.Executable: {'self', 'elf', 'bin'}}, dat_names={'Sony - PlayStation 3'}, dat_uses_serial=True, options={
-			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code'),
-			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB ps3tdb.xml file (https://www.gametdb.com/ps3tdb.zip)'),
+			'covers_path': PlatformConfigValue(Path, None, 'Path to folder containing covers named after product code'),
+			'tdb_path': PlatformConfigValue(Path, None, 'Path to GameTDB ps3tdb.xml file (https://www.gametdb.com/ps3tdb.zip)'),
 		}, folder_check=folder_checks.is_ps3_folder
 	),
 	StandardEmulatedPlatform('PSP',
@@ -144,8 +144,8 @@ platforms = {
 		{'snes'}, {'snes', 'snes_bspack', 'snes_strom'},
 		{'Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes', 'bsnes (libretro)', 'bsnes-hd beta (libretro)'}, {MediaType.Cartridge: {'sfc', 'swc', 'smc', 'bs', 'st', 'bin'}}, 
 		{
-			'sufami_turbo_bios_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'),
-			'bsx_bios_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games'),
+			'sufami_turbo_bios_path': PlatformConfigValue(Path, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'),
+			'bsx_bios_path': PlatformConfigValue(Path, None, 'Path to BS-X BIOS, required to run Satellaview games'),
 		},
 		dat_names={'Nintendo - Super Nintendo Entertainment System', 'Nintendo - Satellaview', 'Nintendo - Sufami Turbo'}, autodetect_tv_type=True
 	),
@@ -167,9 +167,9 @@ platforms = {
 	StandardEmulatedPlatform('Wii',(), set(), {'Dolphin'}, 
 		{MediaType.OpticalDisc: {'iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso', 'wia', 'rvz'}, MediaType.Executable: {'dol', 'elf'}, MediaType.Digital: {'wad'}}, 
 		{
-			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiitdb.xml file (https://www.gametdb.com/wiitdb.zip), note that GameCube will use this too!'),
-			'common_key': PlatformConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
-			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
+			'tdb_path': PlatformConfigValue(Path, None, 'Path to GameTDB wiitdb.xml file (https://www.gametdb.com/wiitdb.zip), note that GameCube will use this too!'),
+			'common_key': PlatformConfigValue(str, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
+			'covers_path': PlatformConfigValue(Path, None, 'Path to folder containing covers named after product code, used by GameCube too'),
 		},
 		dat_names={'Nintendo - Wii'}, dat_uses_serial=True, #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any info
 		folder_check=folder_checks.is_wii_homebrew_folder
@@ -178,8 +178,8 @@ platforms = {
 		#See roms_folders for how this mostly works
 		set(), set(), {'Cemu'}, {MediaType.OpticalDisc: {'iso', 'wud', 'wux'}, MediaType.Executable: {'rpx', 'elf'}},
 		{
-			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiiutdb.xml file (https://www.gametdb.com/wiiutdb.zip)'),
-			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code (or sometimes 6 letters)'),
+			'tdb_path': PlatformConfigValue(Path, None, 'Path to GameTDB wiiutdb.xml file (https://www.gametdb.com/wiiutdb.zip)'),
+			'covers_path': PlatformConfigValue(Path, None, 'Path to folder containing covers named after 4-letter product code (or sometimes 6 letters)'),
 		}
 		, folder_check=folder_checks.is_wii_u_folder
 	),
@@ -364,7 +364,7 @@ platforms = {
 	StandardEmulatedPlatform('Atari 8-bit',
 		{'a800', 'a400', 'a800xl', 'xegs'}, {'a800', 'a800_flop', 'xegs'}, 
 		{'MAME (Atari 8-bit)'}, {MediaType.Floppy: {'atr', 'dsk', 'xfd', 'dcm'}, MediaType.Executable: {'xex', 'bas', 'com', 'exe'}, MediaType.Cartridge: {'bin', 'rom', 'car'}, MediaType.Tape: generic_tape_extensions}, 
-		{'basic_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
+		{'basic_path': PlatformConfigValue(Path, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
 		}, autodetect_tv_type=True),
 	StandardEmulatedPlatform('Atari ST',{'st', 'ste', 'tt030', 'falcon30'}, {'st_flop', 'st_cart'}, {'Hatari (libretro)'}, 
 		{MediaType.Cartridge: {'bin', 'rom'}, MediaType.Floppy: mame_floppy_formats.union({'st', 'stx', 'msa', 'dim', 'm3u'}), MediaType.Executable: {'prg'}}, 
@@ -517,7 +517,7 @@ platforms = {
 	StandardEmulatedPlatform('Dinothawr',(), set(), {'Dinothawr (libretro)'}, {MediaType.Executable: {'game'}}, is_virtual=True, dat_names={'Dinothawr'}),
 	StandardEmulatedPlatform('Doom',
 		set(), set(), {'PrBoom+'}, {MediaType.Digital: {'wad'}}, 
-		{'save_dir': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')},
+		{'save_dir': PlatformConfigValue(Path, None, 'Folder to put save files in')},
 		is_virtual=True, dat_names={'DOOM'}
 	),
 	StandardEmulatedPlatform('Flash',(), set(), {'Ruffle'}, {MediaType.Digital: {'swf'}}, is_virtual=True),
@@ -557,6 +557,6 @@ all_mame_drivers.update(mac_drivers)
 manually_specified_platforms = {
 	'Mac': ManuallySpecifiedPlatform('Mac', 'mac', {'BasiliskII', 'SheepShaver'}),
 	'DOS': ManuallySpecifiedPlatform('DOS', 'dos', {'DOSBox Staging', 'DOSBox-X'}, {
-		'use_directory_as_fallback_name': PlatformConfigValue(ConfigValueType.Bool, False, 'Use base directory name for fallback name if you don\'t feel like providing a name in dos.json')
+		'use_directory_as_fallback_name': PlatformConfigValue(bool, False, 'Use base directory name for fallback name if you don\'t feel like providing a name in dos.json')
 	}),
 }

@@ -2,12 +2,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
+from collections.abc import Sequence
 
 if TYPE_CHECKING:
 	import configparser
-	from collections.abc import Sequence
-
 
 def parse_string_list(value: str) -> 'Sequence[str]':
 	if not value:
@@ -30,19 +28,19 @@ def parse_bool(value: str) -> bool:
 
 	raise TypeError(value)
 
-def parse_value(section: 'configparser.SectionProxy', name: str, value_type: ConfigValueType, default_value: TypeOfConfigValue) -> TypeOfConfigValue:
+def parse_value(section: 'configparser.SectionProxy', name: str, value_type: type, default_value: Any) -> Any:
 	try:
-		if value_type == ConfigValueType.Bool:
+		if value_type == bool:
 			return parse_bool(section[name])
-		if value_type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
+		if value_type == Path:
 			return Path(section[name]).expanduser()
-		if value_type == ConfigValueType.StringList:
+		if value_type == Sequence[str]:
 			return parse_string_list(section[name])
-		if value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
+		if value_type == Sequence[Path]:
 			return parse_path_list(section[name])
-		if value_type == ConfigValueType.Integer:
+		if value_type == int:
 			return section.getint(name, default_value)
-		return section[name]
+		return value_type(section[name])
 	except KeyError:
 		return default_value
 

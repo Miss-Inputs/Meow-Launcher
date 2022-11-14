@@ -28,6 +28,7 @@ class Date():
 
 	@property
 	def is_partly_unknown(self) -> bool:
+		"""If any component of this date is unknown"""
 		if not self.month:
 			return True
 		if not self.day:
@@ -38,6 +39,7 @@ class Date():
 		return 'x' in self.year or 'x' in self.month or 'x' in self.day or '?' in self.year or '?' in self.month or '?' in self.day
 	
 	def is_better_than(self, other_date: Optional['Date']) -> bool:
+		"""Is other_date guessed or only partially known, while this one isn't"""
 		if not other_date:
 			return True
 		if other_date.is_guessed and not self.is_guessed:

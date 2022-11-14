@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config_types import (ConfigValueType, EmulatorConfig,
+from meowlauncher.config_types import (EmulatorConfig,
                                        RunnerConfigValue, TypeOfConfigValue)
 
 from .emulated_game import EmulatedGame
@@ -71,8 +71,8 @@ class MAMEDriver(StandardEmulator):
 		if configs:
 			_configs.update(configs)
 		_configs.update({
-			'software_compatibility_threshold': RunnerConfigValue(ConfigValueType.Integer, 1, '0 = broken 1 = imperfect 2 = working other value = ignore; anything in the software list needs this to be considered compatible or -1 to ignore'),
-			'skip_unknown_stuff': RunnerConfigValue(ConfigValueType.Bool, False, "Skip anything that doesn't have a match in the software list"),
+			'software_compatibility_threshold': RunnerConfigValue(int, 1, '0 = broken 1 = imperfect 2 = working other value = ignore; anything in the software list needs this to be considered compatible or -1 to ignore'),
+			'skip_unknown_stuff': RunnerConfigValue(bool, False, "Skip anything that doesn't have a match in the software list"),
 		})
 		
 		StandardEmulator.__init__(self, 'MAME', status, 'mame', launch_params, supported_extensions, {'7z', 'zip'}, _configs, config_name=f'MAME ({name})')

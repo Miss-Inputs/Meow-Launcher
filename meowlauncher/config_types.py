@@ -1,21 +1,10 @@
 from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
-from enum import Enum, auto
 from pathlib import Path
+from typing import Any
 
 #For type checking… hmm…
 TypeOfConfigValue = bool | str | Path | int | str | Sequence[str] | Sequence[Path] | None
-
-class ConfigValueType(Enum):
-	"""TODO: This should be thrown out the window, and we should use typing hints + introspection instead"""
-	Bool = auto()
-	FilePath = auto()
-	FolderPath = auto()
-	Integer = auto()
-	String = auto()
-	StringList = auto()
-	FilePathList = auto()
-	FolderPathList = auto()
 
 class PlatformConfig():
 	def __init__(self, name: str, paths: Collection[Path], chosen_emulators: Sequence[str], options: Mapping[str, TypeOfConfigValue]) -> None:
@@ -39,7 +28,7 @@ class EmulatorConfig(RunnerConfig):
 @dataclass(frozen=True)
 class RunnerConfigValue():
 	"""This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno"""
-	type: ConfigValueType
-	default_value: TypeOfConfigValue
+	type: type
+	default_value: Any #TODO: Should be generic subclass of type
 	description: str
 	

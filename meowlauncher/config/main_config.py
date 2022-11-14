@@ -2,7 +2,7 @@ import inspect
 import logging
 import sys
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
-from collections.abc import Collection, Mapping, MutableMapping
+from collections.abc import Collection, Mapping, MutableMapping, Sequence
 from functools import wraps
 from pathlib import Path, PurePath
 from typing import Any
@@ -11,8 +11,9 @@ from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
 
-from ._config_utils import ConfigValue, parse_path_list, parse_string_list
+from ._config_utils import ConfigValue, parse_path_list, parse_value
 
+__doc__ = """Config options are defined here, other than those specific to emulators or platforms"""
 logger = logging.getLogger(__name__)
 
 _main_config_path = config_dir.joinpath('config.ini')
@@ -26,7 +27,7 @@ _config_ini_values = {
 	'image_folder': ConfigValue('Paths', Path, data_dir.joinpath('images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
 	'get_series_from_name': ConfigValue('General', bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
-	'use_other_images_as_icons': ConfigValue('General', list[str], (), 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
+	'use_other_images_as_icons': ConfigValue('General', Sequence[str], (), 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
 	'sort_multiple_dev_names': ConfigValue('General', bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
 	'wine_path': ConfigValue('General', str, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
 	'wineprefix': ConfigValue('General', Path, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
@@ -36,19 +37,19 @@ _config_ini_values = {
 
 	#TODO: This should be some kind of per-source options, whichever the best way to do that might be
 	
-	'skipped_source_files': ConfigValue('Arcade', list[str], (), 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
+	'skipped_source_files': ConfigValue('Arcade', Sequence[str], (), 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
 	'exclude_pinball': ConfigValue('Arcade', bool, False, 'Exclude pinball', 'Whether or not to skip pinball games (physical pinball, not video pinball)'),
 	'exclude_system_drivers': ConfigValue('Arcade', bool, False, 'Exclude system drivers', 'Skip machines used to launch other software (computers, consoles, etc)'),
 	'exclude_non_working': ConfigValue('Arcade', bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
-	'non_working_whitelist': ConfigValue('Arcade', list[str], (), 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
+	'non_working_whitelist': ConfigValue('Arcade', Sequence[str], (), 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
 	'use_xml_disk_cache': ConfigValue('Arcade', bool, True, 'Use XML disk cache', 'Store machine XML files on disk, maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)'),
 
 	'force_create_launchers': ConfigValue('Steam', bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
 	'warn_about_missing_icons': ConfigValue('Steam', bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
 	'use_steam_as_platform': ConfigValue('Steam', bool, True, 'Use Steam as platform', 'Set platform in game info to Steam instead of underlying platform'),
 
-	'skipped_subfolder_names': ConfigValue('Roms', list[str], (), 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
+	'skipped_subfolder_names': ConfigValue('Roms', Sequence[str], (), 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'find_equivalent_arcade_games': ConfigValue('Roms', bool, False, 'Find equivalent arcade games by name', 'Get info from MAME machines of the same name'),
 	'max_size_for_storing_in_memory': ConfigValue('Roms', int, 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'),
 	'libretro_database_path': ConfigValue('Roms', Path, None, 'libretro-database path', 'Path to libretro database for yoinking info from'),
@@ -76,6 +77,8 @@ _config_ini_values = {
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
 def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
+	"""Returns the config definitions other than those intended to be set at runtime: {section: {name: ConfigValue}}
+	We're getting rid of this one"""
 	opts: MutableMapping[str, MutableMapping[str, ConfigValue]] = {}
 	for k, v in _config_ini_values.items():
 		if v.section == _runtime_option_section:
@@ -84,6 +87,8 @@ def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 	return opts
 
 def get_runtime_options() -> Mapping[str, ConfigValue]:
+	"""Returns the config definitions only intended to be used at runtime as command line args, which means they don't go in config.ini
+	We're getting rid of this one, and that distinction"""
 	return {name: opt for name, opt in _config_ini_values.items() if opt.section == _runtime_option_section}
 
 def get_command_line_arguments() -> ArgumentParser:
@@ -98,9 +103,9 @@ def get_command_line_arguments() -> ArgumentParser:
 		group = section_groups.setdefault(section, p.add_argument_group(section)) #Should have a description innit
 		if option.type == bool:
 			group.add_argument(f'--{name}', action=BooleanOptionalAction, help=option.description, default=SUPPRESS)
-		elif option.type in {list[Path], list[Path]}:
+		elif option.type == Sequence[Path]:
 			group.add_argument(f'--{name}', nargs='?', type=Path, help=option.description, default=SUPPRESS)
-		elif option.type == list[str]:
+		elif option.type == Sequence[str]:
 			group.add_argument(f'--{name}', nargs='?', help=option.description, default=SUPPRESS)
 		else:
 			group.add_argument(f'--{name}', type=option.type, help=option.description, default=SUPPRESS)
@@ -124,6 +129,8 @@ def _load_ignored_directories() -> Collection[PurePath]:
 	return ignored_directories
 
 class Config():
+	"""Singleton which holds config
+	This will be reworked and that is a threat"""
 	class __Config():
 		def __init__(self) -> None:
 			self.values = {}
@@ -153,19 +160,7 @@ class Config():
 				if name not in section:
 					return config.default_value
 
-				#hmm whoops need to rewrite parse_value but emulator_config etc also uses it
-				#This is a bit of a mess now lol
-				if config.type == Path:
-					return Path(section[name]).expanduser()
-				if config.type == list[str]:
-					return parse_string_list(section[name])
-				if config.type == list[Path]:
-					return parse_path_list(section[name])
-				if config.type == bool:
-					return section.getboolean(name)
-				if config.type == int:
-					return section.getint(name)
-				return config.type(section[name])
+				return parse_value(section, name, config.type, config.default_value)
 				
 			raise AttributeError(name)
 

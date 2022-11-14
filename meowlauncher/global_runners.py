@@ -1,6 +1,7 @@
+from pathlib import Path
+
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config_types import (ConfigValueType, RunnerConfig,
-                                       RunnerConfigValue)
+from meowlauncher.config_types import RunnerConfig, RunnerConfigValue
 
 from .configured_runner import ConfiguredRunner
 from .runner import Runner
@@ -11,7 +12,7 @@ class _Wine(Runner):
 		super().__init__()
 		self.configs.update({
 			#TODO: We should find a way to just get this description etc from main_config.wineprefix
-			'wineprefix': RunnerConfigValue(ConfigValueType.FolderPath, None, 'WINEPREFIX env var')
+			'wineprefix': RunnerConfigValue(Path, None, 'WINEPREFIX env var')
 		})
 
 	@property

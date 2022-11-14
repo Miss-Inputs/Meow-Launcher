@@ -1,7 +1,8 @@
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
-from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
+from meowlauncher.config_types import RunnerConfigValue
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator import (Emulator, EmulatorStatus, LibretroCore,
                                    LibretroFrontend, MAMEDriver,
@@ -23,8 +24,8 @@ if TYPE_CHECKING:
 
 _bsnes_options = {
 	#All versions would use this
-	'sgb_incompatible_with_gbc': RunnerConfigValue(ConfigValueType.Bool, True, 'Consider Super Game Boy as incompatible with carts with any GBC compatibility, even if they are DMG compatible'),
-	'sgb_enhanced_only': RunnerConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
+	'sgb_incompatible_with_gbc': RunnerConfigValue(bool, True, 'Consider Super Game Boy as incompatible with carts with any GBC compatibility, even if they are DMG compatible'),
+	'sgb_enhanced_only': RunnerConfigValue(bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
 }
 
 _standalone_emulators: 'Collection[StandardEmulator]' = {
@@ -36,10 +37,10 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	#Or is it good? Have not tried it in a fair bit
 	StandardEmulator('Dolphin', EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, {'iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'}),
 	StandardEmulator('DuckStation', EmulatorStatus.Good, 'duckstation-qt', command_lines.duckstation, {'bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'}, configs={
-		'compatibility_xml_path': RunnerConfigValue(ConfigValueType.FilePath, None, 'Path to where compatibility.xml is installed'), #Because DuckStation's not always installed in any particular location…
-		'gamedb_path': RunnerConfigValue(ConfigValueType.FilePath, None, 'Path to where gamedb.json is installed'),
-		'compatibility_threshold': RunnerConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
-		'consider_unknown_games_incompatible': RunnerConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
+		'compatibility_xml_path': RunnerConfigValue(Path, None, 'Path to where compatibility.xml is installed'), #Because DuckStation's not always installed in any particular location…
+		'gamedb_path': RunnerConfigValue(Path, None, 'Path to where gamedb.json is installed'),
+		'compatibility_threshold': RunnerConfigValue(int, 2, "Don't try and launch any game with this compatibility rating or lower"),
+		'consider_unknown_games_incompatible': RunnerConfigValue(bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
 	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', rom_path_argument]), {'gdi', 'cdi', 'chd', 'cue'}, []),
 	StandardEmulator('FS-UAE', EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, {'iso', 'cue', 'adf', 'ipf', 'lha'}),
@@ -81,8 +82,8 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	#No fullscreen from command line
 	StandardEmulator('Medusa', EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, {'nds', 'gb', 'gbc', 'gba'}, {'7z', 'zip'}),
 	StandardEmulator('RPCS3', EmulatorStatus.ExperimentalButSeemsOkay, 'rpcs3', command_lines.rpcs3, {'/', 'elf', 'self', 'bin'}, configs={
-		'require_compat_entry': RunnerConfigValue(ConfigValueType.Bool, False, 'Do not make launchers for games which are not in the compatibility database at all'),
-		'compat_threshold': RunnerConfigValue(ConfigValueType.Integer, 0, 'Games that are under this level of compatibility will not get launchers made; 1 = Loadable 2 = Intro 3 = Ingame 4 = Playable (all the way through)'),
+		'require_compat_entry': RunnerConfigValue(bool, False, 'Do not make launchers for games which are not in the compatibility database at all'),
+		'compat_threshold': RunnerConfigValue(int, 0, 'Games that are under this level of compatibility will not get launchers made; 1 = Loadable 2 = Intro 3 = Ingame 4 = Playable (all the way through)'),
 	}),
 	StandardEmulator('Xemu', EmulatorStatus.Experimental, 'xemu', command_lines.xemu, {'iso'}), #Requires the game partition to be separated out of the disc image
 	StandardEmulator('Yuzu', EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, {'xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'}),
@@ -150,8 +151,8 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	#Should this be merged with Odyssey 2 if it's compatible like that?
 	MAMEDriver('Gamate', EmulatorStatus.Good, simple_mame_driver('gamate', 'cart'), {'bin'}),
 	MAMEDriver('Game Boy', EmulatorStatus.Imperfect, command_lines.mame_game_boy, {'bin', 'gb', 'gbc'}, {
-		'use_gbc_for_dmg': RunnerConfigValue(ConfigValueType.Bool, True, 'Use MAME GBC driver for DMG games'),
-		'prefer_sgb_over_gbc': RunnerConfigValue(ConfigValueType.Bool, False, 'If a game is both SGB and GBC enhanced, use MAME SGB driver instead of GBC'),
+		'use_gbc_for_dmg': RunnerConfigValue(bool, True, 'Use MAME GBC driver for DMG games'),
+		'prefer_sgb_over_gbc': RunnerConfigValue(bool, False, 'If a game is both SGB and GBC enhanced, use MAME SGB driver instead of GBC'),
 	}),
 	#This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC (MT06441, MT04949)
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
@@ -464,15 +465,15 @@ libretro_cores = {core.name: core for core in _libretro_cores}
 
 _dos_emulators = {
 	Emulator('DOSBox Staging', EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging, {
-		'cycles_for_477_mhz': RunnerConfigValue(ConfigValueType.Integer, 245, 'CPU cycles to use to get as close as possible to 4.77MHz'),
-		'noautoexec': RunnerConfigValue(ConfigValueType.Bool, False, 'Do not load [autoexec] section in config file'),
-		'overlay_path': RunnerConfigValue(ConfigValueType.FolderPath, None, 'If set to something, use a subfolder of this path as an overlay so save games etc are written there'),
+		'cycles_for_477_mhz': RunnerConfigValue(int, 245, 'CPU cycles to use to get as close as possible to 4.77MHz'),
+		'noautoexec': RunnerConfigValue(bool, False, 'Do not load [autoexec] section in config file'),
+		'overlay_path': RunnerConfigValue(Path, None, 'If set to something, use a subfolder of this path as an overlay so save games etc are written there'),
 	}),
 	Emulator('DOSBox-X', EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x),
 }
 _mac_emulators = {
 	Emulator('BasiliskII', EmulatorStatus.Janky, 'BasiliskII', command_lines.basilisk_ii, {
-		'skip_if_ppc_enhanced': RunnerConfigValue(ConfigValueType.Bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
+		'skip_if_ppc_enhanced': RunnerConfigValue(bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
 	}),
 	Emulator('SheepShaver', EmulatorStatus.Janky, 'SheepShaver', command_lines.sheepshaver),
 	

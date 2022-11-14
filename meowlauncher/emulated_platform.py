@@ -1,9 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import ROM, FolderROM
@@ -13,8 +12,8 @@ if TYPE_CHECKING:
 @dataclass(frozen=True)
 class PlatformConfigValue():
 	"""This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno"""
-	type: ConfigValueType
-	default_value: TypeOfConfigValue
+	type: type
+	default_value: Any
 	description: str
 
 class ChooseableEmulatedPlatform(ABC):
@@ -42,8 +41,8 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 		self.folder_check = folder_check
 
 		if software_list_names:
-			self.options['find_software_by_name'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game name to search software list')
-			self.options['find_software_by_product_code'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game product code to search software list')
+			self.options['find_software_by_name'] = PlatformConfigValue(bool, False, 'Use game name to search software list')
+			self.options['find_software_by_product_code'] = PlatformConfigValue(bool, False, 'Use game product code to search software list')
 
 	def is_valid_file_type(self, extension: str) -> bool:
 		return any(extension in extensions for extensions in self.file_types.values())

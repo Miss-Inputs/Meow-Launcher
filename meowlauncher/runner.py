@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 
-from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
+from meowlauncher.config_types import RunnerConfigValue
 
 class HostPlatform(Enum):
 	Native = auto()
@@ -12,9 +12,9 @@ class Runner(ABC):
 	def __init__(self, host_platform: HostPlatform=HostPlatform.Native) -> None:
 		self.host_platform = host_platform
 		self.configs = {
-			'gamemode': RunnerConfigValue(ConfigValueType.Bool, False, 'Run with gamemoderun'),
-			'mangohud': RunnerConfigValue(ConfigValueType.Bool, False, 'Run with MangoHUD'),
-			'force_opengl_version': RunnerConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version to 4.3 by environment variable if you need it'),
+			'gamemode': RunnerConfigValue(bool, False, 'Run with gamemoderun'),
+			'mangohud': RunnerConfigValue(bool, False, 'Run with MangoHUD'),
+			'force_opengl_version': RunnerConfigValue(bool, False, 'Hack to force Mesa OpenGL version to 4.3 by environment variable if you need it'),
 		}
 
 	@property
