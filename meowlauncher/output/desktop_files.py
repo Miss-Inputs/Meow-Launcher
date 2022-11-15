@@ -107,7 +107,7 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 					this_image_folder = main_config.image_folder.joinpath(k)
 					this_image_folder.mkdir(exist_ok=True, parents=True)
 					image_path = this_image_folder.joinpath(path.stem + '.png')
-					v.save(image_path, 'png')
+					v.save(image_path, 'png', optimize=True, compress_level=9)
 					#v = image_path
 					_write_field(configwriter, section_name, k, image_path)
 					continue
