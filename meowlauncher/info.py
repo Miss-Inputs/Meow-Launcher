@@ -75,16 +75,16 @@ class GameInfo():
 		self.genre: str | None = None
 		self.subgenre: str | None = None
 		self.languages: 'Collection[Language]' = set() #TODO: Should this be mutable?
-		self.developer: str | None = None
-		self.publisher: str | None = None
-		self.save_type = SaveType.Unknown
+		self.developer: 'str | Collection[str] | None' = None
+		self.publisher: 'str | Collection[str] | None' = None
+		self.save_type: SaveType = SaveType.Unknown
 		self.product_code: str | None = None
 		self.regions: 'Collection[Region]' = set() #TODO: Should this be mutable?
 		self.media_type: MediaType | None = None
 		self.notes: str | None = None
 		self.disc_number: int | None = None
 		self.disc_total: int | None = None
-		self.series: str | None = None
+		self.series: 'str | Collection[str] | None' = None
 		self.series_index: Union[str, int, None] = None
 
 		self.input_info = InputInfo() #hmm…

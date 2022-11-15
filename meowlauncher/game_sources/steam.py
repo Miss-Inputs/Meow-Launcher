@@ -3,7 +3,6 @@
 import datetime
 import json
 import logging
-import operator
 import statistics
 from collections.abc import Collection, Iterator, Mapping, MutableMapping
 from functools import lru_cache
@@ -374,9 +373,9 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 
 	associations = common.get(b'associations')
 	if associations:
-		developers = []
-		publishers = []
-		franchises = []
+		developers: dict[int, str] = {}
+		publishers: dict[int, str] = {}
+		franchises: dict[int, str] = {}
 		for i, association in associations.items():
 			association_type = association.get(b'type')
 			association_name_bytes = association.get(b'name')
@@ -391,26 +390,22 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 				association_name = association_name.removesuffix(' Series')
 				association_name = remove_capital_article(association_name)
 				association_name = normalize_name_case(association_name)				
-				franchises.append((i, association_name))
+				franchises[i] = association_name
 				
 			if association_type == b'developer':
-				developers.append((i, normalize_developer(association_name)))
+				developers[i] = normalize_developer(association_name)
 			if association_type == b'publisher' and association_name != 'none':
-				publishers.append((i, normalize_developer(association_name)))
-		franchises.sort(key=operator.itemgetter(0))
-		developers.sort(key=operator.itemgetter(0))
-		publishers.sort(key=operator.itemgetter(0))
-		franchises = tuple(zip(*franchises))[1]
-		developers = tuple(zip(*developers))[1]
-		publishers = tuple(zip(*publishers))[1]
+				publishers[i] = normalize_developer(association_name)
 
-		game.info.series = [franchise for franchise in franchises if franchise not in publishers]
-		game.info.specific_info['Mac Developer'] = [dev.removesuffix(' (Mac)') for dev in developers if dev.ensdwith(' (Mac)')]
-		game.info.specific_info['Linux Developer'] = [dev.removesuffix(' (Linux)') for dev in developers if dev.ensdwith(' (Linux)')]
-		game.info.developer = [dev for dev in developers if not dev.endswith((' (Mac)', ' (Linux)'))]
-		game.info.specific_info['Mac Publisher'] = [pub.removesuffix(' (Mac)') for pub in publishers if pub.ensdwith(' (Mac)')]
-		game.info.specific_info['Linux Publisher'] = [pub.removesuffix(' (Linux)') for pub in publishers if pub.ensdwith(' (Linux)')]
-		game.info.publisher = [game.info.developer[0] if pub == 'Self Published' and game.info.developer else pub for pub in publishers if not pub.endswith((' (Mac)', ' (Linux)'))]
+		game.info.series = [franchise for _, franchise in sorted(franchises.items()) if franchise not in publishers.values()]
+
+		game.info.specific_info['Mac Developer'] = [dev.removesuffix(' (Mac)') for _, dev in sorted(developers.items()) if dev.endswith(' (Mac)')]
+		game.info.specific_info['Linux Developer'] = [dev.removesuffix(' (Linux)') for _, dev in sorted(developers.items()) if dev.endswith(' (Linux)')]
+		game.info.developer = [dev for _, dev in sorted(developers.items()) if not dev.endswith((' (Mac)', ' (Linux)'))]
+
+		game.info.specific_info['Mac Publisher'] = [pub.removesuffix(' (Mac)') for _, pub in sorted(publishers.items()) if pub.endswith(' (Mac)')]
+		game.info.specific_info['Linux Publisher'] = [pub.removesuffix(' (Linux)') for _, pub in sorted(publishers.items()) if pub.endswith(' (Linux)')]
+		game.info.publisher = [game.info.developer[0] if pub == 'Self Published' and game.info.developer else pub for _, pub in sorted(publishers.items()) if not pub.endswith((' (Mac)', ' (Linux)'))]
 			
 def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]) -> None:
 	if not game.info.developer:
