@@ -27,8 +27,7 @@ class MAMEConfiguration():
 		return None
 
 _mame_config_comment = re.compile(r'#.+$')
-_mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
-_semicolon_not_after_quotes = re.compile(r'(?!");')
+_mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>[^;]+|"[^"]+")$')
 def parse_mame_config_file(path: Path) -> Mapping[str, Sequence[str]]:
 	settings = {}
 
@@ -43,11 +42,6 @@ def parse_mame_config_file(path: Path) -> Mapping[str, Sequence[str]]:
 			match = _mame_config_line.match(line)
 			if match:
 				key = match['key']
-				values = _semicolon_not_after_quotes.split(match['value'])
-				setting = []
-				for value in values:
-					if value[0] == '"' and value[-1] == '"':
-						value = value[1:-1]
-					setting.append(value)
-				settings[key] = setting
+				values = match['value']
+				settings[key] = values
 	return settings
