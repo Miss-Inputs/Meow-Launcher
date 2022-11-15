@@ -439,7 +439,10 @@ class Software():
 
 		self.add_related_images(game_info)
 
-		add_history(game_info, self.software_list_name, self.name)
+		try:
+			add_history(game_info, self.software_list_name, self.name)
+		except FileNotFoundError:
+			pass
 
 	def add_related_images(self, game_info: GameInfo) -> None:
 		for image_name, config_key in image_config_keys.items():

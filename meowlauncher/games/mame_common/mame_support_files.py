@@ -145,7 +145,7 @@ def add_history(metadata: 'GameInfo', machine_or_softlist: str, software_name: s
 	if not history_xml:
 		history_xml = get_default_history_xml()
 		if not history_xml:
-			raise ValueError('Need to specify history_xml if there is no ui.ini/historypath/history.xml')
+			raise FileNotFoundError('Need to specify history_xml if there is no ui.ini/historypath/history.xml')
 
 	if software_name:
 		softlist = history_xml.software_histories.get(machine_or_softlist)

@@ -379,7 +379,10 @@ def add_info(game: 'MAMEGame') -> None:
 		game.info.specific_info['Version'] = version
 
 	add_status(game.machine, game.info)
-	add_history(game.info, game.machine.basename)
+	try:
+		add_history(game.info, game.machine.basename)
+	except FileNotFoundError:
+		pass
 
 	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in iter_cpus(game.machine.xml))	
 	displays = DisplayCollection(game.machine.xml.iterfind('display'))
