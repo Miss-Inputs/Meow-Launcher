@@ -20,7 +20,7 @@ class HistoryXML():
 		
 		system_histories: MutableMapping[str, History] = {}
 		software_histories: MutableMapping[str, MutableMapping[str, History]] = {}
-		for entry in self.xml.iterfind('entry'):
+		for entry in self.xml.iter('entry'):
 			text = entry.findtext('text')
 			if not text:
 				continue
@@ -28,10 +28,10 @@ class HistoryXML():
 
 			systems = entry.find('systems')
 			if systems is not None:
-				system_histories.update((system.attrib['name'], parsed) for system in systems.iterfind('system'))
+				system_histories.update((system.attrib['name'], parsed) for system in systems.iter('system'))
 			softwares = entry.find('software')
 			if softwares is not None:
-				for item in softwares.iterfind('item'):
+				for item in softwares.iter('item'):
 					software_histories.setdefault(item.attrib['list'], {})[item.attrib['name']] = parsed
 		self.system_histories = system_histories
 		self.software_histories = software_histories

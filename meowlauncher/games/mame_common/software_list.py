@@ -114,7 +114,7 @@ class DataArea():
 		self.xml = xml
 		self.part = part
 		self.name = xml.attrib.get('name')
-		self.roms = {DataAreaROM(rom_xml, self) for rom_xml in self.xml.iterfind('rom')}
+		self.roms = {DataAreaROM(rom_xml, self) for rom_xml in self.xml.iter('rom')}
 
 	@property
 	def size(self) -> int | None:
@@ -182,7 +182,7 @@ class DiskArea():
 	def __init__(self, xml: ElementTree.Element, part: 'SoftwarePart'):
 		self.xml = xml
 		self.part = part
-		self.disks = {DiskAreaDisk(disk_xml, self) for disk_xml in self.xml.iterfind('disk')}
+		self.disks = {DiskAreaDisk(disk_xml, self) for disk_xml in self.xml.iter('disk')}
 
 	@property
 	def name(self) -> str | None:
@@ -198,8 +198,8 @@ class SoftwarePart():
 	def __init__(self, xml: ElementTree.Element, software: 'Software'):
 		self.xml = xml
 		self.software = software
-		self.data_areas = {data_area.name: data_area for data_area in (DataArea(data_area_xml, self) for data_area_xml in self.xml.iterfind('dataarea'))}
-		self.disk_areas = {disk_area.name: disk_area for disk_area in (DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iterfind('diskarea'))}
+		self.data_areas = {data_area.name: data_area for data_area in (DataArea(data_area_xml, self) for data_area_xml in self.xml.iter('dataarea'))}
+		self.disk_areas = {disk_area.name: disk_area for disk_area in (DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iter('diskarea'))}
 
 	@cached_property
 	def name(self) -> str | None:
@@ -228,7 +228,7 @@ class SoftwarePart():
 		return False
 
 	def get_feature(self, name: str) -> str | None:
-		for feature in self.xml.iterfind('feature'):
+		for feature in self.xml.iter('feature'):
 			if feature.attrib.get('name') == name:
 				return feature.attrib.get('value')
 
@@ -274,8 +274,8 @@ class Software():
 		self.xml = xml
 		self.software_list = software_list
 
-		self.parts = {part.name: part for part in (SoftwarePart(part_xml, self) for part_xml in self.xml.iterfind('part'))}
-		self.infos = {info.attrib['name']: info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
+		self.parts = {part.name: part for part in (SoftwarePart(part_xml, self) for part_xml in self.xml.iter('part'))}
+		self.infos = {info.attrib['name']: info.attrib.get('value') for info in self.xml.iter('info')} #Blank info name should not happen
 
 	def __str__(self) -> str:
 		return f'{self.name} ({self.description})'
@@ -321,7 +321,7 @@ class Software():
 		return self.infos.get(name)
 
 	def get_shared_feature(self, name: str) -> str | None:
-		for info in self.xml.iterfind('sharedfeat'):
+		for info in self.xml.iter('sharedfeat'):
 			if info.attrib.get('name') == name:
 				return info.attrib.get('value')
 
@@ -466,7 +466,7 @@ class SoftwareMatcherArgs():
 class SoftwareList():
 	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
-		self.software = {software.name: software for software in {Software(s, self) for s in self.xml.iterfind('software')}}
+		self.software = {software.name: software for software in {Software(s, self) for s in self.xml.iter('software')}}
 
 	def __hash__(self) -> int:
 		return hash(self.name)
@@ -483,14 +483,14 @@ class SoftwareList():
 		return self.xml.getroot().attrib.get('description')
 
 	def get_software(self, name: str) -> Software | None:
-		#for software in self.xml.iterfind('software'):
+		#for software in self.xml.iter('software'):
 		#	if software.attrib.get('name') == name:
 		#		return Software(software, self)
 		#return None
 		return self.software.get(name)
 
 	def iter_all_parts_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterator[SoftwarePart]:
-		# for software_xml in self.xml.iterfind('software'):
+		# for software_xml in self.xml.iter('software'):
 		# 	software = Software(software_xml, self)
 		for software in self.software.values():
 			for part in software.parts.values():
@@ -508,7 +508,7 @@ class SoftwareList():
 		return next(self.iter_all_software_with_custom_matcher(matcher, args), None)
 		
 	def find_software_part(self, args: SoftwareMatcherArgs) -> SoftwarePart | None:
-		# for software_xml in self.xml.iterfind('software'):
+		# for software_xml in self.xml.iter('software'):
 		# 	software = Software(software_xml, self)
 		for software in self.software.values():
 			for part in software.parts.values():
@@ -526,7 +526,7 @@ class SoftwareList():
 	def iter_available_software(self) -> Iterator[Software]:
 		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
 		
-		for software_xml in self.xml.iterfind('software'):
+		for software_xml in self.xml.iter('software'):
 			software = Software(software_xml, self)
 			if software.romless:
 				yield software

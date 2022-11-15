@@ -39,8 +39,8 @@ class MediaSlot():
 		self.interface = xml.attrib.get('interface')
 		
 		#This is the actual thing you see in -listmedia and use to insert media
-		self.instances = {(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.iterfind('instance')}
-		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.iterfind('extension')}
+		self.instances = {(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.iter('instance')}
+		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.iter('extension')}
 
 _licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 _licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
@@ -176,7 +176,7 @@ class Machine():
 	@property
 	def feature_statuses(self) -> Mapping[str, str]:
 		features = {}
-		for feature in self.xml.iterfind('feature'):
+		for feature in self.xml.iter('feature'):
 			feature_type = feature.attrib['type']
 			if 'status' in feature.attrib:
 				feature_status = feature.attrib['status']
@@ -199,7 +199,7 @@ class Machine():
 		return self.number_of_players == 0 and self.emulation_status in (EmulationStatus.Broken, EmulationStatus.Unknown) and self.feature_statuses.get('sound') == 'unemulated'
 
 	def uses_device(self, name: str) -> bool:
-		return any(device_ref.attrib['name'] == name for device_ref in self.xml.iterfind('device_ref'))
+		return any(device_ref.attrib['name'] == name for device_ref in self.xml.iter('device_ref'))
 		
 	@property
 	def requires_chds(self) -> bool:
@@ -215,7 +215,7 @@ class Machine():
 		if self.xml.find('rom') is None:
 			return True
 
-		return not any(rom.attrib.get('status', 'good') != 'nodump' for rom in self.xml.iterfind('rom'))
+		return not any(rom.attrib.get('status', 'good') != 'nodump' for rom in self.xml.iter('rom'))
 
 	@property
 	def bios_basename(self) -> str | None:
@@ -239,7 +239,7 @@ class Machine():
 
 	@property
 	def media_slots(self) -> Iterator[MediaSlot]:
-		for device_xml in self.xml.iterfind('device'):
+		for device_xml in self.xml.iter('device'):
 			yield MediaSlot(device_xml)
 
 	@property
@@ -248,7 +248,7 @@ class Machine():
 
 	@property
 	def software_list_names(self) -> Collection[str]:
-		return {software_list.attrib.get('name', '') for software_list in self.xml.iterfind('softwarelist')} #Blank name should not happen
+		return {software_list.attrib.get('name', '') for software_list in self.xml.iter('softwarelist')} #Blank name should not happen
 
 	@property
 	def manufacturer(self) -> str:

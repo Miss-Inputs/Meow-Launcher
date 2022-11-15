@@ -47,7 +47,7 @@ def _tag_starts_with(tag: str | None, tag_list: Collection[str]) -> bool:
 	return any(re.fullmatch('^' + re.escape(t) + r'(?:(?:_|\.)?\d+)?$', tag) for t in tag_list)
 	
 def iter_cpus(machine_xml: ElementTree.Element) -> Iterator[ElementTree.Element]:
-	for chip_xml in machine_xml.iterfind('chip'):
+	for chip_xml in machine_xml.iter('chip'):
 		if chip_xml.attrib.get('type') != 'cpu':
 			continue
 	

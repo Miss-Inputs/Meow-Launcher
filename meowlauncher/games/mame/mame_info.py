@@ -385,7 +385,7 @@ def add_info(game: 'MAMEGame') -> None:
 		pass
 
 	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in iter_cpus(game.machine.xml))	
-	displays = DisplayCollection(game.machine.xml.iterfind('display'))
+	displays = DisplayCollection(game.machine.xml.iter('display'))
 	
 	game.info.specific_info['Number of CPUs'] = cpu_info.number_of_cpus
 	if cpu_info.number_of_cpus:
@@ -419,7 +419,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 
 	has_control_elements = False
 
-	for control in game.machine.input_element.iterfind('control'):
+	for control in game.machine.input_element.iter('control'):
 		has_control_elements = True
 		buttons = int(control.attrib.get('buttons', 0))
 

@@ -18,10 +18,10 @@ class TDB():
 		if genre_element is None:
 			return
 		#Can assume all genres not in maingenres are subgenres
-		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.iterfind('subgenre')] for main_genre in genre_element.iterfind('maingenre')}
+		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.iter('subgenre')] for main_genre in genre_element.iter('maingenre')}
 
 	def find_game(self, search_key: str) -> ElementTree.Element | None:
-		return next((game for game in self.xml.iterfind('game') if game.findtext('id') == search_key), None)
+		return next((game for game in self.xml.iter('game') if game.findtext('id') == search_key), None)
 		
 	def _organize_genres(self, genres: Collection[str]) -> Mapping[str, Collection[str]]:
 		main_genres: dict[str, set[str]] = {}
@@ -112,7 +112,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info:
 	if genre:
 		tdb.parse_genre(game_info, genre)
 
-	for locale in db_entry.iterfind('locale'):
+	for locale in db_entry.iter('locale'):
 		synopsis = locale.findtext('synopsis')
 		if synopsis:
 			key_name = f"Synopsis-{locale.attrib.get('lang')}" if 'lang' in locale.attrib else 'Synopsis'
@@ -125,7 +125,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info:
 		if value:
 			game_info.specific_info['Age Rating'] = value
 
-		descriptors = {e.text for e in rating.iterfind('descriptor')}
+		descriptors = {e.text for e in rating.iter('descriptor')}
 		if descriptors:
 			game_info.specific_info['Content Warnings'] = descriptors
 
@@ -145,7 +145,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info:
 	if game_info.platform != 'GameCube':
 		wifi = db_entry.find('wi-fi')
 		if wifi:
-			features = {feature.text for feature in wifi.iterfind('feature')}
+			features = {feature.text for feature in wifi.iter('feature')}
 			game_info.specific_info['Wifi Features'] = features
 			#online, download, score, nintendods
 	
@@ -160,7 +160,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info:
 			#wiimote, nunchuk, motionplus, db_entrycube, nintendods, classiccontroller, wheel, zapper, balanceboard, wiispeak, microphone, guitar, drums, dancepad, keyboard, draw
 			optional_controls = set()
 			required_controls = set()
-			for control in input_element.iterfind('control'):
+			for control in input_element.iter('control'):
 				control_type = control.attrib.get('type')
 				if control.attrib.get('required', 'false') == 'true':
 					required_controls.add(control_type)
