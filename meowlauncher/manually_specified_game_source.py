@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 ManuallySpecifiedGameType_co = TypeVar('ManuallySpecifiedGameType_co', bound=ManuallySpecifiedGame, covariant=True)
-class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[ManuallySpecifiedGameType_co]):
+class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[ManuallySpecifiedGameType_co]'], ABC, Generic[ManuallySpecifiedGameType_co]):
 	#TODO: This shouldn't necessarily subclass ChooseableEmulatorGameSource
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 
