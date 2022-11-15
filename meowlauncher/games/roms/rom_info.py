@@ -18,8 +18,8 @@ from meowlauncher.util.detect_things_from_filename import \
     get_tv_system_from_filename_tags
 from meowlauncher.util.region_info import (get_common_language_from_regions,
                                            get_tv_system_from_regions)
-from meowlauncher.util.utils import (find_filename_tags_at_end, find_tags, junk_suffixes,
-                                     remove_filename_tags)
+from meowlauncher.util.utils import (find_filename_tags_at_end, find_tags,
+                                     junk_suffixes, remove_filename_tags)
 
 from .rom import ROM, CompressedROM, FileROM, FolderROM, GCZFileROM
 

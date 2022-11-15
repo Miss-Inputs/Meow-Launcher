@@ -232,7 +232,7 @@ def add_metadata_from_category(game: 'MAMEGame', category: MachineCategory | Non
 	if catlist.category and (catlist.definite_category or not game.info.categories):
 		game.info.categories = [catlist.category]
 
-def add_metadata_from_catlist(game: 'MAMEGame') -> None:
+def _add_info_from_catlist(game: 'MAMEGame') -> None:
 	category = get_category(game.machine.basename)
 	if not category and game.machine.has_parent:
 		category = get_category(cast(str, game.machine.parent_basename))
@@ -359,7 +359,7 @@ def add_images(game: 'MAMEGame') -> None:
 		
 def add_info(game: 'MAMEGame') -> None:
 	add_images(game)
-	add_metadata_from_catlist(game)
+	_add_info_from_catlist(game)
 
 	add_input_info(game)
 	add_save_type(game)
