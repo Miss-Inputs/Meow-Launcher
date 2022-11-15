@@ -3,7 +3,8 @@
 from collections.abc import Callable, Mapping, Sequence
 from typing import TYPE_CHECKING
 
-from meowlauncher.games.specific_behaviour.simple_filename_info import add_atari_st_info
+from meowlauncher.games.specific_behaviour.simple_filename_info import \
+    add_atari_st_info
 
 from ._3ds import add_3ds_custom_info
 from .amiga import add_amiga_custom_info
@@ -36,11 +37,45 @@ from .ps2 import add_ps2_custom_info
 from .ps3 import add_ps3_custom_info
 from .psp import add_psp_custom_info
 from .saturn import add_saturn_custom_info
-from .simple_rom_info import *
-from .simple_software_info import *
+from .simple_rom_info import (add_doom_rom_file_info, add_ngp_header_info,
+                              add_pokemini_rom_file_info,
+                              add_vectrex_header_info)
+from .simple_software_info import (add_amstrad_pcw_software_info,
+                                   add_atari_5200_software_info,
+                                   add_fm_towns_software_info,
+                                   add_intellivision_software_info,
+                                   add_microtan_65_software_info,
+                                   add_msx_software_info,
+                                   add_pc_booter_software_info,
+                                   add_pc_engine_cd_software_info,
+                                   add_sg1000_software_info,
+                                   add_sord_m5_software_info,
+                                   add_super_cassette_vision_software_info,
+                                   add_virtual_boy_software_info)
 from .snes import (add_snes_rom_header_info, add_snes_software_list_metadata,
                    find_equivalent_snes_arcade)
-from .static_platform_info import *
+from .static_platform_info import (add_3ds_info, add_arcadia_info,
+                                   add_astrocade_info, add_bandai_sv8000_info,
+                                   add_bbc_bridge_companion_info,
+                                   add_benesse_v2_info, add_casio_pv1000_info,
+                                   add_cd32_info,
+                                   add_entex_adventure_vision_info,
+                                   add_gamate_info, add_game_gear_info,
+                                   add_game_pocket_computer_info,
+                                   add_gamecom_info, add_gba_info,
+                                   add_hartung_game_master_info,
+                                   add_juicebox_info, add_lynx_info,
+                                   add_mega_duck_info, add_neogeo_cd_info,
+                                   add_ngp_info, add_nichibutsu_my_vision_info,
+                                   add_pokemini_info, add_psp_info,
+                                   add_super_acan_info,
+                                   add_super_cassette_vision_info,
+                                   add_vc4000_info, add_vectrex_info,
+                                   add_virtual_boy_info, add_vsmile_babby_info,
+                                   add_vsmile_info, add_vz200_info,
+                                   add_watara_supervision_info,
+                                   add_wonderswan_info) 
+								   #Yes I know we are not using a few, because they are called from *_custom_info for now
 from .switch import add_switch_rom_file_info
 from .uzebox import add_uzebox_custom_info
 from .virtual_boy import add_virtual_boy_rom_info
@@ -185,6 +220,7 @@ software_info_funcs: Mapping[str, Callable[['Software', 'GameInfo'], None]] = {
 	'ColecoVision': add_colecovision_software_info,
 	'FM Towns': add_fm_towns_software_info,
 	'Game Gear': add_sms_gg_software_list_info,
+	'Intellivision': add_intellivision_software_info,
 	'Master System': add_sms_gg_software_list_info,
 	'MSX': add_msx_software_info,
 	'MSX2': add_msx_software_info,

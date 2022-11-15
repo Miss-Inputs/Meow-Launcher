@@ -5,7 +5,6 @@ import datetime
 import itertools
 import logging
 from shutil import copymode
-import sys
 import time
 from collections.abc import Callable, Collection, MutableMapping, Iterable
 from pathlib import Path
