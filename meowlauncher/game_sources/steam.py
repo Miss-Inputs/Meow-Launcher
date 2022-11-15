@@ -54,7 +54,7 @@ class SteamState():
 		def __init__(self) -> None:
 			self.steam_installation = None
 			#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
-			possible_locations = ('~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam')
+			possible_locations = ('~/.local/share/Steam', '~/.local/share/steam', '~/.steam/steam')
 			steam_path = None
 			for str_location in possible_locations:
 				location = Path(str_location).expanduser()
