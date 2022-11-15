@@ -31,7 +31,7 @@ _mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>[^;]+|"[^"]+")$')
 def parse_mame_config_file(path: Path) -> Mapping[str, Sequence[str]]:
 	settings = {}
 
-	with path.open('rt', encoding='utf-8') as f:
+	with path.open('rt', encoding='utf-8-sig') as f:
 		for line in f:
 			line = _mame_config_comment.sub('', line)
 			line = line.strip()
@@ -43,5 +43,7 @@ def parse_mame_config_file(path: Path) -> Mapping[str, Sequence[str]]:
 			if match:
 				key = match['key']
 				values = match['value']
-				settings[key] = values
+				if values[0] == '"' and values[-1] == '"':
+					values = values[1:-1]
+				settings[key] = values.split(';')
 	return settings
