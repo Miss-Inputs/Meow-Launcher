@@ -65,7 +65,7 @@ class History():
 	ports: str | None
 
 def parse_history(history: str) -> History:
-	lines = tuple(line.strip() for line in history.strip().splitlines())
+	lines = tuple(line for line in history.splitlines())
 	description_start = 0
 	if '(c)' in lines[0]:
 		description_start = 2
