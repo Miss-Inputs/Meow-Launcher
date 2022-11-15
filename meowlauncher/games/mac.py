@@ -168,6 +168,7 @@ mac_epoch = datetime.datetime(1904, 1, 1)
 
 def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: Any=None) -> Optional['Image.Image']:
 	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
+	mask: Image.Image | None = None
 	if icn_resource:
 		if len(icn_resource) != 256:
 			logger.debug('Baaa %s has a bad ICN## with size %s, should be 256', path_for_warning, len(icn_resource))
@@ -305,7 +306,7 @@ class MacApp(ManuallySpecifiedGame):
 						break
 		try:
 			if resource_id in resources.get(b'icns', {}):
-				return Image.open(io.BytesIO(resources[b'icns'][resource_id]))
+				return Image.open(io.BytesIO(resources[b'icns'][resource_id]), formats=('ICNS',))
 		except UnidentifiedImageError:
 			#I guess sometimes it's janky and not loadable by us, which is strange
 			if resource_id == -16455 and not has_custom_icn:

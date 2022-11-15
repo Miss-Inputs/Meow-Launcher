@@ -4,7 +4,7 @@ import logging
 import struct
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 try:
 	import pefile
@@ -121,7 +121,7 @@ def _parse_pe_group_icon_directory(data: bytes) -> 'Mapping[int, Mapping[str, in
 	return {entry_id: {'width': width, 'height': height, 'colour_count': colour_count, 'planes': planes, 'bit_count': bit_count, 'bytes_in_res': bytes_in_res}
 		for width, height, colour_count, _, planes, bit_count, bytes_in_res, entry_id in struct.iter_unpack(struct_format, data[6:6 + (struct.calcsize(struct_format) * count)])}
 
-def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
+def get_icon_from_pe(pe: 'pefile.PE') -> 'Image.Image | None':
 	group_icons = _get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_GROUP_ICON'])
 	if not group_icons:
 		return None
@@ -152,7 +152,7 @@ def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
 		header += ico_entry
 		data += icon_resource_data
 	ico = header + data
-	return Image.open(io.BytesIO(ico))
+	return Image.open(io.BytesIO(ico), formats=('ICO',))
 
 def get_icon_inside_exe(path: str) -> 'Image.Image | None':
 	if have_pefile:

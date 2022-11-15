@@ -2,7 +2,7 @@ import io
 import logging
 from pathlib import Path
 import struct  # To handle struct.error
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 try:
 	from PIL import Image
@@ -13,6 +13,7 @@ except ModuleNotFoundError:
 try:
 
 	from pycdlib import PyCdlib
+	from pycdlib.dr import DirectoryRecord
 	from pycdlib.pycdlibexception import PyCdlibInvalidInput, PyCdlibInvalidISO
 	have_pycdlib = True
 except ModuleNotFoundError:
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
+def _load_image_from_bytes(data: bytes) -> 'Image.Image | None':
 	bitmap_data_io = io.BytesIO(data)
 	try:
 		image = Image.open(bitmap_data_io)
@@ -38,7 +39,7 @@ def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	except OSError:
 		return None
 
-def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'GameInfo', pbp_file: bytes) -> None:
+def add_info_from_pbp(rompath_just_for_warning: Any, game_info: 'GameInfo', pbp_file: bytes) -> None:
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -55,73 +56,76 @@ def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'GameInfo', pbp_f
 	#These embedded files are supposedly always in this order, so you get the size by getting the difference between that file's offset and the next one (or the end of the file if it's the last one)
 	if param_sfo_offset > 0x24:
 		param_sfo = pbp_file[param_sfo_offset:icon0_offset]
-		parse_param_sfo(rompath_just_for_warning, metadata, param_sfo)
+		parse_param_sfo(rompath_just_for_warning, game_info, param_sfo)
 	if have_pillow:
 		if icon0_offset > param_sfo_offset:
-			banner = load_image_from_bytes(pbp_file[icon0_offset:icon1_offset])
+			banner = _load_image_from_bytes(pbp_file[icon0_offset:icon1_offset])
 			if banner:
-				metadata.images['Banner'] = banner
+				game_info.images['Banner'] = banner
 		if icon1_offset > icon0_offset:
 			#Dunno what these 3 other images do exactly, so they have crap names for now
-			icon1 = load_image_from_bytes(pbp_file[icon1_offset:pic0_offset])
+			icon1 = _load_image_from_bytes(pbp_file[icon1_offset:pic0_offset])
 			if icon1:
-				metadata.images['Icon 1'] = icon1
+				game_info.images['Icon 1'] = icon1
 		if pic0_offset > icon1_offset:
-			pic0 = load_image_from_bytes(pbp_file[pic0_offset:pic1_offset])
+			pic0 = _load_image_from_bytes(pbp_file[pic0_offset:pic1_offset])
 			if pic0:
-				metadata.images['Picture 0'] = pic0
+				game_info.images['Picture 0'] = pic0
 		if pic1_offset > pic0_offset:
-			pic1 = load_image_from_bytes(pbp_file[pic1_offset:snd0_offset])
+			pic1 = _load_image_from_bytes(pbp_file[pic1_offset:snd0_offset])
 			if pic1:
-				metadata.images['Background Image'] = pic1
+				game_info.images['Background Image'] = pic1
 
-def get_image_from_iso(iso: 'PyCdlib', path: Path, object_for_warning: Any=None) -> 'Image':
+def _get_image_from_iso(iso: 'PyCdlib', inner_path: str, object_for_warning: Any=None) -> 'Image.Image | None':
 	try:
-		with iso.open_file_from_iso(iso_path=str(path)) as image_data:
+		with iso.open_file_from_iso(iso_path=inner_path) as image_data:
 			try:
 				image = Image.open(image_data)
 				image.load() #Force Pillow to figure out if the image is valid or not, and also copy the image data
 				return image
 			except (OSError, SyntaxError):
-				logger.exception('Error getting image %s inside ISO %s', path, object_for_warning or iso)
+				logger.exception('Error getting image %s inside ISO %s', inner_path, object_for_warning or iso)
 				return None
 	except PyCdlibInvalidInput:
 		#It is okay for a disc to be missing something
 		pass
 	return None
 
-def add_psp_iso_info(path: Path, metadata: 'GameInfo') -> None:
+def add_psp_iso_info(path: Path, game_info: 'GameInfo') -> None:
 	iso = PyCdlib()
 	try:
 		iso.open(str(path))
 		try:
 			with iso.open_file_from_iso(iso_path='/PSP_GAME/PARAM.SFO') as param_sfo:
-				parse_param_sfo(path, metadata, param_sfo.read())
+				parse_param_sfo(path, game_info, param_sfo.read())
 
-			date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
+			date = cast(DirectoryRecord, iso.get_record(iso_path='/PSP_GAME/PARAM.SFO')).date
 			#This would be more like a build date (seems to be the same across all files) rather than the release date
 			year = date.years_since_1900 + 1900
 			month = date.month
 			day = date.day_of_month
-			metadata.specific_info['Build Date'] = Date(year, month, day)
+			game_info.specific_info['Build Date'] = Date(year, month, day)
 			guessed = Date(year, month, day, True)
-			if guessed.is_better_than(metadata.release_date):
-				metadata.release_date = guessed
+			if guessed.is_better_than(game_info.release_date):
+				game_info.release_date = guessed
 		except PyCdlibInvalidInput:
 			try:
 				iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
 				#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
 				#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
-				metadata.specific_info['PlayStation Category'] = 'UMD Video'
+				game_info.specific_info['PlayStation Category'] = 'UMD Video'
 				return
 			except PyCdlibInvalidInput:
 				logger.info('%s has no PARAM.SFO inside', path)
 		else:
 			if have_pillow:
-				metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG', path)
-				metadata.images['Icon 1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG', path)
-				metadata.images['Picture 0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG', path)
-				metadata.images['Background Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG', path)
+				game_info.images.update(((k, v) for k, v in (
+					('Banner', _get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG', path)),
+					('Icon 1', _get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG', path)),
+					('Picture 0', _get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG', path)),
+					('Background Image', _get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG', path)),
+				) if v
+				))
 		finally:
 			iso.close()	
 	except PyCdlibInvalidISO:

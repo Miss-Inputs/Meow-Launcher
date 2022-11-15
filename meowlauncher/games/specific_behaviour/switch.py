@@ -97,7 +97,7 @@ class Cnmt():
 	type: SwitchContentMetaType
 	contents: dict[bytes, tuple[int, ContentType]] = field(compare=False)
 
-def _add_titles(metadata: 'GameInfo', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes] | None=None) -> None:
+def _add_titles(game_info: 'GameInfo', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes] | None=None) -> None:
 	if not titles:
 		return
 	found_first_lang = False
@@ -135,21 +135,21 @@ def _add_titles(metadata: 'GameInfo', titles: Mapping[str, tuple[str, str]], ico
 					if local_icon != first_icon and local_icon not in other_icons.values():
 						other_icons[prefix] = local_icon
 				if name != first_name:
-					metadata.add_alternate_name(name, prefix + ' Banner Title')
+					game_info.add_alternate_name(name, prefix + ' Banner Title')
 				if publisher != first_publisher:
-					metadata.specific_info[prefix + ' Publisher'] = publisher
+					game_info.specific_info[prefix + ' Publisher'] = publisher
 			else:
 				first_name = name
 				first_publisher = publisher
 				found_first_lang = True
 				if icons and lang_name in icons:
 					first_icon = icons[lang_name]
-					metadata.images['Icon'] = Image.open(io.BytesIO(first_icon))
-				metadata.add_alternate_name(name, 'Banner Title')
+					game_info.images['Icon'] = Image.open(io.BytesIO(first_icon))
+				game_info.add_alternate_name(name, 'Banner Title')
 				#TODO: Cleanup publisher
-				metadata.publisher = publisher
+				game_info.publisher = publisher
 	for prefix, icon in other_icons.items():
-		metadata.images[prefix + ' Icon'] = Image.open(io.BytesIO(icon))
+		game_info.images[prefix + ' Icon'] = Image.open(io.BytesIO(icon))
 
 def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: 'Mapping[str, bytes] | None'=None) -> None:
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
@@ -210,12 +210,12 @@ def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: 'Mapping[str, b
 		metadata.product_code = application_error_code_category.decode('utf-8', errors='backslashreplace')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
-def _add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'GameInfo') -> None:
-	metadata.specific_info['Title Type'] = xml.findtext('Type')
+def _add_cnmt_xml_metadata(xml: ElementTree.Element, game_info: 'GameInfo') -> None:
+	game_info.specific_info['Title Type'] = xml.findtext('Type')
 	title_id = xml.findtext('Id')
 	if title_id:
-		metadata.specific_info['Title ID'] = title_id[2:]
-	metadata.specific_info['Revision'] = xml.findtext('Version')
+		game_info.specific_info['Title ID'] = title_id[2:]
+	game_info.specific_info['Revision'] = xml.findtext('Version')
 	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
 	#Content contains Size, KeyGeneration, Hash, Type
 
