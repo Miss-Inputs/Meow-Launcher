@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.info import Date, GameInfo
@@ -78,9 +78,9 @@ class MAMEGame(EmulatedGame):
 
 	@property
 	def is_wanted(self) -> bool:
-		if main_config.exclude_pinball and self.machine.is_pinball:
+		if old_main_config.exclude_pinball and self.machine.is_pinball:
 			return False
-		if main_config.exclude_non_arcade and self.info.platform == 'Non-Arcade':
+		if old_main_config.exclude_non_arcade and self.info.platform == 'Non-Arcade':
 			return False
 
 		return True

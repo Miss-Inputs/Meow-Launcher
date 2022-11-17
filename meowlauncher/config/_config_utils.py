@@ -28,7 +28,18 @@ def parse_bool(value: str) -> bool:
 
 	raise TypeError(value)
 
-def parse_value(section: 'configparser.SectionProxy', name: str, value_type: type, default_value: Any) -> Any:
+def parse_value(value: str, value_type: type) -> Any:
+	if value_type == bool:
+		return parse_bool(value)
+	if value_type == Path:
+		return Path(value).expanduser()
+	if value_type == Sequence[str]:
+		return parse_string_list(value)
+	if value_type == Sequence[Path]:
+		return parse_path_list(value)
+	return value_type(value)
+
+def parse_config_section_value(section: 'configparser.SectionProxy', name: str, value_type: type, default_value: Any) -> Any:
 	try:
 		if value_type == bool:
 			return parse_bool(section[name])

@@ -4,7 +4,7 @@ from collections.abc import Iterator, Sequence
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.machines_with_inbuilt_games import (
@@ -27,7 +27,7 @@ def _is_actually_machine(machine: Machine) -> bool:
 	if machine.xml.attrib.get('isbios', 'no') == 'yes': #Hmm, technically there's nothing stopping you launching these
 		return False
 
-	if main_config.exclude_system_drivers and machine.is_system_driver:
+	if old_main_config.exclude_system_drivers and machine.is_system_driver:
 		return False
 
 	return True
@@ -67,7 +67,7 @@ class MAME(GameSource):
 
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
-		if machine.source_file in main_config.skipped_source_files:
+		if machine.source_file in old_main_config.skipped_source_files:
 			return None
 
 		if not _is_actually_machine(machine):
@@ -76,7 +76,7 @@ class MAME(GameSource):
 		if not machine.launchable:
 			return None
 
-		if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
+		if old_main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in old_main_config.non_working_whitelist:
 			#This will need to be refactored if anything other than MAME is added
 			#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 			return None
@@ -121,7 +121,7 @@ class MAME(GameSource):
 			return
 
 		for machine in iter_machines(self.emu.executable):
-			if not main_config.full_rescan:
+			if not old_main_config.full_rescan:
 				if has_been_done('Arcade', machine.basename):
 					continue
 				if has_been_done('MAME', machine.basename):
@@ -175,14 +175,14 @@ class MAMEInbuiltGames(GameSource):
 
 	def iter_launchers(self) -> Iterator[MAMEInbuiltLauncher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
-			if not main_config.full_rescan:
+			if not old_main_config.full_rescan:
 				if has_been_done('Inbuilt game', machine_name):
 					continue
 			launcher = self._process_inbuilt_game(machine_name, inbuilt_game)
 			if launcher:
 				yield launcher
 		for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
-			if not main_config.full_rescan:
+			if not old_main_config.full_rescan:
 				if has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
 					continue
 			launcher = self._process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])

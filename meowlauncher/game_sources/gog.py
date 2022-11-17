@@ -8,7 +8,7 @@ from collections.abc import Collection
 from pathlib import Path
 from typing import cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
                                     NormalGOGGame, ScummVMGOGGame,
                                     WindowsGOGGame)
@@ -55,14 +55,14 @@ def look_in_windows_gog_folder(folder: Path) -> WindowsGOGGame | None:
 	return WindowsGOGGame(folder, info_file, game_id)
 
 def do_linux_gog_games() -> None:
-	gog_folders = cast(Collection[Path], main_config.gog_folders)
+	gog_folders = cast(Collection[Path], old_main_config.gog_folders)
 	for gog_folder in gog_folders:
 		if not gog_folder.is_dir():
 			logger.warning('%s does not exist/is not a directory', gog_folder)
 			continue
 
 		for subfolder in gog_folder.iterdir():
-			if not main_config.full_rescan:
+			if not old_main_config.full_rescan:
 				if has_been_done('GOG', str(subfolder)):
 					continue
 			if not subfolder.is_dir():
@@ -75,14 +75,14 @@ def do_linux_gog_games() -> None:
 			game.make_launcher()
 
 def do_windows_gog_games() -> None:
-	windows_gog_folders = cast(Collection[Path], main_config.windows_gog_folders)
+	windows_gog_folders = cast(Collection[Path], old_main_config.windows_gog_folders)
 	for windows_gog_folder in windows_gog_folders:
 		if not windows_gog_folder.is_dir():
 			logger.warning('%s does not exist/is not a directory', windows_gog_folder)
 			continue
 
 		for subfolder in windows_gog_folder.iterdir():
-			if not main_config.full_rescan:
+			if not old_main_config.full_rescan:
 				if has_been_done('GOG', str(subfolder)):
 					continue
 			if not subfolder.is_dir():
@@ -98,9 +98,9 @@ def do_gog_games() -> None:
 	time_started = time.perf_counter()
 
 	#TODO: Should have is_wine_available helper function or whatever
-	if os.path.isfile(main_config.wine_path) or not main_config.wine_path.startswith('/'):
+	if os.path.isfile(old_main_config.wine_path) or not old_main_config.wine_path.startswith('/'):
 		do_windows_gog_games()
 
-	if main_config.print_times:
+	if old_main_config.print_times:
 		time_ended = time.perf_counter()
 		print('GOG finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common.pc_common_metadata import \
@@ -173,7 +173,7 @@ class ScummVMGame(Game):
 				#TODO How about you put a TODO comment instead
 				self.info.categories = ('Trials', )
 		
-		if main_config.use_original_platform:
+		if old_main_config.use_original_platform:
 			self.info.platform = self.original_platform
 
 		language = self.language		
@@ -208,7 +208,7 @@ class ScummVMLauncher(Launcher):
 	@property
 	def command(self) -> LaunchCommand:
 		args = ['-f']
-		if main_config.scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():
-			args.append(f'--config={main_config.scummvm_config_path}')
+		if old_main_config.scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():
+			args.append(f'--config={old_main_config.scummvm_config_path}')
 		args.append(self.game.game_id)
 		return LaunchCommand(self.runner.config.exe_path, args)

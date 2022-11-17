@@ -9,7 +9,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config, main_config
 from meowlauncher.util.io_utils import (ensure_exist, ensure_unique_path,
                                         sanitize_name)
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
@@ -115,7 +115,7 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 			_write_field(configwriter, section_name, k, v)
 
 	if section_prefix + image_section_name in configwriter:
-		keys_to_try = ('Icon', ) + main_config.use_other_images_as_icons
+		keys_to_try = ['Icon'] + list(main_config.other_images_to_use_as_icons)
 		for k in keys_to_try:
 			if k in configwriter[section_prefix + image_section_name]:
 				desktop_entry['Icon'] = configwriter[section_prefix + image_section_name][k]

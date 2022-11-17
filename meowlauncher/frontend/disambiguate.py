@@ -4,16 +4,16 @@ import collections
 import datetime
 import itertools
 import logging
-from shutil import copymode
 import time
-from collections.abc import Callable, Collection, MutableMapping, Iterable
+from collections.abc import Callable, Collection, Iterable, MutableMapping
 from pathlib import Path
+from shutil import copymode
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import main_config, old_main_config
 from meowlauncher.output.desktop_files import (id_section_name,
-                                               junk_section_name,
                                                info_section_name,
+                                               junk_section_name,
                                                section_prefix)
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
@@ -188,8 +188,7 @@ def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_
 		_resolve_duplicates_by_info(group, method, format_function, ignore_missing_values, field_section)
 
 def _fix_duplicate_names(method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
-	#TODO: output_folder needs to be unambigulously Path, that's the issue here
-	files = ((cast(Path, path), get_desktop(path)) for path in main_config.output_folder.iterdir())
+	files = ((path, get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':
 		_resolve_duplicates_by_dev_status(files)
 		return
@@ -254,13 +253,13 @@ def _reambiguate() -> None:
 def disambiguate_names() -> None:
 	time_started = time.perf_counter()
 
-	if not main_config.full_rescan:
+	if not old_main_config.full_rescan:
 		_reambiguate()
 
 	_fix_duplicate_names('Platform')
 	_fix_duplicate_names('Type', field_section=id_section_name)
 	_fix_duplicate_names('dev-status')
-	if not main_config.simple_disambiguate:
+	if not old_main_config.simple_disambiguate:
 		_fix_duplicate_names('Arcade-System', _arcade_system_disambiguate)
 		_fix_duplicate_names('Media-Type', ignore_missing_values=True)
 		_fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
@@ -278,6 +277,6 @@ def disambiguate_names() -> None:
 	_fix_duplicate_names('Executable-Name', ignore_missing_values=True)
 	_fix_duplicate_names('check')
 
-	if main_config.print_times:
+	if old_main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

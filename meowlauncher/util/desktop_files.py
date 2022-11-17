@@ -1,6 +1,6 @@
 from collections.abc import Iterator, Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
@@ -44,7 +44,7 @@ def get_array(desktop: 'RawConfigParser', name: str, section: str=info_section_n
 
 #These might not belong here in the future, they deal with the output folder in particular rather than specifically .desktop files
 def _iter_existing_launchers() -> Iterator[tuple[str, str]]:
-	output_folder = cast(Path, main_config.output_folder)
+	output_folder = main_config.output_folder
 	if not output_folder.is_file():
 		return
 	for path in output_folder.iterdir():

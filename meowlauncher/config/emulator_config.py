@@ -6,7 +6,7 @@ from meowlauncher.data.emulators import all_emulators
 from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
-from ._config_utils import parse_value
+from ._config_utils import parse_config_section_value
 
 if TYPE_CHECKING:
 	import configparser
@@ -20,10 +20,10 @@ def _get_config(parser: 'configparser.RawConfigParser', config_name: str, defaul
 		
 	if config_name in parser:
 		section = parser[config_name]
-		exe_path = parse_value(section, 'path', str, default_exe_name)
+		exe_path = parse_config_section_value(section, 'path', str, default_exe_name)
 		assert isinstance(exe_path, str), f'exe_path is not a string!! It is {type(exe_path)} {exe_path!r}' #It should be a str because it could just be default_exe_name, but then maybe that's not good, or is it
 		for k, v in configs.items():
-			options[k] = parse_value(section, k, v.type, v.default_value)
+			options[k] = parse_config_section_value(section, k, v.type, v.default_value)
 	else:
 		exe_path = default_exe_name
 		for k, v in configs.items():

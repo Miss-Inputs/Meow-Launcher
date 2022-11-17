@@ -10,7 +10,7 @@ from pathlib import Path, PureWindowsPath
 from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_metadata
@@ -148,7 +148,7 @@ class GOGGame(Game, ABC):
 		self.info.specific_info['Language Code'] = self.info_file.language
 		self.info.specific_info['GOG Product ID'] = self.info_file.gameid
 
-		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
+		self.info.platform = 'GOG' if old_main_config.use_gog_as_platform else 'Linux'
 		self.info.media_type = MediaType.Digital
 		self.info.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
@@ -288,7 +288,7 @@ class WindowsGOGGame(Game):
 		if engine:
 			self.info.specific_info['Engine'] = engine
 
-		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Windows'
+		self.info.platform = 'GOG' if old_main_config.use_gog_as_platform else 'Windows'
 		self.info.media_type = MediaType.Digital
 		self.info.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
@@ -318,7 +318,7 @@ class WindowsGOGGame(Game):
 
 	def get_dosbox_launch_params(self, task: GOGTask) -> LaunchCommand:
 		args = tuple(self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args)
-		dosbox_path = cast(Path, main_config.dosbox_path)
+		dosbox_path = cast(Path, old_main_config.dosbox_path)
 		dosbox_folder = _find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
 
@@ -336,10 +336,10 @@ class WindowsGOGGame(Game):
 		if task.working_directory:
 			working_directory = _find_subpath_case_insensitive(self.folder, task.working_directory)
 		
-		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), task.args, str(working_directory))
+		return launch_with_wine(old_main_config.wine_path, old_main_config.wineprefix, str(exe_path), task.args, str(working_directory))
 
 	def get_launcher_params(self, task: GOGTask) -> tuple[str, LaunchCommand | None]:
-		if main_config.use_system_dosbox and task.is_dosbox:
+		if old_main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 
 		#Bruh how we gonna do ScummVM when the .ini file gonna have Windows paths though?

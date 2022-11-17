@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from argparse import ArgumentParser
 import datetime
 import locale
 import logging
@@ -8,17 +9,19 @@ import time
 from meowlauncher.frontend.main import main
 from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 
-from .config.main_config import main_config
+from .config.main_config import old_main_config, main_config
 
 overall_time_started = time.perf_counter()
 locale.setlocale(locale.LC_ALL, '')
 
+parser = ArgumentParser(add_help=True, parents=[main_config.parser])
+main_config.values.update(vars(parser.parse_known_intermixed_args()[0]))
+
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s'))
-stream_handler.setLevel(main_config.logging_level)
-logging.basicConfig(handlers={stream_handler})
+logging.basicConfig(handlers={stream_handler}, level=main_config.logging_level)
 main(print)
 
-if main_config.print_times:
+if old_main_config.print_times:
 	overall_time_ended = time.perf_counter()
 	print('Whole thing finished in', str(datetime.timedelta(seconds=overall_time_ended - overall_time_started)))

@@ -7,7 +7,7 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Union
 
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.config_types import (EmulatorConfig, PlatformConfig,
                                        TypeOfConfigValue)
@@ -84,10 +84,10 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				potential_emulator_config = _get_emulator_config(chosen_emulator)
 				potential_emulator: ConfiguredStandardEmulator
 				if isinstance(chosen_emulator, LibretroCore):
-					if not main_config.libretro_frontend: #TODO: This should be in the config of LibretroCore actually, see secret evil plan
+					if not old_main_config.libretro_frontend: #TODO: This should be in the config of LibretroCore actually, see secret evil plan
 						raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
-					frontend_config = emulator_configs[main_config.libretro_frontend]
-					frontend = libretro_frontends[main_config.libretro_frontend]
+					frontend_config = emulator_configs[old_main_config.libretro_frontend]
+					frontend = libretro_frontends[old_main_config.libretro_frontend]
 					potential_emulator = LibretroCoreWithFrontend(chosen_emulator, potential_emulator_config, frontend, frontend_config)
 				else:
 					potential_emulator = ConfiguredStandardEmulator(chosen_emulator, potential_emulator_config)
@@ -162,12 +162,12 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			for root, dirs, files in os.walk(rom_dir):
 				root_path = PurePath(root)
 			
-				if any(root_path.is_relative_to(ignored_directory) for ignored_directory in main_config.ignored_directories):
+				if any(root_path.is_relative_to(ignored_directory) for ignored_directory in old_main_config.ignored_directories):
 					continue
 
 				subfolders = root_path.relative_to(rom_dir).parts
 				if subfolders:
-					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
+					if any(subfolder in old_main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
 
 				folder_check = self.platform.folder_check
@@ -175,7 +175,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 					for d in dirs:
 						folder_path = Path(root, d)
-						if not main_config.full_rescan and has_been_done('ROM', str(folder_path)):
+						if not old_main_config.full_rescan and has_been_done('ROM', str(folder_path)):
 							continue
 
 						folder_rom = FolderROM(folder_path)
@@ -199,7 +199,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					#TODO: We might actually want to do something with associated documents later, but for now, we know we aren't doing anything with them
 					if (not self.platform.is_valid_file_type(path.suffix[1:].lower())) and path.suffix[1:].lower() in {'txt', 'md', 'jpg', 'nfo', 'gif', 'bmp'}:
 						continue
-					if not main_config.full_rescan:
+					if not old_main_config.full_rescan:
 						if has_been_done('ROM', str(path)):
 							continue
 

@@ -1,17 +1,18 @@
 import inspect
 import logging
+import os
 import sys
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
-from collections.abc import Collection, Mapping, MutableMapping, Sequence
+from collections.abc import Collection, Mapping, MutableMapping, Sequence, Callable
 from functools import wraps
 from pathlib import Path, PurePath
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
 
-from ._config_utils import ConfigValue, parse_path_list, parse_value
+from ._config_utils import ConfigValue, parse_path_list, parse_config_section_value, parse_value
 
 __doc__ = """Config options are defined here, other than those specific to emulators or platforms"""
 logger = logging.getLogger(__name__)
@@ -22,18 +23,12 @@ _ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
 _runtime_option_section = '<runtime option section>' #TODO: Can this be a sentinel-style object with ConfigValue section parameter having union str | that
 
 _config_ini_values = {
-	'output_folder': ConfigValue('Paths', Path, data_dir.joinpath('apps'), 'Output folder', 'Folder to put launchers'),
-	'organized_output_folder': ConfigValue('Paths', Path, data_dir.joinpath('organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
-	'image_folder': ConfigValue('Paths', Path, data_dir.joinpath('images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
-
 	'get_series_from_name': ConfigValue('General', bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
-	'use_other_images_as_icons': ConfigValue('General', Sequence[str], (), 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
 	'sort_multiple_dev_names': ConfigValue('General', bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
 	'wine_path': ConfigValue('General', str, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
 	'wineprefix': ConfigValue('General', Path, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
 	'simple_disambiguate': ConfigValue('General', bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
 	'normalize_name_case': ConfigValue('General', int, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'), #TODO: Good case for an enum to be used here, even if argparse docs say don't use that with choices etc
-	'logging_level': ConfigValue('General', str, logging.getLevelName(logger.getEffectiveLevel()), 'Logging level', 'Logging level (e.g. INFO, DEBUG, WARNING, etc)'),
 
 	#TODO: This should be some kind of per-source options, whichever the best way to do that might be
 	
@@ -127,7 +122,7 @@ def _load_ignored_directories() -> Collection[PurePath]:
 
 	return ignored_directories
 
-class Config():
+class YeOldeConfig():
 	"""Singleton which holds config
 	This will be reworked and that is a threat"""
 	class __Config():
@@ -159,7 +154,7 @@ class Config():
 				if name not in section:
 					return config.default_value
 
-				return parse_value(section, name, config.type, config.default_value)
+				return parse_config_section_value(section, name, config.type, config.default_value)
 				
 			raise AttributeError(name)
 
@@ -167,21 +162,117 @@ class Config():
 
 	@staticmethod
 	def getConfig() -> __Config:
-		if Config.__instance is None:
-			Config.__instance = Config.__Config()
-		return Config.__instance
+		if YeOldeConfig.__instance is None:
+			YeOldeConfig.__instance = YeOldeConfig.__Config()
+		return YeOldeConfig.__instance
 
-main_config = Config().getConfig()
+old_main_config = YeOldeConfig().getConfig()
 
-def configoption(section: str, readable_name: str | None = None):
-	"""TODO: It's a surprise tool that will help us later"""
-	def deco(func): #TODO: Because we put properties on Callable that aren't there, this would be a pain in the arse to type hint…
+T = TypeVar('T')
+class ConfigProperty(Generic[T]):
+	"""property decorator with some more attributes
+	Damn here I was thinking "haha I'll never need to know how descriptors work" okay maybe I didn't need to do this"""
+	def __init__(self, func: 'Callable[[Any], T]', section: str, readable_name: str | None) -> None:
+		self.func = func
+		self.section = section
+		self.readable_name = readable_name or sentence_case(func.__name__.replace('_', ' '))
+		self.description = func.__doc__ or self.readable_name
+		self.type = inspect.get_annotations(func).get('return', str)
+	def __get__(self, __obj: Any, _: Any) -> T:
+		return self.func(__obj)
+S = TypeVar('S', bound='Config')
+def configoption(section: str, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]':
+	"""
+	Decorator: Marks this method as being a config option, which replaces it with a ConfigProperty instance; must be inside a Config
+	Description is taken from docstring, readable_name is the function name in sentence case if not provided, default value is the original function return value"""
+	def deco(func: 'Callable[[S], T]') -> 'ConfigProperty[T]':
 		@wraps(func)
-		def inner():
-			func.section = section
-			func.readable_name = readable_name or sentence_case(func.__name__)
-			func.description = func.__doc__ or func.readable_name
-			func.type = inspect.get_annotations(func)['return']
-			return func
-		return inner
+		def inner(self: S) -> T:
+			return self.values.get(func.__name__, func(self))
+		return ConfigProperty(inner, section, readable_name)
 	return deco
+
+class Config():
+	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
+	
+	Loads from stuff in this order:
+	default value
+	config.ini (or whatever --config-file specifies)
+	(TODO) additional config files
+	environment variables
+	Command line arguments
+	
+	TODO: We probably want each section to be for each Config instance, so MainConfig would be the General section (I guess there'd be a class variable somewhere), we would have a RomsConfig(Config) with section == ROMs or for everything else
+
+	The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but it would need a prefix, --duckstation-compat-db=<path> or whatever
+	"""
+	def __init__(self) -> None:
+		self._configs = {k: v for k, v in vars(self.__class__).items() if isinstance(v, ConfigProperty)}
+
+		self._config_parser = NoNonsenseConfigParser()
+		self.values: dict[str, Any] = {}
+		self._config_file_argument_parser = ArgumentParser(add_help=False)
+		#TODO: Load additional config files - but let this be specified in the main config file as an "include" etc - see also issue #146
+		self._config_file_argument_parser.add_argument('--config-file', help='If provided, load config from here instead of config.ini')
+		args, self._remaining_args = self._config_file_argument_parser.parse_known_args()
+		
+		self._config_parser.read(args.config_file if args.config_file else _main_config_path)
+		for section in self._config_parser.sections():
+			for option, value in self._config_parser.items(section):
+				if option not in self._configs:
+					#Hmm can't really spam this warning when YeOldeConfig is still there
+					#logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
+					continue
+				config = self._configs[option]
+				self.values[option] = parse_value(value, config.type)
+
+		for k, v in self._configs.items():
+			env_var = os.getenv('MEOW_LAUNCHER' + k.upper())
+			if env_var:
+				self.values[k] = parse_value(env_var, v.type)
+
+		self.parser = ArgumentParser(add_help=False, parents=[self._config_file_argument_parser])
+		section_groups: dict[str, Any | ArgumentParser]  = {}
+		#We lie somewhat to the type checker here because it bugs me that _ArgumentGroup is a private type and so we can't really type hint it with that, but this will be close enough
+		for k, v in self._configs.items():
+			group = section_groups.setdefault(v.section, self.parser.add_argument_group(v.section)) #Should have a description innit
+			option = f'--{k.replace("_", "-")}'
+			if v.type == bool:
+				group.add_argument(option, action=BooleanOptionalAction, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+			elif v.type == Sequence[Path]:
+				#TODO: It would be more useful to add to the default value
+				group.add_argument(option, nargs='?', type=Path, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+			elif v.type == Sequence[str]:
+				group.add_argument(option, nargs='?', help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+			else:
+				group.add_argument(option, type=v.type, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+
+class MainConfig(Config):
+	"""General options not specific to anything else"""
+		
+	@configoption('Paths')
+	def output_folder(self) -> Path:
+		"""Folder where launchers go"""
+		return data_dir.joinpath('apps')
+
+	@configoption('Paths')
+	def image_folder(self) -> Path:
+		'Folder to store images extracted from games with embedded images'
+		return data_dir.joinpath('images')
+
+	@configoption('Paths')
+	def organized_output_folder(self) -> Path:
+		'Folder to put subfolders in for the organized folders frontend'
+		return data_dir.joinpath('organized_apps')
+
+	@configoption('General')
+	def logging_level(self) -> str:
+		"""Logging level (e.g. INFO, DEBUG, WARNING, etc)"""
+		return str(logging.getLevelName(logger.getEffectiveLevel()))
+
+	@configoption('General')
+	def other_images_to_use_as_icons(self) -> Sequence[str]:
+		"""If there is no icon, use these images as icons, if they are there"""
+		return []
+ 
+main_config = MainConfig()

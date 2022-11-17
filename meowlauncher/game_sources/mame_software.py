@@ -6,7 +6,7 @@ import time
 from collections.abc import Collection, Mapping, Sequence
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.exceptions import EmulationNotSupportedException
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.games.mame_common.software_list import Software
@@ -149,6 +149,6 @@ def add_mame_software() -> None:
 	for platform in software_list_platforms:
 		add_software_list_platform(platform)
 
-	if main_config.print_times:
+	if old_main_config.print_times:
 		time_ended = time.perf_counter()
 		print('MAME software finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

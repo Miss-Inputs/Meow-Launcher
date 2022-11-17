@@ -2,7 +2,7 @@ import os
 import shutil
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 
 from .launch_command import (LaunchCommand, MultiLaunchCommands,
                              launch_with_wine)
@@ -37,9 +37,9 @@ class ConfiguredRunner():
 	def set_wrapper_options(self, command: LaunchCommand) -> LaunchCommand:
 		if self.runner.host_platform == HostPlatform.Windows:
 			if isinstance(command, MultiLaunchCommands):
-				command = MultiLaunchCommands(command.pre_commands, launch_with_wine(main_config.wine_path, main_config.wineprefix, command.main_command.exe_name, command.main_command.exe_args), command.post_commands)
+				command = MultiLaunchCommands(command.pre_commands, launch_with_wine(old_main_config.wine_path, old_main_config.wineprefix, command.main_command.exe_name, command.main_command.exe_args), command.post_commands)
 			else:
-				command = launch_with_wine(main_config.wine_path, main_config.wineprefix, command.exe_name, command.exe_args)
+				command = launch_with_wine(old_main_config.wine_path, old_main_config.wineprefix, command.exe_name, command.exe_args)
 		elif self.runner.host_platform == HostPlatform.DotNet:
 			command = command.wrap('mono')
 

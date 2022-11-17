@@ -6,7 +6,7 @@ from meowlauncher.data.emulated_platforms import (manually_specified_platforms,
 from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
-from ._config_utils import parse_path_list, parse_string_list, parse_value
+from ._config_utils import parse_path_list, parse_string_list, parse_config_section_value
 
 if TYPE_CHECKING:
 	import configparser
@@ -20,11 +20,11 @@ def _get_config(section: 'configparser.SectionProxy', platform_name: str) -> Pla
 	if platform_name in platforms:
 		option_definitions = platforms[platform_name].options
 		for k, v in option_definitions.items():
-			options[k] = parse_value(section, k, v.type, v.default_value)
+			options[k] = parse_config_section_value(section, k, v.type, v.default_value)
 	elif platform_name in manually_specified_platforms:
 		option_definitions = manually_specified_platforms[platform_name].options
 		for k, v in option_definitions.items():
-			options[k] = parse_value(section, k, v.type, v.default_value)
+			options[k] = parse_config_section_value(section, k, v.type, v.default_value)
 	return PlatformConfig(platform_name, paths, chosen_emulators, options)
 
 class PlatformConfigs():

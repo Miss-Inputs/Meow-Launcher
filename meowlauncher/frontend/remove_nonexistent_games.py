@@ -4,10 +4,8 @@ import datetime
 import logging
 import os
 import time
-from pathlib import Path
-from typing import cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config, main_config
 from meowlauncher.game_sources import game_types
 from meowlauncher.output.desktop_files import id_section_name
 from meowlauncher.util.desktop_files import get_desktop, get_field
@@ -19,8 +17,7 @@ def remove_nonexistent_games() -> None:
 
 	time_started = time.perf_counter()
 
-	output_folder = cast(Path, main_config.output_folder)
-	for path in output_folder.iterdir():
+	for path in main_config.output_folder.iterdir():
 		launcher = get_desktop(path)
 		game_type = get_field(launcher, 'Type', id_section_name)
 		game_id = get_field(launcher, 'Unique-ID', id_section_name)
@@ -42,7 +39,7 @@ def remove_nonexistent_games() -> None:
 			logger.debug('%s %s no longer exists, removing', game_type, game_id)
 			os.remove(path)
 
-	if main_config.print_times:
+	if old_main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

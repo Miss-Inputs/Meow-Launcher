@@ -8,10 +8,9 @@ TODO: Just need to deal with itch.io/GOG/MAME software…"""
 import locale
 import logging
 import sys
+from argparse import ArgumentParser
 
-first_arg = sys.argv.pop(1) #TODO Just getting it before main_config parses it, because everything is all wrong for now, so yes, I do know the import order is bad thank you pylint
-
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import main_config, old_main_config
 from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.frontend.add_games import add_game_source
 from meowlauncher.frontend.disambiguate import disambiguate_names
@@ -20,15 +19,19 @@ from meowlauncher.frontend.remove_nonexistent_games import \
 from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
 from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 
+first_arg = sys.argv.pop(1)
 locale.setlocale(locale.LC_ALL, '')
+
+parser = ArgumentParser(add_help=True, parents=[main_config.parser])
+main_config.values.update(vars(parser.parse_known_intermixed_args()[0]))
+
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s'))
-stream_handler.setLevel(main_config.logging_level)
-logging.basicConfig(handlers={stream_handler})
+logging.basicConfig(handlers={stream_handler}, level=main_config.logging_level)
 logger = logging.getLogger(__name__)
 
 def main() -> None:
-	if main_config.full_rescan:
+	if old_main_config.full_rescan:
 		if main_config.output_folder.is_dir():
 			for f in main_config.output_folder.iterdir():
 				f.unlink()

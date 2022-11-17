@@ -7,7 +7,7 @@ from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from pathlib import Path
 from typing import cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 
 #TODO: Probs should be using dataclasses or whatever for this
 RomType = Mapping[str, str]
@@ -115,11 +115,11 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, int | str], Sequence[Ga
 def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseType | None:
 	relevant_dats = []
 
-	libretro_database_path = main_config.libretro_database_path
+	libretro_database_path = old_main_config.libretro_database_path
 	if not libretro_database_path:
 		return None
-	dat_folder = Path(main_config.libretro_database_path, 'dat')
-	metadat_folder = Path(main_config.libretro_database_path, 'metadat')
+	dat_folder = Path(old_main_config.libretro_database_path, 'dat')
+	metadat_folder = Path(old_main_config.libretro_database_path, 'metadat')
 	
 	try:
 		for file in dat_folder.iterdir():

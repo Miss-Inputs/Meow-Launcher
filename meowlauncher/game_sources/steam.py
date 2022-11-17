@@ -16,7 +16,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 from meowlauncher.exceptions import (GameNotSupportedException,
                                      NotActuallyLaunchableGameException,
                                      NotLaunchableException)
@@ -184,7 +184,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 			icon_exception = None
 			found_an_icon = True
 			break
-	if main_config.warn_about_missing_icons:
+	if old_main_config.warn_about_missing_icons:
 		if icon_exception:
 			logger.error(game, exc_info=icon_exception)
 		elif potentially_has_icon and not found_an_icon:
@@ -252,7 +252,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
 
 	oslist = common.get(b'oslist')
-	if not main_config.use_steam_as_platform:
+	if not old_main_config.use_steam_as_platform:
 		#It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
 		if oslist == b'windows':
 			game.info.platform = 'Windows'
@@ -513,7 +513,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 
 	if launcher.args and '-uplay_steam_mode' in launcher.args:
 		game.info.specific_info['Launcher'] = 'uPlay'
-	if not main_config.use_steam_as_platform:
+	if not old_main_config.use_steam_as_platform:
 		launcher_platform = launcher.platform
 		if launcher_platform:
 			if 'linux' in launcher_platform.lower():
@@ -623,7 +623,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	assert steam_installation, 'process_game called without checking steam_state.is_steam_installed'
 	game = SteamGame(appid, folder, app_state, steam_installation)
-	if main_config.use_steam_as_platform:
+	if old_main_config.use_steam_as_platform:
 		game.info.platform = 'Steam'
 	else:
 		#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
@@ -682,7 +682,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
 			game.info.specific_info['No Valid Launchers?'] = True
 			launcher = None
-			if not main_config.force_create_launchers:
+			if not old_main_config.force_create_launchers:
 				raise GameNotSupportedException('Platform not supported and Steam Play not used')
 
 	if launcher:
@@ -771,7 +771,7 @@ class Steam(GameSource):
 	def iter_launchers(self) -> Iterator['Launcher']:
 		compat_tool_appids = {compat_tool[0] for compat_tool in steam_installation.steamplay_compat_tools.values()}
 		for folder, app_id, app_state in iter_steam_installed_appids():
-			if not main_config.full_rescan:
+			if not old_main_config.full_rescan:
 				if has_been_done('Steam', str(app_id)):
 					continue
 			if app_id in compat_tool_appids:

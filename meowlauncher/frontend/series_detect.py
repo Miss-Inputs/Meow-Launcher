@@ -6,7 +6,7 @@ from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config, main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
 from meowlauncher.output.desktop_files import (info_section_name,
@@ -242,6 +242,6 @@ def detect_series_for_all_desktops() -> None:
 
 	_detect_series_index_for_things_with_series()
 
-	if main_config.print_times:
+	if old_main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Series detection finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

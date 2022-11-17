@@ -7,7 +7,7 @@ from typing import cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.main_config import old_main_config
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class MAMEExecutable():
 		return version_proc.stdout.splitlines()[0]
 
 	def _real_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
-		if main_config.use_xml_disk_cache:
+		if old_main_config.use_xml_disk_cache:
 			logger.info('New MAME version found: %s; creating XML; this may take a while the first time it is run', self.version)
 			self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
@@ -49,14 +49,14 @@ class MAMEExecutable():
 						my_copy = copy.copy(element)
 						machine_name = element.attrib['name']
 
-						if main_config.use_xml_disk_cache:
+						if old_main_config.use_xml_disk_cache:
 							self._xml_cache_path.joinpath(machine_name + '.xml').write_bytes(ElementTree.tostring(element))
 						yield machine_name, my_copy
 						element.clear()
 			except ElementTree.ParseError:
 				#Hmm, this doesn't show us where the error really is
 				logger.exception('baaagh XML error in listxml')
-		if main_config.use_xml_disk_cache:
+		if old_main_config.use_xml_disk_cache:
 			#Guard against the -listxml process being interrupted and screwing up everything, by only manually specifying it is done when we say it is done… wait does this work if it's an iterator? I guess it must if this exists
 			self._xml_cache_path.joinpath('is_done').touch()
 
@@ -68,13 +68,13 @@ class MAMEExecutable():
 			yield driver_name, ElementTree.parse(cached_file).getroot()
 			
 	def iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
-		if not main_config.use_xml_disk_cache or self._xml_cache_path.joinpath('is_done').is_file():
+		if not old_main_config.use_xml_disk_cache or self._xml_cache_path.joinpath('is_done').is_file():
 			yield from self._cached_iter_mame_entire_xml()
 		else:
 			yield from self._real_iter_mame_entire_xml()
 		
 	def get_mame_xml(self, driver: str) -> ElementTree.Element:
-		if main_config.use_xml_disk_cache:
+		if old_main_config.use_xml_disk_cache:
 			cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
 			try:
 				return ElementTree.parse(cache_file_path).getroot()
