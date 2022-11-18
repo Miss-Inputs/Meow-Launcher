@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
-from meowlauncher.config.main_config import old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
 from meowlauncher.games.common.generic_info import (
@@ -269,7 +269,7 @@ def _add_platform_specific_metadata(game: 'ROMGame') -> None:
 		if not equivalent_arcade:
 			equivalent_arcade = arcade_equivalent_finder(game.name)
 	
-	if not equivalent_arcade and old_main_config.find_equivalent_arcade_games:
+	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
 		if software:
 			equivalent_arcade = find_equivalent_arcade_game(game.name, game.info.names.values(), software)
 			
@@ -293,7 +293,7 @@ def add_info(game: 'ROMGame') -> None:
 	_add_platform_specific_metadata(game)
 				
 	equivalent_arcade = game.info.specific_info.get('Equivalent Arcade')
-	if not equivalent_arcade and old_main_config.find_equivalent_arcade_games:
+	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
 		software = game.info.specific_info.get('MAME Software')
 		if software:
 			equivalent_arcade = find_equivalent_arcade_game(game.name, game.info.names.values(), software)

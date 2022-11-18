@@ -2,7 +2,7 @@ import subprocess
 from collections.abc import Mapping
 from pathlib import Path
 
-from meowlauncher.config.main_config import old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
 
@@ -15,16 +15,16 @@ class ScummVMConfig():
 	#TODO: This should be a ConfiguredRunner
 	class __ScummVMConfig():
 		def __init__(self) -> None:
-			self.have_scummvm_config = old_main_config.scummvm_config_path.is_file()
+			self.have_scummvm_config = main_config.scummvm_config_path.is_file()
 
 			self.have_scummvm_exe = True
 			try:
-				self.scummvm_engines = self._get_vm_engines(old_main_config.scummvm_exe_path)
+				self.scummvm_engines = self._get_vm_engines(main_config.scummvm_exe_path)
 			except FileNotFoundError:
 				self.have_scummvm_exe = False
 
 			if self.have_scummvm_config:
-				self.scummvm_ini = _get_vm_config(old_main_config.scummvm_config_path)
+				self.scummvm_ini = _get_vm_config(main_config.scummvm_config_path)
 
 		@staticmethod
 		def _get_vm_engines(exe_name: str) -> Mapping[str, str]:

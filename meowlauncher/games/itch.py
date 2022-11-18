@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 from functools import lru_cache
 
-from meowlauncher.config.main_config import old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
@@ -180,7 +180,7 @@ class ItchGame(Game):
 		self.info.categories = [category]
 
 		platform = None
-		if old_main_config.use_itch_io_as_platform:
+		if main_config.use_itch_io_as_platform:
 			platform = 'itch.io'
 		elif self.game_type == 'flash':
 			platform = 'Flash'
@@ -286,7 +286,7 @@ def get_launch_params(flavour: str, exe_path: Path, windows_info: Mapping[str, b
 			#Mono does not really count as an emulator but whateves (I mean neither does Wine by the name but for metadata purposes I will)
 			return LaunchCommand('mono', [str(exe_path)]), 'Mono'
 		#gui might also be useful if it is false
-		return launch_with_wine(old_main_config.wine_path, old_main_config.wineprefix, str(exe_path), []), 'Wine'
+		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), []), 'Wine'
 	if flavour == 'jar':
 		#Guess we can just assume it's installed who cares
 		return LaunchCommand('java', ['-jar', str(exe_path)]), None

@@ -5,10 +5,10 @@ from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import ByteAmount, MediaType
-from meowlauncher.config.main_config import old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.software_list import (
     SoftwareMatcherArgs, format_crc32_for_software_list)
 from meowlauncher.games.mame_common.software_list_find_utils import \
@@ -95,10 +95,9 @@ class FileROM(ROM):
 
 	@property
 	def should_read_whole_thing(self) -> bool:
-		max_size_for_storing_in_memory = cast(int, old_main_config.max_size_for_storing_in_memory)
-		if max_size_for_storing_in_memory < 0:
+		if main_config.max_size_for_storing_in_memory < 0:
 			return False
-		return self._get_size() < max_size_for_storing_in_memory
+		return self._get_size() < main_config.max_size_for_storing_in_memory
 
 	def read_whole_thing(self) -> None:
 		"""

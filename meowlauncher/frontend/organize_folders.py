@@ -9,7 +9,7 @@ from collections.abc import Callable, Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from meowlauncher.config.main_config import old_main_config, main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import sanitize_name
 
@@ -180,7 +180,7 @@ def move_into_folders() -> None:
 	time_started = time.perf_counter()
 
 	delete_existing_output_dir()
-	if old_main_config.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of old organized folder finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -192,7 +192,7 @@ def move_into_folders() -> None:
 			if path.suffix == '.desktop':
 				_move_into_subfolders(path)
 
-	if old_main_config.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -221,7 +221,7 @@ def main() -> None:
 				if path.suffix == '.desktop':
 					desktop = get_desktop(path)
 					_move_into_extra_subfolder(path, desktop, sanitize_name(name, safe_for_fat32=True), key, missing_value)
-		if old_main_config.print_times:
+		if main_config.print_times:
 			time_ended = time.perf_counter()
 			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 		

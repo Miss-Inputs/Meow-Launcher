@@ -10,7 +10,7 @@ import logging
 import sys
 from argparse import ArgumentParser
 
-from meowlauncher.config.main_config import main_config, old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.frontend.add_games import add_game_source
 from meowlauncher.frontend.disambiguate import disambiguate_names
@@ -31,7 +31,7 @@ logging.basicConfig(handlers={stream_handler}, level=main_config.logging_level)
 logger = logging.getLogger(__name__)
 
 def main() -> None:
-	if old_main_config.full_rescan:
+	if main_config.full_rescan:
 		if main_config.output_folder.is_dir():
 			for f in main_config.output_folder.iterdir():
 				f.unlink()

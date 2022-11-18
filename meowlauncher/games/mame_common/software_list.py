@@ -8,7 +8,7 @@ from typing import Any, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
-from meowlauncher.config.main_config import old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.info import Date, GameInfo
 
 from .mame_helpers import get_image, verify_software_list
@@ -431,7 +431,7 @@ class Software():
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:
 					publishers: Collection[str] = set(cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
-					if old_main_config.sort_multiple_dev_names:
+					if main_config.sort_multiple_dev_names:
 						publishers = sorted(publishers)
 					publisher = ', '.join(publishers)
 

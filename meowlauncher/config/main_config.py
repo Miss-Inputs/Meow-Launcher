@@ -3,107 +3,23 @@ import logging
 import os
 import sys
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
-from collections.abc import Collection, Mapping, MutableMapping, Sequence, Callable
+from collections.abc import Collection, Sequence, Callable
 from functools import wraps
 from pathlib import Path, PurePath
-from typing import Any, Generic, TypeVar
+import types
+from typing import Any, Generic, TypeVar, get_args, get_origin
+import typing
 
 from meowlauncher.common_paths import config_dir, data_dir
-from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
 
-from ._config_utils import ConfigValue, parse_path_list, parse_config_section_value, parse_value
+from ._config_utils import parse_path_list, parse_value
 
 __doc__ = """Config options are defined here, other than those specific to emulators or platforms"""
 logger = logging.getLogger(__name__)
 
 _main_config_path = config_dir.joinpath('config.ini')
 _ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
-
-_runtime_option_section = '<runtime option section>' #TODO: Can this be a sentinel-style object with ConfigValue section parameter having union str | that
-
-_config_ini_values = {
-	'get_series_from_name': ConfigValue('General', bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
-	'sort_multiple_dev_names': ConfigValue('General', bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
-	'wine_path': ConfigValue('General', str, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
-	'wineprefix': ConfigValue('General', Path, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
-	'simple_disambiguate': ConfigValue('General', bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
-	'normalize_name_case': ConfigValue('General', int, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'), #TODO: Good case for an enum to be used here, even if argparse docs say don't use that with choices etc
-
-	#TODO: This should be some kind of per-source options, whichever the best way to do that might be
-	
-	'skipped_source_files': ConfigValue('Arcade', Sequence[str], (), 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
-	'exclude_non_arcade': ConfigValue('Arcade', bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
-	'exclude_pinball': ConfigValue('Arcade', bool, False, 'Exclude pinball', 'Whether or not to skip pinball games (physical pinball, not video pinball)'),
-	'exclude_system_drivers': ConfigValue('Arcade', bool, False, 'Exclude system drivers', 'Skip machines used to launch other software (computers, consoles, etc)'),
-	'exclude_non_working': ConfigValue('Arcade', bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
-	'non_working_whitelist': ConfigValue('Arcade', Sequence[str], (), 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
-	'use_xml_disk_cache': ConfigValue('Arcade', bool, True, 'Use XML disk cache', 'Store machine XML files on disk, maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)'),
-
-	'force_create_launchers': ConfigValue('Steam', bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
-	'warn_about_missing_icons': ConfigValue('Steam', bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
-	'use_steam_as_platform': ConfigValue('Steam', bool, True, 'Use Steam as platform', 'Set platform in game info to Steam instead of underlying platform'),
-
-	'skipped_subfolder_names': ConfigValue('Roms', Sequence[str], (), 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
-	'find_equivalent_arcade_games': ConfigValue('Roms', bool, False, 'Find equivalent arcade games by name', 'Get info from MAME machines of the same name'),
-	'max_size_for_storing_in_memory': ConfigValue('Roms', int, 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'),
-	'libretro_database_path': ConfigValue('Roms', Path, None, 'libretro-database path', 'Path to libretro database for yoinking info from'),
-	'libretro_frontend': ConfigValue('Roms', str, 'RetroArch', 'libretro frontend', 'Name of libretro frontend to use'),
-	'libretro_cores_directory': ConfigValue('Roms', Path, None, 'libretro cores directory', 'Path to search for libretro cores if not explicitly specified'),
-
-	'use_original_platform': ConfigValue('ScummVM', bool, False, 'Use original platform', 'Set the platform in game info to the original platform instead of leaving blank'),
-	'scummvm_config_path': ConfigValue('ScummVM', Path, Path('~/.config/scummvm/scummvm.ini').expanduser(), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
-	'scummvm_exe_path': ConfigValue('ScummVM', Path, 'scummvm', 'ScummVM executable path', 'Path to scummvm executable, if not the default'),
-
-	'gog_folders': ConfigValue('GOG', list[Path], (), 'GOG folders', 'Folders where GOG games are installed'),
-	'use_gog_as_platform': ConfigValue('GOG', bool, False, 'Use GOG as platform', 'Set platform in game info to GOG instead of underlying platform'),
-	'windows_gog_folders': ConfigValue('GOG', list[Path], (), 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
-	'use_system_dosbox': ConfigValue('GOG', bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
-	'dosbox_path': ConfigValue('GOG', Path, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
-
-	'itch_io_folders': ConfigValue('itch.io', list[Path], (), 'itch.io folders', 'Folders where itch.io games are installed'),
-	'use_itch_io_as_platform': ConfigValue('itch.io', bool, False, 'Use itch.io as platform', 'Set platform in game info to itch.io instead of underlying platform'),
-
-	#These shouldn't end up in config.ini as they're intended to be set per-run
-	'print_times': ConfigValue(_runtime_option_section, bool, False, 'Print times', 'Print how long it takes to do things'),
-	'full_rescan': ConfigValue(_runtime_option_section, bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
-	'organize_folders': ConfigValue(_runtime_option_section, bool, False, 'Organize folders', 'Use the organized folders frontend'),
-}
-
-def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
-	"""Returns the config definitions other than those intended to be set at runtime: {section: {name: ConfigValue}}
-	We're getting rid of this one"""
-	opts: MutableMapping[str, MutableMapping[str, ConfigValue]] = {}
-	for k, v in _config_ini_values.items():
-		if v.section == _runtime_option_section:
-			continue
-		opts.setdefault(v.section, {})[k] = v
-	return opts
-
-def get_runtime_options() -> Mapping[str, ConfigValue]:
-	"""Returns the config definitions only intended to be used at runtime as command line args, which means they don't go in config.ini
-	We're getting rid of this one, and that distinction"""
-	return {name: opt for name, opt in _config_ini_values.items() if opt.section == _runtime_option_section}
-
-def get_command_line_arguments() -> ArgumentParser:
-	"""Use with parents= kwarg of ArgumentParser
-	Hmm still not sure if this is the best way…"""
-	p = ArgumentParser()
-	section_groups: dict[str, Any | ArgumentParser]  = {}
-	#We lie somewhat to the type checker here because it bugs me that _ArgumentGroup is a private type and so we can't really type hint it with that, but this will be close enough
-	for name, option in _config_ini_values.items():
-		name = name.replace('_', '-')
-		section = option.section
-		group = section_groups.setdefault(section, p.add_argument_group(section)) #Should have a description innit
-		if option.type == bool:
-			group.add_argument(f'--{name}', action=BooleanOptionalAction, help=option.description, default=SUPPRESS)
-		elif option.type == Sequence[Path]:
-			group.add_argument(f'--{name}', nargs='?', type=Path, help=option.description, default=SUPPRESS)
-		elif option.type == Sequence[str]:
-			group.add_argument(f'--{name}', nargs='?', help=option.description, default=SUPPRESS)
-		else:
-			group.add_argument(f'--{name}', type=option.type, help=option.description, default=SUPPRESS)
-	return p
 
 def _load_ignored_directories() -> Collection[PurePath]:
 	ignored_directories: set[PurePath] = set()
@@ -122,51 +38,7 @@ def _load_ignored_directories() -> Collection[PurePath]:
 
 	return ignored_directories
 
-class YeOldeConfig():
-	"""Singleton which holds config
-	This will be reworked and that is a threat"""
-	class __Config():
-		def __init__(self) -> None:
-			self.values = {}
-			for name, config in _config_ini_values.items():
-				self.values[name] = config.default_value
-
-			#For now, just parse what is known… ideally we want ArgumentParser to be the main thing
-			borf = get_command_line_arguments().parse_known_intermixed_args()
-			self.runtime_overrides = vars(borf[0])
-			parser = NoNonsenseConfigParser()
-			self.parser = parser
-			ensure_exist(_main_config_path)
-			self.parser.read(_main_config_path)
-
-			self.ignored_directories = _load_ignored_directories()
-
-		def __getattr__(self, name: str) -> Any:
-			if name in self.values:
-				if name in self.runtime_overrides:
-					return self.runtime_overrides[name]
-				config = _config_ini_values[name]
-
-				if config.section == _runtime_option_section:
-					return config.default_value
-
-				section = self.parser[config.section]
-				if name not in section:
-					return config.default_value
-
-				return parse_config_section_value(section, name, config.type, config.default_value)
-				
-			raise AttributeError(name)
-
-	__instance = None
-
-	@staticmethod
-	def getConfig() -> __Config:
-		if YeOldeConfig.__instance is None:
-			YeOldeConfig.__instance = YeOldeConfig.__Config()
-		return YeOldeConfig.__instance
-
-old_main_config = YeOldeConfig().getConfig()
+ignored_directories = _load_ignored_directories()
 
 T = TypeVar('T')
 class ConfigProperty(Generic[T]):
@@ -177,9 +49,15 @@ class ConfigProperty(Generic[T]):
 		self.section = section
 		self.readable_name = readable_name or sentence_case(func.__name__.replace('_', ' '))
 		self.description = func.__doc__ or self.readable_name
-		self.type = inspect.get_annotations(func).get('return', str)
+		self.type = inspect.get_annotations(func, eval_str=True).get('return', str)
+		if isinstance(self.type, types.UnionType) or get_origin(self.type) == typing.Union:
+			type_args = get_args(self.type)
+			#Remove optional from the return type, as that's not what we use .type for, but I don't think we're allowed to simply import _UnionGenericAlias, so it gets confused with trying to handle __args__ directly, and also we do want to make sure we don't strip out the args from 
+			#We'll just assume all unions and such are like this, don't be weird and type a config as str | int or something
+			self.type = type_args[0]
 	def __get__(self, __obj: Any, _: Any) -> T:
 		return self.func(__obj)
+
 S = TypeVar('S', bound='Config')
 def configoption(section: str, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]':
 	"""
@@ -274,5 +152,182 @@ class MainConfig(Config):
 	def other_images_to_use_as_icons(self) -> Sequence[str]:
 		"""If there is no icon, use these images as icons, if they are there"""
 		return []
- 
+
+	@configoption('General') #TODO: Some kind of "don't put in the config.ini" attribute if we ever make code again that generates a template config.ini
+	def print_times(self) -> bool:
+		'Print how long it takes to do things'
+		return False
+
+	#These shouldn't end up in config.ini as they're intended to be set per-run
+	@configoption('General')
+	def full_rescan(self) -> bool:
+		'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'
+		return False
+	@configoption('General')
+	def organize_folders(self) -> bool:
+		'Use the organized folders frontend'
+		return False
+
+	@configoption('General')
+	def get_series_from_name(self) -> bool:
+		'Attempt to get series from parsing name'
+		return False
+
+	@configoption('General')
+	def sort_multiple_dev_names(self) -> bool:
+		'For games with multiple entities in developer/publisher field, sort alphabetically'
+		return False
+
+	@configoption('General')
+	def wine_path(self) -> str:
+		'Path to Wine executable for Windows games/emulators'
+		return 'wine'
+
+	@configoption('General')
+	def wineprefix(self) -> Path | None:
+		'Optional Wine prefix to use for Wine'
+		return None
+
+	@configoption('General')
+	def simple_disambiguate(self) -> bool:
+		'Use a simpler method of disambiguating games with same names'
+		return True
+
+	@configoption('General')
+	def normalize_name_case(self) -> int:
+		'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'
+		return 0 #TODO: Good case for an enum to be used here, even if argparse docs say don't use that with choices etc
+
+	#TODO: This should be some kind of per-source options, whichever the best way to do that might be
+	
+	@configoption('Arcade')
+	def skipped_source_files(self) -> Sequence[str]:
+		'List of MAME source files to skip (not including extension)'
+		return ()
+
+	@configoption('Arcade')
+	def exclude_non_arcade(self) -> bool:
+		'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'
+		return False
+
+	@configoption('Arcade')
+	def exclude_pinball(self) -> bool:
+		'Whether or not to skip pinball games (physical pinball, not video pinball)'
+		return False
+
+	@configoption('Arcade')
+	def exclude_system_drivers(self) -> bool:
+		'Skip machines used to launch other software (computers, consoles, etc)'
+		return False
+
+	@configoption('Arcade')
+	def exclude_non_working(self) -> bool:
+		'Skip any driver marked as not working'
+		return False
+
+	@configoption('Arcade')
+	def non_working_whitelist(self) -> Sequence[str]:
+		'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'
+		return ()
+
+	@configoption('Arcade')
+	def use_xml_disk_cache(self) -> bool:
+		'Store machine XML files on disk, maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)'
+		return True
+
+	@configoption('Steam')
+	def force_create_launchers(self) -> bool:
+		'Create launchers even for games which are\'nt launchable'
+		return False
+
+	@configoption('Steam')
+	def warn_about_missing_icons(self) -> bool:
+		'Spam console with debug messages about icons not existing or being missing'
+		return False
+
+	@configoption('Steam')
+	def use_steam_as_platform(self) -> bool:
+		'Set platform in game info to Steam instead of underlying platform'
+		return True
+
+	@configoption('Roms')
+	def skipped_subfolder_names(self) -> Sequence[str]:
+		'Always skip these subfolders in every ROM dir'
+		return ()
+
+	@configoption('Roms')
+	def find_equivalent_arcade_games(self) -> bool:
+		'Get info from MAME machines of the same name'
+		return False
+
+	@configoption('Roms')
+	def max_size_for_storing_in_memory(self) -> int:
+		'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'
+		return 1024 * 1024
+
+	@configoption('Roms')
+	def libretro_database_path(self) -> Path | None:
+		'Path to libretro database for yoinking info from'
+		return None
+
+	@configoption('Roms')
+	def libretro_frontend(self) -> str | None:
+		'Name of libretro frontend to use'
+		return 'RetroArch'
+
+	@configoption('Roms')
+	def libretro_cores_directory(self) -> Path | None:
+		'Path to search for libretro cores if not explicitly specified'
+		return None
+
+	@configoption('ScummVM')
+	def use_original_platform(self) -> bool:
+		'Set the platform in game info to the original platform instead of leaving blank'
+		return False
+
+	@configoption('ScummVM')
+	def scummvm_config_path(self) -> Path:
+		'Path to scummvm.ini, if not the default'
+		return Path('~/.config/scummvm/scummvm.ini').expanduser()
+
+	@configoption('ScummVM')
+	def scummvm_exe_path(self) -> Path:
+		'Path to scummvm executable, if not the default'
+		return Path('scummvm')
+
+	@configoption('GOG')
+	def gog_folders(self) -> Sequence[Path]:
+		'Folders where GOG games are installed'
+		return ()
+
+	@configoption('GOG')
+	def use_gog_as_platform(self) -> bool:
+		'Set platform in game info to GOG instead of underlying platform'
+		return False
+
+	@configoption('GOG')
+	def windows_gog_folders(self) -> Sequence[Path]:
+		'Folders where Windows GOG games are installed'
+		return ()
+
+	@configoption('GOG')
+	def use_system_dosbox(self) -> bool:
+		'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'
+		return True
+
+	@configoption('GOG')
+	def dosbox_path(self) -> Path:
+		'If using system DOSBox, executable name/path or just "dosbox" if left blank'
+		return Path('dosbox')
+
+	@configoption('itch.io')
+	def itch_io_folders(self) -> Sequence[Path]:
+		'Folders where itch.io games are installed'
+		return ()
+
+	@configoption('itch.io')
+	def use_itch_io_as_platform(self) -> bool:
+		'Set platform in game info to itch.io instead of underlying platform'
+		return False
+
 main_config = MainConfig()

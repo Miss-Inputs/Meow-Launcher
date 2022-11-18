@@ -10,7 +10,7 @@ from pathlib import Path
 from shutil import copymode
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.config.main_config import main_config, old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
                                                info_section_name,
                                                junk_section_name,
@@ -253,13 +253,13 @@ def _reambiguate() -> None:
 def disambiguate_names() -> None:
 	time_started = time.perf_counter()
 
-	if not old_main_config.full_rescan:
+	if not main_config.full_rescan:
 		_reambiguate()
 
 	_fix_duplicate_names('Platform')
 	_fix_duplicate_names('Type', field_section=id_section_name)
 	_fix_duplicate_names('dev-status')
-	if not old_main_config.simple_disambiguate:
+	if not main_config.simple_disambiguate:
 		_fix_duplicate_names('Arcade-System', _arcade_system_disambiguate)
 		_fix_duplicate_names('Media-Type', ignore_missing_values=True)
 		_fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
@@ -277,6 +277,6 @@ def disambiguate_names() -> None:
 	_fix_duplicate_names('Executable-Name', ignore_missing_values=True)
 	_fix_duplicate_names('check')
 
-	if old_main_config.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

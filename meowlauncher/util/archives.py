@@ -63,11 +63,11 @@ _sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$')
 #--
 #Path = archive.7z
 #blah blah blah
-#
+# 
 #---------- (maybe not that exact amount of dashes, but more than the first part)
 #Path = inner.file
 #size attributes = blah
-#
+# 
 #Path = another.one
 #size attributes = blah
 def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]:

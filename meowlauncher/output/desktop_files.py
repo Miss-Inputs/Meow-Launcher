@@ -9,7 +9,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.config.main_config import old_main_config, main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.util.io_utils import (ensure_exist, ensure_unique_path,
                                         sanitize_name)
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,

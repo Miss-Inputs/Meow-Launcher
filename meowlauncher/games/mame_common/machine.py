@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
-from meowlauncher.config.main_config import old_main_config
+from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
@@ -352,7 +352,7 @@ class Machine():
 				publisher = 'Electronic Arts'
 
 			manufacturers: Sequence[str] = tuple(cast(str, consistentify_manufacturer(m)) for m in manufacturer.split(' / '))
-			if old_main_config.sort_multiple_dev_names:
+			if main_config.sort_multiple_dev_names:
 				#TODO: Should this be used in tandem with untangle_manufacturer?
 				manufacturers = sorted(manufacturers)
 
