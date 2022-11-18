@@ -9,7 +9,10 @@ image_types = {'ico', 'png', 'jpg', 'bmp'}
 
 @cache
 def _list_images_in_dir(path: Path) -> 'Collection[Path]':
-	return {file for file in path.iterdir() if file.suffix[1:].lower() in image_types}
+	try:
+		return {file for file in path.iterdir() if file.suffix[1:].lower() in image_types}
+	except FileNotFoundError:
+		return []
 
 class MAMEConfiguration():
 	def __init__(self, core_config_path: Path | None=None, ui_config_path: Path | None=None) -> None:
@@ -29,7 +32,7 @@ class MAMEConfiguration():
 				basename = basename / software_name
 			for ext in image_types:
 				path = basename.with_suffix(os.path.extsep + ext)
-				if path in _list_images_in_dir(directory_path):
+				if path in _list_images_in_dir(basename.parent):
 					return path
 		return None
 
