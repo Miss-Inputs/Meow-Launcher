@@ -51,8 +51,7 @@ if '--source-file' in sys.argv:
 _mame = MAME(_driver_list_arg, _source_file_arg)
 _mame_inbuilt = MAMEInbuiltGames()
 
-#The order is not really important here, I guess, you only ever need to be iterating through it
-game_sources: 'Collection[GameSource]' = {
+game_sources: 'Collection[GameSource]' = (
 	_dos,
 	_mac,
 	_mame,
@@ -60,7 +59,7 @@ game_sources: 'Collection[GameSource]' = {
 	_roms,
 	_scummvm,
 	_steam,
-}
+)
 
 game_types: 'Mapping[str, GameSource]' = {
 	#For remove_existing_games basically
