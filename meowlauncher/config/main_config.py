@@ -98,8 +98,7 @@ class Config():
 		for section in self._config_parser.sections():
 			for option, value in self._config_parser.items(section):
 				if option not in self._configs:
-					#Hmm can't really spam this warning when YeOldeConfig is still there
-					#logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
+					logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
 					continue
 				config = self._configs[option]
 				self.values[option] = parse_value(value, config.type)
