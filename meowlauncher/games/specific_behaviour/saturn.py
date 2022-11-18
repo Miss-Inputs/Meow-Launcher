@@ -1,6 +1,6 @@
 import logging
 from enum import Enum, auto
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
@@ -54,44 +54,44 @@ _keyboard.keys = 101
 _mouse = input_info.Mouse()
 _mouse.buttons = 3
 
-def _parse_peripherals(metadata: 'GameInfo', peripherals: str, rom_path_for_warning: str=None) -> None:
+def _parse_peripherals(game_info: 'GameInfo', peripherals: str, rom_path_for_warning: Any=None) -> None:
 	for peripheral in peripherals:
 		if peripheral == 'J':
-			metadata.input_info.add_option(_standard_controller)
+			game_info.input_info.add_option(_standard_controller)
 		elif peripheral == 'E':
-			metadata.input_info.add_option(_analog_controller)
-			metadata.specific_info['Uses 3D Control Pad?'] = True
+			game_info.input_info.add_option(_analog_controller)
+			game_info.specific_info['Uses 3D Control Pad?'] = True
 		elif peripheral == 'A':
-			metadata.input_info.add_option(_mission_stick)
-			metadata.specific_info['Uses Mission Stick?'] = True
+			game_info.input_info.add_option(_mission_stick)
+			game_info.specific_info['Uses Mission Stick?'] = True
 		elif peripheral == 'G':
-			metadata.input_info.add_option(_virtua_gun)
-			metadata.specific_info['Uses Gun?'] = True
+			game_info.input_info.add_option(_virtua_gun)
+			game_info.specific_info['Uses Gun?'] = True
 		elif peripheral == 'K':
-			metadata.input_info.add_option(_keyboard)
-			metadata.specific_info['Uses Keyboard?'] = True
+			game_info.input_info.add_option(_keyboard)
+			game_info.specific_info['Uses Keyboard?'] = True
 		elif peripheral == 'M':
-			metadata.input_info.add_option(_mouse)
-			metadata.specific_info['Uses Mouse?'] = True
+			game_info.input_info.add_option(_mouse)
+			game_info.specific_info['Uses Mouse?'] = True
 		elif peripheral == 'S':
-			metadata.input_info.add_option(input_info.SteeringWheel())
-			metadata.specific_info['Uses Steering Wheel?'] = True
+			game_info.input_info.add_option(input_info.SteeringWheel())
+			game_info.specific_info['Uses Steering Wheel?'] = True
 		elif peripheral == 'T':
-			metadata.specific_info['Supports Multitap?'] = True
+			game_info.specific_info['Supports Multitap?'] = True
 		elif peripheral == 'F':
 			#Hmm... it might be possible that a game saves to both floppy and backup RAM etc
-			metadata.save_type = SaveType.Floppy
+			game_info.save_type = SaveType.Floppy
 		elif peripheral == 'W':
 			#Doesn't specify if it needs 1MB or 4MB... some games (e.g. KOF 96) supposedly only do 1MB
-			metadata.specific_info['Requires RAM Cartridge?'] = True
+			game_info.specific_info['Requires RAM Cartridge?'] = True
 		elif peripheral == 'Y':
-			metadata.specific_info['Uses MIDI?'] = True
+			game_info.specific_info['Uses MIDI?'] = True
 			#TODO Input info for the MIDI keyboard
 		elif peripheral == 'Q':
-			metadata.specific_info['Uses Pachinko Controller?'] = True
+			game_info.specific_info['Uses Pachinko Controller?'] = True
 			#TODO Input info (known as Sankyo FF, but I can't find anything about what it actually does other than it exists)
 		elif peripheral == 'R':
-			metadata.specific_info['Uses ROM Cartridge?'] = True
+			game_info.specific_info['Uses ROM Cartridge?'] = True
 			#KoF 95 and Ultraman: Hikari no Kyojin Densetsu, although they aren't interchangable, they both use the same peripheral code here
 		else:
 			logger.debug('Unknown Saturn peripheral %s in %s', peripheral, rom_path_for_warning)
@@ -100,12 +100,12 @@ def _parse_peripherals(metadata: 'GameInfo', peripherals: str, rom_path_for_warn
 		#U = Sonic Z-Treme?
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
-def add_saturn_info(rom_path_for_warning: str, metadata: 'GameInfo', header: bytes) -> None:
+def add_saturn_info(rom_path_for_warning: Any, game_info: 'GameInfo', header: bytes) -> None:
 	hardware_id = header[0:16]
 	if hardware_id != b'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
-		metadata.specific_info['Hardware ID'] = hardware_id.decode('ascii', 'backslashreplace')
-		metadata.specific_info['Invalid Hardware ID?'] = True
+		game_info.specific_info['Hardware ID'] = hardware_id.decode('ascii', 'backslashreplace')
+		game_info.specific_info['Invalid Hardware ID?'] = True
 		return
 
 	maker = header[16:32].rstrip(b' ').decode('ascii', 'backslashreplace')
@@ -115,18 +115,18 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'GameInfo', header: byt
 		if maker_code.startswith('T '):
 			#You're not supposed to do that, stop that
 			maker_code = 'T-' + maker_code[2:]
-		metadata.publisher = _licensee_codes.get(maker_code, maker)
+		game_info.publisher = _licensee_codes.get(maker_code, maker)
 	elif maker == 'SEGA ENTERPRISES':
-		metadata.publisher = 'Sega'
+		game_info.publisher = 'Sega'
 	else:
-		metadata.publisher = maker
+		game_info.publisher = maker
 	
-	metadata.product_code = header[32:42].rstrip(b' ').decode('ascii', 'backslashreplace')
+	game_info.product_code = header[32:42].rstrip(b' ').decode('ascii', 'backslashreplace')
 	
 	try:
 		version = header[42:48].rstrip(b' ').decode('ascii')
 		if version[0] == 'V' and version[2] == '.':
-			metadata.specific_info['Version'] = 'v' + version[1:]
+			game_info.specific_info['Version'] = 'v' + version[1:]
 	except UnicodeDecodeError:
 		pass
 
@@ -138,10 +138,10 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'GameInfo', header: byt
 			year = release_date[0:4]
 			month = release_date[4:6]
 			day = release_date[6:8]
-			metadata.specific_info['Header Date'] = Date(year, month, day)
+			game_info.specific_info['Header Date'] = Date(year, month, day)
 			guessed = Date(year, month, day, True)
-			if guessed.is_better_than(metadata.release_date):
-				metadata.release_date = guessed
+			if guessed.is_better_than(game_info.release_date):
+				game_info.release_date = guessed
 		except IndexError:
 			logger.info('%s has invalid date in header: %s', rom_path_for_warning, release_date)
 		except ValueError:
@@ -157,8 +157,8 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'GameInfo', header: byt
 			#CART16M is seen here instead of "CD-1/1" on some protos?
 			disc_number, _, disc_total = device_info[3:].partition('/')
 			try:
-				metadata.disc_number = int(disc_number)
-				metadata.disc_total = int(disc_total)
+				game_info.disc_number = int(disc_number)
+				game_info.disc_total = int(disc_total)
 			except ValueError:
 				pass
 
@@ -178,15 +178,15 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'GameInfo', header: byt
 	#B = Brazil?
 	#A and L seen on some homebrews and devkits?
 
-	metadata.specific_info['Region Code'] = region_codes
+	game_info.specific_info['Region Code'] = region_codes
 
 	peripherals = header[80:96].rstrip(b' ').decode('ascii', errors='backslashreplace')
-	_parse_peripherals(metadata, peripherals, rom_path_for_warning)
+	_parse_peripherals(game_info, peripherals, rom_path_for_warning)
 
 	internal_name = header[96:208].rstrip(b' ').decode('ascii', errors='backslashreplace')
 	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName
 	if internal_name:
-		metadata.specific_info['Internal Title'] = internal_name
+		game_info.specific_info['Internal Title'] = internal_name
 
 def add_saturn_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension == 'cue':

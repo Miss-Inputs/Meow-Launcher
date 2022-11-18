@@ -1,4 +1,5 @@
 import hashlib
+from pathlib import Path
 import subprocess
 from typing import TYPE_CHECKING, cast
 
@@ -21,8 +22,8 @@ if TYPE_CHECKING:
 _stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
-def get_stella_database() -> 'Mapping[str, Mapping[str, str]]':
-	proc = subprocess.run([_stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+def get_stella_database(exe: Path) -> 'Mapping[str, Mapping[str, str]]':
+	proc = subprocess.run([exe, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 
 	lines = proc.stdout.splitlines()
 	first_line = lines[0]
@@ -227,10 +228,11 @@ class StellaDB():
 	class __StellaDB():
 		def __init__(self) -> None:
 			self.db = None
-			try:
-				self.db = get_stella_database()
-			except (subprocess.CalledProcessError, FileNotFoundError):
-				pass
+			if _stella_configs:
+				try:
+					self.db = get_stella_database(_stella_configs.exe_path)
+				except (subprocess.CalledProcessError, FileNotFoundError):
+					pass
 
 	__instance = None
 	@staticmethod

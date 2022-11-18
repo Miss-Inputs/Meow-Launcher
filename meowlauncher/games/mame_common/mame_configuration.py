@@ -35,7 +35,7 @@ class MAMEConfiguration():
 
 
 _mame_config_comment = re.compile(r'#.+$')
-_mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>[^;]+|"[^"]+")$')
+_mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>[^" ]+|"[^"]+")$')
 def parse_mame_config_file(path: Path) -> Mapping[str, Sequence[str]]:
 	settings = {}
 
