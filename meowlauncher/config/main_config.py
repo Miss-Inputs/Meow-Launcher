@@ -275,9 +275,10 @@ class MainConfig(Config):
 		return 'RetroArch'
 
 	@configoption('Roms')
-	def libretro_cores_directory(self) -> Path | None:
-		'Path to search for libretro cores if not explicitly specified'
-		return None
+	def libretro_cores_directory(self) -> Path:
+		"""Path to search for libretro cores if not default of /usr/lib/libretro
+		TODO: This should look at retroarch.cfg"""
+		return Path('/usr/lib/libretro')
 
 	@configoption('ScummVM')
 	def use_original_platform(self) -> bool:

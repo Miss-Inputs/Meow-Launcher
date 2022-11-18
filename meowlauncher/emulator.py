@@ -88,8 +88,8 @@ class ViceEmulator(StandardEmulator):
 class LibretroCore(Emulator['EmulatedGame']):
 	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'GenericLaunchCommandFunc[EmulatedGame] | None', supported_extensions: 'Collection[str]', configs: 'Mapping[str, RunnerConfigValue] | None'=None):
 		self.supported_extensions = supported_extensions
-		default_path = str(main_config.libretro_cores_directory.joinpath(default_exe_name + '_libretro.so').resolve()) if main_config.libretro_cores_directory else ''
-		super().__init__(name, status, default_path, launch_command_func, configs=configs, config_name=name + ' (libretro)')
+		default_path = main_config.libretro_cores_directory.joinpath(default_exe_name + '_libretro.so').resolve()
+		super().__init__(name, status, str(default_path), launch_command_func, configs=configs, config_name=name + ' (libretro)')
 
 	@property
 	def friendly_type_name(self) -> str:
