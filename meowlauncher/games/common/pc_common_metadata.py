@@ -58,7 +58,7 @@ def get_exe_properties(path: Path) -> tuple['Mapping[str, str] | None', datetime
 			pass
 	return None, None
 
-def add_metadata_for_raw_exe(path: str, metadata: 'GameInfo') -> None:
+def add_metadata_for_raw_exe(path: Path, metadata: 'GameInfo') -> None:
 	props, timedatestamp = get_exe_properties(path)
 	
 	if props:
@@ -154,10 +154,10 @@ def get_icon_from_pe(pe: 'pefile.PE') -> 'Image.Image | None':
 	ico = header + data
 	return Image.open(io.BytesIO(ico), formats=('ICO',))
 
-def get_icon_inside_exe(path: str) -> 'Image.Image | None':
+def get_icon_inside_exe(path: Path) -> 'Image.Image | None':
 	if have_pefile:
 		try:
-			pe = pefile.PE(path, fast_load=True)
+			pe = pefile.PE(str(path), fast_load=True)
 			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
 			try:
 				icon = get_icon_from_pe(pe)
@@ -171,7 +171,7 @@ def get_icon_inside_exe(path: str) -> 'Image.Image | None':
 	return None
 
 def look_for_icon_for_file(path: Path) -> 'Path | Image.Image | None':
-	exe_icon = get_icon_inside_exe(str(path))
+	exe_icon = get_icon_inside_exe(path)
 	if exe_icon:
 		return exe_icon
 

@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config_types import RunnerConfig, RunnerConfigValue
@@ -26,8 +26,8 @@ class _Wine(Runner):
 	#TODO: We should do something with launch_with_wine
 
 class _WineConfig(RunnerConfig):
-	def __init__(self, exe_path: str, wineprefix: str|None=None):
-		super().__init__(exe_path, {'wineprefix': wineprefix})
+	def __init__(self, exe_path: Path, wineprefix: PurePath | None=None):
+		super().__init__(exe_path, {'wineprefix': str(wineprefix)})
 
 class Wine(ConfiguredRunner):
 	def __init__(self, config: RunnerConfig):
@@ -40,7 +40,7 @@ class _ScummVM(Runner):
 
 class ScummVM(ConfiguredRunner):
 	def __init__(self) -> None:
-		config = RunnerConfig(str(main_config.scummvm_exe_path))
+		config = RunnerConfig(main_config.scummvm_exe_path)
 		super().__init__(_ScummVM(), config)
 
 wine = Wine(_WineConfig(main_config.wine_path, main_config.wineprefix))

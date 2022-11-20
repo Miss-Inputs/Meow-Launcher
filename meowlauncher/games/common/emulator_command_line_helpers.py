@@ -1,5 +1,6 @@
 import os
 from collections.abc import Collection, Mapping, Sequence
+from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
@@ -61,8 +62,7 @@ def is_highscore_cart_available() -> bool:
 	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
 	#I truck an idea that might work! If we rewrite all this to take a MAME executable, and everything related to MameDriver is like that… maybe we can make everything take an option to use default_mame_executable or something else, and that may all work out
 
-
-def mednafen_module(module: str, exe_path: str='mednafen') -> LaunchCommand:
+def mednafen_module(module: str, exe_path: PurePath=PurePath('mednafen')) -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
 def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> Sequence[str]:

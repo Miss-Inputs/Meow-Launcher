@@ -178,9 +178,9 @@ class MainConfig(Config):
 		return False
 
 	@configoption('General')
-	def wine_path(self) -> str:
+	def wine_path(self) -> Path:
 		'Path to Wine executable for Windows games/emulators'
-		return 'wine'
+		return Path('wine')
 
 	@configoption('General')
 	def wineprefix(self) -> Path | None:
