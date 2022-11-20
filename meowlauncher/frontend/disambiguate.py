@@ -10,7 +10,6 @@ from pathlib import Path
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
-                                               info_section_name,
                                                junk_section_name,
                                                section_prefix)
 from meowlauncher.util.desktop_files import get_array, get_field
@@ -74,10 +73,10 @@ def _update_name(desktop: DesktopWithPath, disambiguator: str | None, disambigua
 	desktop.new_name += f' {disambiguator}'
 	desktop.disambiguators.append((disambiguation_method, disambiguator))
 
-def _resolve_duplicates_by_info(group: Collection[DesktopWithPath], field: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
-	value_counter = collections.Counter(get_field(d.parser, field, field_section) for d in group)
+def _resolve_duplicates_by_info(group: Collection[DesktopWithPath], field: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_getter: 'Callable[[DesktopWithPath], str | None] | None'=None) -> None:
+	value_counter = collections.Counter(field_getter(d) if field_getter else get_field(d.parser, field) for d in group)
 	for dup in group:
-		field_value = get_field(dup.parser, field, field_section)
+		field_value = field_getter(dup) if field_getter else get_field(dup.parser, field)
 		name = dup.new_name
 
 		#See if this launcher is unique in this group (of launchers with the same
@@ -188,7 +187,7 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]) -> None:
 
 			_update_name(dup, '(' + date_string + ')', 'date')
 
-def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
+def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_getter: 'Callable[[DesktopWithPath], str | None] | None'=None) -> None:
 	if method == 'tags':
 		_resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -196,9 +195,9 @@ def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_
 	elif method == 'date':
 		_resolve_duplicates_by_date(group)
 	else:
-		_resolve_duplicates_by_info(group, method, format_function, ignore_missing_values, field_section)
+		_resolve_duplicates_by_info(group, method, format_function, ignore_missing_values, field_getter)
 
-def _fix_duplicate_names(desktops: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
+def _fix_duplicate_names(desktops: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_getter: 'Callable[[DesktopWithPath], str | None] | None'=None) -> None:
 	if method == 'dev-status':
 		_resolve_duplicates_by_dev_status(desktops)
 		return
@@ -216,7 +215,7 @@ def _fix_duplicate_names(desktops: Collection[DesktopWithPath], method: str, for
 		if method == 'check':
 			logger.debug('Duplicate name still remains: %s %s', k, list(d.new_name for d in v))
 		else:
-			_resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
+			_resolve_duplicates(v, method, format_function, ignore_missing_values, field_getter)
 
 def _revision_disambiguate(rev: str, _) -> str | None:
 	if rev == '0':
@@ -232,14 +231,17 @@ def _arcade_system_disambiguate(arcade_system: str | None, name: str) -> str | N
 		#Avoid "Cool Game (Cool Game Hardware)" where there exists a "Cool Game (Interesting Alternate Hardware)"
 		return None
 	return f'({arcade_system})'
+
+def _platform_type_disambiguate(d: DesktopWithPath) -> str | None:
+	typey = get_field(d.parser, 'Type', id_section_name)
+	return get_field(d.parser, 'Platform') if typey == 'ROMs' else typey
 		
 def disambiguate_names() -> None:
 	time_started = time.perf_counter()
 
 	desktops = [DesktopWithPath(path) for path in main_config.output_folder.iterdir()]
 	
-	_fix_duplicate_names(desktops, 'Platform')
-	_fix_duplicate_names(desktops, 'Type', field_section=id_section_name)
+	_fix_duplicate_names(desktops, 'Platform/Type', field_getter=_platform_type_disambiguate)
 	_fix_duplicate_names(desktops, 'dev-status')
 	if not main_config.simple_disambiguate:
 		_fix_duplicate_names(desktops, 'Arcade-System', _arcade_system_disambiguate)
@@ -255,6 +257,7 @@ def disambiguate_names() -> None:
 		_fix_duplicate_names(desktops, 'Publisher', ignore_missing_values=True)
 		_fix_duplicate_names(desktops, 'Developer', ignore_missing_values=True)
 	_fix_duplicate_names(desktops, 'tags')
+	_fix_duplicate_names(desktops, 'Platform') #If Platform/Type doesn't do it, this would pick up platforms for ScummVM/Steam/whatever
 	_fix_duplicate_names(desktops, 'Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
 	_fix_duplicate_names(desktops, 'Executable-Name', ignore_missing_values=True)
 
