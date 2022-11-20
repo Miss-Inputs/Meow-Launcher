@@ -7,64 +7,78 @@ import logging
 import time
 from collections.abc import Callable, Collection, Iterable, MutableMapping
 from pathlib import Path
-from shutil import copymode
-from typing import TYPE_CHECKING, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
                                                info_section_name,
                                                junk_section_name,
                                                section_prefix)
-from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
+from meowlauncher.util.desktop_files import get_array, get_field
 from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
-if TYPE_CHECKING:
-	import configparser
-
 logger = logging.getLogger(__name__)
 FormatFunction = Callable[[str, str], str | None]
-DesktopWithPath = tuple[Path, 'configparser.RawConfigParser']
+
+class DesktopWithPath():
+	"""This is not a read only class, this modifies self.parser when it is created, although it does not write to it until update is called
+	TODO: Encapsulate accessing .desktop files better, this module shouldn't know about them (parser should be some kind of base class for output files)"""
+	def __init__(self, path: Path) -> None:
+		self.path = path
+		self.parser = NoNonsenseConfigParser()
+		self.parser.read(self.path)
+		self.desktop_entry = self.parser['Desktop Entry']
+		self.old_name = self.desktop_entry['Name']
+		if disambiguity_section_name in self.parser:
+			disambiguity_section = self.parser[disambiguity_section_name]
+			self.new_name = disambiguity_section['Ambiguous-Name']
+			disambiguity_section = self.parser[disambiguity_section_name]
+			if 'Disambiguator' in disambiguity_section:
+				del disambiguity_section['Disambiguator']
+			if 'Disambiguation-Method' in disambiguity_section:
+				del disambiguity_section['Disambiguation-Method']
+			if 'Ambiguous-Name' in disambiguity_section:
+				del disambiguity_section['Ambiguous-Name']
+			del self.parser[disambiguity_section_name]
+		else:
+			self.new_name = self.old_name
+		self.disambiguators: list[tuple[str, str]] = []
+
+	def update_name(self) -> None:
+		if not self.disambiguators:
+			return
+		self.parser.add_section(disambiguity_section_name)
+		disambiguity_section = self.parser[disambiguity_section_name]
+		disambiguity_section['Ambiguous-Name'] = self.old_name
+		disambiguity_section['Disambiguation-Method'] = self.disambiguators[0][0]
+		disambiguity_section['Disambiguator'] = self.disambiguators[0][1]
+		
+		if len(self.disambiguators) > 1:
+			for disambiguation_method, disambiguator in self.disambiguators[1:]:
+				disambiguity_section['Disambiguation-Method'] += ';' + disambiguation_method
+				disambiguity_section['Disambiguator'] += ';' + disambiguator
+
+		self.parser['Desktop Entry']['Name'] = self.new_name
+		with self.path.open('wt', encoding='utf-8') as f:
+			self.parser.write(f)
+		new_path = self.path.with_stem(sanitize_name(self.new_name))
+		self.path.rename(ensure_unique_path(new_path))
 
 disambiguity_section_name = section_prefix + 'Disambiguity'
 
 def _update_name(desktop: DesktopWithPath, disambiguator: str | None, disambiguation_method: str) -> None:
-	#TODO: Encapsulate accessing .desktop files better, this module shouldn't know about them
 	if not disambiguator:
 		return
-	desktop_entry = desktop[1]['Desktop Entry']
-	if disambiguity_section_name not in desktop[1]:
-		desktop[1].add_section(disambiguity_section_name)
-	disambiguity_section = desktop[1][disambiguity_section_name]
-
-	logger.debug('Disambiguating %s with %s using %s', desktop_entry['Name'], disambiguator, disambiguation_method)
-	if 'Ambiguous-Name' not in disambiguity_section:
-		disambiguity_section['Ambiguous-Name'] = desktop_entry['Name']
-
-	if 'Disambiguator' not in disambiguity_section:
-		disambiguity_section['Disambiguator'] = disambiguator
-	else:
-		disambiguity_section['Disambiguator'] += ';' + disambiguator
-	if 'Disambiguation-Method' not in disambiguity_section:
-		disambiguity_section['Disambiguation-Method'] = disambiguation_method
-	else:
-		disambiguity_section['Disambiguation-Method'] += ';' + disambiguation_method
-
-	desktop_entry['Name'] += ' ' + disambiguator
-
-	new_path = ensure_unique_path(desktop[0].with_stem(sanitize_name(desktop_entry['Name'])))
-	with new_path.open('wt', encoding='utf-8') as f:
-		desktop[1].write(f)
-	if new_path != desktop[0]:
-		copymode(desktop[0], new_path)
-		desktop[0].unlink()
+	logger.debug('Disambiguating %s with %s using %s', desktop.old_name, disambiguator, disambiguation_method)
+	desktop.new_name += f' {disambiguator}'
+	desktop.disambiguators.append((disambiguation_method, disambiguator))
 
 def _resolve_duplicates_by_info(group: Collection[DesktopWithPath], field: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
-	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
+	value_counter = collections.Counter(get_field(d.parser, field, field_section) for d in group)
 	for dup in group:
-		field_value = get_field(dup[1], field, field_section)
-		name = cast(str, get_field(dup[1], 'Name', 'Desktop Entry')) #Yeah nah like I said, this wouldn't be a valid .desktop if that were missing
+		field_value = get_field(dup.parser, field, field_section)
+		name = dup.new_name
 
 		#See if this launcher is unique in this group (of launchers with the same
 		#name) for its field.  If it's the only launcher for this field, we can
@@ -93,24 +107,22 @@ def _resolve_duplicates_by_info(group: Collection[DesktopWithPath], field: str, 
 				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
 					return
 
-			original_name = get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
-			_update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else f'({field_value})', field)
+			_update_name(dup, format_function(field_value, dup.new_name) if format_function else f'({field_value})', field)
 
 def _resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]) -> None:
 	for dup in group:
-		the_rest = tuple(d for d in group if d[0] != dup[0])
-		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
+		the_rest = tuple(d for d in group if d.path != dup.path)
+		tags = get_array(dup.parser, 'Filename-Tags', junk_section_name)
 
 		differentiator_candidates = []
 
-		rest_tags = tuple(get_array(rest[1], 'Filename-Tags', junk_section_name) for rest in the_rest)
+		rest_tags = tuple(get_array(rest.parser, 'Filename-Tags', junk_section_name) for rest in the_rest)
 		for tag in tags:
 			if all(tag in rest_tag for rest_tag in rest_tags):
 				continue
-			if og_name := get_field(dup[1], 'Name', 'Desktop Entry'):
-				if tag.lower() in og_name.lower():
-					#Bit silly to add a tag that is already there from something else
-					continue
+			if any(tag.lower() == d[1].lower() for d in dup.disambiguators):
+				#Bit silly to add a tag that is already there from something else
+				continue
 			differentiator_candidates.append(tag)
 
 		if differentiator_candidates:
@@ -118,21 +130,20 @@ def _resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]) -> 
 
 def _resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]) -> None:
 	for dup in group:
-		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
-
+		tags = get_array(dup.parser, 'Filename-Tags', junk_section_name)
 		for tag in tags:
 			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo', '(multiboot demo)', '(shareware', '(taikenban'))
 			if tag_matches:= tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit()):
 				_update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
 def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]) -> None:
-	year_counter = collections.Counter(get_field(d[1], 'Year') for d in group)
-	month_counter = collections.Counter(get_field(d[1], 'Month') for d in group)
-	day_counter = collections.Counter(get_field(d[1], 'Day') for d in group)
+	year_counter = collections.Counter(get_field(d.parser, 'Year') for d in group)
+	month_counter = collections.Counter(get_field(d.parser, 'Month') for d in group)
+	day_counter = collections.Counter(get_field(d.parser, 'Day') for d in group)
 	for dup in group:
-		year = get_field(dup[1], 'Year')
-		month = get_field(dup[1], 'Month')
-		day = get_field(dup[1], 'Day')
+		year = get_field(dup.parser, 'Year')
+		month = get_field(dup.parser, 'Month')
+		day = get_field(dup.parser, 'Day')
 		if year is None and month is None and day is None:
 			continue
 
@@ -187,27 +198,23 @@ def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_
 	else:
 		_resolve_duplicates_by_info(group, method, format_function, ignore_missing_values, field_section)
 
-def _fix_duplicate_names(method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
-	files = ((path, get_desktop(path)) for path in main_config.output_folder.iterdir())
+def _fix_duplicate_names(desktops: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=info_section_name) -> None:
 	if method == 'dev-status':
-		_resolve_duplicates_by_dev_status(files)
+		_resolve_duplicates_by_dev_status(desktops)
 		return
 
-	#TODO: Handle this null check properly, it _should_ be impossible for Desktop Entry to not exist in a .desktop file, but that doesn't stop some joker putting them in there
-	#Why did I call the variable "f"? Oh well
-	keyfunc: Callable[[DesktopWithPath], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
-		if method == 'check' \
-		else (lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True))
-	duplicates = {}
-	#TODO: Is using keyfunc twice there really needed? Is that how that works?
-	for key, group in itertools.groupby(sorted(files, key=keyfunc), key=keyfunc):
+	keyfunc: Callable[[DesktopWithPath], str] = (lambda d: d.new_name.lower()) if method == 'check' else (lambda d: normalize_name(d.new_name, care_about_numerals=True))
+	duplicates: dict[str, Collection[DesktopWithPath]] = {}
+	#Group into desktops that all have the same name
+	#Keep doing this with each call to this/with each disambiguation method, until at the end we have disambiguated things as much as possible
+	for key, group in itertools.groupby(sorted(desktops, key=keyfunc), key=keyfunc):
 		g = tuple(group)
 		if len(g) > 1:
 			duplicates[key] = g
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, tuple(get_field(d[1], 'Original-Name', junk_section_name) for d in v))
+			print('Duplicate name still remains: ', k, list(d.new_name for d in v))
 		else:
 			_resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 
@@ -225,57 +232,35 @@ def _arcade_system_disambiguate(arcade_system: str | None, name: str) -> str | N
 		#Avoid "Cool Game (Cool Game Hardware)" where there exists a "Cool Game (Interesting Alternate Hardware)"
 		return None
 	return f'({arcade_system})'
-
-def _reambiguate() -> None:
-	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
-	output_folder = main_config.output_folder
-	for path in output_folder.iterdir():
-		desktop = NoNonsenseConfigParser()
-		desktop.read(path)
-		desktop_entry = desktop['Desktop Entry']
-		if disambiguity_section_name not in desktop:
-			#If name wasn't ambiguous to begin with, we don't need to worry about it
-			continue
-
-		disambiguity_section = desktop[disambiguity_section_name]
-		if 'Disambiguator' in disambiguity_section:
-			del disambiguity_section['Disambiguator']
-		if 'Disambiguation-Method' in disambiguity_section:
-			del disambiguity_section['Disambiguation-Method']
-		if 'Ambiguous-Name' in disambiguity_section:
-			desktop_entry['Name'] = disambiguity_section['Ambiguous-Name']
-			del disambiguity_section['Ambiguous-Name']
-		del desktop[disambiguity_section_name]
-
-		with path.open('wt', encoding='utf-8') as f:
-			desktop.write(f)
-
+		
 def disambiguate_names() -> None:
 	time_started = time.perf_counter()
 
-	if not main_config.full_rescan:
-		_reambiguate()
-
-	_fix_duplicate_names('Platform')
-	_fix_duplicate_names('Type', field_section=id_section_name)
-	_fix_duplicate_names('dev-status')
+	desktops = [DesktopWithPath(path) for path in main_config.output_folder.iterdir()]
+	
+	_fix_duplicate_names(desktops, 'Platform')
+	_fix_duplicate_names(desktops, 'Type', field_section=id_section_name)
+	_fix_duplicate_names(desktops, 'dev-status')
 	if not main_config.simple_disambiguate:
-		_fix_duplicate_names('Arcade-System', _arcade_system_disambiguate)
-		_fix_duplicate_names('Media-Type', ignore_missing_values=True)
-		_fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
-		_fix_duplicate_names('Regions', lambda regions, _: f"({regions.replace(';', ', ') if regions else None})", ignore_missing_values=True)
-		_fix_duplicate_names('Region-Code')
-		_fix_duplicate_names('TV-Type', ignore_missing_values=True)
-		_fix_duplicate_names('Version')
-		_fix_duplicate_names('Revision', _revision_disambiguate)
-		_fix_duplicate_names('Languages', lambda languages, _: f"({languages.replace(';', ', ')})", ignore_missing_values=True)
+		_fix_duplicate_names(desktops, 'Arcade-System', _arcade_system_disambiguate)
+		_fix_duplicate_names(desktops, 'Media-Type', ignore_missing_values=True)
+		_fix_duplicate_names(desktops, 'Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
+		_fix_duplicate_names(desktops, 'Regions', lambda regions, _: f"({regions.replace(';', ', ') if regions else None})", ignore_missing_values=True)
+		_fix_duplicate_names(desktops, 'Region-Code')
+		_fix_duplicate_names(desktops, 'TV-Type', ignore_missing_values=True)
+		_fix_duplicate_names(desktops, 'Version')
+		_fix_duplicate_names(desktops, 'Revision', _revision_disambiguate)
+		_fix_duplicate_names(desktops, 'Languages', lambda languages, _: f"({languages.replace(';', ', ')})", ignore_missing_values=True)
 		#fix_duplicate_names('date', ignore_missing_values=True)
-		_fix_duplicate_names('Publisher', ignore_missing_values=True)
-		_fix_duplicate_names('Developer', ignore_missing_values=True)
-	_fix_duplicate_names('tags')
-	_fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
-	_fix_duplicate_names('Executable-Name', ignore_missing_values=True)
-	_fix_duplicate_names('check')
+		_fix_duplicate_names(desktops, 'Publisher', ignore_missing_values=True)
+		_fix_duplicate_names(desktops, 'Developer', ignore_missing_values=True)
+	_fix_duplicate_names(desktops, 'tags')
+	_fix_duplicate_names(desktops, 'Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
+	_fix_duplicate_names(desktops, 'Executable-Name', ignore_missing_values=True)
+
+	for desktop in desktops:
+		desktop.update_name()
+	_fix_duplicate_names(desktops, 'check')
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
