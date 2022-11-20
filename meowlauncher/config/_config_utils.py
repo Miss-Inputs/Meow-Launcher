@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
 from collections.abc import Sequence
@@ -31,11 +31,11 @@ def parse_bool(value: str) -> bool:
 def parse_value(value: str, value_type: type) -> Any:
 	if value_type == bool:
 		return parse_bool(value)
-	if value_type == Path:
+	if value_type in (Path, PurePath):
 		return Path(value).expanduser()
 	if value_type == Sequence[str]:
 		return parse_string_list(value)
-	if value_type == Sequence[Path]:
+	if value_type in (Sequence[Path], Sequence[PurePath]):
 		return parse_path_list(value)
 	return value_type(value)
 

@@ -1,7 +1,6 @@
 import gzip
 import io
 import lzma
-import os
 import re
 import subprocess
 import zipfile
