@@ -214,7 +214,7 @@ def _fix_duplicate_names(desktops: Collection[DesktopWithPath], method: str, for
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			logger.debug('Duplicate name still remains: ', k, list(d.new_name for d in v))
+			logger.debug('Duplicate name still remains: %s %s', k, list(d.new_name for d in v))
 		else:
 			_resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 
