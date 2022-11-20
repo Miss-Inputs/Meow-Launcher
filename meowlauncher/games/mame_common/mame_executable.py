@@ -1,5 +1,6 @@
 import copy
 import logging
+from pathlib import PurePath
 import re
 import subprocess
 from collections.abc import Iterator
@@ -20,7 +21,7 @@ class MAMENotInstalledException(Exception):
 
 class MAMEExecutable():
 	"""Represents a MAME executable that may or may not exist (raises MAMENotInstalledException in the constructor if it doesn't)"""
-	def __init__(self, path: str='mame'):
+	def __init__(self, path: PurePath=PurePath('mame')):
 		self.executable = path
 		self.version = self._get_version()
 		self._xml_cache_path = cache_dir.joinpath(self.version)
