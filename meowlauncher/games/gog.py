@@ -7,7 +7,7 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 from itertools import chain
 from pathlib import Path, PureWindowsPath
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -73,14 +73,14 @@ class GOGJSONGameInfo():
 		return None #Not sure what happens if more than one has isPrimary tbh, guess it doesn't matter
 
 class GOGTask():
+	"""Launch "task" defined for a Windows GOG game in the gog-blahwhatever.info file"""
 	def __init__(self, json_object: Mapping[str, Any]):
 		self.is_primary: bool = json_object.get('isPrimary', False)
 		self.task_type: str | None = json_object.get('type') #Just FileTask or URLTask?
-		path: str | None = json_object.get('path') #I guess this is also only for FileTask
-		self.path = path.replace('\\', os.path.sep) if path else None #TODO: Should use pathlib.Path, is this relative? Do we need to do something weird? I guess it could be URL if URLTask?
-		self.working_directory: str | None = json_object.get('workingDir') #This would only matter for FileTask I guess
-		if self.working_directory:
-			self.working_directory = self.working_directory.replace('\\', os.path.sep)
+		path: str | None = json_object.get('path') #I guess this is also only for FileTask? I hope
+		self.path = PureWindowsPath(path) if path else None
+		working_directory: str | None = json_object.get('workingDir') #This would only matter for FileTask I guess
+		self.working_directory = PureWindowsPath(working_directory) if working_directory else None
 		self.category: str | None = json_object.get('category') #"game", "tool", "document"
 
 		self.args: Sequence[str] = ()
@@ -101,10 +101,15 @@ class GOGTask():
 
 	@property
 	def is_probably_subtask(self) -> bool:
+		"""Tries to guess if this is something like a configuration utility or a different option, not a different game in one"""
 		if self.is_primary:
 			return False
 
-		if self.category == 'tool' or name_utils.is_probably_related_tool(self.name) or name_utils.is_probably_related_tool(self.path) or name_utils.is_probably_different_mode(self.name) or name_utils.is_probably_different_mode(self.path):
+		if self.category == 'tool':
+			return True
+		if name_utils.is_probably_related_tool(self.name) or name_utils.is_probably_different_mode(self.name):
+			return True
+		if self.path and (name_utils.is_probably_related_tool(self.path.stem) or name_utils.is_probably_different_mode(self.path.stem)):
 			return True
 
 		return False
@@ -113,19 +118,19 @@ class GOGTask():
 	def is_dosbox(self) -> bool:
 		if not self.path or not self.working_directory:
 			return False
-		return os.path.basename(self.path.lower()) == 'dosbox.exe' and self.working_directory.lower().rstrip('/') in {'dosbox', 'dosbox_windows'} and self.task_type == 'FileTask'
+		return self.path.name.lower() == 'dosbox.exe' and self.working_directory.stem.lower() in {'dosbox', 'dosbox_windows'} and self.task_type == 'FileTask'
 
 	@property
 	def is_scummvm(self) -> bool:
 		if not self.path or not self.working_directory:
 			return False
-		return self.path.lower() == 'scummvm/scummvm.exe' and self.working_directory.lower() == 'scummvm' and self.task_type == 'FileTask'
+		return self.path.name.lower() == 'scummvm.exe' and self.working_directory.stem.lower() == 'scummvm' and self.task_type == 'FileTask'
 
 	@property
 	def is_residualvm(self) -> bool:
 		if not self.path or not self.working_directory:
 			return False
-		return self.path.lower() == 'residualvm/residualvm.exe' and self.working_directory.lower() == 'residualvm' and self.task_type == 'FileTask'
+		return self.path.name.lower() == 'residualvm.exe' and self.working_directory.stem.lower() == 'residualvm' and self.task_type == 'FileTask'
 
 class GOGGame(Game, ABC):
 	def __init__(self, game_folder: Path, info: GOGGameInfo, start_script: Path, support_folder: Path):
@@ -171,7 +176,7 @@ class GOGGame(Game, ABC):
 		return any(f'({demo_suffix.lower()})' in self.name.lower() for demo_suffix in name_utils.demo_suffixes)
 		
 	def make_launcher(self) -> None:
-		params = LaunchCommand(str(self.start_script), [], working_directory=str(self.folder))
+		params = LaunchCommand(self.start_script, [], working_directory=self.folder)
 		make_launcher(params, self.name, self.info, 'GOG', str(self.folder))
 
 class NormalGOGGame(GOGGame):
@@ -231,24 +236,22 @@ class LinuxGOGLauncher(Launcher):
 
 	@property
 	def command(self) -> LaunchCommand:
-		return LaunchCommand(str(self.game.start_script), [], working_directory=str(self.game.folder))
+		return LaunchCommand(self.game.start_script, [], working_directory=self.game.folder)
 
-def _find_subpath_case_insensitive(path: Path, subpath: str) -> Path:
-	#We will need this because Windows (or rather NTFS) does not respect case sensitivity, and so sometimes a file will be referred to that has unexpected capitalisation (e.g. playTask referring to blah.EXE when on disk it is .exe)
-	#Assumes path is fine and normal
+def _find_subpath_case_insensitive(path: Path, subpath: PureWindowsPath) -> Path:
+	"""We will need this because Windows (or rather NTFS) does not respect case sensitivity, and so sometimes a file will be referred to that has unexpected capitalisation (e.g. playTask referring to blah.EXE when on disk it is .exe)
+	Assumes path is fine and normal"""
 	alleged_path = path.joinpath(subpath)
 	if alleged_path.exists():
 		return alleged_path
 	
-	#TODO: Can I rewrite this to not use str? I'm confused right now
-	#TODO: Can subpath just be a pure Windows (relative) path?
-	parts = PureWindowsPath(subpath).parts
+	parts = subpath.parts
 	first_part_lower = parts[0].lower()
 	for sub in path.iterdir():
 		if sub.name.lower() == first_part_lower:
 			if len(parts) == 1:
 				return sub
-			return _find_subpath_case_insensitive(sub, str(PureWindowsPath(*parts[1:])))
+			return _find_subpath_case_insensitive(sub, PureWindowsPath(*parts[1:]))
 
 	raise FileNotFoundError(alleged_path)
 
@@ -298,6 +301,8 @@ class WindowsGOGGame(Game):
 
 	@property
 	def is_demo(self) -> bool:
+		"""Guesses if this is a demo based on the name.
+		Not sure if there's a better way? I guess looking up the store API"""
 		return any(f'({demo_suffix.lower()})' in self.name.lower() for demo_suffix in name_utils.demo_suffixes)
 
 	@property
@@ -308,35 +313,32 @@ class WindowsGOGGame(Game):
 				return icon_path
 		return None
 
-	def fix_subfolder_relative_folder(self, folder: str, subfolder: str) -> str:
-		#TODO: This should probs use pathlib.Path too?
-		if folder.startswith('..\\'):
-			return str(_find_subpath_case_insensitive(self.folder, folder.replace('..\\', '')))
-		if folder.startswith('.\\'):
-			return str(_find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep)))
-		return folder
+	def fix_subfolder_relative_folder(self, folder: PureWindowsPath, subfolder: PureWindowsPath) -> Path:
+		"""TODO: ?????? uhhhh does this work how I think it works? I think it's supposed to make DOSBox games work"""
+		if folder.is_relative_to('..'):
+			return _find_subpath_case_insensitive(self.folder, folder.relative_to('..'))
+		return _find_subpath_case_insensitive(self.folder, folder.relative_to(subfolder))
 
 	def get_dosbox_launch_params(self, task: GOGTask) -> LaunchCommand:
-		args = tuple(self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args)
-		dosbox_path = cast(Path, main_config.dosbox_path)
-		dosbox_folder = _find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
-		return LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
+		args = tuple(str(self.fix_subfolder_relative_folder(PureWindowsPath(arg), PureWindowsPath('dosbox'))) for arg in task.args if '\\' in arg)
+		dosbox_folder = _find_subpath_case_insensitive(self.folder, PureWindowsPath('dosbox')) #Game's config files are expecting to be launched from here
+		return LaunchCommand(main_config.dosbox_path, args, working_directory=dosbox_folder)
 
 	def get_wine_launch_params(self, task: GOGTask) -> LaunchCommand | None:
 		if not task.path:
 			logger.info('Oh dear - task %s (%s %s %s) in %s has no path and we can\'t deal with that right now', task.name, task.args, task.task_type, task.category, self.name)
 			return None
 
-		if task.path.lower().endswith('.lnk'):
+		if task.path.suffix.lower() == '.lnk':
 			logger.debug(self.name, 'task %s (%s %s %s) in %s cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', task.name, task.args, task.task_type, task.category, self.name)
 			return None
 
 		exe_path = _find_subpath_case_insensitive(self.folder, task.path)
 		working_directory = None
 		if task.working_directory:
-			working_directory = _find_subpath_case_insensitive(self.folder, task.working_directory)
+			working_directory = PureWindowsPath(_find_subpath_case_insensitive(self.folder, task.working_directory))
 		
-		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), task.args, str(working_directory))
+		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
 
 	def get_launcher_params(self, task: GOGTask) -> tuple[str, LaunchCommand | None]:
 		if main_config.use_system_dosbox and task.is_dosbox:
@@ -372,10 +374,10 @@ class WindowsGOGGame(Game):
 
 		if not (task.is_dosbox or task.is_scummvm or task.is_residualvm):
 			exe_path = _find_subpath_case_insensitive(self.folder, task.path)
-			exe_icon = pc_common_metadata.get_icon_inside_exe(str(exe_path))
+			exe_icon = pc_common_metadata.get_icon_inside_exe(exe_path)
 			if exe_icon:
 				task_metadata.images['Icon'] = exe_icon
-			pc_common_metadata.add_metadata_for_raw_exe(str(exe_path), task_metadata)
+			pc_common_metadata.add_metadata_for_raw_exe(exe_path, task_metadata)
 
 		name = self.name
 		if task.name:

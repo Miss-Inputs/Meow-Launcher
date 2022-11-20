@@ -1,5 +1,5 @@
-import os
 import shutil
+from pathlib import PurePath
 from typing import TYPE_CHECKING
 
 from meowlauncher.config.main_config import main_config
@@ -28,7 +28,7 @@ class ConfiguredRunner():
 
 	@property
 	def is_path_valid(self) -> bool:
-		if os.path.isfile(self.config.exe_path):
+		if self.config.exe_path.is_file():
 			return True
 		if shutil.which(self.config.exe_path):
 			return True
@@ -41,16 +41,16 @@ class ConfiguredRunner():
 			else:
 				command = launch_with_wine(main_config.wine_path, main_config.wineprefix, command.exe_name, command.exe_args)
 		elif self.runner.host_platform == HostPlatform.DotNet:
-			command = command.wrap('mono')
+			command = command.wrap(PurePath('mono'))
 
 		#Need to make sure that if runner uses MultiLaunchCommands, the inner command will be run with mangohud:
 		#do_setup && mangohud actual_emulator && do_things_after - it does, good
 		#But if it is using Wine I need to make Wine itself run through mangohud and not try and do "wine mangohud blah.exe" - it does, good
 		if self.config.options.get('mangohud', False):
-			command = command.wrap('mangohud')
+			command = command.wrap(PurePath('mangohud'))
 			command.set_env_var('MANGOHUD_DLSYM', '1')
 		if self.config.options.get('gamemode', False):
-			command = command.wrap('gamemoderun')
+			command = command.wrap(PurePath('gamemoderun'))
 		if self.config.options.get('force_opengl_version', False):
 			command.set_env_var('MESA_GL_VERSION_OVERRIDE', '4.3')
 		return command	

@@ -1,7 +1,7 @@
 import os
 import shlex
 from collections.abc import Collection, Mapping, MutableMapping, Sequence
-from pathlib import Path, PurePath
+from pathlib import Path, PurePath, PureWindowsPath
 
 #This is basically just here in case the path of a ROM changes between when we generate the LaunchCommand for the game and when we generate the actual launcher… it can't be just a sentinel object as sometimes you might want to replace something like "--arg=$<path>", unless I think of a better way to handle that
 rom_path_argument = '$<path>'
@@ -111,14 +111,14 @@ class MultiLaunchCommands(LaunchCommand):
 	def set_env_var(self, k: str, v: str) -> None:
 		self.main_command.set_env_var(k, v)
 
-def launch_with_wine(wine_path: PurePath, wineprefix: PurePath | None, exe_path: PurePath, exe_args: Collection[str], working_directory: str | None=None) -> LaunchCommand:
+def launch_with_wine(wine_path: PurePath, wineprefix: PurePath | None, exe_path: PurePath, exe_args: Collection[str], working_directory: PureWindowsPath | None=None) -> LaunchCommand:
 	env_vars = None
 	if wineprefix:
 		env_vars = {'WINEPREFIX': str(wineprefix)}
 
 	args = ['start']
 	if working_directory:
-		args += ['/d', working_directory]
+		args += ['/d', str(working_directory)]
 	args += ('/unix', str(exe_path))
 	args += exe_args
 	return LaunchCommand(wine_path, args, env_vars)

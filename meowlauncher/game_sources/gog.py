@@ -2,7 +2,6 @@
 
 import datetime
 import logging
-import os
 import time
 from collections.abc import Collection
 from pathlib import Path
@@ -98,7 +97,7 @@ def do_gog_games() -> None:
 	time_started = time.perf_counter()
 
 	#TODO: Should have is_wine_available helper function or whatever
-	if os.path.isfile(main_config.wine_path) or not main_config.wine_path.startswith('/'):
+	if main_config.wine_path.is_file():
 		do_windows_gog_games()
 
 	if main_config.print_times:
