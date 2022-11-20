@@ -1,3 +1,4 @@
+import logging
 import math
 import re
 import struct
@@ -6,6 +7,8 @@ from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 from .io_utils import read_file
+
+logger = logging.getLogger(__name__)
 
 #<type> is BINARY for little endian, MOTOROLA for big endian, or AIFF/WAV/MP3. Generally only BINARY will be used (even audio tracks are usually ripped as raw binary)
 _cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<type>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
@@ -166,7 +169,7 @@ def _get_gcz_block(gcz_path: Path, compressed_size: int, block_pointers: Sequenc
 	expected_hash = hashes[block_num]
 	actual_hash = zlib.adler32(buf)
 	if expected_hash != actual_hash:
-		print(gcz_path, 'block num', block_num, 'might be corrupted! expected =', expected_hash, 'actual =', actual_hash, 'offset =', offset, 'cbs =', compressed_block_size)
+		logger.debug('%s: block num %d might be corrupted! expected = %d actual = %d offset = %d compressed_block_size = %d', gcz_path, block_num, expected_hash, actual_hash, offset, compressed_block_size)
 
 	if compressed:
 		buf = zlib.decompress(buf)

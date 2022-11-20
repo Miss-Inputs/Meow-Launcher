@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import functools
+import logging
 import os
 import re
 from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
@@ -8,6 +9,8 @@ from pathlib import Path
 from typing import cast
 
 from meowlauncher.config.main_config import main_config
+
+logger = logging.getLogger(__name__)
 
 #TODO: Probs should be using dataclasses or whatever for this
 RomType = Mapping[str, str]
@@ -118,8 +121,8 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseTy
 	libretro_database_path = main_config.libretro_database_path
 	if not libretro_database_path:
 		return None
-	dat_folder = Path(main_config.libretro_database_path, 'dat')
-	metadat_folder = Path(main_config.libretro_database_path, 'metadat')
+	dat_folder = Path(libretro_database_path, 'dat')
+	metadat_folder = Path(libretro_database_path, 'metadat')
 	
 	try:
 		for file in dat_folder.iterdir():
@@ -136,7 +139,7 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseTy
 						relevant_dats.append(path)
 	
 	if not relevant_dats:
-		print('Megan is a dork error:', name)
+		logger.info('Megan is a dork error: %s', name)
 		return None
 
 	games: _MutableLibretroDatabaseType = {}
