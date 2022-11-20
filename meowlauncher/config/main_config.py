@@ -1,7 +1,6 @@
 import inspect
 import logging
 import os
-import sys
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
 from collections.abc import Collection, Sequence, Callable
 from functools import wraps
@@ -13,7 +12,7 @@ import typing
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
 
-from ._config_utils import parse_path_list, parse_value
+from ._config_utils import parse_value
 
 __doc__ = """Config options are defined here, other than those specific to emulators or platforms"""
 logger = logging.getLogger(__name__)
@@ -30,19 +29,13 @@ def _load_ignored_directories() -> Collection[PurePath]:
 	except FileNotFoundError:
 		pass
 
-	if '--ignored-directories' in sys.argv:
-		#TODO Move to get_command_line_arguments or otherwise somewhere else
-		index = sys.argv.index('--ignored-directories')
-		arg = sys.argv[index + 1]
-		ignored_directories.update(parse_path_list(arg))
-
 	return ignored_directories
 
 ignored_directories = _load_ignored_directories()
 
 T = TypeVar('T')
 class ConfigProperty(Generic[T]):
-	"""property decorator with some more attributes
+	"""Similar to property() with some more attributes, used with @configoption
 	Damn here I was thinking "haha I'll never need to know how descriptors work" okay maybe I didn't need to do this"""
 	def __init__(self, func: 'Callable[[Any], T]', section: str, readable_name: str | None) -> None:
 		self.func = func
@@ -60,8 +53,7 @@ class ConfigProperty(Generic[T]):
 
 S = TypeVar('S', bound='Config')
 def configoption(section: str, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]':
-	"""
-	Decorator: Marks this method as being a config option, which replaces it with a ConfigProperty instance; must be inside a Config
+	"""Decorator: Marks this method as being a config option, which replaces it with a ConfigProperty instance; must be inside a Config
 	Description is taken from docstring, readable_name is the function name in sentence case if not provided, default value is the original function return value"""
 	def deco(func: 'Callable[[S], T]') -> 'ConfigProperty[T]':
 		@wraps(func)
