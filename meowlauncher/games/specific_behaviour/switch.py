@@ -1,13 +1,12 @@
 import hashlib
 import io
 import logging
-import os
 import subprocess
 import tempfile
 from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
 from enum import Enum, Flag
-from shutil import rmtree
+from pathlib import Path
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
@@ -219,7 +218,7 @@ def _add_cnmt_xml_metadata(xml: ElementTree.Element, game_info: 'GameInfo') -> N
 	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
 	#Content contains Size, KeyGeneration, Hash, Type
 
-def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str) -> None:
+def _call_nstool_for_decrypt(temp_folder: Path, temp_filename: Path) -> None:
 	#Plan B, there is no reason why this can't be plan A I guess
 	nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
 	stdout = nstool.stdout.strip() #It prints error messages to stdout…
@@ -230,73 +229,64 @@ def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str) -> None:
 def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
 	if hasattr(_decrypt_control_nca_with_hactool, 'failed'):
 		raise ExternalToolNotHappeningException(f'No can do {_decrypt_control_nca_with_hactool.failed}') #type: ignore[attr-defined]
-	temp_folder = None
-	try:
-		#Ugly code time
-		temp_folder = tempfile.mkdtemp()
+
+	with tempfile.TemporaryDirectory() as temp_folder:
+		temp_folder_path = Path(temp_folder)
 		#If we could get it to read /dev/stdin that'd be great, but it seems to not terribly want to do that, so we'll have to write that to a file too… grrr
-		handle, temp_filename = tempfile.mkstemp(dir=temp_folder)
-		os.write(handle, control_nca)
+		with tempfile.NamedTemporaryFile(dir=temp_folder_path) as temp_file:
+			temp_path = Path(temp_file)
+			temp_path.write_bytes(control_nca)
 
-		try:
-			hactool = subprocess.run(['hactool', '-x', temp_filename, '--disablekeywarns', '--romfsdir', temp_folder], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
-			#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
-			stderr = hactool.stderr.strip()
-			if stderr == b'Invalid NCA header! Are keys correct?':
-				raise InvalidNCAException('Header wrong')
-		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
-				_call_nstool_for_decrypt(temp_folder, temp_filename)
-			except (subprocess.CalledProcessError, FileNotFoundError):
-				_decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
-				raise ExternalToolNotHappeningException('No can do') from cactus
+				hactool = subprocess.run(['hactool', '-x', temp_path, '--disablekeywarns', '--romfsdir', temp_folder_path], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
+				#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
+				stderr = hactool.stderr.strip()
+				if stderr == b'Invalid NCA header! Are keys correct?':
+					raise InvalidNCAException('Header wrong')
+			except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
+				try:
+					_call_nstool_for_decrypt(temp_folder_path, temp_path)
+				except (subprocess.CalledProcessError, FileNotFoundError):
+					_decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
+					raise ExternalToolNotHappeningException('No can do') from cactus
 
-		files = {}
-		for f in os.scandir(temp_folder):
-			#Because I can't predict what filenames it will write… I guess
-			if f.is_file() and f.path != temp_filename:
-				with open(f.path, 'rb') as ff:
-					files[f.name] = ff.read()
-		return files
-	finally:
-		if temp_folder:
-			rmtree(temp_folder)
+			files = {}
+			for f in temp_folder_path.iterdir():
+				#Because I can't predict what filenames it will write… I guess
+				if f.is_file() and f != temp_path:
+					files[f.name] = f.read_bytes()
+			return files
 
 def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 	"""Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)"""
 	if hasattr(_decrypt_cnmt_nca_with_hactool, 'failed'):
 		raise ExternalToolNotHappeningException(f'No can do {_decrypt_cnmt_nca_with_hactool.failed}') #type: ignore[attr-defined]
-	temp_folder = None
-	try:
-		#Ugly code time
-		temp_folder = tempfile.mkdtemp()
+	with tempfile.TemporaryDirectory() as temp_folder:
+		temp_folder_path = Path(temp_folder)
 		#If we could get it to read /dev/stdin that'd be great, but it seems to not terribly want to do that, so we'll have to write that to a file too… grrr
-		handle, temp_filename = tempfile.mkstemp(dir=temp_folder)
-		os.write(handle, cnmt_nca)
+		with tempfile.NamedTemporaryFile(dir=temp_folder_path) as temp_file:
+			temp_path = Path(temp_file)
+			temp_path.write_bytes(cnmt_nca)
 
-		try:
-			#Since we're going through hactool anyway, might as well get it to find our actual cnmt for us so we don't have to parse the nca
-			hactool = subprocess.run(['hactool', '-t', 'nca', '-x', temp_filename, '--disablekeywarns', '--section0dir', temp_folder], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
-			#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
-			stderr = hactool.stderr.strip()
-			if stderr == b'Invalid NCA header! Are keys correct?':
-				raise InvalidNCAException('Header wrong')
-		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
-				#Plan B
-				_call_nstool_for_decrypt(temp_folder, temp_filename)
-			except (subprocess.CalledProcessError, FileNotFoundError):
-				_decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
-				raise ExternalToolNotHappeningException('No can do') from cactus
+				#Since we're going through hactool anyway, might as well get it to find our actual cnmt for us so we don't have to parse the nca
+				hactool = subprocess.run(['hactool', '-t', 'nca', '-x', temp_path, '--disablekeywarns', '--section0dir', temp_folder_path], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
+				#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
+				stderr = hactool.stderr.strip()
+				if stderr == b'Invalid NCA header! Are keys correct?':
+					raise InvalidNCAException('Header wrong')
+			except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
+				try:
+					#Plan B
+					_call_nstool_for_decrypt(temp_folder_path, temp_path)
+				except (subprocess.CalledProcessError, FileNotFoundError):
+					_decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
+					raise ExternalToolNotHappeningException('No can do') from cactus
 
-		for f in os.scandir(temp_folder):
-			if f.name.endswith('.cnmt') and f.is_file():
-				with open(f.path, 'rb') as ff:
-					return ff.read()
-		raise ExternalToolNotHappeningException('Uh oh, something got boned and the decrypted file was never written to the temp folder')
-	finally:
-		if temp_folder:
-			rmtree(temp_folder)
+			for f in temp_folder_path.iterdir():
+				if f.suffix == '.cnmt' and f.is_file():
+					return f.read_bytes()
+			raise ExternalToolNotHappeningException('Uh oh, something got boned and the decrypted file was never written to the temp folder')
 
 def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'GameInfo', files: Mapping[str, tuple[int, int]], extra_offset: int=0) -> None:
 	metadata.specific_info['Title ID'] = cnmt.title_id
