@@ -100,6 +100,7 @@ class MAME(GameSource):
 		return MAMELauncher(game, self.emu)
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
+		assert self.emu, 'MAME.iter_launchers should never be called without checking is_available! What the'
 		if self.driver_list:
 			for driver_name in self.driver_list:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
@@ -160,7 +161,7 @@ class MAMEInbuiltGames(GameSource):
 
 	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None=None) -> MAMEInbuiltLauncher | None:
 		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
-		if not default_mame_executable.verifyroms(machine_name):
+		if not self.emu.executable.verifyroms(machine_name):
 			return None
 
 		#Actually, this probably doesn't matter at all… but eh, just feels more correct than simply passing blank_platform_config to satisfy EmulatedGame constructor
