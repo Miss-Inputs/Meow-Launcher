@@ -215,7 +215,7 @@ def add_saturn_custom_info(game: 'ROMGame') -> None:
 	else:
 		return
 
-	add_saturn_info(str(game.rom), game.info, header)
+	add_saturn_info(game.rom, game.info, header)
 
 	try:
 		software = game.get_software_list_entry()

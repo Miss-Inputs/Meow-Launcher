@@ -17,7 +17,7 @@ from .engine_info import (add_gamemaker_metadata,
                           add_metadata_from_renpy_options,
                           add_piko_mednafen_info, add_unity_metadata,
                           add_unity_web_metadata)
-from .pc_common_metadata import get_exe_properties
+from .pc_common_info import get_exe_properties
 
 if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo

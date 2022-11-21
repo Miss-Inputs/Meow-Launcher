@@ -150,7 +150,7 @@ def _add_titles(game_info: 'GameInfo', titles: Mapping[str, tuple[str, str]], ic
 	for prefix, icon in other_icons.items():
 		game_info.images[prefix + ' Icon'] = Image.open(io.BytesIO(icon))
 
-def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: 'Mapping[str, bytes] | None'=None) -> None:
+def _add_nacp_metadata(game_info: 'GameInfo', nacp: bytes, icons: 'Mapping[str, bytes] | None'=None) -> None:
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]
@@ -162,12 +162,12 @@ def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: 'Mapping[str, b
 		name = entry[:0x200].rstrip(b'\0').decode('utf-8', 'backslashreplace')
 		publisher = entry[0x200:].rstrip(b'\0').decode('utf-8', 'backslashreplace')
 		titles[lang_name] = name, publisher
-	_add_titles(metadata, titles, icons)
+	_add_titles(game_info, titles, icons)
 
 	isbn = nacp[0x3000:0x3025]
 	if any(isbn):
 		#Aww why isn't this ever filled in
-		metadata.specific_info['ISBN'] = isbn
+		game_info.specific_info['ISBN'] = isbn
 
 	supported_language_flag = int.from_bytes(nacp[0x302c:0x3030], 'little') #This might line up with nacp_languages	
 	supported_languages = set()
@@ -189,24 +189,24 @@ def _add_nacp_metadata(metadata: 'GameInfo', nacp: bytes, icons: 'Mapping[str, b
 				supported_language = get_language_by_english_name(v)
 				if supported_language:
 					supported_languages.add(supported_language)
-	metadata.languages = supported_languages
+	game_info.languages = supported_languages
 
 	#Screenshot = nacp[0x3034] sounds interesting?
-	metadata.specific_info['Video Capture Allowed?'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
+	game_info.specific_info['Video Capture Allowed?'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
 
 
-	add_ratings_info(metadata, NintendoAgeRatings(nacp[0x3040:0x3060]))
+	add_ratings_info(game_info, NintendoAgeRatings(nacp[0x3040:0x3060]))
 	
-	metadata.specific_info['Version'] = nacp[0x3060:0x3070].rstrip(b'\0').decode('utf-8', errors='backslashreplace')
+	game_info.specific_info['Version'] = nacp[0x3060:0x3070].rstrip(b'\0').decode('utf-8', errors='backslashreplace')
 
 	user_account_save_size = int.from_bytes(nacp[0x3080:0x3088], 'little')
 	device_save_size = int.from_bytes(nacp[0x3090:0x3098], 'little')
-	metadata.save_type = SaveType.Internal if user_account_save_size or device_save_size else SaveType.Nothing
+	game_info.save_type = SaveType.Internal if user_account_save_size or device_save_size else SaveType.Nothing
 
 	application_error_code_category = nacp[0x30a8:0x30b0]
 	if any(application_error_code_category):
 		#For some reason this is sometimes here and the product code when it is (which doesn't seem to be anywhere else)
-		metadata.product_code = application_error_code_category.decode('utf-8', errors='backslashreplace')
+		game_info.product_code = application_error_code_category.decode('utf-8', errors='backslashreplace')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
 def _add_cnmt_xml_metadata(xml: ElementTree.Element, game_info: 'GameInfo') -> None:

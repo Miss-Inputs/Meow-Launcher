@@ -37,40 +37,40 @@ _tdb = _load_tdb()
 
 rpcs3_vfs_config_path = Path('~/.config/rpcs3/vfs.yml').expanduser()
 
-def add_game_folder_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
+def add_game_folder_metadata(rom: FolderROM, game_info: 'GameInfo') -> None:
 	param_sfo_path = rom.relevant_files['PARAM.SFO']
 	usrdir = rom.relevant_files['USRDIR']
 
 	subfolder = param_sfo_path.parent
 	icon0_path = subfolder / 'ICON0.PNG'
 	if icon0_path.is_file():
-		metadata.images['Banner'] = icon0_path
+		game_info.images['Banner'] = icon0_path
 	icon1_path = subfolder / 'ICON1.PNG'
 	if icon1_path.is_file():
-		metadata.images['Icon 1'] = icon1_path
+		game_info.images['Icon 1'] = icon1_path
 	pic0_path = subfolder / 'PIC0.PNG'
 	if pic0_path.is_file():
-		metadata.images['Overlay Image'] = pic0_path
+		game_info.images['Overlay Image'] = pic0_path
 	pic1_path = subfolder / 'PIC1.PNG'
 	pic2_path = subfolder / 'PIC2.PNG'
 	if pic1_path.is_file():
-		metadata.images['Background Image'] = pic1_path
+		game_info.images['Background Image'] = pic1_path
 	elif pic2_path.is_file():
 		#For 4:3 instead of 16:9?
-		metadata.images['Background Image'] = pic2_path
+		game_info.images['Background Image'] = pic2_path
 	
 	if subfolder.joinpath('TROPDIR').is_dir():
-		metadata.specific_info['Has Achievements?'] = True
+		game_info.specific_info['Has Achievements?'] = True
 
 	if usrdir.is_dir():
-		engine = try_and_detect_engine_from_folder(usrdir, metadata)
+		engine = try_and_detect_engine_from_folder(usrdir, game_info)
 		if engine:
-			metadata.specific_info['Engine'] = engine
+			game_info.specific_info['Engine'] = engine
 		#EXE name should be EBOOT.BIN in here?
 	else:
 		logger.info('How interesting! %s has no USRDIR', rom)
 
-	parse_param_sfo(str(rom.path), metadata, param_sfo_path.read_bytes())
+	parse_param_sfo(rom.path, game_info, param_sfo_path.read_bytes())
 
 	rpcs3_hdd_path = Path('~/.config/rpcs3/dev_hdd0/').expanduser()
 	try:
@@ -84,14 +84,14 @@ def add_game_folder_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
 
 	is_installed_to_rpcs3_hdd = rom.path.parent == rpcs3_hdd_path.joinpath('game')
 	#Messy hack time
-	if is_installed_to_rpcs3_hdd and metadata.names:
+	if is_installed_to_rpcs3_hdd and game_info.names:
 		#If we found a banner title, etc then use that instead
 		rom.ignore_name = True
-	if metadata.product_code == rom.name:
+	if game_info.product_code == rom.name:
 		rom.ignore_name = True
 		#Internal to some game folder, but if it is on the RPCS3 hard drive then it is just in a folder called "game" under "dev_hdd0" which contains no useful information
 		if not is_installed_to_rpcs3_hdd:
-			metadata.add_alternate_name(rom.path.parent.name, 'Name')
+			game_info.add_alternate_name(rom.path.parent.name, 'Name')
 		
 class RPCS3Compatibility(Enum):
 	Loadable = 1

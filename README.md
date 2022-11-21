@@ -58,7 +58,7 @@ TODO: Describe the command line arguments that are actually important, but for n
 
 - --full-rescan: Normally Meow Launcher leaves your existing launchers alone (unless they refer to games that aren't there anymore), and only adds launchers for what isn't there since last time; this just avoids all that and throws the whole output folder out and starts again anew
 - --print-times prints how long everything takes, which is also something you might not care about
-- --organize-folders sorts your games into more subfolders based on metadata
+- --organize-folders sorts your games into more subfolders based on info
 - How long levels are used, for now:
 	- Debug: Interesting thing about a game and can probs be ignored
 	- Info: Something weird/broken about a game (ROM with unexpected header value, unexpected info for native game, etc) (but this isn't necessarily the user's fault so I felt nahhhh shouldn't be warning)

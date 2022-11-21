@@ -191,27 +191,27 @@ def _add_wad_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 	footer = rom.read(seek_to=footer_offset, amount=_round_up_to_multiple(footer_size, 64))
 	_parse_opening_bnr(metadata, footer)
 
-def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
-	metadata.specific_info['Executable Name'] = rom.relevant_files['boot.dol'].name
+def add_wii_homebrew_metadata(rom: FolderROM, game_info: 'GameInfo') -> None:
+	game_info.specific_info['Executable Name'] = rom.relevant_files['boot.dol'].name
 
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
-		metadata.images['Banner'] = icon_path
+		game_info.images['Banner'] = icon_path
 		#Unfortunately the aspect ratio means it's not really great as an icon
 
 	xml_path = rom.relevant_files['meta.xml']
 	if xml_path.is_file():
 		try:
-			meta_xml = ElementTree.parse(str(xml_path))
+			meta_xml = ElementTree.parse(xml_path)
 			name = meta_xml.findtext('name')
 			if name:
-				metadata.add_alternate_name(name, 'Banner Title')
+				game_info.add_alternate_name(name, 'Banner Title')
 				rom.ignore_name = True
 
 			coder = meta_xml.findtext('coder')
 			if not coder:
 				coder = meta_xml.findtext('author')
-			metadata.developer = metadata.publisher = coder
+			game_info.developer = game_info.publisher = coder
 
 			version = meta_xml.findtext('version')
 			if version:
@@ -219,7 +219,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
 				
 				if version[0] != 'v':
 					version = 'v' + version
-				metadata.specific_info['Version'] = version
+				game_info.specific_info['Version'] = version
 
 			release_date = meta_xml.findtext('release_date')
 			if release_date:
@@ -242,19 +242,19 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'GameInfo') -> None:
 					year = actual_date.year
 					month = actual_date.month
 					day = actual_date.day
-					metadata.release_date = Date(year, month, day)
+					game_info.release_date = Date(year, month, day)
 
 			short_description = meta_xml.findtext('short_description')
 			if short_description:
-				metadata.descriptions['Description'] = short_description
+				game_info.descriptions['Description'] = short_description
 			long_description = meta_xml.findtext('long_description')
 			if long_description:
-				metadata.descriptions['Long Description'] = long_description
+				game_info.descriptions['Long Description'] = long_description
 
 		except ElementTree.ParseError:
 			logger.info('Ah bugger Wii homebrew XML in %s has problems', rom, exc_info=True)
 
-def _add_wii_disc_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
+def _add_wii_disc_metadata(rom: FileROM, game_info: 'GameInfo') -> None:
 	wii_header = rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None
@@ -273,7 +273,7 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 
 			#Seemingly most games have an update partition at 0x50_000 and a game partition at 0xf_800_000. That's just an observation though and may not be 100% the case
 			if partition_type == 1:
-				metadata.specific_info['Has Update Partition?'] = True
+				game_info.specific_info['Has Update Partition?'] = True
 			elif partition_type == 0 and game_partition_offset is None:
 				game_partition_offset = partition_offset
 
@@ -303,10 +303,10 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 				apploader_date = decrypted_chunk[0x2440:0x2450].rstrip(b'\0').decode('ascii')
 				try:
 					d = datetime.strptime(apploader_date, '%Y/%m/%d')
-					metadata.specific_info['Build Date'] = Date(d.year, d.month, d.day)
+					game_info.specific_info['Build Date'] = Date(d.year, d.month, d.day)
 					guessed = Date(d.year, d.month, d.day, True)
-					if guessed.is_better_than(metadata.release_date):
-						metadata.release_date = guessed
+					if guessed.is_better_than(game_info.release_date):
+						game_info.release_date = guessed
 				except ValueError:
 					pass
 			except UnicodeDecodeError:
@@ -315,10 +315,10 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 	#Unused (presumably would be region-related stuff): 0xe004:0xe010
 	region_code = int.from_bytes(wii_header[0xe000:0xe004], 'big')
 	try:
-		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
+		game_info.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
-	add_ratings_info(metadata, WiiRatings(wii_header[0xe010:0xe020]))
+	add_ratings_info(game_info, WiiRatings(wii_header[0xe010:0xe020]))
 
 def add_wii_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension in {'gcz', 'iso', 'wbfs', 'gcm'}:

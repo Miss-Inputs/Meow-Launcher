@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
@@ -25,7 +25,7 @@ input_types = {
 	4: input_info.Trackball(), #Is this a valid value?
 }
 
-def _add_atari_7800_header_info(rom_path_for_warning: str, game_info: 'GameInfo', header: bytes) -> None:
+def _add_atari_7800_header_info(rom_path_for_warning: Any, game_info: 'GameInfo', header: bytes) -> None:
 	game_info.input_info.set_inited()
 
 	header_version = header[0]
@@ -102,7 +102,7 @@ def add_atari_7800_custom_info(game: 'ROMGame') -> None:
 	if header[1:10] == b'ATARI7800':
 		game.info.specific_info['Headered?'] = True
 		cast(FileROM, game.rom).header_length_for_crc_calculation = 128
-		_add_atari_7800_header_info(str(game.rom), game.info, header)
+		_add_atari_7800_header_info(game.rom.path, game.info, header)
 	else:
 		game.info.specific_info['Headered?'] = False
 

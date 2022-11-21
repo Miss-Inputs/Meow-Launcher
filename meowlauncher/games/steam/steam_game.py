@@ -10,7 +10,7 @@ from meowlauncher.config_types import RunnerConfig
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
-from meowlauncher.games.common.pc_common_metadata import \
+from meowlauncher.games.common.pc_common_info import \
     check_for_interesting_things_in_folder
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class LauncherInfo():
+	"""Awkwardly named class to hold parsed data from "launch" in Steam appinfo config, but without calling it Launcher because that's something else"""
 	exe: PurePath | None
 	args: str | None #Not a list as it turns out?
 	description: str | None
@@ -58,7 +59,7 @@ class SteamGame(Game):
 		return self.library_folder.joinpath('steamapps', 'common', self.app_state['installdir'])
 
 	@cached_property
-	def appinfo(self) -> Optional[Mapping[bytes, Any]]:
+	def appinfo(self) -> 'Mapping[bytes, Any] | None':
 		if self.steam_installation.app_info_available:
 			game_app_info = self.steam_installation.app_info.get(self.appid)
 			if game_app_info is None:
@@ -74,7 +75,7 @@ class SteamGame(Game):
 				logger.info('%s does not have a sections key in appinfo.vdf', self)
 				return None
 			#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
-			app_info_section = sections.get(b'appinfo')
+			app_info_section: 'Mapping[bytes, Any] | None' = sections.get(b'appinfo')
 			if app_info_section is None:
 				logger.info('%s does not have a appinfo section in appinfo.vdf sections', self)
 				return None
@@ -148,7 +149,7 @@ class SteamLauncher(Launcher):
 	def __init__(self, game: SteamGame) -> None:
 		self.game: SteamGame = game
 		runner = _SteamRunner()
-		configured_runner = ConfiguredRunner(runner, RunnerConfig('steam'))
+		configured_runner = ConfiguredRunner(runner, RunnerConfig(Path('steam')))
 		super().__init__(game, configured_runner)
 
 	@property

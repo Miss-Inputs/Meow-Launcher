@@ -13,7 +13,7 @@ from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
-from meowlauncher.games.common import pc_common_metadata
+from meowlauncher.games.common import pc_common_info
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
@@ -160,7 +160,7 @@ class GOGGame(Game, ABC):
 
 	@property
 	def icon(self) -> Path | None:
-		for icon_ext in pc_common_metadata.icon_extensions:
+		for icon_ext in pc_common_info.icon_extensions:
 			icon_path = self.support_folder.joinpath('icon' + os.extsep + icon_ext)
 			if icon_path.is_file():
 				return icon_path
@@ -307,7 +307,7 @@ class WindowsGOGGame(Game):
 
 	@property
 	def icon(self) -> Path | None:
-		for icon_ext in pc_common_metadata.icon_extensions:
+		for icon_ext in pc_common_info.icon_extensions:
 			icon_path = self.folder.joinpath('goggame-' + self.game_id + os.extsep + icon_ext)
 			if icon_path.is_file():
 				return icon_path
@@ -374,10 +374,10 @@ class WindowsGOGGame(Game):
 
 		if not (task.is_dosbox or task.is_scummvm or task.is_residualvm):
 			exe_path = _find_subpath_case_insensitive(self.folder, task.path)
-			exe_icon = pc_common_metadata.get_icon_inside_exe(exe_path)
+			exe_icon = pc_common_info.get_icon_inside_exe(exe_path)
 			if exe_icon:
 				task_metadata.images['Icon'] = exe_icon
-			pc_common_metadata.add_metadata_for_raw_exe(exe_path, task_metadata)
+			pc_common_info.add_info_for_raw_exe(exe_path, task_metadata)
 
 		name = self.name
 		if task.name:

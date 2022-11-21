@@ -3,7 +3,7 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.common.pc_common_metadata import look_for_icon_for_file
+from meowlauncher.games.common.pc_common_info import look_for_icon_for_file
 from meowlauncher.manually_specified_game import ManuallySpecifiedGame
 
 if TYPE_CHECKING:

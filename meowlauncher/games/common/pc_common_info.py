@@ -58,7 +58,7 @@ def get_exe_properties(path: Path) -> tuple['Mapping[str, str] | None', datetime
 			pass
 	return None, None
 
-def add_metadata_for_raw_exe(path: Path, metadata: 'GameInfo') -> None:
+def add_info_for_raw_exe(path: Path, metadata: 'GameInfo') -> None:
 	props, timedatestamp = get_exe_properties(path)
 	
 	if props:

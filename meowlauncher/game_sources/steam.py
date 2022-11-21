@@ -23,8 +23,8 @@ from meowlauncher.exceptions import (GameNotSupportedException,
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.common.engine_detect import (
     try_and_detect_engine_from_folder, try_detect_engine_from_exe)
-from meowlauncher.games.common.pc_common_metadata import \
-    add_metadata_for_raw_exe
+from meowlauncher.games.common.pc_common_info import \
+    add_info_for_raw_exe
 from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
                                                  SteamLauncher)
 from meowlauncher.games.steam.steam_utils import (format_genre,
@@ -503,7 +503,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 	game.info.specific_info['Executable Name'] = executable_basename
 	launcher_full_path = game.install_dir.joinpath(launcher.exe)
 	if launcher_full_path.is_file():
-		add_metadata_for_raw_exe(str(launcher_full_path), game.info)
+		add_info_for_raw_exe(launcher_full_path, game.info)
 		#look_for_icon_for_file(launcher_full_path) would also be an option
 		engine = try_detect_engine_from_exe(launcher_full_path, game.info)
 		if not engine and launcher.exe.parent != game.install_dir and game.install_dir.is_dir():

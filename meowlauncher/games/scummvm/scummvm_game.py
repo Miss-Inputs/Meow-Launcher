@@ -7,7 +7,7 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
-from meowlauncher.games.common.pc_common_metadata import \
+from meowlauncher.games.common.pc_common_info import \
     look_for_icon_in_folder
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
