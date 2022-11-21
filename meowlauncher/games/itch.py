@@ -240,7 +240,8 @@ class ItchGame(Game):
 
 		if exe_path.is_file():
 			#Might be a folder if Mac, I guess
-			add_info_for_raw_exe(str(exe_path), self.info)
+			#Although we ignore that
+			add_info_for_raw_exe(exe_path, self.info)
 			if 'icon' not in info.images:
 				icon = look_for_icon_for_file(exe_path)
 				if icon:
