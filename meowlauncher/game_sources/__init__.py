@@ -1,4 +1,3 @@
-import sys
 from typing import TYPE_CHECKING
 
 from .dos import DOS
@@ -17,23 +16,7 @@ _mac = Mac()
 _scummvm = ScummVM()
 _steam = Steam()
 _roms = ROMs()
-
-_driver_list_arg = None
-if '--drivers' in sys.argv:
-	arg_index = sys.argv.index('--drivers')
-	if len(sys.argv) == 2:
-		raise ValueError('--drivers requires an argument')
-
-	_driver_list_arg = sys.argv[arg_index + 1].split(',')
-_source_file_arg = None
-if '--source-file' in sys.argv:
-	arg_index = sys.argv.index('--source-file')
-	if len(sys.argv) == 2:
-		raise ValueError('--source-file requires an argument')
-
-	_source_file_arg = sys.argv[arg_index + 1]
-	
-_mame = MAME(_driver_list_arg, _source_file_arg)
+_mame = MAME()
 _mame_inbuilt = MAMEInbuiltGames()
 
 game_sources: 'Collection[GameSource]' = (

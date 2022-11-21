@@ -329,7 +329,17 @@ class MainConfig(Config):
 
 	@configoption('Roms')
 	def platforms(self) -> Sequence[str]:
-		"""Really just here for debugging/testing, forces ROMs to only use certain platforms"""
+		"""Really just here for debugging/testing, forces ROMs game source to only use certain platforms"""
 		return []
+	
+	@configoption('Arcade')
+	def driver_list(self) -> Sequence[str]:
+		"""Really just here for debugging/testing, forces MAME game source to only use certain drivers"""
+		return []
+
+	@configoption('Arcade')
+	def source_file(self) -> str | None:
+		"""Really just here for debugging/testing, forces MAME game source to only use drivers from certain source files"""
+		return None
 
 main_config = MainConfig()

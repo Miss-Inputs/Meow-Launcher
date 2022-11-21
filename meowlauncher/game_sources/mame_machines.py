@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
@@ -34,10 +34,8 @@ def _is_actually_machine(machine: Machine) -> bool:
 
 class MAME(GameSource):
 	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here"""
-	def __init__(self, driver_list: Sequence[str] | None=None, source_file: str | None=None) -> None:
+	def __init__(self) -> None:
 		super().__init__()
-		self.driver_list = driver_list
-		self.source_file = source_file
 		self.emu: ConfiguredMAME | None = None
 		try:
 			mame_config = emulator_configs.get('MAME')
@@ -101,15 +99,15 @@ class MAME(GameSource):
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
 		assert self.emu, 'MAME.iter_launchers should never be called without checking is_available! What the'
-		if self.driver_list:
-			for driver_name in self.driver_list:
+		if main_config.driver_list:
+			for driver_name in main_config.driver_list:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
 				if launcher:
 					yield launcher
 			return 
 
-		if self.source_file:		
-			for machine in iter_machines_from_source_file(self.source_file, self.emu.executable):
+		if main_config.source_file:		
+			for machine in iter_machines_from_source_file(main_config.source_file, self.emu.executable):
 				if not _is_actually_machine(machine):
 					continue
 				if not machine.launchable:
