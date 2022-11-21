@@ -2,15 +2,12 @@ import os
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
-from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.pc_common_info import look_for_icon_for_file
 from meowlauncher.manually_specified_game import ManuallySpecifiedGame
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from collections.abc import Mapping
-
-dos_config = platform_configs.get('DOS')
 
 class DOSApp(ManuallySpecifiedGame):
 	def __init__(self, info: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
@@ -32,7 +29,7 @@ class DOSApp(ManuallySpecifiedGame):
 			if not self.cd_path:
 				raise KeyError('cd_path is mandatory if is_on_cd is true')
 			return self.cd_path.stem
-		return PurePath(self.path).parent.name if dos_config.options['use_directory_as_fallback_name'] else super().fallback_name
+		return PurePath(self.path).parent.name if self.platform_config.options['use_directory_as_fallback_name'] else super().fallback_name
 
 	def additional_info(self) -> None:
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
