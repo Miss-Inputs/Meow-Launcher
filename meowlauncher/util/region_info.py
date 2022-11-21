@@ -90,8 +90,8 @@ languages = [
 	Language('Yiddish', 'ייִדיש', 'Yi'),
 
 	#Dialects of other languages, where there's something that specifies it's that dialect specifically
-	Language('Chinese (Simplified)', '漢語', 'Zh-Hans'),
-	Language('Chinese (Traditional)', '漢語', 'Zh-Hant'),
+	Language('Chinese (Simplified)', '简体中文', 'Zh-Hans'),
+	Language('Chinese (Traditional)', '繁體中文', 'Zh-Hant'),
 	Language('Dutch (Flemish)', 'Vlaams', 'Nl-BE'),
 	Language('English (British)', 'English (British)', 'En-GB'),
 	Language('English (American)', 'English (American)', 'En-US'),
