@@ -96,7 +96,7 @@ class SNESExpansionChip(Enum):
 	DSP_3 = auto()
 	DSP_4 = auto()
 
-class SwitchContentMetaType(Enum):
+class SwitchContentMetaType(IntEnum):
 	Unknown = 0
 	SystemProgram = 1
 	SystemData = 2
@@ -108,7 +108,7 @@ class SwitchContentMetaType(Enum):
 	AddOnContent = 0x82
 	Delta = 0x83
 
-class WiiTitleType(Enum):
+class WiiTitleType(IntEnum):
 	System = 0x00000001
 	Game = 0x00010000 #Seems to be only used for disc games, WiiWare and VC games are still Channel
 	Channel = 0x00010001
@@ -117,7 +117,7 @@ class WiiTitleType(Enum):
 	DLC = 0x00010005
 	HiddenChannel = 0x00010008
 
-class ZXJoystick(Enum):
+class ZXJoystick(IntEnum):
 	Cursor = 0
 	Kempton = 1
 	SinclairLeft = 2 #For .z80 v3 this is user defined
