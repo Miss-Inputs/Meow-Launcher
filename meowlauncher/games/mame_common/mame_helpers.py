@@ -6,37 +6,16 @@ from pathlib import Path
 from .mame_configuration import MAMEConfiguration
 from .mame_executable import MAMEExecutable, MAMENotInstalledException
 
-
-class DefaultMameExecutable():
-	__instance: MAMEExecutable | None = None
-	__missing = False
-
-	@staticmethod
-	def getDefaultMameExecutable() -> MAMEExecutable | None:
-		if DefaultMameExecutable.__instance is None and not DefaultMameExecutable.__missing:
-			try:
-				DefaultMameExecutable.__instance = MAMEExecutable()
-			except MAMENotInstalledException:
-				DefaultMameExecutable.__missing = True
-				return None
-		return DefaultMameExecutable.__instance
-
-class DefaultMameConfiguration():
-	__instance: MAMEConfiguration | None = None
-	__missing = False
-
-	@staticmethod
-	def getDefaultMameConfiguration() -> MAMEConfiguration | None:
-		if DefaultMameConfiguration.__instance is None and not DefaultMameConfiguration.__missing:
-			try:
-				DefaultMameConfiguration.__instance = MAMEConfiguration()
-			except FileNotFoundError:
-				DefaultMameConfiguration.__missing = True
-				return None
-		return DefaultMameConfiguration.__instance	
-
-default_mame_executable = DefaultMameExecutable.getDefaultMameExecutable()
-default_mame_configuration = DefaultMameConfiguration.getDefaultMameConfiguration()
+default_mame_executable: MAMEExecutable | None
+try:
+	default_mame_executable = MAMEExecutable()
+except MAMENotInstalledException:
+	default_mame_executable = None
+default_mame_configuration: MAMEConfiguration | None
+try:
+	default_mame_configuration = MAMEConfiguration()
+except FileNotFoundError:
+	default_mame_configuration = None
 
 def have_mame() -> bool:
 	return bool(default_mame_executable) and bool(default_mame_configuration)
