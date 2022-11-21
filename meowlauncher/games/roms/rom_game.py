@@ -1,4 +1,3 @@
-import os
 import re
 import tempfile
 from functools import cache
@@ -17,6 +16,7 @@ from .rom import ROM, CompressedROM
 
 if TYPE_CHECKING:
 	from collections.abc import Collection
+
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
@@ -110,8 +110,8 @@ class ROMLauncher(EmulatorLauncher):
 				temp_extraction_folder = PurePath(tempfile.gettempdir(), 'meow-launcher-' + self._make_very_safe_temp_filename())
 				extracted_path = temp_extraction_folder.joinpath(self.game.rom.inner_filename)
 				command = command.replace_path_argument(extracted_path)
-				command = command.prepend_command(LaunchCommand('7z', ['x', '-o' + os.fspath(temp_extraction_folder), os.fspath(self.game.rom.path)]))
-				command = command.append_command(LaunchCommand('rm', ['-rf', os.fspath(temp_extraction_folder)]))
+				command = command.prepend_command(LaunchCommand(PurePath('7z'), ['x', '-o' + str(temp_extraction_folder), str(self.game.rom.path)]))
+				command = command.append_command(LaunchCommand(PurePath('rm'), ['-rf', str(temp_extraction_folder)]))
 		else:
 			command = command.replace_path_argument(self.game.rom.path)
 		return command

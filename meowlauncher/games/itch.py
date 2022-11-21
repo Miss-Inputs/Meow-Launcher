@@ -3,20 +3,19 @@ import datetime
 import gzip
 import json
 import logging
-import os
 import subprocess
-from collections.abc import Collection, Mapping, Sequence, Iterator
+from collections.abc import Collection, Iterator, Mapping, Sequence
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
-from functools import lru_cache
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
-from meowlauncher.games.common.pc_common_info import (
-    add_info_for_raw_exe, look_for_icon_for_file)
-from meowlauncher.launch_command import LaunchCommand, launch_with_wine
+from meowlauncher.games.common.pc_common_info import (add_info_for_raw_exe,
+                                                      look_for_icon_for_file)
 from meowlauncher.info import Date
+from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
@@ -45,14 +44,14 @@ def _butler_configure(folder: Path, os_filter: str | None=None, ignore_arch: boo
 		butler = _find_butler()
 		if not butler:
 			return None
-		args = [os.fspath(butler), '-j', 'configure']
+		args: list[Path | str] = [butler, '-j', 'configure']
 		if os_filter:
 			args += ['--os-filter', os_filter]
 			if ignore_arch:
 				args += ['--arch-filter', '']
 		else:
 			args.append('--no-filter')
-		args.append(os.fspath(folder))
+		args.append(folder)
 		butler_proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
 		return json.loads(butler_proc.stdout.splitlines()[-1])
 	except (subprocess.CalledProcessError, FileNotFoundError):

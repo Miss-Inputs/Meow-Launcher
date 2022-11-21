@@ -3,7 +3,7 @@ import os
 import re
 import shlex
 from collections.abc import Collection, Mapping
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher.common_types import ByteAmount, MediaType
@@ -760,7 +760,7 @@ def mame_sg1000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 def mame_sharp_x68000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if isinstance(game.rom, M3UPlaylist):
 		#This won't work if the referenced m3u files have weird compression formats supported by 7z but not by MAME; but maybe that's your own fault
-		floppy_slots = {f'flop{i+1}': os.fspath(individual_floppy.path) for i, individual_floppy in enumerate(game.rom.subroms)}
+		floppy_slots = {f'flop{i+1}': str(individual_floppy.path) for i, individual_floppy in enumerate(game.rom.subroms)}
 		
 		return mame_driver(game, emulator_config, 'x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_driver(game, emulator_config, 'x68000', 'flop1', has_keyboard=True)
@@ -1173,7 +1173,7 @@ def dolphin(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
 			raise NotActuallyLaunchableGameException(f'Cannot boot a {title_type.name}')
 
-	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', os.fspath(cast(FolderROM, game.rom).relevant_files['boot.dol']) if game.rom.is_folder else rom_path_argument])
+	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', str(cast(FolderROM, game.rom).relevant_files['boot.dol']) if game.rom.is_folder else rom_path_argument])
 
 def duckstation(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if emulator_config.options.get('consider_unknown_games_incompatible', False) and 'DuckStation Compatibility' not in game.info.specific_info:
@@ -1363,8 +1363,9 @@ def mupen64plus(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emula
 def pokemini(_, __, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	return MultiLaunchCommands(
 		[
-			LaunchCommand('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
-			LaunchCommand('cd', [os.path.expanduser('~/.config/PokeMini')])
+			#TODO: Can there be some kind of "create this as the working directory if it doesn't exist" option in LaunchCommand instead?
+			LaunchCommand(PurePath('mkdir'), ['-p', os.path.expanduser('~/.config/PokeMini')]), 
+			LaunchCommand(PurePath('cd'), [os.path.expanduser('~/.config/PokeMini')])
 		], 
 		LaunchCommand(emulator_config.exe_path, ['-fullscreen', rom_path_argument]),
 		[]
@@ -1387,7 +1388,7 @@ def ppsspp(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulat
 	if game.info.specific_info.get('PlayStation Category') == 'UMD Video':
 		raise EmulationNotSupportedException('UMD video discs not supported')
 	
-	return LaunchCommand(emulator_config.exe_path, [os.fspath(cast(FolderROM, game.rom).relevant_files['pbp']) if game.rom.is_folder else rom_path_argument])
+	return LaunchCommand(emulator_config.exe_path, [str(cast(FolderROM, game.rom).relevant_files['pbp']) if game.rom.is_folder else rom_path_argument])
 
 def reicast(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.info.specific_info.get('Uses Windows CE?', False):
@@ -1471,7 +1472,7 @@ def prboom_plus(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emula
 	save_dir = cast(Path | None, platform_config.get('save_dir'))
 	if save_dir:
 		args.append('-save')
-		args.append(os.fspath(save_dir))
+		args.append(str(save_dir))
 
 	args.append('-iwad')
 	args.append(rom_path_argument)
@@ -1481,28 +1482,28 @@ def prboom_plus(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emula
 def _macemu_args(app: 'MacApp', autoboot_txt_path: str, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	args = []
 	if not app.is_on_cd:
-		args += ['--disk', os.fspath(app.hfv_path)]
+		args += ['--disk', str(app.hfv_path)]
 	if 'max_resolution' in app.json:
 		width, height = app.json['max_resolution']
 		args += ['--screen', f'dga/{width}/{height}']
 	
 	if app.cd_path:
-		args += ['--cdrom', os.fspath(app.cd_path)]
+		args += ['--cdrom', str(app.cd_path)]
 	for other_cd_path in app.other_cd_paths:
-		args += ['--cdrom', os.fspath(other_cd_path)]
+		args += ['--cdrom', str(other_cd_path)]
 
 	app_path = app.info.specific_info.get('Carbon Path', app.path)
 	pre_commands = [
-		LaunchCommand('sh', ['-c', f'echo {shlex.quote(app_path)} > {shlex.quote(autoboot_txt_path)}']), #Hack because I can't be fucked refactoring MultiCommandLaunchCommand to do pipey bois/redirecty bois
+		LaunchCommand(PurePath('sh'), ['-c', f'echo {shlex.quote(app_path)} > {shlex.quote(autoboot_txt_path)}']), #Hack because I can't be fucked refactoring MultiCommandLaunchCommand to do pipey bois/redirecty bois
 		#TODO: Actually could we just have a WriteAFileLaunchCommand or something
 	]
 	if 'max_bit_depth' in app.json:
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
 		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
 		pre_commands += [
-			LaunchCommand('sh', ['-c', f'echo {app.json["max_bit_depth"]} >> {shlex.quote(autoboot_txt_path)}'])
+			LaunchCommand(PurePath('sh'), ['-c', f'echo {app.json["max_bit_depth"]} >> {shlex.quote(autoboot_txt_path)}'])
 		]
-	return MultiLaunchCommands(pre_commands, LaunchCommand(emulator_config.exe_path, args), [LaunchCommand('rm', [autoboot_txt_path])])
+	return MultiLaunchCommands(pre_commands, LaunchCommand(emulator_config.exe_path, args), [LaunchCommand(PurePath('rm'), [autoboot_txt_path])])
 
 def basilisk_ii(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if app.info.specific_info.get('Architecture') == 'PPC':
@@ -1622,8 +1623,8 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 		args += '-c', f'MOUNT {drive_letter} "{host_folder}"'
 		if overlay_path:
 			overlay_subfolder = overlay_path.joinpath(app.name)
-			ensure_exist_command = LaunchCommand('mkdir', ['-p', os.fspath(overlay_subfolder.resolve())])
-			args += ['-c', f'MOUNT -t overlay {drive_letter} "{os.fspath(overlay_subfolder.resolve())}"']
+			ensure_exist_command = LaunchCommand(PurePath('mkdir'), ['-p', str(overlay_subfolder.resolve())])
+			args += ['-c', f'MOUNT -t overlay {drive_letter} "{str(overlay_subfolder.resolve())}"']
 		args += ['-c', drive_letter + ':']
 		if app.args:
 			args += ['-c', exe_name + ' ' + ' '.join(shlex.quote(arg) for arg in app.args)]
@@ -1668,9 +1669,7 @@ def mame(game: 'MAMEGame', _, emulator_config: 'EmulatorConfig') -> LaunchComman
 
 #Libretro frontends
 def retroarch(_, __, core_config: 'EmulatorConfig', frontend_config: 'EmulatorConfig') -> LaunchCommand:
-	if not core_config.exe_path:
-		raise EmulationNotSupportedException('libretro core path is not explicitly specified and libretro_cores_directory is not set')
-	return LaunchCommand(frontend_config.exe_path, ['-f', '-L', core_config.exe_path, rom_path_argument])
+	return LaunchCommand(frontend_config.exe_path, ['-f', '-L', str(core_config.exe_path), rom_path_argument])
  
 #Libretro cores
 def genesis_plus_gx(game: 'ROMGame', _, __) -> None:
