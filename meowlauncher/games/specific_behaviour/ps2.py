@@ -24,15 +24,15 @@ _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 _other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
 _boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
-def add_info_from_system_cnf(metadata: GameInfo, system_cnf: str) -> None:
+def add_info_from_system_cnf(game_info: GameInfo, system_cnf: str) -> None:
 	for line in system_cnf.splitlines():
 		boot_line_match = _boot_line_regex.match(line)
 		if boot_line_match:
 			filename = boot_line_match[1]
-			metadata.specific_info['Executable Name'] = filename
+			game_info.specific_info['Executable Name'] = filename
 			boot_file_match = _boot_file_regex.match(filename)
 			if boot_file_match:
-				metadata.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
+				game_info.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
 				#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
 		else:
 			other_line_match = _other_systemcnf_line_regex.match(line)
@@ -40,10 +40,10 @@ def add_info_from_system_cnf(metadata: GameInfo, system_cnf: str) -> None:
 				key = other_line_match[1]
 				value = other_line_match[2]
 				if key == 'VER':
-					metadata.specific_info['Version'] = value
+					game_info.specific_info['Version'] = value
 				elif key == 'VMODE':
 					try:
-						metadata.specific_info['TV Type'] = TVSystem[value]
+						game_info.specific_info['TV Type'] = TVSystem[value]
 					except ValueError:
 						pass
 
@@ -88,7 +88,7 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 		except PyCdlibInvalidISO:
 			logger.info('%s is invalid ISO', game.rom, exc_info=True)
 		except struct.error:
-			logger.info('%s is invalid ISO and has some struct.error', game.rom, exc_info=True)
+			logger.info('%s is invalid ISO and has some struct.error', game.rom)
 	#.elf is just a standard ordinary whole entire .elf
 	if game.info.product_code:
 		parse_product_code(game.info, game.info.product_code)
