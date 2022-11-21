@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> EmulatorConfig:
-	#Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out
+	"""TODO: Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out"""
 	if isinstance(emulator, (MednafenModule, ViceEmulator, MAMEDriver)):
 		specific = emulator_configs[emulator.config_name]
 		global_config = emulator_configs[emulator.name]
@@ -46,11 +46,12 @@ def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> Emu
 			exe_path = specific.exe_path #It does not make sense to specify path for VICE globally
 		else:
 			#By default, use global Mednafen/MAME path (if it is set), but if it is set to something specific, use that
-			exe_path = specific.exe_path if (specific.exe_path and specific.exe_path != emulator.default_exe_name) else global_config.exe_path
+			exe_path = specific.exe_path if specific.exe_path != emulator.default_exe_name else global_config.exe_path
 		return EmulatorConfig(exe_path, combined)
 	return emulator_configs[emulator.config_name]
 
 class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
+	"""An emulated game system, as an individual source. Use with ROMs to cycle through all of them"""
 	def __init__(self, platform_config: PlatformConfig, platform: 'StandardEmulatedPlatform') -> None:
 		self.platform: 'StandardEmulatedPlatform' = platform
 		super().__init__(platform_config, platform, emulators, libretro_cores)
@@ -166,8 +167,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					continue
 
 				subfolders = root_path.relative_to(rom_dir).parts
-				if subfolders:
-					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
+				if subfolders and any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
 
 				folder_check = self.platform.folder_check
@@ -180,17 +180,18 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 						folder_rom = FolderROM(folder_path)
 						media_type = folder_check(folder_rom)
-						if media_type:
-							folder_rom.media_type = media_type
-							#rom_list.append((folder_rom, subfolders))
-							launcher = self._process_rom(folder_rom, subfolders)
-							if launcher:
-								yield launcher
-								#file_list.append((folder_path, subfolders))
-							#Avoid descending further, even if we get a NotARomException
-							#This will not work well if we have multiple emulators for these folder-having systems and one supports folders and one doesn't, but eh, worry about that later I think
+						if not media_type:
+							#This was not a folder we want, descend into it normally
+							remaining_subdirs.append(d)
 							continue
-						remaining_subdirs.append(d)
+						folder_rom.media_type = media_type
+						#rom_list.append((folder_rom, subfolders))
+						launcher = self._process_rom(folder_rom, subfolders)
+						if launcher:
+							yield launcher
+							#file_list.append((folder_path, subfolders))
+						#Avoid descending further, even if we get a NotARomException
+						#This will not work well if we have multiple emulators for these folder-having systems and one supports folders and one doesn't, but eh, worry about that later I think
 					dirs[:] = remaining_subdirs
 				dirs.sort()
 
@@ -210,6 +211,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		return not os.path.exists(game_id)
 
 def _iter_platform_sources(excluded_platforms: Collection[str] | None=None) -> Iterator[ROMPlatform]:
+	"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in excluded_platforms"""
 	for platform_name, platform_config in platform_configs.items():
 		platform = platforms.get(platform_name)
 		if not platform:
@@ -223,6 +225,7 @@ def _iter_platform_sources(excluded_platforms: Collection[str] | None=None) -> I
 		yield platform_source
 
 class ROMs(CompoundGameSource):
+	"""Source for emulated games that are "normal" and are mostly just one file for each game (if not a folder or a few files), and are simple conceptually"""
 	def __init__(self, only_platforms: Sequence[str] | None=None, excluded_platforms: Collection[str] | None=None) -> None:
 		if only_platforms:
 			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms))
