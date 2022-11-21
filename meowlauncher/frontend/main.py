@@ -7,7 +7,7 @@ from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
 from .add_games import add_games
 
-def main(progress_function: Callable[..., None]=print) -> None:
+def main(progress_function: Callable[[str], None]=print) -> None:
 	progress_function('Creating output folder')
 
 	if main_config.full_rescan:

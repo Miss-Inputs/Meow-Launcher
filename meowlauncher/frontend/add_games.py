@@ -7,7 +7,7 @@ from meowlauncher.game_sources import game_sources, gog, itch_io
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
 
 
-def add_game_source(source: GameSource, progress_function: Callable[..., None]) -> int:
+def add_game_source(source: GameSource, progress_function: Callable[[str], None]) -> int:
 	time_started = time.perf_counter()
 	count = 0
 	
@@ -27,7 +27,7 @@ def add_game_source(source: GameSource, progress_function: Callable[..., None]) 
 	progress_function('-------')
 	return count
 
-def add_games(progress_function: Callable[..., None]=print) -> None:
+def add_games(progress_function: Callable[[str], None]=print) -> None:
 	total = 0
 	for game_source in game_sources:
 		if not game_source.is_available:
