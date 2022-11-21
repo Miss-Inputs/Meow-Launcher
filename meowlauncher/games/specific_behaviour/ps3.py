@@ -37,7 +37,7 @@ _tdb = _load_tdb()
 
 rpcs3_vfs_config_path = Path('~/.config/rpcs3/vfs.yml').expanduser()
 
-def add_game_folder_metadata(rom: FolderROM, game_info: 'GameInfo') -> None:
+def add_game_folder_info(rom: FolderROM, game_info: 'GameInfo') -> None:
 	param_sfo_path = rom.relevant_files['PARAM.SFO']
 	usrdir = rom.relevant_files['USRDIR']
 
@@ -101,6 +101,7 @@ class RPCS3Compatibility(Enum):
 	#There is no perfect? Not yet comfy saying anything is I guess
 
 def get_rpcs3_compat(product_code: str) -> RPCS3Compatibility | None:
+	"""Looks up this serial in RPCS3's compatibility database, if it is there in the config folder (needs to be downloaded from within RPCS3)"""
 	compat_db_path = Path('~/.config/rpcs3/GuiConfigs/compat_database.dat').expanduser()
 	if hasattr(get_rpcs3_compat, 'db'):
 		db = get_rpcs3_compat.db #type: ignore[attr-defined]
@@ -121,8 +122,8 @@ def get_rpcs3_compat(product_code: str) -> RPCS3Compatibility | None:
 		pass
 	return None
 	
-def add_cover(metadata: 'GameInfo', product_code: str) -> None:
-	#Intended for the covers database from GameTDB
+def add_cover(game_info: 'GameInfo', product_code: str) -> None:
+	"""Intended for the covers database from GameTDB"""
 	try:
 		covers_path = platform_configs['PS3'].options['covers_path']
 	except KeyError:
@@ -133,12 +134,12 @@ def add_cover(metadata: 'GameInfo', product_code: str) -> None:
 	for ext in ('png', 'jpg'):
 		potential_cover_path = cover_path.with_suffix(os.extsep + ext)
 		if potential_cover_path.is_file():
-			metadata.images['Cover'] = potential_cover_path
+			game_info.images['Cover'] = potential_cover_path
 			break
 
 def add_ps3_custom_info(game: 'ROMGame') -> None:
 	if game.rom.is_folder:
-		add_game_folder_metadata(cast(FolderROM, game.rom), game.info)
+		add_game_folder_info(cast(FolderROM, game.rom), game.info)
 
 	if game.info.product_code:
 		parse_product_code(game.info, game.info.product_code)

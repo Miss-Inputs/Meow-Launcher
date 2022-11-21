@@ -34,6 +34,7 @@ _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 _wii_config = platform_configs.get('Wii')
 
 class WiiVirtualConsolePlatform(Enum):
+	"""Indicates what platform a Virtual Console title originally emulates"""
 	Commodore64 = 'C'
 	Arcade = 'E' #Includes Neo Geo
 	NES = 'F' #F for Famicom presumably
@@ -49,6 +50,7 @@ def _round_up_to_multiple(num: int, factor: int) -> int:
 	return num + (factor - (num % factor)) % factor
 
 class WiiRatings(NintendoAgeRatings):
+	"""Parses age rating bitfield inside disc """
 	@staticmethod
 	def _get_rating_status(byte: int) -> AgeRatingStatus:
 		#Maybe? (See MadWorld (Europe) Germany rating)		
@@ -107,7 +109,7 @@ def _parse_tmd(metadata: 'GameInfo', tmd: bytes) -> None:
 	metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
 def _parse_opening_bnr(metadata: 'GameInfo', opening_bnr: bytes) -> None:
-	#We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort
+	"""We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort"""
 	imet = opening_bnr[64:]
 	#I don't know why this is 64 bytes in, aaaa
 

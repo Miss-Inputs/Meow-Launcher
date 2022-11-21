@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 _licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 class SaturnPeripheral(Enum):
+	"""Various types of controllers/input devices connected to a Saturn"""
 	StandardController = auto()
 	AnalogController = auto() #Or "3D Control Pad" if you prefer
 	LightGun = auto()
