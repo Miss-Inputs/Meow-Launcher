@@ -6,7 +6,7 @@ import tempfile
 from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
 from enum import Enum, Flag
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
@@ -227,9 +227,6 @@ def _call_nstool_for_decrypt(temp_folder: Path, temp_filename: Path) -> None:
 		raise InvalidNCAException('Header wrong')
 	
 def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
-	if hasattr(_decrypt_control_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException(f'No can do {_decrypt_control_nca_with_hactool.failed}') #type: ignore[attr-defined]
-
 	with tempfile.TemporaryDirectory() as temp_folder:
 		temp_folder_path = Path(temp_folder)
 		#If we could get it to read /dev/stdin that'd be great, but it seems to not terribly want to do that, so we'll have to write that to a file too… grrr
@@ -247,7 +244,6 @@ def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]
 				try:
 					_call_nstool_for_decrypt(temp_folder_path, temp_path)
 				except (subprocess.CalledProcessError, FileNotFoundError):
-					_decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 					raise ExternalToolNotHappeningException('No can do') from cactus
 
 			files = {}
@@ -259,8 +255,6 @@ def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]
 
 def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 	"""Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)"""
-	if hasattr(_decrypt_cnmt_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException(f'No can do {_decrypt_cnmt_nca_with_hactool.failed}') #type: ignore[attr-defined]
 	with tempfile.TemporaryDirectory() as temp_folder:
 		temp_folder_path = Path(temp_folder)
 		#If we could get it to read /dev/stdin that'd be great, but it seems to not terribly want to do that, so we'll have to write that to a file too… grrr
@@ -270,31 +264,31 @@ def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 
 			try:
 				#Since we're going through hactool anyway, might as well get it to find our actual cnmt for us so we don't have to parse the nca
+				#hactool = subprocess.run(['hactool', '-t', 'nca', '-x', temp_path, '--disablekeywarns', '--section0dir', temp_folder_path], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
 				hactool = subprocess.run(['hactool', '-t', 'nca', '-x', temp_path, '--disablekeywarns', '--section0dir', temp_folder_path], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
-				#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
-				stderr = hactool.stderr.strip()
-				if stderr == b'Invalid NCA header! Are keys correct?':
+				#If we could get the paths it outputs that'd be great, but we can't really use any of that stuff it prints to stdout I don't think
+				stderr = hactool.stderr.strip().decode('utf-8', 'backslashreplace')
+				if stderr == 'Invalid NCA header! Are keys correct?':
 					raise InvalidNCAException('Header wrong')
 			except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 				try:
 					#Plan B
 					_call_nstool_for_decrypt(temp_folder_path, temp_path)
 				except (subprocess.CalledProcessError, FileNotFoundError):
-					_decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
-					raise ExternalToolNotHappeningException('No can do') from cactus
+					raise ExternalToolNotHappeningException(f'No can do: {stderr}') from cactus
 
 			for f in temp_folder_path.iterdir():
 				if f.suffix == '.cnmt' and f.is_file():
 					return f.read_bytes()
-			raise ExternalToolNotHappeningException('Uh oh, something got boned and the decrypted file was never written to the temp folder')
+			raise ExternalToolNotHappeningException(f'Uh oh, something got boned and the decrypted file was never written to the temp folder: {stderr}')
 
-def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'GameInfo', files: Mapping[str, tuple[int, int]], extra_offset: int=0) -> None:
-	metadata.specific_info['Title ID'] = cnmt.title_id
-	metadata.specific_info['Revision'] = cnmt.version
-	metadata.specific_info['Title Type'] = cnmt.type
+def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', game_info: 'GameInfo', files: Mapping[PurePath, tuple[int, int]], extra_offset: int=0) -> None:
+	game_info.specific_info['Title ID'] = cnmt.title_id
+	game_info.specific_info['Revision'] = cnmt.version
+	game_info.specific_info['Title Type'] = cnmt.type
 	for k, v in cnmt.contents.items():
 		if v[1] == ContentType.Control:
-			control_nca_filename = bytes.hex(k) + '.nca'
+			control_nca_filename = PurePath(bytes.hex(k) + '.nca')
 			control_nca_offset, control_nca_size = files[control_nca_filename]
 			control_nca = rom.read(seek_to=control_nca_offset + extra_offset, amount=control_nca_size)
 			try:
@@ -303,14 +297,14 @@ def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'GameInfo', files: Mapping[
 				#The icons match up with the titles that exist in the titles section, not SupportedLanguageFlag
 				icons = {}
 				nacp: bytes | None = None
-				for control_nca_filename, control_nca_file in control_nca_files.items():
-					if not nacp and control_nca_filename == 'control.nacp':
+				for filename, control_nca_file in control_nca_files.items():
+					if not nacp and filename == 'control.nacp':
 						#We would expect only one
 						nacp = control_nca_file
-					elif have_pillow and control_nca_filename.startswith('icon_') and control_nca_filename.endswith('.dat'):
-						icons[control_nca_filename.removeprefix('icon_').removesuffix('.dat')] = control_nca_file
+					elif have_pillow and filename.startswith('icon_') and PurePath(filename).suffix == '.dat':
+						icons[PurePath(filename).stem.removeprefix('icon_')] = control_nca_file
 				if nacp:
-					_add_nacp_metadata(metadata, nacp, icons)
+					_add_nacp_metadata(game_info, nacp, icons)
 				else:
 					logger.debug('Hmm no control.nacp in %s', rom.path)
 			except InvalidNCAException:
@@ -345,13 +339,13 @@ def _list_cnmt_nca(data: bytes) -> Cnmt:
 		contents[content_id] = (content_size, content_type)
 	return Cnmt(title_id, version, content_meta_type, contents)
 
-def _list_psf0(rom: 'FileROM') -> Mapping[str, tuple[int, int]]:
+def _list_psf0(rom: 'FileROM') -> Mapping[PurePath, tuple[int, int]]:
 	header = rom.read(amount=16)
 	magic = header[:4]
 	if magic != b'PFS0':
 		raise InvalidPFS0Exception(repr(magic))
 	number_of_files = int.from_bytes(header[4:8], 'little')
-	size_of_string_table = int.from_bytes(header[8:12], 'little')
+	size_of_string_table = ByteAmount.from_bytes(header[8:12], 'little')
 
 	file_entry_table_size = 24 * number_of_files
 	file_entry_table = rom.read(seek_to=16, amount=file_entry_table_size)
@@ -373,7 +367,7 @@ def _list_psf0(rom: 'FileROM') -> Mapping[str, tuple[int, int]]:
 			name = name[:name.index(b'\0')]
 		offset = int.from_bytes(entry[0:8], 'little')
 		size = int.from_bytes(entry[8:16], 'little')
-		files[name.decode('utf-8', errors='backslashreplace')] = (offset + data_offset, size)
+		files[PurePath(name.decode('utf-8', errors='backslashreplace'))] = (offset + data_offset, size)
 	return files
 
 def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Cnmt | None:
@@ -390,14 +384,14 @@ def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Cnmt | None:
 	#Uh oh that didn't help, oh no what do we do I guess let's just take the first one
 	return next(cnmt for cnmt in cnmts)
 
-def add_nsp_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
+def add_nsp_metadata(rom: 'FileROM', game_info: 'GameInfo') -> None:
 	files = _list_psf0(rom)
 	cnmts = set()
 	cnmt_xml = None
 	try_fallback_to_xml = False
 
 	for filename, offsetsize in files.items():
-		if filename.endswith('.cnmt.nca'):
+		if filename.suffixes == ['.cnmt', '.nca']:
 			cnmt_nca = rom.read(amount=offsetsize[1], seek_to=offsetsize[0])
 			try:
 				cnmts.add(_list_cnmt_nca(cnmt_nca))
@@ -407,8 +401,8 @@ def add_nsp_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 			except ExternalToolNotHappeningException:
 				try_fallback_to_xml = True
 				break
-		if filename.endswith('.cnmt.xml'):
-			#I think the dumping tool for NSPs is actually what puts these here, but if we need a fallback, this will do
+		if filename.suffixes == ['.cnmt', '.xml']:
+			#I think the dumping tool for NSPs is actually what puts these here rather than this being an actual official thing on NSPs, but if we need a fallback, this will do
 			cnmt_xml_data = rom.read(amount=offsetsize[1], seek_to=offsetsize[0])
 			try:
 				cnmt_xml = ElementTree.fromstring(cnmt_xml_data.decode('utf-8'))
@@ -417,15 +411,15 @@ def add_nsp_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 
 	if try_fallback_to_xml and cnmt_xml is not None:
 		#We could look at the list of contents in there, but there's not much point seeing as how we'd need to decrypt the content NCA anyway
-		_add_cnmt_xml_metadata(cnmt_xml, metadata)
+		_add_cnmt_xml_metadata(cnmt_xml, game_info)
 
 	main_cnmt = _choose_main_cnmt(cnmts)
 	if main_cnmt:
-		_list_cnmt(main_cnmt, rom, metadata, files)
+		_list_cnmt(main_cnmt, rom, game_info, files)
 	else:
 		logger.debug('Uh oh no cnmt.nca in %s?', rom.path)
 	
-def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount | None=None) -> 'Mapping[str, tuple[int, ByteAmount]]':
+def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount | None=None) -> 'Mapping[PurePath, tuple[int, ByteAmount]]':
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
@@ -473,7 +467,7 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount | None=None) ->
 		real_file_offset += hashed_region_size
 
 		try:
-			files[name.decode('utf-8')] = (real_file_offset, size)
+			files[PurePath(name.decode('utf-8'))] = (real_file_offset, size)
 		except UnicodeDecodeError:
 			logger.info('%s has invalid filename in string table: %s', rom, name, exc_info=True)
 
@@ -497,31 +491,33 @@ def add_xci_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 		raise InvalidXCIException('HFS0 hash in XCI header did not match')
 
 	root_partition = _read_hfs0(rom, root_partition_offset)
-	if 'secure' in root_partition:
+	secure = root_partition.get(PurePath('secure'))
+	if secure:
 		#This one is always here and not sometimes empty like normal is, and also the cnmt is encrypted anyway, so whaddya do
-		secure_offset, secure_size = root_partition['secure']
-		#I've been nae naed
+		secure_offset, secure_size = secure
 		real_secure_offset = int.from_bytes(header[0x104:0x108], 'little') * 0x200
 		secure_offset_diff = secure_offset - real_secure_offset
 		secure_files = _read_hfs0(rom, real_secure_offset, secure_size)
 
 		cnmts = []
+		found_something = False
 		for k, v in secure_files.items():
-			if k.endswith('.cnmt.nca'):
-				cnmt = rom.read(v[0] + secure_offset_diff, v[1]) #I've been double nae naed
+			if k.suffixes == ['.cnmt', '.nca']:
+				found_something = True
+				cnmt = rom.read(v[0] + secure_offset_diff, v[1])
 				try:
 					cnmts.append(_list_cnmt_nca(cnmt))
 				except InvalidNCAException:
-					logger.debug('%s is an invalid NCA', k, exc_info=True)
+					logger.debug('%s is an invalid NCA in %s', k, rom.path, exc_info=True)
 					continue
 				except ExternalToolNotHappeningException:
-					logger.debug('baaa trying to use external tool for inspecting XCI failed', exc_info=True)
-					return
+					logger.debug('baaa trying to use external tool for inspecting NCA %s in XCI %s failed', k, rom.path, exc_info=True)
+					continue
 
 		main_cnmt = _choose_main_cnmt(cnmts)
 		if main_cnmt:
 			_list_cnmt(main_cnmt, rom, metadata, secure_files, secure_offset_diff)
-		else:
+		elif not found_something:
 			logger.debug('Uh oh no cnmt.nca?')
 
 def add_nro_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
