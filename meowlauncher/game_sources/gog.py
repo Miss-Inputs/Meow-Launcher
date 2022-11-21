@@ -96,6 +96,8 @@ def do_windows_gog_games() -> None:
 def do_gog_games() -> None:
 	time_started = time.perf_counter()
 
+	do_linux_gog_games()
+
 	#TODO: Should have is_wine_available helper function or whatever
 	if main_config.wine_path.is_file():
 		do_windows_gog_games()
