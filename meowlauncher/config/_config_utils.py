@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
@@ -54,12 +53,3 @@ def parse_config_section_value(section: 'configparser.SectionProxy', name: str, 
 		return value_type(section[name])
 	except KeyError:
 		return default_value
-
-@dataclass(frozen=True)
-class ConfigValue():
-	section: str
-	type: type
-	default_value: Any
-	readable_name: str
-	description: str
-	
