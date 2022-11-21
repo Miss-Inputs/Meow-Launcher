@@ -30,22 +30,24 @@ class GameSource(ABC):
 	@property
 	@abstractmethod
 	def is_available(self) -> bool:
-		pass
-
+		"""Return true if this is ready for calling iter_launchers"""
+		
 	@abstractmethod
 	def no_longer_exists(self, game_id: str) -> bool:
-		pass
+		"""Called when full_rescan is false, after checking the game type to see which class to go to. Checks if the game specified by game_id still exists (in the sense that it would be created if full_rescan was true), and deletes if not"""
 
 	#TODO: Should have has_been_done somewhere in here? Maybe
+	#TODO: I think this should have game_type instead of Launcher…
 
 	@abstractmethod
 	def iter_launchers(self) -> 'Iterator[Launcher]':
-		pass
+		"""Create all the launchers and iterate over them"""
 
 	def __hash__(self) -> int:
 		return self.name.__hash__()
 
 class CompoundGameSource(GameSource, ABC):
+	"""Chains GameSources together, so that iter_launchers returns each one that's available"""
 	def __init__(self, sources: 'Sequence[GameSource]') -> None:
 		self.sources = sources
 
