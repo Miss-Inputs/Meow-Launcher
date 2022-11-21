@@ -34,10 +34,11 @@ def _load_ignored_directories() -> Collection[PurePath]:
 ignored_directories = _load_ignored_directories()
 
 T = TypeVar('T')
+S = TypeVar('S', bound='Config')
 class ConfigProperty(Generic[T]):
 	"""Similar to property() with some more attributes, used with @configoption
 	Damn here I was thinking "haha I'll never need to know how descriptors work" okay maybe I didn't need to do this"""
-	def __init__(self, func: 'Callable[[Any], T]', section: str, readable_name: str | None) -> None:
+	def __init__(self, func: 'Callable[[S], T]', section: str, readable_name: str | None) -> None:
 		self.func = func
 		self.section = section
 		self.readable_name = readable_name or sentence_case(func.__name__.replace('_', ' '))
@@ -48,10 +49,9 @@ class ConfigProperty(Generic[T]):
 			#Remove optional from the return type, as that's not what we use .type for, but I don't think we're allowed to simply import _UnionGenericAlias, so it gets confused with trying to handle __args__ directly, and also we do want to make sure we don't strip out the args from 
 			#We'll just assume all unions and such are like this, don't be weird and type a config as str | int or something
 			self.type = type_args[0]
-	def __get__(self, __obj: Any, _: Any) -> T:
+	def __get__(self, __obj: S, _: Any) -> T:
 		return self.func(__obj)
 
-S = TypeVar('S', bound='Config')
 def configoption(section: str, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]':
 	"""Decorator: Marks this method as being a config option, which replaces it with a ConfigProperty instance; must be inside a Config
 	Description is taken from docstring, readable_name is the function name in sentence case if not provided, default value is the original function return value"""
