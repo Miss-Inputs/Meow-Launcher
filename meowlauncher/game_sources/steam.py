@@ -157,6 +157,7 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 		game.launchers[platform] = platform_launcher
 				
 def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[bytes, Any]) -> None:
+	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
 	#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
 	#Damn I really thought clienttga was a thing too
@@ -241,6 +242,7 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	#"genre" doesn't look like a word anymore
 
 def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
+	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	if 'Icon' not in game.info.images:
 		add_icon_from_common_section(game, common)
 
@@ -525,9 +527,11 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 				game.info.platform = 'Mac'
 
 def add_images(game: 'SteamGame') -> None:
-	#Do I wanna call header a banner
-	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
-	#What the hell is a "hero" oh well it's there
+	"""Adds images for @game from the library cache
+	Do I wanna call header a banner? I dunno I guess I'm not for now
+	The grid image is not always a cover/box art, but it'll make enough sense to call it that, as opposed to having lots of different keys in images
+	#What the hell is a "hero"? oh well it's there, might as well chuck it in"""
+	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	for image_filename, name in (('icon', 'Icon'), ('header', 'Header'), ('library_600x900', 'Cover'), ('library_hero', 'Hero'), ('logo', 'Logo')):
 		if name in game.info.images:
 			continue
@@ -536,14 +540,14 @@ def add_images(game: 'SteamGame') -> None:
 			game.info.images[name] = image_path
 
 def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user: bool) -> None:
-	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
+	"""This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
+	Cool stuff in here:
+	friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
+	associations > Duplicated from appinfo so we don't need that
+	workshop -> If you downloaded any workshop stuff
+	badge -> If you're into the badge collecting that stuff is in here
+	usernews and gameactivity sound cool, but they're blank? Hmm"""
 	j = json.loads(json_path.read_bytes())
-	#Cool stuff in here:
-	#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
-	#associations > Duplicated from appinfo so we don't need that
-	#workshop -> If you downloaded any workshop stuff
-	#badge -> If you're into the badge collecting that stuff is in here
-	#usernews and gameactivity sound cool, but they're blank? Hmm
 	achievements = None
 	achievement_map = None #What's this about…
 	descriptions = None
@@ -607,6 +611,7 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			game.info.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
 
 def add_info_from_user_cache(game: 'SteamGame') -> None:
+	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	user_list = steam_installation.user_ids
 	if not user_list:
 		#Also, that should never happen (maybe if you just installed Steam and haven't logged in yet, but then what would you get out of this anyway?)
@@ -702,6 +707,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	return SteamLauncher(game)
 
 def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]]]:
+	assert steam_installation, "Whomstdv've call iter_steam_installed_appids without checking Steam.is_available first?"
 	for library_folder in steam_installation.iter_steam_library_folders():
 		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
@@ -769,6 +775,7 @@ class Steam(GameSource):
 		return no_longer_exists(game_id)
 	
 	def iter_launchers(self) -> Iterator['Launcher']:
+		assert steam_installation
 		compat_tool_appids = {compat_tool[0] for compat_tool in steam_installation.steamplay_compat_tools.values()}
 		for folder, app_id, app_state in iter_steam_installed_appids():
 			if not main_config.full_rescan:
