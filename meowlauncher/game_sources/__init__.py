@@ -16,22 +16,7 @@ _dos = DOS()
 _mac = Mac()
 _scummvm = ScummVM()
 _steam = Steam()
-
-_excluded_platforms = None
-for arg in sys.argv:
-	#TODO: Not comfy with sys.argv handling being here either but it's better than being in roms innit
-	#Spose it could go in main_config
-	if arg.startswith('--excluded-platforms='):
-		_excluded_platforms = arg.split('=', 1)[1].split(', ')
-platform_list = None
-if len(sys.argv) >= 2 and '--platforms' in sys.argv:
-	arg_index = sys.argv.index('--platforms')
-	if len(sys.argv) == 2:
-		raise ValueError('--platforms requires an argument')
-
-	platform_list = sys.argv[arg_index + 1].split(', ')
-
-_roms = ROMs(platform_list, _excluded_platforms)
+_roms = ROMs()
 
 _driver_list_arg = None
 if '--drivers' in sys.argv:

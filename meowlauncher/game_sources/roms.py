@@ -210,14 +210,14 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
 
-def _iter_platform_sources(excluded_platforms: Collection[str] | None=None) -> Iterator[ROMPlatform]:
-	"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in excluded_platforms"""
+def _iter_platform_sources() -> Iterator[ROMPlatform]:
+	"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
 	for platform_name, platform_config in platform_configs.items():
 		platform = platforms.get(platform_name)
 		if not platform:
 			#As DOS, Mac, etc would be in platform_configs too
 			continue
-		if excluded_platforms and platform_name in excluded_platforms:
+		if platform_name in main_config.excluded_platforms:
 			continue
 		platform_source = ROMPlatform(platform_config, platform)
 		if not platform_source.is_available:
@@ -226,11 +226,11 @@ def _iter_platform_sources(excluded_platforms: Collection[str] | None=None) -> I
 
 class ROMs(CompoundGameSource):
 	"""Source for emulated games that are "normal" and are mostly just one file for each game (if not a folder or a few files), and are simple conceptually"""
-	def __init__(self, only_platforms: Sequence[str] | None=None, excluded_platforms: Collection[str] | None=None) -> None:
-		if only_platforms:
-			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms))
+	def __init__(self) -> None:
+		if main_config.platforms:
+			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in main_config.platforms))
 		else:
-			super().__init__(tuple(_iter_platform_sources(excluded_platforms)))
+			super().__init__(tuple(_iter_platform_sources()))
 
 	@property
 	def name(self) -> str:

@@ -322,4 +322,14 @@ class MainConfig(Config):
 		'Set platform in game info to itch.io instead of underlying platform'
 		return False
 
+	@configoption('Roms')
+	def excluded_platforms(self) -> Sequence[str]:
+		"""Really just here for debugging/testing, excludes platforms from the ROMs game source"""
+		return []
+
+	@configoption('Roms')
+	def platforms(self) -> Sequence[str]:
+		"""Really just here for debugging/testing, forces ROMs to only use certain platforms"""
+		return []
+
 main_config = MainConfig()
