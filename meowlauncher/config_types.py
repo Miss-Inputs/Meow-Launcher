@@ -7,6 +7,7 @@ from typing import Any
 TypeOfConfigValue = bool | str | Path | int | str | Sequence[str] | Sequence[Path] | None
 
 class PlatformConfig():
+	"""Configuration for a ROM platform. This class will probably be dismantled/thrown out the window/whatever other words you like to say"""
 	def __init__(self, name: str, paths: Collection[Path], chosen_emulators: Sequence[str], options: Mapping[str, TypeOfConfigValue]) -> None:
 		self.name = name
 		self.paths = paths
@@ -18,6 +19,7 @@ class PlatformConfig():
 		return bool(self.paths) and bool(self.chosen_emulators)
 
 class RunnerConfig():
+	"""Configuration for a Runner. Probs going to rework this one too"""
 	def __init__(self, exe_path: Path, options: Mapping[str, TypeOfConfigValue]|None=None):
 		self.exe_path = exe_path
 		self.options = options if options else {}

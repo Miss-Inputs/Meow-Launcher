@@ -36,4 +36,4 @@ class Launcher(ABC):
 	def __hash__(self) -> int:
 		return hash((self.game_type, self.game_id))
 		
-__doc__ = Launcher.__doc__
+__doc__ = Launcher.__doc__ or ""
