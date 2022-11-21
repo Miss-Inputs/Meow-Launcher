@@ -31,20 +31,18 @@ def _get_config(parser: 'configparser.RawConfigParser', config_name: str, defaul
 	return EmulatorConfig(exe_path, options)
 
 class EmulatorConfigs():
-	class __EmulatorConfigs():
-		def __init__(self) -> None:
-			parser = NoNonsenseConfigParser(allow_no_value=True)
-			ensure_exist(_emulator_config_path)
-			parser.read(_emulator_config_path)
+	def __init__(self) -> None:
+		parser = NoNonsenseConfigParser(allow_no_value=True)
+		ensure_exist(_emulator_config_path)
+		parser.read(_emulator_config_path)
 
-			self.configs = {emulator.config_name: _get_config(parser, emulator.config_name, emulator.default_exe_name, emulator.configs) for emulator in all_emulators}
+		self.configs = {emulator.config_name: _get_config(parser, emulator.config_name, emulator.default_exe_name, emulator.configs) for emulator in all_emulators}
 				
 	__instance = None
 
-	@staticmethod
-	def getConfigs() -> __EmulatorConfigs:
-		if EmulatorConfigs.__instance is None:
-			EmulatorConfigs.__instance = EmulatorConfigs.__EmulatorConfigs()
-		return EmulatorConfigs.__instance
+	def __new__(cls) -> 'EmulatorConfigs':
+		if not cls.__instance:
+			cls.__instance = object.__new__(cls)
+		return cls.__instance
 
-emulator_configs = EmulatorConfigs.getConfigs().configs
+emulator_configs = EmulatorConfigs().configs

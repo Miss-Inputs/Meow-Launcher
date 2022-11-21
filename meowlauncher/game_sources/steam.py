@@ -49,42 +49,43 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 class SteamState():
-	class __SteamState():
-		#If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
-		def __init__(self) -> None:
-			self.steam_installation = None
-			#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
-			possible_locations = ('~/.local/share/Steam', '~/.local/share/steam', '~/.steam/steam')
-			steam_path = None
-			for str_location in possible_locations:
-				location = Path(str_location).expanduser()
+	"""Singleton for storing where Steam is installed and if it's installed or not
+	If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
+	Hmmm… does this acutally need to be its own class?
+	"""
+	def __init__(self) -> None:
+		self.steam_installation = None
+		#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
+		possible_locations = ('~/.local/share/Steam', '~/.local/share/steam', '~/.steam/steam')
+		steam_path = None
+		for str_location in possible_locations:
+			location = Path(str_location).expanduser()
 
-				if location.is_symlink():
-					location = location.readlink()
+			if location.is_symlink():
+				location = location.readlink()
 
-				if location.is_dir():
-					steam_path = location
-					break
-			
-			if steam_path:
-				self.steam_installation = SteamInstallation(Path(steam_path))
+			if location.is_dir():
+				steam_path = location
+				break
+		
+		if steam_path:
+			self.steam_installation = SteamInstallation(Path(steam_path))
 
-		@property
-		def is_steam_installed(self) -> bool:
-			return self.steam_installation is not None
+	@property
+	def is_steam_installed(self) -> bool:
+		return self.steam_installation is not None
 
 	__instance = None
 
-	@staticmethod
-	def getSteamState() -> __SteamState:
-		if SteamState.__instance is None:
-			SteamState.__instance = SteamState.__SteamState()
-		return SteamState.__instance
+	def __new__(cls) -> 'SteamState':
+		if cls.__instance is None:
+			cls.__instance = object.__new__(cls)
+		return cls.__instance
 
 if not have_steamfiles:
 	is_steam_available = False
 else:
-	steam_state = SteamState.getSteamState()
+	steam_state = SteamState()
 	is_steam_available = steam_state.is_steam_installed
 	steam_installation = steam_state.steam_installation
 	

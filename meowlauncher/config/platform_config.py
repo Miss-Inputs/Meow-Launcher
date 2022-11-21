@@ -28,20 +28,19 @@ def _get_config(section: 'configparser.SectionProxy', platform_name: str) -> Pla
 	return PlatformConfig(platform_name, paths, chosen_emulators, options)
 
 class PlatformConfigs():
-	class __PlatformConfigs():
-		def __init__(self) -> None:
-			parser = NoNonsenseConfigParser(allow_no_value=True)
-			ensure_exist(_platform_config_path)
-			parser.read(_platform_config_path)
+	"""Holds all the config for all the ROM platforms. This class will definitely be replaced with something better"""
+	def __init__(self) -> None:
+		parser = NoNonsenseConfigParser(allow_no_value=True)
+		ensure_exist(_platform_config_path)
+		parser.read(_platform_config_path)
 
-			self.configs = {platform_name: _get_config(section, platform_name) for platform_name, section in parser.items()}
-						
+		self.configs = {platform_name: _get_config(section, platform_name) for platform_name, section in parser.items()}
+					
 	__instance = None
 
-	@staticmethod
-	def getConfigs() -> __PlatformConfigs:
-		if PlatformConfigs.__instance is None:
-			PlatformConfigs.__instance = PlatformConfigs.__PlatformConfigs()
-		return PlatformConfigs.__instance
+	def __new__(cls) -> 'PlatformConfigs':
+		if not cls.__instance:
+			cls.__instance = object.__new__(cls)
+		return cls.__instance
 
-platform_configs = PlatformConfigs.getConfigs().configs
+platform_configs = PlatformConfigs().configs
