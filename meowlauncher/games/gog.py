@@ -1,4 +1,5 @@
 import copy
+import itertools
 import json
 import logging
 import os
@@ -35,7 +36,7 @@ class GOGGameInfo():
 		self.gameid = None
 		#GameID is duplicated, and then there's some other ID?
 		with path.open('rt', encoding='utf-8') as f:
-			lines = f.readlines(5)
+			lines = [line.rstrip() for line in itertools.islice(f, 5)]
 			try:
 				self.name = lines[0]
 				self.version = lines[1]
@@ -133,6 +134,7 @@ class GOGTask():
 		return self.path.name.lower() == 'residualvm.exe' and self.working_directory.stem.lower() == 'residualvm' and self.task_type == 'FileTask'
 
 class GOGGame(Game, ABC):
+	"""GOG game natively on Linux, see subclasses NormalGOGGame, DOSBoxGOGGame, ScummVMGOGGame"""
 	def __init__(self, game_folder: Path, info: GOGGameInfo, start_script: Path, support_folder: Path):
 		super().__init__()
 		self.folder = game_folder
@@ -168,7 +170,8 @@ class GOGGame(Game, ABC):
 
 	@property
 	def is_demo(self) -> bool:
-		#The API doesn't even say this for a given product ID, we'll just have to figure it out ourselves
+		"""Attempts to guess if this is a demo version and not the full game
+		The API doesn't even say this for a given product ID, we'll just have to figure it out ourselves"""
 		if self.info_file.version and 'demo' in self.info_file.version.lower():
 			return True
 		if self.info_file.dev_version and 'demo' in self.info_file.dev_version.lower():
