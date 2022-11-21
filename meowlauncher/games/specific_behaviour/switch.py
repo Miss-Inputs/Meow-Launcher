@@ -234,7 +234,7 @@ def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]
 		temp_folder_path = Path(temp_folder)
 		#If we could get it to read /dev/stdin that'd be great, but it seems to not terribly want to do that, so we'll have to write that to a file too… grrr
 		with tempfile.NamedTemporaryFile(dir=temp_folder_path) as temp_file:
-			temp_path = Path(temp_file)
+			temp_path = Path(temp_file.name)
 			temp_path.write_bytes(control_nca)
 
 			try:
@@ -265,7 +265,7 @@ def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 		temp_folder_path = Path(temp_folder)
 		#If we could get it to read /dev/stdin that'd be great, but it seems to not terribly want to do that, so we'll have to write that to a file too… grrr
 		with tempfile.NamedTemporaryFile(dir=temp_folder_path) as temp_file:
-			temp_path = Path(temp_file)
+			temp_path = Path(temp_file.name)
 			temp_path.write_bytes(cnmt_nca)
 
 			try:
