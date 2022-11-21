@@ -67,7 +67,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
 	_make_linux_desktop(launcher.command, name, launcher.game.info, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'GameInfo', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
+def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 'GameInfo', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
 	path = ensure_unique_path(Path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True)).with_suffix('.desktop'))
 
 	configwriter = NoNonsenseConfigParser()
@@ -82,9 +82,9 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 	desktop_entry['Name'] = clean_string(display_name)
 	desktop_entry['Exec'] = command.make_linux_command_string()
 	if command.working_directory:
-		desktop_entry['Path'] = command.working_directory
+		desktop_entry['Path'] = command.working_directory.as_posix()
 
-	fields = metadata.to_launcher_fields()
+	fields = game_info.to_launcher_fields()
 
 	if filename_tags:
 		fields[junk_section_name]['Filename Tags'] = filename_tags
