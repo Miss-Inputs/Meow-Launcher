@@ -7,7 +7,7 @@ import os
 import subprocess
 from collections.abc import Collection, Mapping, Sequence, Iterator
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from functools import lru_cache
 
 from meowlauncher.config.main_config import main_config
@@ -30,7 +30,8 @@ TODO: Rework this to be able to optionally just read json, launch all executable
 
 @lru_cache(maxsize=1)
 def _find_butler() -> Path | None:
-	#Sorry we do need this actually, it's a bit assumptiony and hacky to do this but I must
+	"""Sorry we do need this actually, it's a bit assumptiony and hacky to do this but I must
+	Do we? For now, maybe"""
 	butler_folder = Path('~/.config/itch/broth/butler').expanduser()
 	chosen_version = butler_folder.joinpath('.chosen-version')
 	try:
@@ -39,7 +40,7 @@ def _find_butler() -> Path | None:
 	except FileNotFoundError:
 		return None
 
-def _butler_configure(folder: Path, os_filter: str | None=None, ignore_arch: bool=False) -> Optional[Mapping[str, Any]]:
+def _butler_configure(folder: Path, os_filter: str | None=None, ignore_arch: bool=False) -> 'Mapping[str, Any] | None':
 	try:
 		butler = _find_butler()
 		if not butler:
@@ -77,6 +78,7 @@ def _is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collect
 	return False
 
 class ItchGame(Game):
+	"""Represents a game folder installed by the itch.io client. You probably want .itch/receipt.json.gz to be in there"""
 	def __init__(self, path: Path) -> None:
 		super().__init__()
 		self.path = path
@@ -193,9 +195,12 @@ class ItchGame(Game):
 		self.info.specific_info['Game Type'] = self.game_type
 		self.info.platform = platform
 
-	def _try_and_find_exe(self, os_filter: str | None=None, no_arch_filter: bool=False) -> Iterator[tuple[str | None, Path, Optional[Mapping[str, bool]]]]:
-		#This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
-		#I still kinda want a fallback method that just grabs something ending with .x86 or .sh etc in the folder, though
+	def _try_and_find_exe(self, os_filter: str | None=None, no_arch_filter: bool=False) -> 'Iterator[tuple[str | None, Path, Mapping[str, bool] | None]]':
+		"""Iterates over candidates for executable: "flavour" (platform), path to executable, and "windowsInfo"
+		This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
+		I still kinda want a fallback method that just grabs something ending with .x86 or .sh etc in the folder, though
+		#TODO: Yeah we'll need that thanks
+		"""
 		output = _butler_configure(self.path, os_filter, no_arch_filter)
 		if not output:
 			#Bugger
@@ -209,37 +214,37 @@ class ItchGame(Game):
 			yield candidate['flavor'], Path(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')
 		return
 
-	def _make_exe_launcher(self, flavour: str | None, exe_path: Path, windows_info: Optional[Mapping[str, bool]]) -> None:
-		metadata = copy.deepcopy(self.info)
+	def _make_exe_launcher(self, flavour: str | None, exe_path: Path, windows_info: 'Mapping[str, bool] | None') -> None:
+		info = copy.deepcopy(self.info)
 		executable_name = exe_path.name
-		metadata.specific_info['Executable Name'] = executable_name
+		info.specific_info['Executable Name'] = executable_name
 		extension = exe_path.suffix
 		if extension:
-			metadata.specific_info['Extension'] = extension[1:].lower()
-		metadata.specific_info['Executable Type'] = flavour
+			info.specific_info['Extension'] = extension[1:].lower()
+		info.specific_info['Executable Type'] = flavour
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist
 		if not flavour:
 			logger.info('dang %s is not in flavourtown') #I don't think this happens
 			return
 		if flavour in {'script', 'linux'}:
-			metadata.platform = 'Linux'
+			info.platform = 'Linux'
 		elif flavour.startswith('windows'):
-			metadata.platform = 'Windows'
+			info.platform = 'Windows'
 		elif flavour == 'jar':
-			metadata.platform = 'Java' #That will do
+			info.platform = 'Java' #That will do
 		elif flavour == 'html':
-			metadata.platform = 'HTML'
+			info.platform = 'HTML'
 		elif flavour == 'love':
-			metadata.platform = 'LOVE'
+			info.platform = 'LOVE'
 
 		if exe_path.is_file():
 			#Might be a folder if Mac, I guess
 			add_info_for_raw_exe(str(exe_path), self.info)
-			if 'icon' not in metadata.images:
+			if 'icon' not in info.images:
 				icon = look_for_icon_for_file(exe_path)
 				if icon:
-					metadata.images['Icon'] = icon
+					info.images['Icon'] = icon
 
 		params = get_launch_params(flavour, exe_path, windows_info)
 		if not params:
@@ -247,9 +252,9 @@ class ItchGame(Game):
 				logger.debug('Not dealing with %s %s %s %s %s at this point in time', self.path, flavour, exe_path, self.platforms, self.info.platform)
 			return
 		if params[1]:
-			metadata.emulator_name = params[1]
+			info.emulator_name = params[1]
 
-		make_launcher(params[0], self.name, metadata, 'itch.io', str(self.path))
+		make_launcher(params[0], self.name, info, 'itch.io', str(self.path))
 
 	def make_launcher(self) -> None:
 		os_filter = None
@@ -277,22 +282,24 @@ class ItchGame(Game):
 def get_launch_params(flavour: str, exe_path: Path, windows_info: Mapping[str, bool] | None) -> tuple[LaunchCommand, str | None] | None:
 	if flavour in {'linux', 'script'}:
 		#ez pez
-		return LaunchCommand(str(exe_path), []), None
+		return LaunchCommand(exe_path, []), None
 	if flavour == 'html':
 		#hmm I guess this will do
-		return LaunchCommand('xdg-open', [str(exe_path)]), None
+		return LaunchCommand(Path('xdg-open'), [str(exe_path)]), None
 	if flavour in {'windows', 'windows-script'}:
 		if windows_info and windows_info.get('dotNet', False):
 			#Mono does not really count as an emulator but whateves (I mean neither does Wine by the name but for metadata purposes I will)
-			return LaunchCommand('mono', [str(exe_path)]), 'Mono'
-		#gui might also be useful if it is false
-		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), []), 'Wine'
+			return LaunchCommand(Path('mono'), [str(exe_path)]), 'Mono'
+		#gui might also be useful, if it is false then run in terminal?
+		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, []), 'Wine'
 	if flavour == 'jar':
 		#Guess we can just assume it's installed who cares
-		return LaunchCommand('java', ['-jar', str(exe_path)]), None
+		#TODO: I care!
+		return LaunchCommand(Path('java'), ['-jar', str(exe_path)]), None
 	if flavour == 'love':
 		#Guess we can also just assume this is installed who cares
-		return LaunchCommand('love', [str(exe_path)]), 'LOVE'
+		#TODO: Grrrrrr
+		return LaunchCommand(Path('love'), [str(exe_path)]), 'LOVE'
 
 	return None
 	
