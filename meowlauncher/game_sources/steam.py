@@ -752,15 +752,6 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 def _all_installed_appids() -> Collection[int]:
 	return {app_id for _, app_id, __ in iter_steam_installed_appids()}
 
-def no_longer_exists(appid: str) -> bool:
-	if not is_steam_available:
-		#Then don't touchy, no evidence anything was uninstalled
-		return True
-	try:
-		return int(appid) not in _all_installed_appids()
-	except ValueError:
-		return False
-
 class Steam(GameSource):
 	@property
 	def name(self) -> str:
@@ -771,7 +762,13 @@ class Steam(GameSource):
 		return is_steam_available
 	
 	def no_longer_exists(self, game_id: str) -> bool:
-		return no_longer_exists(game_id)
+		if not is_steam_available:
+			#Then don't touchy, no evidence anything was uninstalled
+			return False
+		try:
+			return int(game_id) not in _all_installed_appids()
+		except ValueError:
+			return False
 	
 	def iter_launchers(self) -> Iterator['Launcher']:
 		assert steam_installation
