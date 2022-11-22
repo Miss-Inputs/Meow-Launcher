@@ -8,8 +8,10 @@ from .scummvm import ScummVM
 from .steam import Steam
 
 if TYPE_CHECKING:
-	from collections.abc import Collection, Mapping
+	from collections.abc import Collection
 	from meowlauncher.game_source import GameSource
+
+__doc__ = "Registry of all GameSources, so they can be iterated over to get each type and then instantiated and then you call iter_launchers"
 
 _dos = DOS
 _mac = Mac
