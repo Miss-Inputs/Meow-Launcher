@@ -228,10 +228,6 @@ class LinuxGOGLauncher(Launcher):
 	def __init__(self, game: GOGGame, runner: ConfiguredRunner) -> None:
 		self.game: GOGGame = game
 		super().__init__(game, runner)
-
-	@property
-	def game_type(self) -> str:
-		return 'GOG'
 	
 	@property
 	def game_id(self) -> str:

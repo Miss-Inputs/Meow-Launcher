@@ -33,7 +33,8 @@ def _is_actually_machine(machine: Machine) -> bool:
 	return True
 
 class MAME(GameSource):
-	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here"""
+	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here
+	TODO: Probably needs a rename to Arcade or similar"""
 	def __init__(self) -> None:
 		super().__init__()
 		self.emu: ConfiguredMAME | None = None
@@ -121,14 +122,16 @@ class MAME(GameSource):
 
 		for machine in iter_machines(self.emu.executable):
 			if not main_config.full_rescan:
-				if has_been_done('Arcade', machine.basename):
-					continue
-				if has_been_done('MAME', machine.basename):
+				if has_been_done('Arcade / standalone machines', machine.basename):
 					continue
 
 			launcher = self._process_machine(machine)
 			if launcher:
 				yield launcher
+
+	@classmethod
+	def game_type(cls) -> str:
+		return 'Arcade / standalone machines'
 
 class MAMEInbuiltGames(GameSource):
 	def __init__(self) -> None:
@@ -149,6 +152,10 @@ class MAMEInbuiltGames(GameSource):
 	@property
 	def description(self) -> str:
 		return 'MAME inbuilt games'
+
+	@classmethod
+	def game_type(cls) -> str:
+		return 'Inbuilt game'
 
 	@property
 	def is_available(self) -> bool:

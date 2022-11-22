@@ -39,14 +39,20 @@ class GameSource(ABC):
 		"""Called when full_rescan is false, after checking the game type to see which class to go to. Checks if the game specified by game_id still exists (in the sense that it would be created if full_rescan was true), and deletes if not"""
 
 	#TODO: Should have has_been_done somewhere in here? Maybe
-	#TODO: I think this should have game_type instead of Launcher…
-
 	@abstractmethod
 	def iter_launchers(self) -> 'Iterator[Launcher]':
 		"""Create all the launchers and iterate over them"""
 
 	def __hash__(self) -> int:
 		return self.name.__hash__()
+
+	@classmethod
+	def game_type(cls) -> str:
+		"""Stored in the ID section to uniquely identify this launcher, to know if no_longer_exists should be called by remove_existing_games, you should also check for this in iter_launchers to skip over launchers that are done already"""
+		#Other than that, output/* needs to know this, so it just gets it from add_games currently, to know what to put in the launcher file
+		#I guess we could also just have it on Launcher after all… hrm
+		#It also could be @final and just use __qualname__
+		return cls.__name__
 
 class CompoundGameSource(GameSource, ABC):
 	"""Chains GameSources together, so that iter_launchers returns each one that's available"""

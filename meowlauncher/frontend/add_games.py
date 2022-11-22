@@ -17,7 +17,7 @@ def add_game_source(source: GameSource, progress_function: Callable[[str], None]
 	else:
 		for launcher in source.iter_launchers():
 			count += 1
-			make_linux_desktop_for_launcher(launcher)
+			make_linux_desktop_for_launcher(launcher, source.game_type())
 	time_ended = time.perf_counter()
 	time_taken = datetime.timedelta(seconds=time_ended - time_started)
 	if count:

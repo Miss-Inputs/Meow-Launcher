@@ -157,10 +157,6 @@ class SteamLauncher(Launcher):
 		return str(self.game.appid)
 
 	@property
-	def game_type(self) -> str:
-		return 'Steam'
-
-	@property
 	def command(self) -> LaunchCommand:
 		#-applaunch <appid>? steam://run/<id>? Does not seem as though it lets us have arguments no matter which way you do it, so you will only ever be able to run the "main" launcher
 		return LaunchCommand(self.runner.config.exe_path, [f'steam://rungameid/{self.game.appid}'])

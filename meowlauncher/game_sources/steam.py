@@ -82,6 +82,7 @@ class SteamState():
 			cls.__instance = object.__new__(cls)
 		return cls.__instance
 
+#TODO: Get that out of the global state
 if not have_steamfiles:
 	is_steam_available = False
 else:

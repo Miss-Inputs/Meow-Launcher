@@ -94,7 +94,3 @@ class MAMELauncher(EmulatorLauncher):
 	@property
 	def game_id(self) -> str:
 		return self.game.machine.basename
-
-	@property
-	def game_type(self) -> str:
-		return 'Arcade' if self.game.info.platform == 'Arcade' else 'MAME'

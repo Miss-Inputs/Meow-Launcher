@@ -55,7 +55,7 @@ def _write_field(desktop: 'configparser.RawConfigParser', section_name: str, key
 	else:
 		section_writer[cleaned_key_name] = value_as_string
 
-def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
+def make_linux_desktop_for_launcher(launcher: 'Launcher', game_type: str) -> None:
 	name = launcher.game.name
 
 	filename_tags = find_filename_tags_at_end(name)
@@ -65,7 +65,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
 		launcher.game.info.emulator_name = launcher.runner.name
 
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
-	_make_linux_desktop(launcher.command, name, launcher.game.info, filename_tags, launcher.game_type, launcher.game_id)
+	_make_linux_desktop(launcher.command, name, launcher.game.info, filename_tags, game_type, launcher.game_id)
 
 def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 'GameInfo', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
 	path = ensure_unique_path(Path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True)).with_suffix('.desktop'))

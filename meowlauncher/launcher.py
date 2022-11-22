@@ -16,11 +16,6 @@ class Launcher(ABC):
 	def name(self) -> str:
 		"""Display name of this launcher. By default, the game's name, override if your GameSource has some other way of getting a name"""
 		return self.game.name
-
-	@property
-	@abstractmethod
-	def game_type(self) -> str:
-		"""This is written to the ID section of the launcher, and must be unique to your GameSource, as it is used to know what game_id means"""
 	
 	@property
 	@abstractmethod
@@ -34,6 +29,6 @@ class Launcher(ABC):
 		"""The actual command that this launcher executes"""
 
 	def __hash__(self) -> int:
-		return hash((self.game_type, self.game_id))
+		return hash((type(self.game).__name__, self.game_id))
 		
 __doc__ = Launcher.__doc__ or ""

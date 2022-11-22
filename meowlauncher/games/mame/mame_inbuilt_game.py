@@ -41,9 +41,5 @@ class MAMEInbuiltLauncher(EmulatorLauncher):
 		return game_id
 
 	@property
-	def game_type(self) -> str:
-		return 'Inbuilt game'
-
-	@property
 	def command(self) -> LaunchCommand:
 		return LaunchCommand(self.runner.config.exe_path, mame_base(self.game.machine_name, bios=self.game.bios_name))

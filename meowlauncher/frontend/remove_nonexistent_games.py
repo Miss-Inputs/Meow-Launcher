@@ -4,9 +4,9 @@ import datetime
 import logging
 import os
 import time
+from meowlauncher.game_sources import game_sources
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.game_sources import game_types
 from meowlauncher.output.desktop_files import id_section_name
 from meowlauncher.util.desktop_files import get_desktop, get_field
 
@@ -26,13 +26,14 @@ def remove_nonexistent_games() -> None:
 			continue
 
 		should_remove = False
-		game_source = game_types.get(game_type)
-		if game_source:
-			should_remove = game_source().no_longer_exists(game_id)
-		elif game_type == 'GOG':
+		if game_type == 'GOG':
 			should_remove = not os.path.exists(game_id)
 		elif game_type == 'itch.io':
 			should_remove = not os.path.exists(game_id)
+		else:
+			for game_source_type in game_sources:
+				if game_source_type.game_type() == game_type:
+					should_remove = game_source_type().no_longer_exists(game_id)
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:

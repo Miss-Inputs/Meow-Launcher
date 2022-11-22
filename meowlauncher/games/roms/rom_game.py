@@ -85,10 +85,6 @@ class ROMLauncher(EmulatorLauncher):
 		self.game: ROMGame = game
 		self.runner: 'ConfiguredStandardEmulator' = emulator
 		super().__init__(game, emulator, platform_config.options)
-
-	@property
-	def game_type(self) -> str:
-		return 'ROM'
 	
 	@property
 	def game_id(self) -> str:

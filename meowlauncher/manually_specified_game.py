@@ -95,8 +95,3 @@ class ManuallySpecifiedLauncher(EmulatorLauncher):
 	#Could do as a default, or maybe you should override it
 	def game_id(self) -> str:
 		return self.game.path
-
-	@final
-	@property
-	def game_type(self) -> str:
-		return self.platform_name

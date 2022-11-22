@@ -202,10 +202,6 @@ class ScummVMLauncher(Launcher):
 		return self.game.game_id
 
 	@property
-	def game_type(self) -> str:
-		return 'ScummVM'
-
-	@property
 	def command(self) -> LaunchCommand:
 		args = ['-f']
 		if main_config.scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():

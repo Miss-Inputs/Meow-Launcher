@@ -210,6 +210,10 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
 
+	@classmethod
+	def game_type(cls) -> str:
+		return 'ROMs'
+
 def _iter_platform_sources() -> Iterator[ROMPlatform]:
 	"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
 	for platform_name, platform_config in platform_configs.items():
