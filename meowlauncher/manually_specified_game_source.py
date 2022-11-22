@@ -22,8 +22,11 @@ logger = logging.getLogger(__name__)
 
 ManuallySpecifiedGameType_co = TypeVar('ManuallySpecifiedGameType_co', bound=ManuallySpecifiedGame, covariant=True)
 class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[ManuallySpecifiedGameType_co]'], ABC, Generic[ManuallySpecifiedGameType_co]):
-	#TODO: This shouldn't necessarily subclass ChooseableEmulatorGameSource
-	#Leave no_longer_exists to the subclasses as they may like to have custom logic
+	"""Base class for game sources where the user specifies which games exist manually, usually out of necessity (or impracticality of automatic scanning, or ultimately just inaccuracy) because that kind of sucks, e.g. DOS games where you _could_ theoretically create launchers for every executable but for now we just get the user to tell us which games exist with which executable
+	
+	TODO: This shouldn't necessarily subclass ChooseableEmulatorGameSource
+	TODO: Leave no_longer_exists to the subclasses as they may like to have custom logic
+	TODO: A lot of __init__ should be in __new__ instead I think (self.platform should be cls.platform probably, and then GameSource.name can use it)"""
 
 	def __init__(self, platform_name: str, app_type: type[ManuallySpecifiedGameType_co], launcher_type: type[ManuallySpecifiedLauncher], emulators_dict: 'Mapping[str, Emulator[ManuallySpecifiedGameType_co]]') -> None:
 		self.platform = manually_specified_platforms[platform_name] #TODO: Might not always be a thing
@@ -45,10 +48,6 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[Manuall
 			self._is_available = False
 		except FileNotFoundError:
 			self._is_available = False
-
-	@property
-	def name(self) -> str:
-		return self.platform.name
 
 	@property
 	def is_available(self) -> bool:

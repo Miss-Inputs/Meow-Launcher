@@ -622,10 +622,6 @@ class Steam(GameSource):
 			steam_state = SteamState()
 			self._is_available = steam_state.is_steam_installed
 			self._steam_installation = steam_state.steam_installation	
-
-	@property
-	def name(self) -> str:
-		return 'Steam'
 	
 	@property
 	def is_available(self) -> bool:

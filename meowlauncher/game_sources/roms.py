@@ -52,13 +52,11 @@ def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> Emu
 
 class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	"""An emulated game system, as an individual source. Use with ROMs to cycle through all of them"""
+
 	def __init__(self, platform_config: PlatformConfig, platform: 'StandardEmulatedPlatform') -> None:
+		#Bit naughty, because it has a different signature? Hmm maybe not
 		self.platform: 'StandardEmulatedPlatform' = platform
 		super().__init__(platform_config, platform, emulators, libretro_cores)
-
-	@property
-	def name(self) -> str:
-		return self.platform.name
 
 	@property
 	def is_available(self) -> bool:
@@ -214,34 +212,42 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def game_type(cls) -> str:
 		return 'ROMs'
 
-def _iter_platform_sources() -> Iterator[ROMPlatform]:
-	"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
-	for platform_name, platform_config in platform_configs.items():
-		platform = platforms.get(platform_name)
-		if not platform:
-			#As DOS, Mac, etc would be in platform_configs too
-			continue
-		if platform_name in main_config.excluded_platforms:
-			continue
-		platform_source = ROMPlatform(platform_config, platform)
-		if not platform_source.is_available:
-			continue
-		yield platform_source
+
+def _rom_platform(platform: str) -> type[ROMPlatform]:
+	"""Using this because otherwise I'm not sure how I get name to return the platform name since that requires construction
+	This feels REALLY cursed"""
+	class _ROMPlatform(ROMPlatform):
+		@classmethod
+		def name(cls) -> str:
+			return platform
+	return _ROMPlatform
 
 class ROMs(CompoundGameSource):
 	"""Source for emulated games that are "normal" and are mostly just one file for each game (if not a folder or a few files), and are simple conceptually"""
+
+	@staticmethod
+	def _iter_platform_sources() -> Iterator[ROMPlatform]:
+		"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
+		for platform_name, platform_config in platform_configs.items():
+			platform = platforms.get(platform_name)
+			if not platform:
+				#As DOS, Mac, etc would be in platform_configs too
+				continue
+			if platform_name in main_config.excluded_platforms:
+				continue
+			platform_source = _rom_platform(platform_name)(platform_config, platform)
+			if not platform_source.is_available:
+				continue
+			yield platform_source
+
 	def __init__(self) -> None:
 		if main_config.platforms:
-			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in main_config.platforms))
+			super().__init__(tuple(_rom_platform(only_platform)(platform_configs[only_platform], platforms[only_platform]) for only_platform in main_config.platforms))
 		else:
-			super().__init__(tuple(_iter_platform_sources()))
+			super().__init__(tuple(self._iter_platform_sources()))
 
-	@property
-	def name(self) -> str:
-		return 'ROMs'
-
-	@property
-	def description(self) -> str:
+	@classmethod
+	def description(cls) -> str:
 		return 'ROMs'
 
 	def no_longer_exists(self, game_id: str) -> bool:

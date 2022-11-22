@@ -13,10 +13,6 @@ from meowlauncher.util.desktop_files import has_been_done
 
 class ScummVM(GameSource):
 	@property
-	def name(self) -> str:
-		return 'ScummVM'
-
-	@property
 	def is_available(self) -> bool:
 		return scummvm_config.have_scummvm
 

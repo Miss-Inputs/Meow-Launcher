@@ -53,21 +53,17 @@ def main() -> None:
 		#This one's a bit jank and I should clean it up I guess
 		organize_folders.main()
 	else:
-		source = None
-		for game_source_type in game_sources:
-			game_source = game_source_type()
-			if first_arg in {game_source.name, game_source.name.lower()}:
-				source = game_source
-				break
-
-		if not source:
+		game_source_type = next((source for source in game_sources if first_arg in {source.name(), source.name().lower()}), None)
+		if not game_source_type:
 			logger.error('Unknown game source: %s', first_arg)
 			return
-		if not source.is_available:
-			logger.error('%s is not available', source)
+		
+		game_source = game_source_type()
+		if not game_source.is_available:
+			logger.error('%s is not available', game_source)
 			return
 			
-		add_game_source(source, print)
+		add_game_source(game_source, print)
 
 if __name__ == '__main__':
 	main()

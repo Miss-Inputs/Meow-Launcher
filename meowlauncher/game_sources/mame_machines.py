@@ -46,12 +46,8 @@ class MAME(GameSource):
 			pass
 		self.platform_config = PlatformConfig('MAME', set(), (), {}) #Not needed for now, it is just to satisfy EmulatedGame constructor… may be a good idea some day
 
-	@property
-	def name(self) -> str:
-		return 'MAME'
-
-	@property
-	def description(self) -> str:
+	@classmethod
+	def description(cls) -> str:
 		return 'MAME machines'
 
 	@property
@@ -145,12 +141,12 @@ class MAMEInbuiltGames(GameSource):
 		except MAMENotInstalledException:
 			pass
 
-	@property
-	def name(self) -> str:
+	@classmethod
+	def name(cls) -> str:
 		return 'MAME inbuilt games'
 
-	@property
-	def description(self) -> str:
+	@classmethod
+	def description(cls) -> str:
 		return 'MAME inbuilt games'
 
 	@classmethod

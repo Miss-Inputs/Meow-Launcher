@@ -11,7 +11,7 @@ def add_game_source(source: GameSource, progress_function: Callable[[str], None]
 	time_started = time.perf_counter()
 	count = 0
 	
-	progress_function('Adding ' + source.description)
+	progress_function('Adding ' + source.description())
 	if isinstance(source, CompoundGameSource):
 		count += sum(add_game_source(subsource, progress_function) for subsource in source.sources)
 	else:
@@ -21,9 +21,9 @@ def add_game_source(source: GameSource, progress_function: Callable[[str], None]
 	time_ended = time.perf_counter()
 	time_taken = datetime.timedelta(seconds=time_ended - time_started)
 	if count:
-		progress_function(f'Added {count} {source.description} in {time_taken} ({time_taken.total_seconds() / count} secs per game)')
+		progress_function(f'Added {count} {source.description()} in {time_taken} ({time_taken.total_seconds() / count} secs per game)')
 	else:
-		progress_function(f'Did not add any {source.description}')
+		progress_function(f'Did not add any {source.description()}')
 	progress_function('-------')
 	return count
 

@@ -17,17 +17,18 @@ logger = logging.getLogger(__name__)
 class GameSource(ABC):
 	"""Base class for all game sources. For now you will need to put this in meowlauncher/game_sources/__init__.py"""
 
-	@property
-	@abstractmethod
-	def name(self) -> str:
-		pass
+	@classmethod
+	def name(cls) -> str:
+		"""Display name for humans to read, though defaults to the class name"""
+		return cls.__name__
 
-	@property
-	def description(self) -> str:
-		return f'{self.name} games'
+	@classmethod
+	def description(cls) -> str:
+		"""Full name of sorts, e.g. "blah games" (defaults to self.name + "games"), maybe description is the wrong word here whoops"""
+		return f'{cls.name()} games'
 
 	def __str__(self) -> str:
-		return f'{self.name} ({self.description})'
+		return f'{self.name()} ({self.description()})'
 
 	@property
 	@abstractmethod
@@ -44,7 +45,7 @@ class GameSource(ABC):
 		"""Create all the launchers and iterate over them"""
 
 	def __hash__(self) -> int:
-		return self.name.__hash__()
+		return self.name().__hash__()
 
 	@classmethod
 	def game_type(cls) -> str:
@@ -86,11 +87,11 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 				if self.libretro_cores:
 					emulator = self.libretro_cores.get(emulator_name)
 			if not emulator:
-				logger.warning('Config warning: %s is not a known emulator, specified in %s', emulator_name, self.name)
+				logger.warning('Config warning: %s is not a known emulator, specified in %s', emulator_name, self.name())
 				continue
 
 			if emulator.config_name not in self.platform.valid_emulator_names:
-				logger.warning('Config warning: %s is not a valid %s for %s', emulator_name, emulator.friendly_type_name, self.name)
+				logger.warning('Config warning: %s is not a valid %s for %s', emulator_name, emulator.friendly_type_name, self.name())
 				continue
 			
 			yield emulator
