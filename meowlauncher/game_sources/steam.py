@@ -5,12 +5,12 @@ import json
 import logging
 import statistics
 from collections.abc import Collection, Iterator, Mapping, MutableMapping
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
 try:
-	from steamfiles import acf, appinfo
+	from steamfiles import appinfo
 	have_steamfiles = True
 except ModuleNotFoundError:
 	have_steamfiles = False
@@ -23,8 +23,7 @@ from meowlauncher.exceptions import (GameNotSupportedException,
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.common.engine_detect import (
     try_and_detect_engine_from_folder, try_detect_engine_from_exe)
-from meowlauncher.games.common.pc_common_info import \
-    add_info_for_raw_exe
+from meowlauncher.games.common.pc_common_info import add_info_for_raw_exe
 from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
                                                  SteamLauncher)
 from meowlauncher.games.steam.steam_utils import (format_genre,
@@ -41,7 +40,6 @@ if have_steamfiles or TYPE_CHECKING:
 	#Maybe this should just require steamfiles anyway…
 	from meowlauncher.games.steam.steam_installation import (IconError,
 	                                                         IconNotFoundError,
-	                                                         StateFlags,
 	                                                         SteamInstallation)
 if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
@@ -83,14 +81,6 @@ class SteamState():
 			cls.__instance = object.__new__(cls)
 		return cls.__instance
 
-#TODO: Get that out of the global namespace
-if not have_steamfiles:
-	is_steam_available = False
-else:
-	steam_state = SteamState()
-	is_steam_available = steam_state.is_steam_installed
-	steam_installation = steam_state.steam_installation
-	
 #TODO: Move more of this to SteamGame
 
 def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]) -> None:
@@ -243,7 +233,7 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 		game.info.specific_info['Content Warnings'] = tuple(format_genre(id) for id in content_warning_ids)
 	#"genre" doesn't look like a word anymore
 
-def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
+def add_info_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	if 'Icon' not in game.info.images:
 		add_icon_from_common_section(game, common)
 
@@ -410,7 +400,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 		game.info.specific_info['Linux Publisher'] = [pub.removesuffix(' (Linux)') for _, pub in sorted(publishers.items()) if pub.endswith(' (Linux)')]
 		game.info.publisher = [game.info.developer[0] if pub == 'Self Published' and game.info.developer else pub for _, pub in sorted(publishers.items()) if not pub.endswith((' (Mac)', ' (Linux)'))]
 			
-def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]) -> None:
+def add_info_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]) -> None:
 	if not game.info.developer:
 		developer = extended.get(b'developer')
 		if developer:
@@ -467,15 +457,15 @@ def process_appinfo_config_section(game: 'SteamGame', app_info_section: Mapping[
 		else:
 			raise NotActuallyLaunchableGameException('No launch entries in config section')
 
-def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes, Any]) -> None:
+def add_info_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes, Any]) -> None:
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		add_metadata_from_appinfo_common_section(game, common)
+		add_info_from_appinfo_common_section(game, common)
 
 	extended = app_info_section.get(b'extended')
 	if extended:
-		add_metadata_from_appinfo_extended_section(game, extended)
+		add_info_from_appinfo_extended_section(game, extended)
 
 	localization = app_info_section.get(b'localization')
 	if localization:
@@ -623,165 +613,131 @@ def add_info_from_user_cache(game: 'SteamGame') -> None:
 		if path.is_file():
 			add_info_from_cache_json(game, path, single_user)
 
-def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'SteamLauncher':
-	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
-	assert steam_installation, 'process_game called without checking steam_state.is_steam_installed'
-	game = SteamGame(appid, folder, app_state, steam_installation)
-	if main_config.use_steam_as_platform:
-		game.info.platform = 'Steam'
-	else:
-		#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
-		game.info.platform = 'Windows'
-
-	appinfo_entry = game.appinfo
-	if appinfo_entry:
-		process_appinfo_config_section(game, appinfo_entry)
-
-	steamplay_overrides = steam_installation.steamplay_overrides
-	steamplay_whitelist = steam_installation.steamplay_whitelist
-	appid_str = str(game.appid)
-
-
-	if not game.launchers:
-		raise NotActuallyLaunchableGameException('Game cannot be launched')
-
-	launcher: LauncherInfo | None = next(iter(game.launchers.values())) #Hmm
-	tools = steam_installation.steamplay_compat_tools
-	override = False
-	if appid_str in steamplay_overrides:
-		#Specifically selected in the dropdown box
-		override = True
-		tool_id = steamplay_overrides[appid_str]
-		if tool_id: #Would there be a situation in which this is none? Hmm I dunno
-			tool = tools.get(tool_id, (None, tool_id, None, None))
-			game.info.emulator_name = tool[1]
-			if tool[2] in game.launchers:
-				launcher = game.launchers[tool[2]]		
-			game.info.specific_info['Steam Play Forced?'] = True
-	if appid_str in steamplay_whitelist:
-		if not override:
-			tool_id = steamplay_whitelist[appid_str]
-			tool = tools.get(tool_id, (None, tool_id, None, None))
-			game.info.emulator_name = tool[1]
-			if tool[2] in game.launchers:
-				launcher = game.launchers[tool[2]]
-		game.info.specific_info['Steam Play Whitelisted?'] = True
-	elif 'linux' in game.launchers:
-		launcher = game.launchers['linux']
-	elif 'linux_64' in game.launchers:
-		launcher = game.launchers['linux_64']
-	elif 'linux_32' in game.launchers:
-		launcher = game.launchers['linux_32']
-	else:
-		global_tool_id = steamplay_overrides.get('0')
-		if global_tool_id:
-			#game.metadata.emulator_name = tools.get(global_tool, (None,global_tool))[1]
-			global_tool = tools.get(global_tool_id, (None, global_tool_id, None, None))
-			game.info.emulator_name = global_tool[1]
-			if global_tool[2] in game.launchers:
-				launcher = game.launchers[global_tool[2]]
-			#"tool" doesn't look like a word anymore help
-			game.info.specific_info['Steam Play Whitelisted?'] = False
-		else:
-			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
-			game.info.specific_info['No Valid Launchers?'] = True
-			launcher = None
-			if not main_config.force_create_launchers:
-				raise GameNotSupportedException('Platform not supported and Steam Play not used')
-
-	if launcher:
-		process_launcher(game, launcher)
-	#Potentially do something with game.extra_launchers... I dunno, really
-
-	game.add_metadata()
-	add_images(game)
-	add_info_from_user_cache(game)
-	
-	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
-	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
-
-	if appinfo_entry:
-		add_metadata_from_appinfo(game, appinfo_entry)
-	
-	return SteamLauncher(game)
-
-def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]]]:
-	assert steam_installation, "Whomstdv've call iter_steam_installed_appids without checking Steam.is_available first?"
-	for library_folder in steam_installation.iter_steam_library_folders():
-		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
-			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
-			app_manifest = acf.loads(acf_file_path.read_text('utf-8'))
-			app_state = app_manifest.get('AppState')
-			if not app_state:
-				#Should only happen if .acf is junk (or format changes dramatically), there's no other keys than AppState
-				logger.error('This should not happen %s is invalid or format is weird and new and spooky, has no AppState', acf_file_path)
-				continue
-
-			appid_str = app_state.get('appid')
-			if appid_str is None:
-				#Yeah we need that
-				logger.error('%s %s has no appid which is weird and this should not happen', acf_file_path, app_state.get('name'))
-				continue
-
-			try:
-				appid = int(appid_str)
-			except ValueError:
-				logger.error('Skipping %s %s %s as appid is not numeric which is weird', acf_file_path, app_state.get('name'), appid_str)
-				continue
-
-			try:
-				state_flags = StateFlags(int(app_state.get('StateFlags')))
-				if not state_flags:
-					continue
-			except ValueError:
-				logger.info('Skipping %s %s as StateFlags are invalid: %s', app_state.get('name'), appid, app_state.get('StateFlags'))
-				continue
-
-			#Only yield fully installed games
-			if (state_flags & StateFlags.FullyInstalled) == 0:
-				logger.info('Skipping %s %s as it is not actually installed (StateFlags = %s)', app_state.get('name'), appid, state_flags)
-				continue
-				
-			if state_flags & StateFlags.SharedOnly:
-				logger.info('Skipping %s %s as it is shared only (StateFlags = %s)', app_state.get('name'), appid, state_flags)
-				continue
-
-			yield library_folder, appid, app_state
-
-@lru_cache(maxsize=1)
-def _all_installed_appids() -> Collection[int]:
-	return {app_id for _, app_id, __ in iter_steam_installed_appids()}
-
 class Steam(GameSource):
+	def __init__(self) -> None:
+		self._steam_installation: 'SteamInstallation | None' = None
+		if not have_steamfiles:
+			self._is_available = False
+		else:
+			steam_state = SteamState()
+			self._is_available = steam_state.is_steam_installed
+			self._steam_installation = steam_state.steam_installation	
+
 	@property
 	def name(self) -> str:
 		return 'Steam'
 	
 	@property
 	def is_available(self) -> bool:
-		return is_steam_available
+		return self._is_available
+	
+	@cached_property
+	def _all_installed_appids(self) -> Collection[int]:
+		if not self._steam_installation:
+			return []
+		return {app_id for _, app_id, __ in self._steam_installation.iter_steam_installed_appids()}
 	
 	def no_longer_exists(self, game_id: str) -> bool:
-		if not is_steam_available:
+		if not self._is_available:
 			#Then don't touchy, no evidence anything was uninstalled
 			return False
 		try:
-			return int(game_id) not in _all_installed_appids()
+			return int(game_id) not in self._all_installed_appids
 		except ValueError:
 			return False
 	
 	def iter_launchers(self) -> Iterator['Launcher']:
-		assert steam_installation
-		compat_tool_appids = {compat_tool[0] for compat_tool in steam_installation.steamplay_compat_tools.values()}
-		for folder, app_id, app_state in iter_steam_installed_appids():
+		assert self._steam_installation, 'Please do not call iter_launchers if is_available is false'
+		for folder, app_id, app_state in self._steam_installation.iter_steam_installed_appids():
 			if not main_config.full_rescan:
 				if has_been_done('Steam', str(app_id)):
 					continue
-			if app_id in compat_tool_appids:
-				continue
-
+			
 			try:
-				yield process_game(app_id, folder, app_state)
+				yield self.process_game(app_id, folder, app_state)
 			except NotLaunchableException:
 				logger.warning('%s %s is skipped', app_state.get('name', app_id), app_id, exc_info=True)
 				continue
+
+	def process_game(self, appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'SteamLauncher':
+		#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
+		assert self._steam_installation, 'process_game called without checking steam_state.is_steam_installed'
+		game = SteamGame(appid, folder, app_state, self._steam_installation)
+		if main_config.use_steam_as_platform:
+			game.info.platform = 'Steam'
+		else:
+			#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
+			game.info.platform = 'Windows'
+
+		appinfo_entry = game.appinfo
+		if appinfo_entry:
+			process_appinfo_config_section(game, appinfo_entry)
+
+		steamplay_overrides = self._steam_installation.steamplay_overrides
+		steamplay_whitelist = self._steam_installation.steamplay_whitelist
+		appid_str = str(game.appid)
+
+
+		if not game.launchers:
+			raise NotActuallyLaunchableGameException('Game cannot be launched')
+
+		launcher: LauncherInfo | None = next(iter(game.launchers.values())) #Hmm
+		tools = self._steam_installation.steamplay_compat_tools
+		override = False
+		if appid_str in steamplay_overrides:
+			#Specifically selected in the dropdown box
+			override = True
+			tool_id = steamplay_overrides[appid_str]
+			if tool_id: #Would there be a situation in which this is none? Hmm I dunno
+				tool = tools.get(tool_id, (None, tool_id, None, None))
+				game.info.emulator_name = tool[1]
+				if tool[2] in game.launchers:
+					launcher = game.launchers[tool[2]]		
+				game.info.specific_info['Steam Play Forced?'] = True
+		if appid_str in steamplay_whitelist:
+			if not override:
+				tool_id = steamplay_whitelist[appid_str]
+				tool = tools.get(tool_id, (None, tool_id, None, None))
+				game.info.emulator_name = tool[1]
+				if tool[2] in game.launchers:
+					launcher = game.launchers[tool[2]]
+			game.info.specific_info['Steam Play Whitelisted?'] = True
+		elif 'linux' in game.launchers:
+			launcher = game.launchers['linux']
+		elif 'linux_64' in game.launchers:
+			launcher = game.launchers['linux_64']
+		elif 'linux_32' in game.launchers:
+			launcher = game.launchers['linux_32']
+		else:
+			global_tool_id = steamplay_overrides.get('0')
+			if global_tool_id:
+				#game.metadata.emulator_name = tools.get(global_tool, (None,global_tool))[1]
+				global_tool = tools.get(global_tool_id, (None, global_tool_id, None, None))
+				game.info.emulator_name = global_tool[1]
+				if global_tool[2] in game.launchers:
+					launcher = game.launchers[global_tool[2]]
+				#"tool" doesn't look like a word anymore help
+				game.info.specific_info['Steam Play Whitelisted?'] = False
+			else:
+				#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
+				game.info.specific_info['No Valid Launchers?'] = True
+				launcher = None
+				if not main_config.force_create_launchers:
+					raise GameNotSupportedException('Platform not supported and Steam Play not used')
+
+		if launcher:
+			process_launcher(game, launcher)
+		#Potentially do something with game.extra_launchers... I dunno, really
+
+		game.add_metadata()
+		add_images(game)
+		add_info_from_user_cache(game)
+		
+		#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
+		#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
+
+		if appinfo_entry:
+			add_info_from_appinfo(game, appinfo_entry)
+		
+		return SteamLauncher(game)
+

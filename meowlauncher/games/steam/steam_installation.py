@@ -1,4 +1,5 @@
 import io
+import logging
 import re
 import zipfile
 from collections.abc import Collection, Iterator, Mapping
@@ -17,6 +18,7 @@ except ModuleNotFoundError:
 
 from meowlauncher.config.main_config import main_config
 
+logger = logging.getLogger(__name__)
 
 class StateFlags(IntFlag):
 	"""See also https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/EAppState.h
@@ -181,6 +183,53 @@ class SteamInstallation():
 			if tool:
 				apps[k.decode('utf-8', 'backslashreplace')] = tool.decode('utf-8', 'backslashreplace')
 		return apps
+
+	def iter_steam_installed_appids(self) -> Iterator[tuple[Path, int, Mapping[str, Any]]]:
+		compat_tool_appids = {compat_tool[0] for compat_tool in self.steamplay_compat_tools.values() if compat_tool[0]}
+
+		for library_folder in self.iter_steam_library_folders():
+			for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
+				#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
+				app_manifest = acf.loads(acf_file_path.read_text('utf-8'))
+				app_state = app_manifest.get('AppState')
+				if not app_state:
+					#Should only happen if .acf is junk (or format changes dramatically), there's no other keys than AppState
+					logger.error('This should not happen %s is invalid or format is weird and new and spooky, has no AppState', acf_file_path)
+					continue
+
+				appid_str = app_state.get('appid')
+				if appid_str is None:
+					#Yeah we need that
+					logger.error('%s %s has no appid which is weird and this should not happen', acf_file_path, app_state.get('name'))
+					continue
+
+				try:
+					appid = int(appid_str)
+				except ValueError:
+					logger.error('Skipping %s %s %s as appid is not numeric which is weird', acf_file_path, app_state.get('name'), appid_str)
+					continue
+
+				if appid in compat_tool_appids:
+					continue
+
+				try:
+					state_flags = StateFlags(int(app_state.get('StateFlags')))
+					if not state_flags:
+						continue
+				except ValueError:
+					logger.info('Skipping %s %s as StateFlags are invalid: %s', app_state.get('name'), appid, app_state.get('StateFlags'))
+					continue
+
+				#Only yield fully installed games
+				if (state_flags & StateFlags.FullyInstalled) == 0:
+					logger.info('Skipping %s %s as it is not actually installed (StateFlags = %s)', app_state.get('name'), appid, state_flags)
+					continue
+					
+				if state_flags & StateFlags.SharedOnly:
+					logger.info('Skipping %s %s as it is shared only (StateFlags = %s)', app_state.get('name'), appid, state_flags)
+					continue
+
+				yield library_folder, appid, app_state
 
 	def find_image(self, appid: int, image_name: str) -> Path | None:
 		basename = self.library_cache_folder.joinpath(f'{appid}_{image_name}')
