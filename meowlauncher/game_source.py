@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 class GameSource(ABC):
+	"""Base class for all game sources. For now you will need to put this in meowlauncher/game_sources/__init__.py"""
+
 	@property
 	@abstractmethod
 	def name(self) -> str:

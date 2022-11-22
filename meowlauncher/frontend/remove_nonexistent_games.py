@@ -28,7 +28,7 @@ def remove_nonexistent_games() -> None:
 		should_remove = False
 		game_source = game_types.get(game_type)
 		if game_source:
-			should_remove = game_source.no_longer_exists(game_id)
+			should_remove = game_source().no_longer_exists(game_id)
 		elif game_type == 'GOG':
 			should_remove = not os.path.exists(game_id)
 		elif game_type == 'itch.io':

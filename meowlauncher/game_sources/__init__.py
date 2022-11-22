@@ -11,15 +11,15 @@ if TYPE_CHECKING:
 	from collections.abc import Collection, Mapping
 	from meowlauncher.game_source import GameSource
 
-_dos = DOS()
-_mac = Mac()
-_scummvm = ScummVM()
-_steam = Steam()
-_roms = ROMs()
-_mame = MAME()
-_mame_inbuilt = MAMEInbuiltGames()
+_dos = DOS
+_mac = Mac
+_scummvm = ScummVM
+_steam = Steam
+_roms = ROMs
+_mame = MAME
+_mame_inbuilt = MAMEInbuiltGames
 
-game_sources: 'Collection[GameSource]' = (
+game_sources: 'Collection[type[GameSource]]' = (
 	_dos,
 	_mac,
 	_mame,
@@ -29,7 +29,7 @@ game_sources: 'Collection[GameSource]' = (
 	_steam,
 )
 
-game_types: 'Mapping[str, GameSource]' = {
+game_types: 'Mapping[str, type[GameSource]]' = {
 	#For remove_existing_games basically
 	#TODO: Hmm can we just get this from some property of GameSource instead
 	'DOS': _dos,

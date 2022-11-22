@@ -54,7 +54,8 @@ def main() -> None:
 		organize_folders.main()
 	else:
 		source = None
-		for game_source in game_sources:
+		for game_source_type in game_sources:
+			game_source = game_source_type()
 			if first_arg in {game_source.name, game_source.name.lower()}:
 				source = game_source
 				break

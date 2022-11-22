@@ -29,7 +29,8 @@ def add_game_source(source: GameSource, progress_function: Callable[[str], None]
 
 def add_games(progress_function: Callable[[str], None]=print) -> None:
 	total = 0
-	for game_source in game_sources:
+	for game_source_type in game_sources:
+		game_source = game_source_type()
 		if not game_source.is_available:
 			continue
 		total += add_game_source(game_source, progress_function)
