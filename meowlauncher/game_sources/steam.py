@@ -52,6 +52,7 @@ class SteamState():
 	"""Singleton for storing where Steam is installed and if it's installed or not
 	If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
 	Hmmm… does this acutally need to be its own class?
+	TODO: Yeah it does for now, until this module is rewritten to move stuff into SteamGame
 	"""
 	def __init__(self) -> None:
 		self.steam_installation = None
@@ -82,7 +83,7 @@ class SteamState():
 			cls.__instance = object.__new__(cls)
 		return cls.__instance
 
-#TODO: Get that out of the global state
+#TODO: Get that out of the global namespace
 if not have_steamfiles:
 	is_steam_available = False
 else:
@@ -159,7 +160,6 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 		game.launchers[platform] = platform_launcher
 				
 def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[bytes, Any]) -> None:
-	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
 	#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
 	#Damn I really thought clienttga was a thing too
@@ -176,7 +176,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 		except UnicodeDecodeError:
 			continue
 		try:
-			icon = steam_installation.look_for_icon(icon_hash)
+			icon = game.steam_installation.look_for_icon(icon_hash)
 		except IconError as icon_error:
 			icon_exception = icon_error
 			continue
@@ -244,7 +244,6 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	#"genre" doesn't look like a word anymore
 
 def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
-	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	if 'Icon' not in game.info.images:
 		add_icon_from_common_section(game, common)
 
@@ -368,8 +367,8 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 
 	game.info.specific_info['Controlller Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
-	if steam_installation.localization:
-		store_tag_names = steam_installation.localization['localization']['english']['store_tags']
+	if game.steam_installation.localization:
+		store_tag_names = game.steam_installation.localization['localization']['english']['store_tags']
 		store_tag_ids_list = common.get(b'store_tags')
 		if store_tag_ids_list:
 			store_tags = {store_tag_names.get(id, id) for id in (str(value.data) for value in store_tag_ids_list.values())}
@@ -533,11 +532,10 @@ def add_images(game: 'SteamGame') -> None:
 	Do I wanna call header a banner? I dunno I guess I'm not for now
 	The grid image is not always a cover/box art, but it'll make enough sense to call it that, as opposed to having lots of different keys in images
 	#What the hell is a "hero"? oh well it's there, might as well chuck it in"""
-	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
 	for image_filename, name in (('icon', 'Icon'), ('header', 'Header'), ('library_600x900', 'Cover'), ('library_hero', 'Hero'), ('logo', 'Logo')):
 		if name in game.info.images:
 			continue
-		image_path = steam_installation.find_image(game.appid, image_filename)
+		image_path = game.steam_installation.find_image(game.appid, image_filename)
 		if image_path:
 			game.info.images[name] = image_path
 
@@ -613,15 +611,14 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			game.info.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
 
 def add_info_from_user_cache(game: 'SteamGame') -> None:
-	assert steam_installation, 'steam_installation should never be None because we are adding info to a SteamGame which implies we got that from some installation'
-	user_list = steam_installation.user_ids
+	user_list = game.steam_installation.user_ids
 	if not user_list:
 		#Also, that should never happen (maybe if you just installed Steam and haven't logged in yet, but then what would you get out of this anyway?)
 		return
 	single_user = len(user_list) == 1
 	#If there is more than one user here, then we don't want to look at user-specific info, because it might not be the one who's running Meow Launcher and so it might be wrong
 	for user in user_list:
-		user_cache_folder = steam_installation.get_user_library_cache_folder(user)
+		user_cache_folder = game.steam_installation.get_user_library_cache_folder(user)
 		path = user_cache_folder.joinpath(f'{game.appid}.json')
 		if path.is_file():
 			add_info_from_cache_json(game, path, single_user)

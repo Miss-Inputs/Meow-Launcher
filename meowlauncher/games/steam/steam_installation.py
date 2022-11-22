@@ -48,6 +48,7 @@ class IconNotFoundError(Exception):
 	pass
 
 class SteamInstallation():
+	"""Stores the parsed results of various Steam files in a given install directory"""
 	def __init__(self, path: Path):
 		self.steamdir = path
 		try:
