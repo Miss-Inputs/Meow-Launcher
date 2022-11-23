@@ -234,7 +234,7 @@ def _arcade_system_disambiguate(arcade_system: str | None, name: str) -> str | N
 
 def _platform_type_disambiguate(d: DesktopWithPath) -> str | None:
 	typey = get_field(d.parser, 'Type', id_section_name)
-	return get_field(d.parser, 'Platform') if typey in {'ROMs', 'Arcade'} else typey
+	return get_field(d.parser, 'Platform') if typey in {'ROMs', 'Arcade / standalone machines'} else typey
 		
 def disambiguate_names() -> None:
 	time_started = time.perf_counter()
