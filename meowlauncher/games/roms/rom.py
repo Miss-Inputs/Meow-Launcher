@@ -256,7 +256,8 @@ class CHDFileROM(ROM):
 	def should_read_whole_thing(self) -> bool:
 		return False
 
-	def _get_sha1(self) -> str:
+	@cached_property
+	def _get_sha1(self) -> bytes:
 		with self.path.open('rb') as my_file:
 			header = my_file.read(124)
 			if header[0:8] != b'MComprHD':
@@ -268,11 +269,11 @@ class CHDFileROM(ROM):
 				sha1 = header[84:104]
 			else:
 				raise UnsupportedCHDError(f'Version {chd_version} unknown')
-			return bytes.hex(sha1)
+			return sha1
 
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		try:
-			args = SoftwareMatcherArgs(None, self._get_sha1(), None, None)
+			args = SoftwareMatcherArgs(None, self._get_sha1, None, None)
 			return find_in_software_lists(software_lists, args)
 		except UnsupportedCHDError as e:
 			logger.warning('UnsupportedCHDError %s in %s', e.args, self)

@@ -90,14 +90,15 @@ class DataAreaROM():
 		return self.xml.attrib.get('crc')
 	
 	@property
-	def sha1(self) -> str | None:
-		return self.xml.attrib.get('sha1')
+	def sha1(self) -> bytes | None:
+		sha1 = self.xml.attrib.get('sha1')
+		return bytes.fromhex(sha1) if sha1 else None
 
 	@property
 	def offset(self) -> int:
 		return _parse_size_attribute(self.xml.attrib.get('offset')) or 0
 
-	def matches(self, crc32: str | None, sha1: str | None) -> bool:
+	def matches(self, crc32: str | None, sha1: bytes | None) -> bool:
 		if not self.sha1 and not self.crc32:
 			#Dunno what to do with roms like these that just have a loadflag attribute and no content, maybe something fancy is supposed to happen
 			return False
@@ -167,8 +168,9 @@ class DiskAreaDisk():
 		return self.xml.attrib.get('name')
 
 	@property
-	def sha1(self) -> str | None:
-		return self.xml.attrib.get('sha1')
+	def sha1(self) -> bytes | None:
+		sha = self.xml.attrib.get('sha1')
+		return bytes.fromhex(sha) if sha else None
 
 	@property
 	def writeable(self) -> bool:
@@ -254,12 +256,11 @@ class SoftwarePart():
 			data_area = next(iter(self.data_areas.values()))
 		else:
 			if args.sha1:
-				sha1_lower = args.sha1.lower()
 				for disk_area in self.disk_areas.values():
 					for disk in disk_area.disks:
 						if not disk.sha1:
 							continue
-						if disk.sha1.lower() == sha1_lower:
+						if disk.sha1 == args.sha1:
 							return True
 			return False
 
@@ -459,7 +460,7 @@ class Software():
 @dataclass(frozen=True)
 class SoftwareMatcherArgs():
 	crc32: str | None
-	sha1: str | None
+	sha1: bytes | None
 	size: int | None
 	reader: Optional[Callable[[int, int], bytes]]
 
