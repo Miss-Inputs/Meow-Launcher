@@ -1,6 +1,7 @@
+from functools import lru_cache
 import logging
 import re
-from collections.abc import Collection, Iterator
+from collections.abc import Collection
 from datetime import datetime
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Union
@@ -10,8 +11,6 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_name, iter_machines_from_source_file)
-from meowlauncher.games.mame_common.mame_executable import \
-    MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
@@ -235,37 +234,27 @@ def _get_smd_header(rom: FileROM) -> bytes:
 
 	return bytes(buf[0x100:0x200])
 
-def _get_megaplay_games() -> Iterator[Machine]:
-	try:
-		yield from _get_megaplay_games.result #type: ignore[attr-defined]
-	except AttributeError:
-		if not default_mame_executable:
-			#I don't think there's a use case for this being changed
-			return
-		_get_megaplay_games.result = set(iter_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
-		yield from _get_megaplay_games.result #type: ignore[attr-defined]
+@lru_cache(maxsize=1)
+def _get_megaplay_games() -> Collection[Machine]:
+	if not default_mame_executable:
+		return []
+	return set(iter_machines_from_source_file('megaplay', default_mame_executable))
 
-def _get_megatech_games() -> Iterator[Machine]:
-	try:
-		yield from _get_megatech_games.result #type: ignore[attr-defined]
-	except AttributeError:
-		if not default_mame_executable:
-			return
-		_get_megatech_games.result = set(iter_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
-		yield from _get_megatech_games.result #type: ignore[attr-defined]
+@lru_cache(maxsize=1)
+def _get_megatech_games() -> Collection[Machine]:
+	if not default_mame_executable:
+		return []
+	return set(iter_machines_from_source_file('megatech', default_mame_executable))
+
+@lru_cache(maxsize=1)
+def _get_megadrive_arcade_bootlegs() -> Collection[Machine]:
+	if not default_mame_executable:
+		return []
+	return set(iter_machines_from_source_file('megadriv_acbl', default_mame_executable))
 
 def find_equivalent_mega_drive_arcade(game_name: str) -> Machine | None:
 	#TODO: Maybe StandardEmulatedPlatform can just hold some field called "potentially_equivalent_machines" or is that stupid? Yeah maybe just have a function yielding them
-	if not hasattr(find_equivalent_mega_drive_arcade, 'arcade_bootlegs'):
-		try:
-			if not default_mame_executable:
-				#CBF tbhkthbai
-				return None
-			find_equivalent_mega_drive_arcade.arcade_bootlegs = set(iter_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
-		except MAMENotInstalledException:
-			find_equivalent_mega_drive_arcade.arcade_bootlegs = set() #type: ignore[attr-defined]
-
-	for machine in chain(_get_megatech_games(), _get_megaplay_games(), find_equivalent_mega_drive_arcade.arcade_bootlegs): #type: ignore[attr-defined]
+	for machine in chain(_get_megatech_games(), _get_megaplay_games(), _get_megadrive_arcade_bootlegs()):
 		if does_machine_match_name(game_name, machine):
 			return machine
 
@@ -285,24 +274,23 @@ def add_megadrive_software_list_metadata(software: 'Software', game_info: GameIn
 		game_info.save_type = SaveType.Nothing
 
 	if software.name == 'aqlian':
-		#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
+		#This isn't a different slot, but we special case it as though it was a different mapper, to choose the proper emulator for it that supports it
 		game_info.specific_info['Mapper'] = 'aqlian'
-	else:
-		if slot:
-			if slot not in ('rom_sram', 'rom_fram'):
-				mapper = slot[4:] if slot.startswith('rom_') else slot
-				if mapper in {'eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'}:
-					game_info.specific_info['Mapper'] = 'EEPROM'
-				elif mapper == 'jcart':
-					game_info.specific_info['Mapper'] = 'J-Cart'
-				elif mapper in {'codemast', 'mm96'}:
-					game_info.specific_info['Mapper'] = 'J-Cart + EEPROM'
-				else:
-					#https://github.com/mamedev/mame/blob/master/src/devices/bus/megadrive/md_carts.cpp
-					game_info.specific_info['Mapper'] = mapper
-			if software.name == 'pokemon' and software.software_list_name == 'megadriv':
-				#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
-				game_info.specific_info['Mapper'] = slot[4:] + '_pokemon'
+	elif slot:
+		if slot not in {'rom_sram', 'rom_fram'}:
+			mapper = slot.removeprefix('rom_')
+			if mapper in {'eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'}:
+				game_info.specific_info['Mapper'] = 'EEPROM'
+			elif mapper == 'jcart':
+				game_info.specific_info['Mapper'] = 'J-Cart'
+			elif mapper in {'codemast', 'mm96'}:
+				game_info.specific_info['Mapper'] = 'J-Cart + EEPROM'
+			else:
+				#https://github.com/mamedev/mame/blob/master/src/devices/bus/megadrive/md_carts.cpp
+				game_info.specific_info['Mapper'] = mapper
+		if software.name == 'pokemon' and software.software_list_name == 'megadriv':
+			#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
+			game_info.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
 def add_megadrive_custom_info(game: 'ROMGame') -> None:
 	header = None
