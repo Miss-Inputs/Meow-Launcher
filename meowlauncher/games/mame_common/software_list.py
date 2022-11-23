@@ -494,13 +494,10 @@ class SoftwareList():
 		# for software_xml in self.xml.iter('software'):
 		# 	software = Software(software_xml, self)
 		for software in self.software.values():
-			for part in software.parts.values():
-				if matcher(part, *args):
-					yield part
-
+			yield from (part for part in software.parts.values() if matcher(part, *args))
+			
 	def iter_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterator[Software]:
-		for part in self.iter_all_parts_with_custom_matcher(matcher, args):
-			yield part.software
+		yield from (part.software for part in self.iter_all_parts_with_custom_matcher(matcher, args))
 
 	def find_software_part_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> SoftwarePart | None:
 		return next(self.iter_all_parts_with_custom_matcher(matcher, args), None)

@@ -2,7 +2,7 @@ import importlib.resources
 import json
 import logging
 import re
-from collections.abc import Collection, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from configparser import RawConfigParser
 from typing import Any
 
@@ -40,10 +40,6 @@ def find_filename_tags_at_end(name: str) -> Sequence[str]:
 def remove_filename_tags(name: str) -> str:
 	return find_tags(name)[0]
 
-def starts_with_any(s: str, prefixes: Collection[str]) -> bool:
-	'Allows s.startswith() with any iterable, not just tuple'
-	return any(s.startswith(prefix) for prefix in prefixes)
-
 class NotAlphanumericException(Exception):
 	pass
 
@@ -59,10 +55,10 @@ def convert_alphanumeric(byte_array: bytes) -> str:
 junk_suffixes = re.compile(r'((?:(?:,)? (?:Inc|LLC|Kft)|(?:Co\.)?(?:,)? Ltd|Corp|GmbH)(?:\.)?|Co\.)$')
 
 def pluralize(n: int, singular: str, plural: str|None=None) -> str:
-	if not plural:
-		plural = singular + 's'
 	if n == 1:
 		return singular
+	if not plural:
+		plural = singular + 's'
 	return f'{n} {plural}'
 
 def convert_roman_numeral(s: str) -> int:

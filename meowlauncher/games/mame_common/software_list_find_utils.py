@@ -76,10 +76,10 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	
 	if software_normalized_name != normalized_name:
 		if name_without_brackety_bois in subtitles:
-			if normalize_name(name_without_brackety_bois + ': ' + subtitles[name_without_brackety_bois]) != software_normalized_name:
+			if normalize_name(f'{name_without_brackety_bois}: {subtitles[name_without_brackety_bois]}') != software_normalized_name:
 				return False
 		elif software_name_without_brackety_bois in subtitles:
-			if normalize_name(software_name_without_brackety_bois + ': ' + subtitles[software_name_without_brackety_bois]) != normalized_name:
+			if normalize_name(f'{name_without_brackety_bois}: {subtitles[name_without_brackety_bois]}') != normalized_name:
 				return False
 		else:
 			return False
@@ -91,7 +91,7 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	software_is_prototype = any(t.startswith('prototype') for t in software_tags)
 
 	for t in proto_tags:
-		if t in name_tags and not (t in software_tags or software_is_prototype):
+		if t in name_tags and not (software_is_prototype or t in software_tags):
 			return False
 		if t in software_tags and not t in name_tags:
 			return False
@@ -111,7 +111,7 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment
 		#Bold of you to assume I understand this code, past Megan
 		#TODO: Okay I think I see what Past Megan was trying to do here… we want to first get the matches from _does_name_fuzzy_match, then we want to filter down by region _unless_ we don't have to (because regions aren't involved), and then version if needed, so this really all happens in three parts, and yeah I guess that does mean we need to collect everything in a set so we can test length == 1
-		return next(iter(fuzzy_name_matches))
+		return fuzzy_name_matches.pop()
 	if len(fuzzy_name_matches) > 1:
 		name_and_region_matches: MutableSet[Software] = set()
 		regions = {
@@ -138,7 +138,7 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 					name_and_region_matches.add(match)
 
 		if len(name_and_region_matches) == 1:
-			return next(iter(name_and_region_matches))
+			return name_and_region_matches.pop()
 
 		name_and_region_and_version_matches = set()
 		for match in name_and_region_matches:
@@ -161,7 +161,7 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 					name_and_region_and_version_matches.add(match)
 		
 		if len(name_and_region_and_version_matches) == 1:
-			return next(iter(name_and_region_and_version_matches))
+			return name_and_region_and_version_matches.pop()
 
 		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
 		

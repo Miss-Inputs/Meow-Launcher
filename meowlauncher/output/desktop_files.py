@@ -1,5 +1,6 @@
 from collections.abc import Collection
 from enum import Enum, Flag
+import itertools
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -115,12 +116,11 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 
 			_write_field(configwriter, section_name, k, v)
 
 	if section_prefix + image_section_name in configwriter:
-		keys_to_try = ['Icon'] + list(main_config.other_images_to_use_as_icons)
-		for k in keys_to_try:
-			if k in configwriter[section_prefix + image_section_name]:
-				desktop_entry['Icon'] = configwriter[section_prefix + image_section_name][k]
-				break
-
+		image_section = configwriter[section_prefix + image_section_name]
+		desktop_entry_icon = next((image_section[k] for k in itertools.chain({'Icon'}, main_config.other_images_to_use_as_icons) if k in image_section), None)
+		if desktop_entry_icon:
+			desktop_entry['Icon'] = desktop_entry_icon
+		
 	ensure_exist(path)
 	with path.open('wt', encoding='utf-8') as f:
 		configwriter.write(f)

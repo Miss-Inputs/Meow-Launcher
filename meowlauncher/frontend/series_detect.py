@@ -73,13 +73,11 @@ def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 	return None, None
 
 def _does_series_match(name_to_match: str, existing_series: str) -> bool:
-	name_to_match = name_to_match.lower()
+	name_to_match = name_to_match.removeprefix('The ').lower()
 	existing_series = existing_series.lower()
 
-	name_to_match.removeprefix('the ')
-
 	for suffix in suffixes_not_part_of_series:
-		name_to_match = name_to_match.removesuffix(' ' + suffix)
+		name_to_match = name_to_match.removesuffix(f' {suffix}')
 
 	#Might also want to remove punctuation
 
@@ -91,23 +89,11 @@ def _find_series_name_by_subtitle(name: str, existing_serieses: Collection[str],
 		return None, None
 	name_chunk = name_chunks[0]
 
-	match = None
-	
-	if force:
-		match = name_chunk
-	else:
-		for existing_series in existing_serieses:
-			if _does_series_match(name_chunk, existing_series):
-				match = existing_series
-				break
+	match = next((existing for existing in existing_serieses if _does_series_match(name_chunk, existing)), None) if not force else name_chunk
 
 	if match:
 		series = remove_capital_article(match)
-		index = None
-		if len(name_chunks) > 1:
-			index = name_chunks[1]
-		else:
-			index = '1'
+		index = name_chunks[1] if len(name_chunks) > 1 else '1'
 		return series, index
 	return None, None
 
