@@ -96,7 +96,7 @@ class Config():
 				self.values[option] = parse_value(value, config.type)
 
 		for k, v in self._configs.items():
-			env_var = os.getenv('MEOW_LAUNCHER' + k.upper())
+			env_var = os.getenv('MEOW_LAUNCHER_' + k.upper())
 			if env_var:
 				self.values[k] = parse_value(env_var, v.type)
 
@@ -110,9 +110,9 @@ class Config():
 				group.add_argument(option, action=BooleanOptionalAction, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
 			elif v.type == Sequence[Path]:
 				#TODO: It would be more useful to add to the default value
-				group.add_argument(option, nargs='?', type=Path, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, nargs='*', type=Path, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
 			elif v.type == Sequence[str]:
-				group.add_argument(option, nargs='?', help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, nargs='*', help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
 			else:
 				group.add_argument(option, type=v.type, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
 
