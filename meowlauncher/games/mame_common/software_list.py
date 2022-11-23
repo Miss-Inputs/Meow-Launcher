@@ -1,10 +1,10 @@
 from functools import cached_property
 import re
 import zlib
-from collections.abc import Callable, Collection, Iterator, Sequence
+from collections.abc import Callable, Iterator, Sequence, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
@@ -349,7 +349,7 @@ class Software():
 		return EmulationStatus.Good
 
 	@property
-	def compatibility(self) -> Optional[Sequence[str]]:
+	def compatibility(self) -> 'Sequence[str] | None':
 		compat = self.get_shared_feature('compatibility')
 		if not compat:
 			return None
@@ -360,7 +360,7 @@ class Software():
 		return self.xml.attrib.get('cloneof')
 
 	@property
-	def parent(self) -> Optional['Software']:
+	def parent(self) -> 'Software | None':
 		if not self.parent_name:
 			return None
 		return self.software_list.get_software(self.parent_name)
@@ -426,12 +426,12 @@ class Software():
 
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
 		if publisher:
-			already_has_publisher = game_info.publisher and (not game_info.publisher.startswith('<unknown'))
+			already_has_publisher = game_info.publisher and (not isinstance(game_info.publisher, str) or not game_info.publisher.startswith('<unknown'))
 			if publisher in {'<doujin>', '<homebrew>', '<unlicensed>'} and developer:
 				game_info.publisher = developer
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:
-					publishers: Collection[str] = set(cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
+					publishers: Iterable[str] = (cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
 					if main_config.sort_multiple_dev_names:
 						publishers = sorted(publishers)
 					publisher = ', '.join(publishers)
@@ -462,7 +462,7 @@ class SoftwareMatcherArgs():
 	crc32: str | None
 	sha1: bytes | None
 	size: int | None
-	reader: Optional[Callable[[int, int], bytes]]
+	reader: 'Callable[[int, int], bytes] | None'
 
 class SoftwareList():
 	def __init__(self, path: Path) -> None:
