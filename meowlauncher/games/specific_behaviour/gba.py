@@ -13,14 +13,14 @@ if TYPE_CHECKING:
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
-def _parse_gba_header(metadata: 'GameInfo', header: bytes) -> None:
+def _parse_gba_header(game_info: 'GameInfo', header: bytes) -> None:
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
-	metadata.specific_info['Nintendo Logo Valid?'] = nintendo_logo_valid
+	game_info.specific_info['Nintendo Logo Valid?'] = nintendo_logo_valid
 	
 	internal_title = header[0xa0:0xac].rstrip(b'\0').decode('ascii', 'backslashreplace')
-	metadata.specific_info['Internal Title'] = internal_title
+	game_info.specific_info['Internal Title'] = internal_title
 	if internal_title == 'mb2gba':
 		return
 	
@@ -30,10 +30,10 @@ def _parse_gba_header(metadata: 'GameInfo', header: bytes) -> None:
 		if len(product_code) == 4:
 			game_type = product_code[0]
 			if game_type in {'K', 'R'}:
-				metadata.input_info.input_options[0].inputs.append(input_info.MotionControls())
-			metadata.specific_info['Force Feedback?'] = game_type in {'R', 'V'}
+				game_info.input_info.input_options[0].inputs.append(input_info.MotionControls())
+			game_info.specific_info['Force Feedback?'] = game_type in {'R', 'V'}
 
-			metadata.product_code = product_code
+			game_info.product_code = product_code
 	except NotAlphanumericException:
 		pass
 
@@ -42,7 +42,7 @@ def _parse_gba_header(metadata: 'GameInfo', header: bytes) -> None:
 		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
 
 		if licensee_code in nintendo_licensee_codes:
-			metadata.publisher = nintendo_licensee_codes[licensee_code]
+			game_info.publisher = nintendo_licensee_codes[licensee_code]
 	except NotAlphanumericException:
 		pass
 
@@ -51,7 +51,7 @@ def _parse_gba_header(metadata: 'GameInfo', header: bytes) -> None:
 	#Device type: 0xb4, apparently normally should be 0
 	#Reserved: 0xb5 - 0xbc
 
-	metadata.specific_info['Revision'] = header[0xbc]
+	game_info.specific_info['Revision'] = header[0xbc]
 
 	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
 	#Reserved: 0xbe - 0xc0
@@ -98,10 +98,10 @@ def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'GameInfo') -> None:
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	
-def add_gba_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
+def add_gba_rom_file_info(rom: 'FileROM', game_info: 'GameInfo') -> None:
 	entire_cart = rom.read()
 	if len(entire_cart) >= 0xc0:
 		header = entire_cart[0:0xc0]
-		_parse_gba_header(metadata, header)
+		_parse_gba_header(game_info, header)
 
-	_look_for_strings_in_cart(entire_cart, metadata)
+	_look_for_strings_in_cart(entire_cart, game_info)
