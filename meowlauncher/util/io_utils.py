@@ -61,10 +61,7 @@ def sanitize_name(s: str | None, safe_for_fat32: bool=False, no_janky_chars: boo
 
 	if no_janky_chars:
 		#Having - at the beginning can be weird
-		while s.startswith('-'):
-			s = s[1:]
-		while s.startswith('.'):
-			s = s[1:]
+		s = s.strip('.-')
 	
 	if not s:
 		return 'blank'

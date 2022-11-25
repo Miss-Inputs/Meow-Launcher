@@ -85,7 +85,7 @@ class DataAreaROM():
 	def status(self) -> str:
 		return self.xml.attrib.get('status', 'good')
 
-	@property
+	@cached_property
 	def crc32(self) -> str | None:
 		return self.xml.attrib.get('crc')
 	

@@ -1,6 +1,6 @@
+import itertools
 from collections.abc import Collection
 from enum import Enum, Flag
-import itertools
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -20,9 +20,9 @@ from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
 if TYPE_CHECKING:
 	import configparser
 
+	from meowlauncher.info import GameInfo
 	from meowlauncher.launch_command import LaunchCommand
 	from meowlauncher.launcher import Launcher
-	from meowlauncher.info import GameInfo
 
 section_prefix = 'X-Meow Launcher '
 info_section_name = 'Game Info'

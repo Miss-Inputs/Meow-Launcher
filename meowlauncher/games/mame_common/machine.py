@@ -42,6 +42,9 @@ class MediaSlot():
 		self.instances = {(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.iter('instance')}
 		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.iter('extension')}
 
+	def __hash__(self) -> int:
+		return hash((self.tag, self.type, self.interface))
+
 _licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 _licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 _hack_regex = re.compile(r'^hack \((.+)\)$')
@@ -238,9 +241,8 @@ class Machine():
 		return self.xml.attrib.get('sampleof')
 
 	@property
-	def media_slots(self) -> Iterator[MediaSlot]:
-		for device_xml in self.xml.iter('device'):
-			yield MediaSlot(device_xml)
+	def media_slots(self) -> Collection[MediaSlot]:
+		return {MediaSlot(device_xml) for device_xml in self.xml.iter('device')}
 
 	@property
 	def has_mandatory_slots(self) -> bool:

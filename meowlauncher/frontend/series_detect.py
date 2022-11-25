@@ -24,11 +24,11 @@ if TYPE_CHECKING:
 
 SeriesWithSeriesIndex = tuple[str | None, int | str | None]
 
-probably_not_series_index_threshold = 20
+_probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
-probably_not_a_series_index = ('XXX', '007', 'DX', 'XL', 'V3') #V3 shouldn't be detected as some weird mix of Roman and Arabic numerals anyway…
+_probably_not_a_series_index = {'XXX', '007', 'DX', 'XL', 'V3'} #V3 shouldn't be detected as some weird mix of Roman and Arabic numerals anyway…
 #These generally aren't entries in a series, and are just there at the end
-suffixes_not_part_of_series = ('64', 'Advance', '3D', 'DS')
+_suffixes_not_part_of_series = ('64', 'Advance', '3D', 'DS')
 #If these are appended to a series it's just part of that same series and not a new one, if that makes sense, see series_match
 
 _series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]+?)\b(?:\s|$)')
@@ -55,7 +55,7 @@ def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 		series_name.removeprefix('The ')
 		series_name = remove_capital_article(series_name)
 		number_match = series_match['Number']
-		if number_match in probably_not_a_series_index:
+		if number_match in _probably_not_a_series_index:
 			return None, None
 
 		try:
@@ -67,7 +67,7 @@ def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 				#Not actually a roman numeral, chief
 				return None, None
 
-		if number > probably_not_series_index_threshold:
+		if number > _probably_not_series_index_threshold:
 			return None, None
 		return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
@@ -76,7 +76,7 @@ def _does_series_match(name_to_match: str, existing_series: str) -> bool:
 	name_to_match = name_to_match.removeprefix('The ').lower()
 	existing_series = existing_series.lower()
 
-	for suffix in suffixes_not_part_of_series:
+	for suffix in _suffixes_not_part_of_series:
 		name_to_match = name_to_match.removesuffix(f' {suffix}')
 
 	#Might also want to remove punctuation
@@ -153,7 +153,7 @@ def _get_series_from_whole_thing(series: str, whole_name: str) -> str:
 	rest = chapter_matcher.sub('', rest).strip()
 
 	if rest:
-		if rest not in probably_not_a_series_index:
+		if rest not in _probably_not_a_series_index:
 			#Don't convert things that aren't actually roman numerals
 			try:
 				rest = str(convert_roman_numeral(rest))

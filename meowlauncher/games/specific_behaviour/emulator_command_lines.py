@@ -979,11 +979,11 @@ def mednafen_snes_faust(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_co
 def vice_c64(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	#http://vice-emu.sourceforge.net/vice_7.html#SEC94
 	#Eh, maybe I should sort this. Or maybe convert it into unsupported_cartridge_types which seems like it would be a smaller list.
-	supported_cartridge_types = [0, 1, 50, 35, 30, 9, 15, 34, 21, 24, 25, 26, 52, 17, 32, 10, 44, 13, 3, 29, 45, 46, 7, 42, 39, 2, 51, 19, 14, 28, 38, 5, 43, 27, 12, 36, 23, 4, 47, 31, 22, 48, 8, 40, 20, 16, 11, 18]
+	supported_cartridge_types = {0, 1, 50, 35, 30, 9, 15, 34, 21, 24, 25, 26, 52, 17, 32, 10, 44, 13, 3, 29, 45, 46, 7, 42, 39, 2, 51, 19, 14, 28, 38, 5, 43, 27, 12, 36, 23, 4, 47, 31, 22, 48, 8, 40, 20, 16, 11, 18,
 	#Not sure if EasyFlash Xbank (33) was supposed to be included in the mention of EasyFlash being emulated? Guess I'll find out
 	#I guess "REX 256K EPROM Cart" == Rex EP256 (27)?
 	#RGCD, RR-Net MK3 are apparently emulated, whatever they are, but I dunno what number they're assigned to
-	supported_cartridge_types += [41, 49, 37, 6] #Slot 0 and 1 carts (have passthrough, and maybe I should be handling them differently as they aren't really meant to be standalone things); also includes Double Quick Brown Box, ISEPIC, and RamCart
+	41, 49, 37, 6} #Slot 0 and 1 carts (have passthrough, and maybe I should be handling them differently as they aren't really meant to be standalone things); also includes Double Quick Brown Box, ISEPIC, and RamCart
 	if game.info.media_type == MediaType.Cartridge:
 		cart_type = game.info.specific_info.get('Mapper Number', None)
 		cart_type_name = game.info.specific_info.get('Mapper', None)
@@ -1141,7 +1141,7 @@ def citra(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulato
 	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
 
 def cxnes(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	allowed_mappers = [
+	allowed_mappers = {
 		0, 1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 14,
 		15, 16, 18, 19, 21, 22, 23, 24, 25, 26, 28, 29,
 		30, 31, 32, 33, 34, 36, 37, 38, 39, 41, 44, 46,
@@ -1153,7 +1153,7 @@ def cxnes(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulato
 		154, 155, 158, 159, 166, 167, 178, 180, 182, 184, 185, 189,
 		192, 193, 200, 201, 202, 203, 205, 206, 207, 209, 210, 211,
 		218, 225, 226, 228, 230, 231, 232, 234, 240, 241, 245, 246,
-	]
+	}
 
 	if game.info.specific_info.get('Header Format', None) == 'iNES':
 		mapper = game.info.specific_info['Mapper Number']
@@ -1198,7 +1198,7 @@ def fs_uae(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulat
 	else:
 		machine = game.info.specific_info.get('Machine')
 		if machine:
-			supported_models = [
+			supported_models = (
 				#All the models supported by FS-UAE --amiga_model argument, although we will fiddle with the actual argument later
 				#Ordered by what I presume is best to not quite as good, or rather: What would we try first
 				'CD32',
@@ -1215,7 +1215,7 @@ def fs_uae(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulat
 				'CDTV',
 				'A1000',
 				'A500',
-			]
+			)
 			if isinstance(machine, str):
 				if machine in supported_models:
 					model = machine

@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 class SteamState():
 	"""Singleton for storing where Steam is installed and if it's installed or not
 	If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
-	Hmmm… does this acutally need to be its own class?
+	Hmmm… does this actually need to be its own class?
 	TODO: Yeah it does for now, until this module is rewritten to move stuff into SteamGame
 	"""
 	def __init__(self) -> None:
@@ -186,7 +186,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 			logger.debug('%s does not even have an icon', game)
 
 def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
-	content_warning_ids = []
+	content_warning_ids = set()
 	primary_genre_id = common.get(b'primary_genre')
 	#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
 	#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
@@ -199,7 +199,7 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 			primary_genre_id = None
 		elif primary_genre_id.data >= 71:
 			#While it is humourous that "Nudity" can appear as the primary genre for a game (Hentai Puzzle), this is not really what someone would sensibly want
-			content_warning_ids.append(primary_genre_id.data)
+			content_warning_ids.add(primary_genre_id.data)
 			primary_genre_id = None
 		else:
 			primary_genre_id = primary_genre_id.data
@@ -218,7 +218,7 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 				continue
 			if genre_id.data >= 71:
 				if genre_id.data not in content_warning_ids:
-					content_warning_ids.append(genre_id.data)
+					content_warning_ids.add(genre_id.data)
 			elif genre_id.data not in additional_genre_ids:
 				additional_genre_ids.append(genre_id.data)
 	if additional_genre_ids and not primary_genre_id:
@@ -230,7 +230,7 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	if additional_genre_ids:
 		game.info.specific_info['Additional Genres'] = tuple(format_genre(id) for id in additional_genre_ids)
 	if content_warning_ids:
-		game.info.specific_info['Content Warnings'] = tuple(format_genre(id) for id in content_warning_ids)
+		game.info.specific_info['Content Warnings'] = set(format_genre(id) for id in content_warning_ids)
 	#"genre" doesn't look like a word anymore
 
 def add_info_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:

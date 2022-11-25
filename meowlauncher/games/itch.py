@@ -4,7 +4,7 @@ import gzip
 import json
 import logging
 import subprocess
-from collections.abc import Collection, Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -88,7 +88,7 @@ class ItchGame(Game):
 			self.receipt = None
 		self._name = path.name #This will be replaced later; as the folder name is some kind of game-name formatted sort of thing
 		self.is_demo = False
-		self.platforms: Sequence[str] = []
+		self.platforms: Collection[str] = set()
 		self.category = 'game'
 		self.game_type = 'default'
 
@@ -153,7 +153,7 @@ class ItchGame(Game):
 			if self.is_demo and not 'demo' in self.name.lower():
 				self._name += ' (Demo)'
 			self.info.specific_info['Upload Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
-			self.platforms = tuple(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
+			self.platforms = set(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
 			#Not sure what channelName or preorder does
 			upload_created_at = upload.get('createdAt')
 			upload_updated_at = upload.get('updatedAt')

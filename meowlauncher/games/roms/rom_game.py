@@ -2,7 +2,7 @@ import re
 import tempfile
 from functools import cache
 from pathlib import PurePath
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher

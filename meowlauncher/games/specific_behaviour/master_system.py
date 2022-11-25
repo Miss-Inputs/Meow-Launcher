@@ -49,7 +49,8 @@ def parse_sdsc_header(rom: 'FileROM', metadata: 'GameInfo', header: bytes) -> No
 			pass
 	
 class BadSMSHeaderException(Exception):
-	pass
+	"""SMS standard header contained invalid data, so it's probably not at this location.
+	Users should not see this exception"""
 
 class SMSRegion(NamedTuple):
 	region: str
@@ -101,7 +102,7 @@ def _parse_standard_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, An
 
 def add_info_from_standard_header(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	rom_size = rom.size
-	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
+	possible_offsets = (0x1ff0, 0x3ff0, 0x7ff0)
 
 	header_data = None
 	for possible_offset in possible_offsets:
