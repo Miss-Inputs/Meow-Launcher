@@ -74,15 +74,15 @@ class ROMGame(EmulatedGame):
 		if software:
 			return software
 
-		if self.platform_config.options.get('find_software_by_name', False):
-			software = find_software_by_name(software_lists, self.rom.name)
-			if software:
-				return software
 		if self.platform_config.options.get('find_software_by_product_code', False) and self.info.product_code:
 			software = find_in_software_lists_with_custom_matcher(software_lists, _software_list_product_code_matcher, [self.info.product_code])
 			if software:
 				return software
 
+		if self.platform_config.options.get('find_software_by_name', False):
+			software = find_software_by_name(software_lists, self.rom.name)
+			if software:
+				return software
 		return None
 
 class ROMLauncher(EmulatorLauncher):
