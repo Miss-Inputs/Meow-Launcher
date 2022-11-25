@@ -79,7 +79,7 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 			if normalize_name(f'{name_without_brackety_bois}: {subtitles[name_without_brackety_bois]}') != software_normalized_name:
 				return False
 		elif software_name_without_brackety_bois in subtitles:
-			if normalize_name(f'{name_without_brackety_bois}: {subtitles[name_without_brackety_bois]}') != normalized_name:
+			if normalize_name(f'{software_name_without_brackety_bois}: {subtitles[software_name_without_brackety_bois]}') != normalized_name:
 				return False
 		else:
 			return False
