@@ -153,7 +153,7 @@ def _parse_opening_bnr(metadata: 'GameInfo', opening_bnr: bytes) -> None:
 		local_title = names.get('Japanese')
 	elif region_code == NintendoDiscRegion.NTSC_K:
 		local_title = names.get('Korean')
-	elif region_code in (NintendoDiscRegion.NTSC_U, NintendoDiscRegion.PAL, NintendoDiscRegion.RegionFree):
+	elif region_code in {NintendoDiscRegion.NTSC_U, NintendoDiscRegion.PAL, NintendoDiscRegion.RegionFree}:
 		#This is still a bit anglocentric of me to ignore European languages, but eh
 		local_title = names.get('English')
 	elif names: #and region_code is None, which I would think shouldn't happen too often

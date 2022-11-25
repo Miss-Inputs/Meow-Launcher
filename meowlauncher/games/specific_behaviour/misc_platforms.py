@@ -182,7 +182,7 @@ def add_pet_custom_info(game: 'ROMGame') -> None:
 			tag = tag[1:-1]
 
 		for model in ('3008', '3016', '3032', '3032B', '4016', '4032', '4032B', '8032', '8096', '8296', 'SuperPET'):
-			if tag in (model, f'CBM {model}', f'CBM{model}', f'PET {model}', f'PET{model}'):
+			if tag in {model, f'CBM {model}', f'CBM{model}', f'PET {model}', f'PET{model}'}:
 				game.info.specific_info['Machine'] = model
 				continue
 		if tag in {'PET 2001', 'PET2001', 'CBM 2001', 'CBM2001'}:
@@ -190,7 +190,7 @@ def add_pet_custom_info(game: 'ROMGame') -> None:
 			game.info.specific_info['Machine'] = '2001'
 			continue
 		for ram in (8, 16, 32, 96, 128):
-			if tag.lower() in (f'{ram}k ram', f'{ram}kb ram'):
+			if tag.lower() in {f'{ram}k ram', f'{ram}kb ram'}:
 				game.info.specific_info['Minimum RAM'] = ByteAmount(ram * 1024)
 				continue
 

@@ -50,7 +50,7 @@ def add_pc_engine_cd_software_info(software: 'Software', metadata: 'GameInfo') -
 	software.add_standard_metadata(metadata)
 	metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 	usage = software.get_info('usage')
-	if usage not in ('Game Express CD Card required', 'CD-Rom System Card required'):
+	if usage not in {'Game Express CD Card required', 'CD-Rom System Card required'}:
 		#This is already specified by "requirement"
 		metadata.add_notes(usage)
 	

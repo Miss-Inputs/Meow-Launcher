@@ -136,7 +136,7 @@ def _add_meta_xml_metadata(metadata: 'GameInfo', meta_xml: ElementTree.ElementTr
 		try:
 			region_flags = int(region, 16)
 			for region_code in WiiU3DSRegionCode:
-				if region_code in (WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree):
+				if region_code in {WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree}:
 					continue
 				if region_code.value & region_flags:
 					region_codes.add(region_code)

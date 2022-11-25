@@ -108,7 +108,7 @@ def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: L
 		#seems name = description = comment = usually just the name of the file from No-Intro/Redump, region we already know, enhancement_hw we already know (just SNES and Mega Drive)
 		if 'description' in database_entry:
 			description = database_entry['description']
-			if description not in (database_entry.get('comment'), database_entry.get('name')):
+			if description not in {database_entry.get('comment'), database_entry.get('name')}:
 				metadata.descriptions['Libretro Description'] = description
 
 		date = Date()

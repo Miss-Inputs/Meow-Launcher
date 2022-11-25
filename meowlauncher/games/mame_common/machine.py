@@ -196,7 +196,7 @@ class Machine():
 		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
 		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls, which tends to be the case for a lot of these.
 		#MACHINE_IS_SKELETON is actually defined as MACHINE_NO_SOUND and MACHINE_NOT_WORKING, so we'll look for that too
-		return self.number_of_players == 0 and self.emulation_status in (EmulationStatus.Broken, EmulationStatus.Unknown) and self.feature_statuses.get('sound') == 'unemulated'
+		return self.number_of_players == 0 and self.emulation_status in {EmulationStatus.Broken, EmulationStatus.Unknown} and self.feature_statuses.get('sound') == 'unemulated'
 
 	def uses_device(self, name: str) -> bool:
 		return any(device_ref.attrib['name'] == name for device_ref in self.xml.iter('device_ref'))

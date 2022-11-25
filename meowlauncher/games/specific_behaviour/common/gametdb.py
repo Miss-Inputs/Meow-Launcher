@@ -91,7 +91,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info:
 	#case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the db_entry box
 	
 	for element in db_entry:
-		if element.tag not in ('developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'):
+		if element.tag not in {'developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'}:
 			logger.debug('uwu %s has unknown %s tag', db_entry.attrib['name'], element)
 
 	developer = db_entry.findtext('developer')

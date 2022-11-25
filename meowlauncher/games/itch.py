@@ -248,7 +248,7 @@ class ItchGame(Game):
 
 		params = get_launch_params(flavour, exe_path, windows_info)
 		if not params:
-			if flavour not in ('app-macos', 'macos'):
+			if flavour not in {'app-macos', 'macos'}:
 				logger.debug('Not dealing with %s %s %s %s %s at this point in time', self.path, flavour, exe_path, self.platforms, self.info.platform)
 			return
 		if params[1]:

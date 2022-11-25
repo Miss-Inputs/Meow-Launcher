@@ -83,7 +83,7 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 				return False
 		else:
 			return False
-	if 'demo' in software_tags and 'demo' not in (', ').join(name_tags):
+	if 'demo' in software_tags and 'demo' not in ', '.join(name_tags):
 		return False
 	if 'demo' in name_tags and 'demo' not in software_tags:
 		return False

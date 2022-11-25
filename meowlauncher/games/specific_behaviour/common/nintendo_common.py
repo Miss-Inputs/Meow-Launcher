@@ -157,5 +157,5 @@ def add_info_from_local_titles(metadata: 'GameInfo', short_titles: Mapping[str, 
 		if localized_long_title != local_long_title:
 			metadata.add_alternate_name(localized_long_title, f'{lang} Banner Title')
 	for lang, localized_publisher in publishers.items():
-		if localized_publisher not in (metadata.publisher, local_publisher):
+		if localized_publisher not in {metadata.publisher, local_publisher}:
 			metadata.specific_info[f'{lang} Publisher'] = localized_publisher

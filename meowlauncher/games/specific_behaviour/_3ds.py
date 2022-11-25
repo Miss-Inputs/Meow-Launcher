@@ -285,12 +285,12 @@ def _parse_smdh_data(metadata: 'GameInfo', smdh: bytes) -> None:
 	add_ratings_info(metadata, DSi3DSAgeRatings(smdh[0x2008:0x2018]))
 
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
-	if region_code_flag in (WiiU3DSRegionCode.RegionFree, 0xffffffff):
+	if region_code_flag in {WiiU3DSRegionCode.RegionFree, 0xffffffff}:
 		region_codes = {WiiU3DSRegionCode.RegionFree}
 	else:
 		region_codes = set()
 		for region in WiiU3DSRegionCode:
-			if region in (WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree):
+			if region in {WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree}:
 				continue
 			#I want a set here so this looks weird
 			if region.value & region_code_flag:

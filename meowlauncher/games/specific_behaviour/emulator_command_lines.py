@@ -103,7 +103,7 @@ def mame_atari_2600(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config
 	rom = cast(FileROM, game.rom)
 	size = rom.size
 	#https://github.com/mamedev/mame/blob/master/src/devices/bus/vcs/vcs_slot.cpp#L188
-	if size not in (0x800, 0x1000, 0x2000, 0x28ff, 0x2900, 0x3000, 0x4000, 0x8000, 0x10000, 0x80000):
+	if size not in {0x800, 0x1000, 0x2000, 0x28ff, 0x2900, 0x3000, 0x4000, 0x8000, 0x10000, 0x80000}:
 		raise EmulationNotSupportedException(f'ROM size not supported: {size}')
 
 	if game.info.specific_info.get('Uses Supercharger', False):
@@ -334,7 +334,7 @@ def mame_game_boy(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 	#Should be just as compatible as supergb but with better timing... I think
 	super_gb_system = 'supergb2'
 
-	is_colour = game.info.specific_info.get('Is Colour?', GameBoyColourFlag.No) in (GameBoyColourFlag.Required, GameBoyColourFlag.Yes)
+	is_colour = game.info.specific_info.get('Is Colour?', GameBoyColourFlag.No) != GameBoyColourFlag.No
 	is_sgb = game.info.specific_info.get('SGB Enhanced?', False)
 
 	prefer_sgb = emulator_config.options.get('prefer_sgb_over_gbc', False)
@@ -391,7 +391,7 @@ def mame_lynx(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emu
 def mame_master_system(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	tv_type: TVSystem = TVSystem.PAL #Seems a more sensible default at this point (there are also certain homebrews with less-than-detectable TV types that demand PAL)
 
-	if game.info.specific_info.get('TV Type') in (TVSystem.NTSC, TVSystem.Agnostic):
+	if game.info.specific_info.get('TV Type') in {TVSystem.NTSC, TVSystem.Agnostic}:
 		tv_type = TVSystem.NTSC
 
 	if game.info.specific_info.get('Japanese Only?', False):
@@ -868,12 +868,12 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 	elif game.info.media_type == MediaType.Snapshot:
 		#We do need to plug in the Kempston interface ourselves, though; that's fine. Apparently how the ZX Interface 2 works is that it just maps joystick input to keyboard input, so we don't really need it, but I could be wrong and thinking of something else entirely.
 		slot = 'dump'
-		if system not in ('specpl2a', 'specpls3'):
+		if system not in {'specpl2a', 'specpls3'}:
 			#Just to safeguard; +3 doesn't have stuff in the exp slot other than Multiface 3; as I understand it the real hardware is incompatible with normal stuff so that's why
 			joystick_type = game.info.specific_info.get('Joystick Type')
 			if joystick_type == ZXJoystick.Kempton:
 				options['exp'] = 'kempjoy'
-			elif joystick_type in (ZXJoystick.SinclairLeft, ZXJoystick.SinclairRight):
+			elif joystick_type in {ZXJoystick.SinclairLeft, ZXJoystick.SinclairRight}:
 				options['exp'] = 'intf2'
 			elif joystick_type == ZXJoystick.Cursor:
 				#This just adds a 1-button joystick which maps directions to 5678 and fire to 0
@@ -971,7 +971,7 @@ def mednafen_snes_faust(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_co
 	#Also does not support any other input except normal controller and multitap
 	expansion_chip = game.info.specific_info.get('Expansion Chip')
 	if expansion_chip:
-		if expansion_chip not in (SNESExpansionChip.CX4, SNESExpansionChip.SA_1, SNESExpansionChip.DSP_1, SNESExpansionChip.SuperFX, SNESExpansionChip.SuperFX2, SNESExpansionChip.DSP_2, SNESExpansionChip.S_DD1):
+		if expansion_chip not in {SNESExpansionChip.CX4, SNESExpansionChip.SA_1, SNESExpansionChip.DSP_1, SNESExpansionChip.SuperFX, SNESExpansionChip.SuperFX2, SNESExpansionChip.DSP_2, SNESExpansionChip.S_DD1}:
 			raise EmulationNotSupportedException(f'{expansion_chip} not supported')
 	return mednafen_module('snes_faust', exe_path=emulator_config.exe_path)
 
@@ -1169,7 +1169,7 @@ def dolphin(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 
 	title_type = game.info.specific_info.get('Title Type')
 	if title_type:
-		if title_type not in (WiiTitleType.Channel, WiiTitleType.DiscWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel):
+		if title_type not in {WiiTitleType.Channel, WiiTitleType.DiscWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel}:
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
 			raise NotActuallyLaunchableGameException(f'Cannot boot a {title_type.name}')
 
@@ -1426,7 +1426,7 @@ def snes9x(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulat
 			raise EmulationNotSupportedException(f'{slot} mapper not supported')
 
 	expansion_chip = game.info.specific_info.get('Expansion Chip')
-	if expansion_chip in (SNESExpansionChip.ST018, SNESExpansionChip.DSP_3):
+	if expansion_chip in {SNESExpansionChip.ST018, SNESExpansionChip.DSP_3}:
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
 		raise EmulationNotSupportedException(f'{expansion_chip} not supported')
@@ -1458,7 +1458,7 @@ def xemu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulator
 
 def yuzu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	title_type = game.info.specific_info.get('Title Type')
-	if title_type in ('Patch', 'AddOnContent', SwitchContentMetaType.Patch, SwitchContentMetaType.AddOnContent):
+	if title_type in {'Patch', 'AddOnContent', SwitchContentMetaType.Patch, SwitchContentMetaType.AddOnContent}:
 		#If we used the .cnmt.xml, it will just be a string
 		raise NotActuallyLaunchableGameException(f'Cannot boot a {title_type}')
 	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', rom_path_argument])
@@ -1686,8 +1686,8 @@ def blastem(game: 'ROMGame', _, __) -> None:
 		if mapper:
 			#Some probably only work with rom.db being there, this assumes it is
 			#Some bootleg mappers don't seem to have any indication that they should work but seem to
-			if mapper not in ('EEPROM', 'J-Cart', 'J-Cart + EEPROM', 'ssf2', 'cslam', 'hardbl95', 'blara',
-			'mcpir', 'realtec', 'sbubl', 'squir', 'elfwor', 'kof99', 'smouse', 'sk'):
+			if mapper not in {'EEPROM', 'J-Cart', 'J-Cart + EEPROM', 'ssf2', 'cslam', 'hardbl95', 'blara',
+			'mcpir', 'realtec', 'sbubl', 'squir', 'elfwor', 'kof99', 'smouse', 'sk'}:
 				raise EmulationNotSupportedException(mapper)
 
 def mesen(game: 'ROMGame', _, __) -> None:

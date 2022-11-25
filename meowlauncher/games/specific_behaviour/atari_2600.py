@@ -1,6 +1,6 @@
 import hashlib
-from pathlib import Path
 import subprocess
+from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_info
@@ -15,9 +15,10 @@ from meowlauncher.util.region_info import TVSystem
 from .common import atari_controllers as controllers
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
+
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
-	from collections.abc import Mapping
 
 _stella_configs = emulator_configs.get('Stella')
 
@@ -215,7 +216,7 @@ def _parse_peripherals(metadata: 'GameInfo') -> None:
 	left = metadata.specific_info.get('Left Peripheral')
 	right = metadata.specific_info.get('Right Peripheral')
 
-	metadata.save_type = SaveType.MemoryCard if right in (Atari2600Controller.AtariVox, Atari2600Controller.SaveKey) else SaveType.Nothing
+	metadata.save_type = SaveType.MemoryCard if right in {Atari2600Controller.AtariVox, Atari2600Controller.SaveKey} else SaveType.Nothing
 	if right == Atari2600Controller.KidVid:
 		metadata.specific_info['Uses Kid Vid?'] = True
 

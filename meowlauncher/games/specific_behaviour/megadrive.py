@@ -130,7 +130,7 @@ def add_megadrive_info(game_info: GameInfo, header: bytes, object_for_logging: A
 		return
 
 	game_info.specific_info['Console Name'] = console_name
-	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA') and console_name not in ('IMA IKUNOUJYUKU ', 'IMA IKUNOJYUKU  ', 'SAMSUNG PICO    '):
+	if not console_name.startswith(('SEGA', ' SEGA')) and console_name not in {'IMA IKUNOUJYUKU ', 'IMA IKUNOJYUKU  ', 'SAMSUNG PICO    '}:
 		game_info.specific_info['Bad TMSS?'] = True
 		return
 
