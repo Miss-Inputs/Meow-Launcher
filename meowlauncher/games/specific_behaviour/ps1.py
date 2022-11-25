@@ -1,7 +1,8 @@
-from functools import lru_cache
 import json
 import logging
-from enum import Enum
+from dataclasses import dataclass
+from enum import IntEnum
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
@@ -10,20 +11,27 @@ from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.util.region_info import get_language_by_english_name
 
 if TYPE_CHECKING:
-	from collections.abc import Mapping, Collection
+	from collections.abc import Collection, Mapping
+
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 _duckstation_config = emulator_configs.get('DuckStation')
 
-class DuckStationCompatibility(Enum):
+class DuckStationCompatibility(IntEnum):
 	NoIssues = 5
 	GraphicalOrAudioIssues = 4
 	CrashesInGame = 3
 	CrashesInIntro = 2
 	DoesNotBoot = 1
 	Unknown = 0
+
+@dataclass
+class DuckStationCompatibilityEntry():
+	compatibility: DuckStationCompatibility
+	comments: str | None
+	upscaling_issues: str | None
 
 @lru_cache(maxsize=1)
 def _get_duckstation_compat_xml() -> 'ElementTree.ElementTree | None':
@@ -38,7 +46,7 @@ def _get_duckstation_compat_xml() -> 'ElementTree.ElementTree | None':
 		logger.exception('oh dear')
 		return None
 	
-def _find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility | None:
+def _find_duckstation_compat_info(product_code: str) -> DuckStationCompatibilityEntry | None:
 	compat_xml = _get_duckstation_compat_xml()
 	if not compat_xml:
 		return None
@@ -47,7 +55,7 @@ def _find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility
 		try:
 			compatibility = entry.attrib.get('compatibility')
 			if compatibility:
-				return DuckStationCompatibility(int(compatibility))
+				return DuckStationCompatibilityEntry(DuckStationCompatibility(int(compatibility)), entry.findtext('comments'), entry.findtext('upscaling-issues'))
 		except ValueError:
 			pass
 	return None
@@ -96,7 +104,9 @@ def add_info_from_product_code(product_code: str, metadata: 'GameInfo') -> None:
 	if _duckstation_config:
 		compat = _find_duckstation_compat_info(product_code)
 		if compat:
-			metadata.specific_info['DuckStation Compatibility'] = compat
+			metadata.specific_info['DuckStation Compatibility'] = compat.compatibility
+			metadata.specific_info['DuckStation Compatibility Comments'] = compat.comments
+			metadata.specific_info['DuckStation Upscaling Issues'] = compat.upscaling_issues
 		db_entry = _get_duckstation_db_info(product_code)
 		if db_entry:
 			_add_duckstation_db_info(db_entry, metadata)

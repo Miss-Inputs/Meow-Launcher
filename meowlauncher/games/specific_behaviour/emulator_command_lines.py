@@ -26,8 +26,8 @@ from meowlauncher.launch_command import (LaunchCommand, MultiLaunchCommands,
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          GameBoyColourFlag,
                                          MegadriveRegionCodes, NESPeripheral,
-                                         SaturnDreamcastRegionCodes, SMSPeripheral,
-                                         SNESExpansionChip,
+                                         SaturnDreamcastRegionCodes,
+                                         SMSPeripheral, SNESExpansionChip,
                                          SwitchContentMetaType, WiiTitleType,
                                          ZXJoystick, ZXMachine)
 from meowlauncher.util.region_info import TVSystem
@@ -1182,7 +1182,7 @@ def duckstation(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 	if threshold:
 		game_compat = game.info.specific_info.get('DuckStation Compatibility')
 		if game_compat:
-			if game_compat.value < threshold:
+			if game_compat < threshold:
 				raise EmulationNotSupportedException(f'Game is only {game_compat.name} status')
 
 	return LaunchCommand(emulator_config.exe_path, ['-batch', '-fullscreen', rom_path_argument])
