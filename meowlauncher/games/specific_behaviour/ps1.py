@@ -1,3 +1,4 @@
+from functools import lru_cache
 import json
 import logging
 from enum import Enum
@@ -9,7 +10,7 @@ from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.util.region_info import get_language_by_english_name
 
 if TYPE_CHECKING:
-	from collections.abc import Mapping
+	from collections.abc import Mapping, Collection
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
 
@@ -24,46 +25,47 @@ class DuckStationCompatibility(Enum):
 	DoesNotBoot = 1
 	Unknown = 0
 
-def find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility | None:
+@lru_cache(maxsize=1)
+def _get_duckstation_compat_xml() -> 'ElementTree.ElementTree | None':
+	assert _duckstation_config, 'We already checked before calling'
 	compat_xml_path = _duckstation_config.options.get('compatibility_xml_path')
 	if not compat_xml_path:
 		return None
 
-	if not hasattr(find_duckstation_compat_info, 'compat_xml'):
-		try:
-			find_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path) #type: ignore[attr-defined]
-		except OSError:
-			logger.exception('Oh dear we have an OSError trying to load compat_xml')
-			return None
-
-	entry = find_duckstation_compat_info.compat_xml.find(f'entry[@code="{product_code}"]') #type: ignore[attr-defined]
+	try:
+		return ElementTree.parse(compat_xml_path)
+	except OSError:
+		logger.exception('oh dear')
+		return None
+	
+def _find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility | None:
+	compat_xml = _get_duckstation_compat_xml()
+	if not compat_xml:
+		return None
+	entry = compat_xml.find(f'entry[@code="{product_code}"]')
 	if entry is not None:
 		try:
-			compatibility = int(entry.attrib.get('compatibility'))
+			compatibility = entry.attrib.get('compatibility')
 			if compatibility:
-				return DuckStationCompatibility(compatibility)
+				return DuckStationCompatibility(int(compatibility))
 		except ValueError:
 			pass
 	return None
 
-def get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any] | None':
+@lru_cache(maxsize=1)
+def _get_duckstation_db() -> 'Collection[Mapping[Any, Any]]':
+	assert _duckstation_config, 'We already checked before calling'
 	gamedb_path = _duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:
-		return None
+		return []
+	try:
+		return json.loads(gamedb_path.read_bytes())
+	except OSError:
+		logger.exception('oh bother')
+		return []
 
-	if not hasattr(get_duckstation_db_info, 'gamedb'):
-		try:
-			get_duckstation_db_info.gamedb = json.loads(gamedb_path.read_bytes()) #type: ignore[attr-defined]
-		except OSError:
-			if not getattr(get_duckstation_db_info, 'error', False):
-				logger.exception('Oh dear we have an OSError trying to load gamedb')
-				get_duckstation_db_info.error = True #type: ignore[attr-defined]
-			return None
-
-	for db_game in get_duckstation_db_info.gamedb: #type: ignore[attr-defined]
-		if db_game.get('serial') == product_code:
-			return db_game
-	return None
+def _get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any] | None':
+	return next((db_entry for db_entry in _get_duckstation_db() if db_entry.get('serial') == product_code), None)
 
 def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'GameInfo') -> None:
 	metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
@@ -92,10 +94,10 @@ def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'GameInfo'
 
 def add_info_from_product_code(product_code: str, metadata: 'GameInfo') -> None:
 	if _duckstation_config:
-		compat = find_duckstation_compat_info(product_code)
+		compat = _find_duckstation_compat_info(product_code)
 		if compat:
 			metadata.specific_info['DuckStation Compatibility'] = compat
-		db_entry = get_duckstation_db_info(product_code)
+		db_entry = _get_duckstation_db_info(product_code)
 		if db_entry:
 			_add_duckstation_db_info(db_entry, metadata)
 
