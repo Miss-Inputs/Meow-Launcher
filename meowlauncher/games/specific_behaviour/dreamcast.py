@@ -158,8 +158,6 @@ def add_dreamcast_custom_info(game: 'ROMGame') -> None:
 		add_dreamcast_rom_info(game.rom, game.info)
 
 	try:
-		#TODO: This should be some property on Dreamcast that says "software lists are all chd", or like somewhere else
-		#This is just here now so it doesn't try reading other file types to get crc32 of them
 		software = game.get_software_list_entry()
 		if software:
 			add_generic_software_info(software, game.info)
