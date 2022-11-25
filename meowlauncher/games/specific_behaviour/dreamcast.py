@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
-from meowlauncher.platform_types import SaturnRegionCodes
+from meowlauncher.platform_types import SaturnDreamcastRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
@@ -84,11 +84,11 @@ def _add_info_from_main_track(game_info: GameInfo, track_path: Path, sector_size
 	region_info = header[48:56]
 	region_codes = set()
 	if b'J' in region_info:
-		region_codes.add(SaturnRegionCodes.Japan)
+		region_codes.add(SaturnDreamcastRegionCodes.Japan)
 	if b'U' in region_info:
-		region_codes.add(SaturnRegionCodes.USA)
+		region_codes.add(SaturnDreamcastRegionCodes.USA)
 	if b'E' in region_info:
-		region_codes.add(SaturnRegionCodes.Europe)
+		region_codes.add(SaturnDreamcastRegionCodes.Europe)
 	#Some other region codes appear sometimes but they might not be entirely valid
 	game_info.specific_info['Region Code'] = region_codes
 

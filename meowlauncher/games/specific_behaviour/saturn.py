@@ -7,7 +7,7 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date
-from meowlauncher.platform_types import SaturnRegionCodes
+from meowlauncher.platform_types import SaturnDreamcastRegionCodes
 from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
 from meowlauncher.util.utils import load_dict
 
@@ -167,11 +167,11 @@ def add_saturn_info(rom_path_for_warning: Any, game_info: 'GameInfo', header: by
 	#Only 10 characters are used
 	region_codes = set()
 	if b'J' in region_info:
-		region_codes.add(SaturnRegionCodes.Japan)
+		region_codes.add(SaturnDreamcastRegionCodes.Japan)
 	if b'U' in region_info:
-		region_codes.add(SaturnRegionCodes.USA)
+		region_codes.add(SaturnDreamcastRegionCodes.USA)
 	if b'E' in region_info:
-		region_codes.add(SaturnRegionCodes.Europe)
+		region_codes.add(SaturnDreamcastRegionCodes.Europe)
 
 	#Some other region codes appear sometimes, but I haven't been able to verify _exactly_ what they are, and I don't really wanna make guesses
 	#T = Taiwan?

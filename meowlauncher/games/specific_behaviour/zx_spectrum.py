@@ -30,7 +30,7 @@ _zx_hardware: dict[int, ZXHardware] = {
 	13: ZXHardware(ZXMachine.SpectrumPlus2A, None),
 	14: ZXHardware(ZXMachine.TimexComputer2048, None),
 	15: ZXHardware(ZXMachine.TimexComputer2068, None),
-	16: ZXHardware(ZXMachine.TimexSinclair2068, None),
+	128: ZXHardware(ZXMachine.TimexSinclair2068, None),
 }
 
 def add_z80_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:

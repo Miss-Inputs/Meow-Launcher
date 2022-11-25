@@ -4,6 +4,7 @@ from enum import Enum, IntEnum, auto
 
 
 class AppleIIHardware(Enum):
+	"""Minimum required hardware for Apple II software, as indicated from various info"""
 	AppleII = auto()
 	AppleIIPlus = auto()
 	AppleIIE = auto()
@@ -15,6 +16,7 @@ class AppleIIHardware(Enum):
 	AppleIIIPlus = auto()
 
 class Atari2600Controller(Enum):
+	"""Controller used in a given port by an Atari 2600 game"""
 	Nothing = auto()
 	Joystick = auto()
 	Paddle = auto() #2 players per port
@@ -36,12 +38,13 @@ class Atari2600Controller(Enum):
 	KidVid = auto()
 
 class GameBoyColourFlag(IntEnum):
+	"""Flag in Game Boy ROM header that specifies if it is in colour or not or required"""
 	No = 0
 	Yes = 0x80
 	Required = 0xc0
-	#Ah yes, the three boolean values
 
 class SMSPeripheral(Enum):
+	"""Controller used by Master System game"""
 	StandardController = auto()
 	Lightgun = auto()
 	Paddle = auto()
@@ -49,20 +52,23 @@ class SMSPeripheral(Enum):
 	SportsPad = auto()
 
 class MegadriveRegionCodes(Enum):
-	Japan = auto() #J
-	USA = auto() #U
-	Europe = auto() #E
+	"""Region codes used in Mega Drive/32X/Pico ROM headers"""
+	Japan = 'J'
+	USA = 'U'
+	Europe = 'E'
 
 	#These might _not_ actually be valid, but they show up in retail games sometimes:
-	World = auto() #F, I have seen some documentation say this is France but that doesn't seem to be how it's used
-	Japan1 = auto() #1.. not sure what's different than normal J but I've only seen it in 32X so far
-	BrazilUSA = auto() #4
-	EuropeA = auto() #A, not sure what makes this different from normal Europe? But it happens
-	JapanUSA = auto() #5, sometimes this is used in place of J and U together for some reason
-	Europe8 = auto() #8, not sure what's different than normal Europe?
-	USAEurope = auto() #C, not sure what's different than World?
+	World = 'F' #I have seen some documentation say this is France but that doesn't seem to be how it's used
+	Japan1 = '1' #not sure what's different than normal J but I've only seen it in 32X so far
+	BrazilUSA = '4'
+	EuropeA = 'A' #not sure what makes this different from normal Europe? But it happens
+	JapanUSA = '5' #sometimes this is used in place of J and U together for some reason
+	Europe8 = '8' #not sure what's different than normal Europe?
+	USAEurope = 'C' #Why not UE? Who knows
+	USAEuropeS = 'S' #From Castle of Illusion
 
 class NESPeripheral(Enum):
+	"""Controllers/expansion devices/etc used with a NES/Famicom game"""
 	NormalController = auto()
 	Zapper = auto()
 	ArkanoidPaddle = auto() #AKA Vaus
@@ -73,20 +79,22 @@ class NESPeripheral(Enum):
 	SuborKeyboard = auto() #Different from the Famicom keyboard, this requires sb486 driver (there are other Subor famiclones but that will do) although seemingly is a Famicom expansion port device
 	Piano = auto() #Miracle Piano Teaching System thingy
 
-class SaturnRegionCodes(Enum):
-	Japan = auto() #J
-	USA = auto() #U
-	Europe = auto() #E
+class SaturnDreamcastRegionCodes(Enum):
+	"""Region codes in Saturn/Dreamcast disc header"""
+	Japan = 'J'
+	USA = 'U'
+	Europe = 'E'
 
 class SNESExpansionChip(Enum):
+	"""Expansion chip inside SNES cartridge, as defined by ROM header"""
 	DSP_1 = auto()
 	SuperFX = auto()
 	SuperFX2 = auto()
 	OBC_1 = auto()
 	SA_1 = auto()
 	S_DD1 = auto()
-	SuperGB = auto() #For Super GB BIOS carts
-	BSX = auto() #For Satellaview BIOS carts
+	SuperGameBoyBIOS = auto()
+	BSXBIOS = auto()
 	CX4 = auto()
 	ST018 = auto()
 	ST010 = auto()
@@ -97,6 +105,7 @@ class SNESExpansionChip(Enum):
 	DSP_4 = auto()
 
 class SwitchContentMetaType(IntEnum):
+	"""https://switchbrew.org/wiki/NCM_services#ContentMetaType"""
 	Unknown = 0
 	SystemProgram = 1
 	SystemData = 2
@@ -107,23 +116,27 @@ class SwitchContentMetaType(IntEnum):
 	Patch = 0x81
 	AddOnContent = 0x82
 	Delta = 0x83
+	DataPatch = 0x84 #15.0.0+
 
 class WiiTitleType(IntEnum):
+	"""https://wiibrew.org/wiki/Title#Types_of_titles"""
 	System = 0x00000001
-	Game = 0x00010000 #Seems to be only used for disc games, WiiWare and VC games are still Channel
-	Channel = 0x00010001
+	Disc = 0x00010000
+	Channel = 0x00010001 #From Wii Shop Channel
 	SystemChannel = 0x00010002
-	GameWithChannel = 0x00010004 #Channels that come with games, e.g. Wii Fit Plus Channel or whatevs
+	DiscWithChannel = 0x00010004 #Also for the channel that is installed by these discs
 	DLC = 0x00010005
 	HiddenChannel = 0x00010008
 
 class ZXJoystick(IntEnum):
+	"""Type of joystick for .z80 file"""
 	Cursor = 0
 	Kempton = 1
 	SinclairLeft = 2 #For .z80 v3 this is user defined
 	SinclairRight = 3
 
 class ZXMachine(Enum):
+	"""Machine type for ZX Spectrum software"""
 	ZX16k = auto()
 	ZX48k = auto()
 	ZX128k = auto()
@@ -139,6 +152,7 @@ class ZXMachine(Enum):
 	TimexSinclair2068 = auto() #48K
 
 class ZXExpansion(Enum):
+	"""Expansion device used alongside machine type for ZX Spectrum software"""
 	Interface1 = auto()
 	Interface2 = auto()
 	MGT = auto()

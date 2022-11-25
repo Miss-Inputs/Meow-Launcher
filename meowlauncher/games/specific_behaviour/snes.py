@@ -67,8 +67,8 @@ _rom_types = {
 	67: ROMType(SNESExpansionChip.S_DD1),
 	69: ROMType(SNESExpansionChip.S_DD1, has_ram=True, has_battery=True),
 	85: ROMType(has_ram=True, has_battery=True, has_rtc=True),
-	227: ROMType(SNESExpansionChip.SuperGB, has_ram=True),
-	229: ROMType(SNESExpansionChip.BSX),
+	227: ROMType(SNESExpansionChip.SuperGameBoyBIOS, has_ram=True),
+	229: ROMType(SNESExpansionChip.BSXBIOS),
 	243: ROMType(SNESExpansionChip.CX4),
 	245: ROMType(SNESExpansionChip.ST018),
 	246: ROMType(SNESExpansionChip.ST010), #or ST011, but it doesn't distinguish there

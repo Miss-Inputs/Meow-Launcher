@@ -110,24 +110,14 @@ def _add_info_from_copyright_string(game_info: GameInfo, copyright_string: str) 
 
 def _parse_region_codes(regions: bytes, object_for_logging: Any=None) -> Collection[MegadriveRegionCodes]:
 	region_codes = set()
-	region_chars = {
-		'J': MegadriveRegionCodes.Japan,
-		'U': MegadriveRegionCodes.USA,
-		'E': MegadriveRegionCodes.Europe,
-		'F': MegadriveRegionCodes.World,
-		'1': MegadriveRegionCodes.Japan1,
-		'4': MegadriveRegionCodes.BrazilUSA,
-		'5': MegadriveRegionCodes.JapanUSA,
-		'A': MegadriveRegionCodes.EuropeA,
-		'8': MegadriveRegionCodes.Europe8, #Apparently…
-		'C': MegadriveRegionCodes.USAEurope, #Apparently…
-	}
 	for region in regions:
-		region_code = region_chars.get(chr(region))
-		if region_code:
+		try:
+			region_code = MegadriveRegionCodes(chr(region))
+		except ValueError:
+			if region not in {0, 32, 255}:
+				logger.debug('%s has unknown region code: %s', object_for_logging, chr(region))
+		else:
 			region_codes.add(region_code)
-		elif region not in {0, 32}:
-			logger.debug('%s has unknown region code: %s', object_for_logging, chr(region))
 	#Seen in some betas and might just be invalid:
 	#D - Brazil?
 	return region_codes

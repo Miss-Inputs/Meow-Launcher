@@ -26,7 +26,7 @@ from meowlauncher.launch_command import (LaunchCommand, MultiLaunchCommands,
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          GameBoyColourFlag,
                                          MegadriveRegionCodes, NESPeripheral,
-                                         SaturnRegionCodes, SMSPeripheral,
+                                         SaturnDreamcastRegionCodes, SMSPeripheral,
                                          SNESExpansionChip,
                                          SwitchContentMetaType, WiiTitleType,
                                          ZXJoystick, ZXMachine)
@@ -279,11 +279,11 @@ def mame_dreamcast(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config:
 		raise EmulationNotSupportedException('Windows CE-based games not supported')
 
 	region_codes = game.info.specific_info.get('Region Code')
-	if region_codes and SaturnRegionCodes.USA in region_codes:
+	if region_codes and SaturnDreamcastRegionCodes.USA in region_codes:
 		system = 'dc'
-	elif region_codes and SaturnRegionCodes.Japan in region_codes:
+	elif region_codes and SaturnDreamcastRegionCodes.Japan in region_codes:
 		system = 'dcjp'
-	elif region_codes and SaturnRegionCodes.Europe in region_codes:
+	elif region_codes and SaturnDreamcastRegionCodes.Europe in region_codes:
 		system = 'dceu'
 	else:
 		#Default to USA
@@ -710,11 +710,11 @@ def mame_saturn(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 	region_codes = game.info.specific_info.get('Region Code')
 	if region_codes:
 		#Clones here are hisaturn and vsaturn, not sure how useful those would be
-		if SaturnRegionCodes.USA in region_codes:
+		if SaturnDreamcastRegionCodes.USA in region_codes:
 			system = 'saturn'
-		elif SaturnRegionCodes.Japan in region_codes:
+		elif SaturnDreamcastRegionCodes.Japan in region_codes:
 			system = 'saturnjp'
-		elif SaturnRegionCodes.Europe in region_codes:
+		elif SaturnDreamcastRegionCodes.Europe in region_codes:
 			system = 'saturneu'
 
 	#TODO: Use ctrl1 and ctrl2 to set controllers (analog, joy_md3, joy_md6, joypad, keyboard, mouse, racing, segatap (???), trackball)
@@ -1169,7 +1169,7 @@ def dolphin(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 
 	title_type = game.info.specific_info.get('Title Type')
 	if title_type:
-		if title_type not in (WiiTitleType.Channel, WiiTitleType.GameWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel):
+		if title_type not in (WiiTitleType.Channel, WiiTitleType.DiscWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel):
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
 			raise NotActuallyLaunchableGameException(f'Cannot boot a {title_type.name}')
 
