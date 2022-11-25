@@ -62,7 +62,7 @@ class ROMGame(EmulatedGame):
 		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
 		return _software_lists_for_platform(self.platform)
 
-	def get_software_list_entry(self) -> Optional['Software']:
+	def get_software_list_entry(self) -> 'Software | None':
 		if not self.platform.software_list_names:
 			return None
 
@@ -71,13 +71,19 @@ class ROMGame(EmulatedGame):
 			software = self.rom.get_software_list_entry(software_lists, self.platform.databases_are_byteswapped)
 		except NotImplementedError:
 			pass
+		if software:
+			return software
 
-		if not software and self.platform_config.options.get('find_software_by_name', False):
+		if self.platform_config.options.get('find_software_by_name', False):
 			software = find_software_by_name(software_lists, self.rom.name)
-		if not software and (self.platform_config.options.get('find_software_by_product_code', False) and self.info.product_code):
+			if software:
+				return software
+		if self.platform_config.options.get('find_software_by_product_code', False) and self.info.product_code:
 			software = find_in_software_lists_with_custom_matcher(software_lists, _software_list_product_code_matcher, [self.info.product_code])
+			if software:
+				return software
 
-		return software
+		return None
 
 class ROMLauncher(EmulatorLauncher):
 	_clean_for_filename = re.compile(r'[^A-Za-z0-9_]') #You may notice that it doesn't even have spaces… just in case
@@ -92,8 +98,7 @@ class ROMLauncher(EmulatorLauncher):
 
 	def _make_very_safe_temp_filename(self) -> str:
 		name = ROMLauncher._clean_for_filename.sub('-', self.name)
-		while name.startswith('-'):
-			name = name[1:]
+		name = name.lstrip('-')
 		if not name:
 			name = 'blank'
 		return name
