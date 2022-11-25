@@ -81,7 +81,7 @@ def add_z80_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 
 	metadata.specific_info['ROM Format'] = f'Z80 v{header_version}'
 
-def add_speccy_software_list_metadata(software: 'Software', metadata: 'GameInfo') -> None:
+def add_speccy_software_list_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.infos.get('usage')
 	if usage == 'Requires Multiface':
@@ -119,25 +119,18 @@ def _ram_requirement_from_tag(tag: str)	-> tuple[ByteAmount, ByteAmount] | None:
 		return ByteAmount(128 * 1024), ByteAmount(128 * 1024)
 	return None
 
-def add_speccy_filename_tags_info(tags: 'Collection[str]', metadata: 'GameInfo') -> None:
+def add_speccy_filename_tags_info(tags: 'Collection[str]', game_info: 'GameInfo') -> None:
 	for tag in tags:
-		if 'Machine' not in metadata.specific_info:
+		if 'Machine' not in game_info.specific_info:
 			machine = _machine_from_tag(tag)
 			if machine:
-				metadata.specific_info['Machine'] = machine
+				game_info.specific_info['Machine'] = machine
 				break
 		ram_requirement = _ram_requirement_from_tag(tag)
 		if ram_requirement:
-			metadata.specific_info['Minimum RAM'], metadata.specific_info['Recommended RAM'] = ram_requirement
+			game_info.specific_info['Minimum RAM'], game_info.specific_info['Recommended RAM'] = ram_requirement
 			break
 
-def add_speccy_custom_info(game: 'ROMGame') -> None:
-	if isinstance(game.rom, FileROM):
-		if game.rom.extension == 'z80':
-			add_z80_metadata(game.rom, game.info)
-
-	add_speccy_filename_tags_info(game.filename_tags, game.info)
-
-	software = game.get_software_list_entry()
-	if software:
-		add_speccy_software_list_metadata(software, game.info)
+def add_speccy_rom_info(rom: 'FileROM', game_info: 'GameInfo') -> None:
+	if rom.extension == 'z80':
+		add_z80_metadata(rom, game_info)

@@ -7,7 +7,8 @@ from meowlauncher.games.specific_behaviour.simple_filename_info import \
     add_atari_st_info
 
 from ._3ds import add_3ds_custom_info
-from .amiga import add_amiga_custom_info
+from .amiga import (add_amiga_info_from_filename_tags,
+                    add_amiga_software_list_info)
 from .apple_ii import add_apple_ii_rom_file_info, add_apple_ii_software_info
 from .atari_8_bit import add_atari_8bit_custom_info
 from .atari_2600 import add_atari_2600_custom_info
@@ -27,7 +28,8 @@ from .master_system import (add_sms_gg_rom_file_info,
 from .megadrive import (add_megadrive_custom_info,
                         find_equivalent_mega_drive_arcade)
 from .misc_platforms import (add_colecovision_software_info,
-                             add_ibm_pcjr_custom_info, add_pet_custom_info,
+                             add_ibm_pcjr_custom_info,
+                             add_pet_info_from_filename_tags,
                              add_vic10_custom_info, add_vic20_custom_info,
                              find_equivalent_pc_engine_arcade)
 from .n64 import add_n64_custom_info
@@ -74,15 +76,17 @@ from .static_platform_info import (add_3ds_info, add_arcadia_info,
                                    add_virtual_boy_info, add_vsmile_babby_info,
                                    add_vsmile_info, add_vz200_info,
                                    add_watara_supervision_info,
-                                   add_wonderswan_info) 
-								   #Yes I know we are not using a few, because they are called from *_custom_info for now
+                                   add_wonderswan_info)
 from .switch import add_switch_rom_file_info
 from .uzebox import add_uzebox_custom_info
 from .virtual_boy import add_virtual_boy_rom_info
 from .wii import add_wii_custom_info
 from .wii_u import add_wii_u_custom_info
 from .wonderswan import add_wonderswan_header_info
-from .zx_spectrum import add_speccy_custom_info
+from .zx_spectrum import (add_speccy_filename_tags_info, add_speccy_rom_info,
+                          add_speccy_software_list_info)
+
+#Yes I know we are not using a few, because they are called from *_custom_info for now
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.machine import Machine
@@ -126,11 +130,6 @@ custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	'Atari 2600': add_atari_2600_custom_info, #Software, custom database (Stella output, by md5), reads the whole cart as an optimization for both, but it could just not
 	'Game Boy': add_game_boy_custom_info, #Internal header, footer shenanigans (.gbx), software, inbuilt controls
 	'Intellivision': add_intellivision_custom_info, #Fucky custom software getter
-
-	#TODO: I think we can make filename tags work as a start (when less tired)
-	'Amiga': add_amiga_custom_info, #Software, filename tags
-	'Commodore PET': add_pet_custom_info, #Software, filename tags
-	'ZX Spectrum': add_speccy_custom_info, #Internal info (z80), generic software, filename tags (but we don't want to overwrite info we detected from z80)
 
 	#TODO: Getting info from product code after we've done the software/rom info could be straightforward enough too
 	'PS2': add_ps2_custom_info, #Info from product code, internal info inside .iso (we want to get .cue discs too but it does not yet)
@@ -211,9 +210,11 @@ rom_file_info_funcs: Mapping[str, Callable[['FileROM', 'GameInfo'], None]] = {
 	'Vectrex': add_vectrex_header_info,
 	'Virtual Boy': add_virtual_boy_rom_info,
 	'WonderSwan': add_wonderswan_header_info,
+	'ZX Spectrum': add_speccy_rom_info,
 }
 
 software_info_funcs: Mapping[str, Callable[['Software', 'GameInfo'], None]] = {
+	'Amiga': add_amiga_software_list_info,
 	'Amstrad PCW': add_amstrad_pcw_software_info,
 	'Apple II': add_apple_ii_software_info,
 	'Atari 5200': add_atari_5200_software_info,
@@ -233,10 +234,14 @@ software_info_funcs: Mapping[str, Callable[['Software', 'GameInfo'], None]] = {
 	'Sord M5': add_sord_m5_software_info,
 	'Super Cassette Vision': add_super_cassette_vision_software_info,
 	'Virtual Boy': add_virtual_boy_software_info,
+	'ZX Spectrum': add_speccy_software_list_info,
 }
 
 filename_tag_info_funcs: Mapping[str, Callable[[Sequence[str], 'GameInfo'], None]] = {
-	'Atari ST': add_atari_st_info
+	'Amiga': add_amiga_info_from_filename_tags,
+	'Atari ST': add_atari_st_info,
+	'Commodore PET': add_pet_info_from_filename_tags,
+	'ZX Spectrum': add_speccy_filename_tags_info,
 }
 
 arcade_machine_finders: Mapping[str, Callable[[str], 'Machine | None']] = {

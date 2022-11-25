@@ -12,7 +12,7 @@ from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
 from meowlauncher.games.specific_behaviour.info_helpers import (
     arcade_machine_finders, custom_info_funcs, rom_file_info_funcs,
-    software_info_funcs, static_info_funcs)
+    software_info_funcs, static_info_funcs, filename_tag_info_funcs)
 from meowlauncher.info import Date
 from meowlauncher.util.detect_things_from_filename import \
     get_tv_system_from_filename_tags
@@ -244,6 +244,10 @@ def _add_platform_specific_metadata(game: 'ROMGame') -> None:
 			rom_file_info_func = rom_file_info_funcs.get(game.platform.name)
 			if rom_file_info_func:
 				rom_file_info_func(game.rom, game.info)
+
+		filename_tag_func = filename_tag_info_funcs.get(game.platform.name)
+		if filename_tag_func:
+			filename_tag_func(game.filename_tags, game.info)
 
 		try:
 			software = game.get_software_list_entry()

@@ -12,7 +12,7 @@ from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
 if TYPE_CHECKING:
-	from collections.abc import Iterator
+	from collections.abc import Iterator, Sequence
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
@@ -163,37 +163,29 @@ def add_ibm_pcjr_custom_info(game: 'ROMGame') -> None:
 		#Mount both carts and a DOS floppy and type 'TUTOR'
 		#Boot from a DOS floppy and type 'G'
 
-def add_pet_custom_info(game: 'ROMGame') -> None:
-	software = game.get_software_list_entry()
-	if software:
-		add_generic_software_info(software, game.info)
-
+def add_pet_info_from_filename_tags(tags: 'Sequence[str]', game_info: 'GameInfo') -> None:
 	#Usage strings in pet_rom:
 	#Requires BASIC 2 (works on pet2001n).  Enter 'SYS 37000' to run
 	#SYS38000
 
-	keyboard = input_info.Keyboard()
-	keyboard.keys = 74
-	game.info.input_info.add_option(keyboard)
-	#Don't know about joysticks and I know of no software that uses them
-	for tag in game.filename_tags:
+	for tag in tags:
 		#(2001, 3008, 3016, 3032, 3032B, 4016, 4032, 4032B, 8032, 8096, 8296, SuperPET)
 		if (tag[0] == '(' and tag[-1] == ')') or (tag[0] == '[' and tag[-1] == ']'):
 			tag = tag[1:-1]
 
 		for model in ('3008', '3016', '3032', '3032B', '4016', '4032', '4032B', '8032', '8096', '8296', 'SuperPET'):
 			if tag in {model, f'CBM {model}', f'CBM{model}', f'PET {model}', f'PET{model}'}:
-				game.info.specific_info['Machine'] = model
+				game_info.specific_info['Machine'] = model
 				continue
 		if tag in {'PET 2001', 'PET2001', 'CBM 2001', 'CBM2001'}:
 			#We don't search for just "(2001)" in case that's used to denote the year
-			game.info.specific_info['Machine'] = '2001'
+			game_info.specific_info['Machine'] = '2001'
 			continue
 		for ram in (8, 16, 32, 96, 128):
 			if tag.lower() in {f'{ram}k ram', f'{ram}kb ram'}:
-				game.info.specific_info['Minimum RAM'] = ByteAmount(ram * 1024)
+				game_info.specific_info['Minimum RAM'] = ByteAmount(ram * 1024)
 				continue
-
+	
 def _get_uapce_games() -> 'Iterator[Machine]':
 	try:
 		yield from _get_uapce_games.result #type: ignore[attr-defined]

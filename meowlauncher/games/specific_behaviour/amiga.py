@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 	from collections.abc import Collection
 
-def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'GameInfo') -> None:
+def add_amiga_software_list_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_metadata(metadata)
 	chipset = None
 
@@ -68,7 +68,7 @@ def _chipset_from_tag(tag: str) -> 'str | Collection[str] | None':
 		return 'OCS'
 	return None
 
-def add_info_from_filename_tags(tags: 'Collection[str]', metadata: 'GameInfo') -> None:
+def add_amiga_info_from_filename_tags(tags: 'Collection[str]', metadata: 'GameInfo') -> None:
 	for tag in tags:
 		if tag == '[HD]':
 			metadata.specific_info['Requires Hard Disk?'] = True
@@ -110,7 +110,7 @@ def add_info_from_filename_tags(tags: 'Collection[str]', metadata: 'GameInfo') -
 def add_amiga_custom_info(game: 'ROMGame') -> None:
 	software = game.get_software_list_entry()
 	if software:
-		add_amiga_metadata_from_software_list(software, game.info)
+		add_amiga_software_list_info(software, game.info)
 		
-	add_info_from_filename_tags(game.filename_tags, game.info)
+	add_amiga_info_from_filename_tags(game.filename_tags, game.info)
 	
