@@ -1,6 +1,7 @@
 import itertools
 import logging
 import os
+import zlib
 from collections.abc import (Collection, Iterable, Iterator, MutableSet,
                              Sequence)
 from functools import cache
@@ -13,8 +14,7 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
 
 from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
-                            SoftwareMatcherArgs, SoftwarePart,
-                            get_crc32_for_software_list)
+                            SoftwareMatcherArgs, SoftwarePart)
 
 logger = logging.getLogger(__name__)
 
@@ -177,4 +177,4 @@ def find_in_software_lists(software_lists: Collection[SoftwareList], args: Softw
 
 def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
 	#We _could_ use sha1 here, but there's not really a need to
-	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
+	return SoftwareMatcherArgs(zlib.crc32(data), None, len(data), lambda offset, amount: data[offset:offset+amount])

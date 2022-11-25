@@ -1,7 +1,8 @@
+import zlib
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
+from meowlauncher.games.mame_common.software_list_find_utils import \
+    find_in_software_lists_with_custom_matcher
 from meowlauncher.games.roms.rom import FileROM
 
 from .simple_software_info import add_intellivision_software_info
@@ -32,7 +33,7 @@ def _does_intellivision_part_match(part: 'SoftwarePart', data: bytes) -> bool:
 
 		crc32 = rom.crc32
 		segment = data[offset: offset + size]
-		segment_crc32 = get_crc32_for_software_list(segment)
+		segment_crc32 = zlib.crc32(segment)
 		if segment_crc32 != crc32:
 			return False
 

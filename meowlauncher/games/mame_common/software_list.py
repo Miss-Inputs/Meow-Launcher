@@ -1,8 +1,8 @@
-from functools import cached_property
 import re
 import zlib
-from collections.abc import Callable, Iterator, Sequence, Iterable
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 from typing import Any, cast
 from xml.etree import ElementTree
@@ -30,12 +30,6 @@ def _parse_release_date(release_info: str) -> Date | None:
 	day = release_info[6:8]
 	
 	return Date(year=None if year == 'xxxx' else year, month=None if month == 'xx' else month, day=None if day == 'xx' else day, is_guessed='x' in release_info or '?' in release_info)
-
-def format_crc32_for_software_list(crc: int) -> str:
-	return f'{crc:08x}'
-
-def get_crc32_for_software_list(data: bytes) -> str:
-	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
 
 _split_preserve_brackets = re.compile(r', (?![^(]*\))')
 _ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
@@ -86,8 +80,9 @@ class DataAreaROM():
 		return self.xml.attrib.get('status', 'good')
 
 	@cached_property
-	def crc32(self) -> str | None:
-		return self.xml.attrib.get('crc')
+	def crc32(self) -> int | None:
+		crc = self.xml.attrib.get('crc')
+		return int(crc, 16) if crc else None
 	
 	@cached_property
 	def sha1(self) -> bytes | None:
@@ -98,7 +93,7 @@ class DataAreaROM():
 	def offset(self) -> int:
 		return _parse_size_attribute(self.xml.attrib.get('offset')) or 0
 
-	def matches(self, crc32: str | None, sha1: bytes | None) -> bool:
+	def matches(self, crc32: int | None, sha1: bytes | None) -> bool:
 		if not self.sha1 and not self.crc32:
 			#Dunno what to do with roms like these that just have a loadflag attribute and no content, maybe something fancy is supposed to happen
 			return False
@@ -151,7 +146,7 @@ class DataArea():
 					chunk = args.reader(offset, size)
 				except IndexError:
 					return False
-				chunk_crc32 = get_crc32_for_software_list(chunk)
+				chunk_crc32 = zlib.crc32(chunk)
 				if rom_segment.crc32 != chunk_crc32:
 					return False
 
@@ -459,7 +454,7 @@ class Software():
 
 @dataclass(frozen=True)
 class SoftwareMatcherArgs():
-	crc32: str | None
+	crc32: int | None
 	sha1: bytes | None
 	size: int | None
 	reader: 'Callable[[int, int], bytes] | None'

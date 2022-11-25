@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Optional, cast
+import zlib
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
@@ -9,7 +10,7 @@ from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
+    find_in_software_lists_with_custom_matcher)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import NESPeripheral
@@ -392,7 +393,7 @@ def add_ines_metadata(rom: FileROM, game_info: GameInfo, header: bytes) -> None:
 		game_info.specific_info['CHR Size'] = chr_size * 8 * 1024
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
-def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: str, chr_crc: str) -> bool:
+def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: int, chr_crc: int) -> bool:
 	prg_area = part.data_areas.get('prg')
 	#These two data area names seem to be used for alternate types of carts (Aladdin Deck Enhancer/Datach/etc)
 	if not prg_area:
@@ -443,16 +444,16 @@ def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Soft
 		prg_rom = rom.read(seek_to=prg_offset, amount=prg_size)
 		chr_rom = rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
 
-		prg_crc32 = get_crc32_for_software_list(prg_rom)
-		chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None
+		prg_crc32 = zlib.crc32(prg_rom)
+		chr_crc32 = zlib.crc32(chr_rom) if chr_rom else None
 
 	return find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
 def parse_unif_chunk(game_info: GameInfo, chunk_type: bytes, chunk_data: bytes) -> None:
 	if chunk_type == b'PRG0':
-		game_info.specific_info['PRG CRC'] = get_crc32_for_software_list(chunk_data)
+		game_info.specific_info['PRG CRC'] = zlib.crc32(chunk_data)
 	elif chunk_type.startswith(b'CHR'):
-		game_info.specific_info['CHR CRC'] = get_crc32_for_software_list(chunk_data)
+		game_info.specific_info['CHR CRC'] = zlib.crc32(chunk_data)
 	elif chunk_type == b'MAPR':
 		game_info.specific_info['Mapper'] = chunk_data.rstrip(b'\0').decode('utf-8', 'backslashreplace')
 	elif chunk_type == b'TVCI':

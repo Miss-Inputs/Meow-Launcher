@@ -9,8 +9,7 @@ from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.mame_common.software_list import (
-    SoftwareMatcherArgs, format_crc32_for_software_list)
+from meowlauncher.games.mame_common.software_list import SoftwareMatcherArgs
 from meowlauncher.games.mame_common.software_list_find_utils import \
     find_in_software_lists
 from meowlauncher.util import archives, cd_read, io_utils
@@ -127,7 +126,7 @@ class FileROM(ROM):
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
-		return zlib.crc32(self.path.read_bytes()) & 0xffffffff
+		return zlib.crc32(self.path.read_bytes())
 
 	@property
 	def crc32(self) -> int:
@@ -135,11 +134,11 @@ class FileROM(ROM):
 			return self._crc32
 		
 		if self.header_length_for_crc_calculation > 0:
-			crc32 = zlib.crc32(self.read(seek_to=self.header_length_for_crc_calculation)) & 0xffffffff
+			crc32 = zlib.crc32(self.read(seek_to=self.header_length_for_crc_calculation))
 			self._crc32 = crc32
 			return crc32
 
-		crc32 = zlib.crc32(self._entire_file) & 0xffffffff if self._store_entire_file else self._get_crc32()
+		crc32 = zlib.crc32(self._entire_file) if self._store_entire_file else self._get_crc32()
 		self._crc32 = crc32
 		return crc32
 
@@ -169,7 +168,7 @@ class FileROM(ROM):
 		
 		#TODO Hmm does that make the most sense, why get the crc32 if the header has a length
 		size_arg = self.size - self.header_length_for_crc_calculation if self.header_length_for_crc_calculation else None
-		args = SoftwareMatcherArgs(format_crc32_for_software_list(crc32), None, size_arg, _file_rom_reader)
+		args = SoftwareMatcherArgs(crc32, None, size_arg, _file_rom_reader)
 		return find_in_software_lists(software_lists, args)
 
 class CompressedROM(FileROM):
