@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 
 from meowlauncher.util.name_utils import normalize_name
-from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
-                                     remove_filename_tags)
+from meowlauncher.util.utils import (find_filename_tags_at_end, find_tags,
+                                     load_dict)
 
 from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
@@ -43,11 +43,8 @@ def iter_software_lists_by_name(names: Iterable[str]) -> Iterator[SoftwareList]:
 	hashpaths = default_mame_configuration.core_config.get('hashpath')
 	if not hashpaths:
 		return
-	generator = (Path(hash_path) for hash_path in hashpaths)
 	try:
-		for hash_path in generator:
-			for name in names:
-				yield SoftwareList(hash_path.joinpath(name).with_suffix(os.extsep + 'xml'))
+		yield from (SoftwareList(hash_path.joinpath(name).with_suffix(os.extsep + 'xml')) for hash_path, name in (itertools.product((Path(hash_path) for hash_path in hashpaths), names)))
 	except FileNotFoundError:
 		pass
 
@@ -66,13 +63,15 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	#TODO Handle annoying multiple discs
 	proto_tags = {'beta', 'proto', 'sample'}
 
-	software_name_without_brackety_bois = remove_filename_tags(part.software.description)
-	name_without_brackety_bois = remove_filename_tags(name)
+	software_tags: Collection[str]
+	name_tags: Collection[str]
+	software_name_without_brackety_bois, software_tags = find_tags(part.software.description)
+	name_without_brackety_bois, name_tags = find_tags(name)
 	software_normalized_name = normalize_name(software_name_without_brackety_bois)
 	normalized_name = normalize_name(name_without_brackety_bois)
-	name_tags = {t.lower()[1:-1] for t in find_filename_tags_at_end(name)}
+	name_tags = {t.lower()[1:-1] for t in name_tags}
 	#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
-	software_tags = ', '.join(t.lower()[1:-1] for t in find_filename_tags_at_end(part.software.description)).split(', ')
+	software_tags = ', '.join(t.lower()[1:-1] for t in software_tags).split(', ')
 	
 	if software_normalized_name != normalized_name:
 		if name_without_brackety_bois in subtitles:
