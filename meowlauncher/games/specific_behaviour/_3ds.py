@@ -254,19 +254,19 @@ def _get_smdh_titles(smdh: bytes) -> tuple['Mapping[str, str]', 'Mapping[str, st
 		publisher_offset = long_title_offset + 256
 
 		try:
-			short_title = smdh[titles_offset: long_title_offset].rstrip(b'\0').decode('utf16')
+			short_title = smdh[titles_offset: long_title_offset].decode('utf16').rstrip('\0')
 			if short_title:
 				short_titles[language] = short_title
 		except UnicodeDecodeError:
 			logger.debug('Invalid short title', exc_info=True)
 		try:
-			long_title = smdh[long_title_offset: publisher_offset].rstrip(b'\0').decode('utf16')
+			long_title = smdh[long_title_offset: publisher_offset].decode('utf16').rstrip('\0')
 			if long_title:
 				long_titles[language] = long_title
 		except UnicodeDecodeError:
 			logger.debug('Invalid long title', exc_info=True)
 		try:
-			publisher = smdh[publisher_offset: publisher_offset + 0x80].rstrip(b'\0').decode('utf16')
+			publisher = smdh[publisher_offset: publisher_offset + 0x80].decode('utf16').rstrip('\0')
 			if publisher:
 				while junk_suffixes.search(publisher):
 					publisher = junk_suffixes.sub('', publisher)
