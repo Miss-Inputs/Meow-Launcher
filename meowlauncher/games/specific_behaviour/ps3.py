@@ -1,10 +1,12 @@
+from functools import lru_cache
 import json
 import logging
 import os
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
+from collections.abc import Mapping
 
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
@@ -100,18 +102,15 @@ class RPCS3Compatibility(Enum):
 	Playable = 4
 	#There is no perfect? Not yet comfy saying anything is I guess
 
-def get_rpcs3_compat(product_code: str) -> RPCS3Compatibility | None:
-	"""Looks up this serial in RPCS3's compatibility database, if it is there in the config folder (needs to be downloaded from within RPCS3)"""
+@lru_cache(maxsize=1)
+def _get_rpcs3_compatibility_db() -> Mapping[str, Any]:
 	compat_db_path = Path('~/.config/rpcs3/GuiConfigs/compat_database.dat').expanduser()
-	if hasattr(get_rpcs3_compat, 'db'):
-		db = get_rpcs3_compat.db #type: ignore[attr-defined]
-	else:
-		try:
-			db = get_rpcs3_compat.db = json.loads(compat_db_path.read_bytes()) #type: ignore[attr-defined]
-		except OSError:
-			return None
+	return json.loads(compat_db_path.read_bytes())
+
+def _get_rpcs3_compat(product_code: str) -> RPCS3Compatibility | None:
+	"""Looks up this serial in RPCS3's compatibility database, if it is there in the config folder (needs to be downloaded from within RPCS3)"""
 	try:
-		game = db['results'][product_code]
+		game = _get_rpcs3_compatibility_db()['results'][product_code]
 		status = game.get('status', 'Unknown')
 		
 		try:
@@ -143,7 +142,7 @@ def add_ps3_custom_info(game: 'ROMGame') -> None:
 
 	if game.info.product_code:
 		parse_product_code(game.info, game.info.product_code)
-		compat = get_rpcs3_compat(game.info.product_code)
+		compat = _get_rpcs3_compat(game.info.product_code)
 		if compat:
 			game.info.specific_info['RPCS3 Compatibility'] = compat
 
