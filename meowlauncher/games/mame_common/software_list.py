@@ -89,7 +89,7 @@ class DataAreaROM():
 	def crc32(self) -> str | None:
 		return self.xml.attrib.get('crc')
 	
-	@property
+	@cached_property
 	def sha1(self) -> bytes | None:
 		sha1 = self.xml.attrib.get('sha1')
 		return bytes.fromhex(sha1) if sha1 else None
