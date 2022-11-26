@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.input_info import InputInfo
@@ -38,7 +38,7 @@ class Date():
 		#pylint: disable=unsupported-membership-test #Seems to be unaware that I have already tested them to not be None, so actually they do… just leave this one to the type checkers, buddy
 		return 'x' in self.year or 'x' in self.month or 'x' in self.day or '?' in self.year or '?' in self.month or '?' in self.day
 	
-	def is_better_than(self, other_date: Optional['Date']) -> bool:
+	def is_better_than(self, other_date: 'Date | None') -> bool:
 		"""Is other_date guessed or only partially known, while this one isn't"""
 		if not other_date:
 			return True

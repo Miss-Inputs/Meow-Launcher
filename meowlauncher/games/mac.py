@@ -5,7 +5,7 @@ from collections.abc import Mapping, MutableSequence, Sequence
 from enum import Enum
 from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NewType, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, NewType, Union, cast
 
 try:
 	import machfs
@@ -25,9 +25,9 @@ except ImportError:
 	have_pillow = False
 
 from meowlauncher.common_types import ByteAmount
+from meowlauncher.info import Date
 from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
                                                   ManuallySpecifiedLauncher)
-from meowlauncher.info import Date
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
@@ -166,7 +166,7 @@ class CountryCode(Enum):
 
 mac_epoch = datetime.datetime(1904, 1, 1)
 
-def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: Any=None) -> Optional['Image.Image']:
+def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: Any=None) -> 'Image.Image | None':
 	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 	mask: Image.Image | None = None
 	if icn_resource:
@@ -268,7 +268,7 @@ class MacApp(ManuallySpecifiedGame):
 			res[resource.type][resource.id] = resource
 		return res
 
-	def _get_icon(self) -> Optional['Image.Image']:
+	def _get_icon(self) -> 'Image.Image | None':
 		resources = self._get_resources()
 		if not self._file:
 			raise ValueError('Somehow, _get_icon was called without a valid file')

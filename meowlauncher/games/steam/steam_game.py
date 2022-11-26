@@ -3,7 +3,7 @@ from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config_types import RunnerConfig
@@ -83,7 +83,7 @@ class SteamGame(Game):
 		return None
 
 	@property
-	def _appinfo_common_section(self) -> Optional[Mapping[bytes, Any]]:
+	def _appinfo_common_section(self) -> Mapping[bytes, Any] | None:
 		if not self.appinfo:
 			return None
 		return self.appinfo.get(b'common')

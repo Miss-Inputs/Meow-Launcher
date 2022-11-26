@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.config.main_config import main_config
@@ -72,7 +72,7 @@ class ROM(ABC):
 		return self._extension
 
 	@abstractmethod
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> 'Software | None':
 		"""Gets Software object (from MAME software lists) for this ROM, or None if not applicable or not found"""
 		return None
 
@@ -157,7 +157,7 @@ class FileROM(ROM):
 			
 		return self._extension
 	
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> 'Software | None':
 		crc32 = zlib.crc32(byteswap(self.read())) if needs_byteswap else self.crc32
 		
 		def _file_rom_reader(offset: int, amount: int) -> bytes:
@@ -241,7 +241,7 @@ class GCZFileROM(FileROM):
 	def crc32(self) -> int:
 		raise NotImplementedError('Trying to hash a .gcz file is silly and should not be done')
 
-	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> 'Software | None':
 		raise NotImplementedError('Trying to get software of a .gcz file is silly and should not be done')
 
 class UnsupportedCHDError(Exception):
@@ -270,7 +270,7 @@ class CHDFileROM(ROM):
 				raise UnsupportedCHDError(f'Version {chd_version} unknown')
 			return sha1
 
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> 'Software | None':
 		try:
 			args = SoftwareMatcherArgs(None, self._get_sha1, None, None)
 			return find_in_software_lists(software_lists, args)
@@ -338,7 +338,7 @@ class FolderROM(ROM):
 	def is_compressed(self) -> bool:
 		return False
 
-	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> 'Software | None':
 		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')
 
 def _parse_m3u(path: Path) -> Iterator[ROM]:
@@ -375,7 +375,7 @@ class M3UPlaylist(ROM):
 	def should_read_whole_thing(self) -> bool:
 		return False
 	
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False) -> 'Software | None':
 		if not self.subroms:
 			raise FileNotFoundError('m3u does not have any valid files in it, which is weird and should not happen')
 		#TODO: Maybe this isnt' even correct - we want to find which SoftwarePart matches what, in theory

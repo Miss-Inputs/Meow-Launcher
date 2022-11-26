@@ -1,5 +1,5 @@
-from typing import TYPE_CHECKING, Optional, cast
 import zlib
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
@@ -9,8 +9,8 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists_with_custom_matcher)
+from meowlauncher.games.mame_common.software_list_find_utils import \
+    find_in_software_lists_with_custom_matcher
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import NESPeripheral
@@ -430,7 +430,7 @@ def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: int, chr_crc: int) -> boo
 
 	return True
 
-def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Software']:
+def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> 'Software | None':
 	prg_crc32 = game.info.specific_info.get('PRG CRC')
 	chr_crc32 = game.info.specific_info.get('CHR CRC')
 	if not prg_crc32 and not chr_crc32:

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
@@ -97,8 +97,8 @@ def _add_alternate_names(rom: ROM, game_info: 'GameInfo') -> None:
 	for alt_name in alt_names:
 		game_info.add_alternate_name(alt_name)
 
-def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: LibretroDatabaseType, key: Union[str, int]) -> bool:
-	database_entry = cast(Optional[dict[str, Any]], database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
+def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: LibretroDatabaseType, key: str | int) -> bool:
+	database_entry = cast(dict[str, Any] | None, database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
 		if name:
@@ -188,7 +188,7 @@ def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: L
 	return False
 
 def _add_metadata_from_libretro_database(game: 'ROMGame') -> None:
-	key: Union[str | None, int]
+	key: str | None | int
 	if game.platform.dat_uses_serial:
 		key = game.info.product_code
 	elif isinstance(game.rom, FileROM):

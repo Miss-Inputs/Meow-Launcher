@@ -15,8 +15,9 @@ from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
                                                   ManuallySpecifiedLauncher)
 
 if TYPE_CHECKING:
-	from .emulator import Emulator
 	from collections.abc import Iterator, Mapping, Sequence
+
+	from .emulator import Emulator
 
 logger = logging.getLogger(__name__)
 

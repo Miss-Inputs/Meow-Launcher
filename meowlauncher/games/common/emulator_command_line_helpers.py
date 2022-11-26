@@ -1,7 +1,7 @@
 import os
 from collections.abc import Collection, Mapping, Sequence
 from pathlib import PurePath
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.exceptions import EmulationNotSupportedException
@@ -65,7 +65,7 @@ def is_highscore_cart_available() -> bool:
 def mednafen_module(module: str, exe_path: PurePath=PurePath('mednafen')) -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
-def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> Sequence[str]:
+def mame_base(driver: str, slot: str | None=None, slot_options: Mapping[str, str] | None=None, has_keyboard: bool=False, autoboot_script: str | None=None, software: str | None=None, bios: str | None=None) -> Sequence[str]:
 	args = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
@@ -95,7 +95,7 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 
 	return args
 
-def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot: str | None=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: str | None=None) -> LaunchCommand:
+def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot: str | None=None, slot_options: Mapping[str, str] | None=None, has_keyboard: bool=False, autoboot_script: str | None=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
 	software = game.info.specific_info.get('MAME Software')	

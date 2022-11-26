@@ -1,17 +1,20 @@
 import logging
+from dataclasses import dataclass
 from enum import Flag
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
 	from collections.abc import Mapping
+
 	from meowlauncher.info import GameInfo
 
 logger = logging.getLogger(__name__)
 
-class PlayStationCategory(NamedTuple):
+@dataclass
+class PlayStationCategory():
 	cat: str
 	metadata_category: str | None #What we might like to set metadata.categories to
 

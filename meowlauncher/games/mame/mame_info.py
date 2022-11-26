@@ -1,7 +1,7 @@
 import logging
 from collections import Counter
-from collections.abc import Collection, Iterable, Sequence
-from typing import TYPE_CHECKING, Any, Optional, cast
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 
 from meowlauncher import input_info
@@ -16,8 +16,7 @@ from meowlauncher.games.mame_common.mame_utils import (image_config_keys,
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import (Language,
-                                           get_common_language_from_regions)
+from meowlauncher.util.region_info import get_common_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 if TYPE_CHECKING:
@@ -122,13 +121,13 @@ class Display():
 		return None
 
 	@property
-	def aspect_ratio(self) -> Optional[tuple[int, int]]:
+	def aspect_ratio(self) -> tuple[int, int] | None:
 		if self.width and self.height:
-			return Display.find_aspect_ratio(self.width, self.height)
+			return self.find_aspect_ratio(self.width, self.height)
 		return None
 
 	@staticmethod
-	def find_aspect_ratio(width: int, height: int) -> Optional[tuple[int, int]]:
+	def find_aspect_ratio(width: int, height: int) -> tuple[int, int] | None:
 		for i in reversed(range(1, max(int(width), int(height)) + 1)):
 			if (width % i) == 0 and (height % i) == 0:
 				return width // i, height // i
@@ -323,7 +322,7 @@ def _add_info_from_catlist(game: 'MAMEGame') -> None:
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
 def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
-	languages: Optional[Collection[Language]] = get_languages(game.machine.basename)
+	languages = get_languages(game.machine.basename)
 	if languages:
 		game.info.languages = languages
 	else:

@@ -2,7 +2,7 @@ import re
 from collections.abc import Collection, Iterator, Mapping, Sequence
 from functools import cache, cached_property
 from pathlib import PurePath
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
@@ -119,7 +119,7 @@ class Machine():
 		return hash(self.basename)
 
 	@property
-	def parent(self) -> Optional['Machine']:
+	def parent(self) -> 'Machine | None':
 		if not self.parent_basename:
 			return None
 			
@@ -144,7 +144,7 @@ class Machine():
 		return self.xml.attrib.get('ismechanical', 'no') == 'yes'
 
 	@property
-	def input_element(self) -> Optional[ElementTree.Element]:
+	def input_element(self) -> ElementTree.Element | None:
 		return self.xml.find('input')
 
 	@property
@@ -159,7 +159,7 @@ class Machine():
 		return int(self.input_element.attrib.get('players', 0))
 
 	@property
-	def driver_element(self) -> Optional[ElementTree.Element]:
+	def driver_element(self) -> ElementTree.Element | None:
 		return self.xml.find('driver')
 
 	@property
@@ -230,7 +230,7 @@ class Machine():
 		return None
 
 	@property
-	def bios(self) -> Optional['Machine']:
+	def bios(self) -> 'Machine' | None:
 		bios_basename = self.bios_basename
 		if bios_basename:
 			return Machine(self._exe.get_mame_xml(bios_basename), self._exe)

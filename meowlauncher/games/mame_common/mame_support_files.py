@@ -3,7 +3,7 @@ import os
 from collections.abc import Collection, Iterator, Mapping, MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 from meowlauncher.util.region_info import (Language,
@@ -211,13 +211,13 @@ def get_mame_cat(name: str, category_folders: Iterator[Path]) -> Mapping[str, Co
 def get_mame_cat_from_default_mame_config(name: str) -> Mapping[str, Collection[str]]:
 	return get_mame_cat(name, iter_default_mame_categories_folders())
 
-def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterator[Path]) -> Optional[Collection[str]]:
+def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterator[Path]) -> Collection[str] | None:
 	folder = get_mame_cat(folder_name, category_folders)
 	if not folder:
 		return None
 	return {section for section, names in folder.items() if basename in names}
 
-def get_machine_cat(basename: str, folder_name: str) -> Optional[Collection[str]]:
+def get_machine_cat(basename: str, folder_name: str) -> Collection[str] | None:
 	folder = get_mame_cat_from_default_mame_config(folder_name)
 	if not folder:
 		return None
@@ -384,7 +384,7 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 
 	return OrganizedCatlist(platform, genre, subgenre, category, definite_platform, definite_category)
 
-def get_languages(basename: str) -> Optional[Collection[Language]]:
+def get_languages(basename: str) -> Collection[Language] | None:
 	lang_names = get_machine_cat(basename, 'languages')
 	if not lang_names:
 		return None

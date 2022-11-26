@@ -6,7 +6,6 @@ from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 if TYPE_CHECKING:
 	from collections.abc import Collection
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
 
 class ZXHardware(NamedTuple):

@@ -8,7 +8,7 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 from itertools import chain
 from pathlib import Path, PureWindowsPath
-from typing import Any, Optional
+from typing import Any
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -67,7 +67,7 @@ class GOGJSONGameInfo():
 		#overlaySupported: Probably GOG Galaxy related
 
 	@property
-	def primary_play_task(self) -> Optional['GOGTask']:
+	def primary_play_task(self) -> 'GOGTask | None':
 		primary_tasks = tuple(task for task in self.play_tasks if task.is_primary)
 		if len(primary_tasks) == 1:
 			return primary_tasks[0]

@@ -6,7 +6,7 @@ from collections.abc import Collection, Iterator, Mapping
 from enum import IntFlag
 from operator import attrgetter
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from steamfiles import acf, appinfo
 
@@ -132,7 +132,7 @@ class SteamInstallation():
 			return {}
 
 	@property
-	def _steamplay_appinfo_extended(self) -> Optional[Mapping[bytes, Any]]:
+	def _steamplay_appinfo_extended(self) -> Mapping[bytes, Any] | None:
 		steamplay_manifest_appid = 891390
 
 		steamplay_appinfo = self.app_info.get(steamplay_manifest_appid)

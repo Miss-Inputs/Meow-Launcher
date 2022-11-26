@@ -14,9 +14,10 @@ from meowlauncher.util.utils import (NoNonsenseConfigParser,
                                      convert_alphanumeric)
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
+
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
-	from collections.abc import Mapping
 
 logger = logging.getLogger(__name__)
 

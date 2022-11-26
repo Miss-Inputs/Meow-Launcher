@@ -5,7 +5,7 @@ import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
@@ -22,7 +22,7 @@ from .pc_common_info import get_exe_properties
 if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 
-def _try_detect_unity(folder: Path, game_info: 'GameInfo | None', executable: Optional['Path']) -> str | None:
+def _try_detect_unity(folder: Path, game_info: 'GameInfo | None', executable: 'Path | None') -> str | None:
 	if folder.joinpath('Build', 'UnityLoader.js').is_file():
 		#Web version of Unity, there should be some .unityweb files here
 		if game_info:
