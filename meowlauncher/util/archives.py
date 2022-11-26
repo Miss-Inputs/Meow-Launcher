@@ -157,7 +157,7 @@ def subprocess_sevenzip_crc(path: Path, filename: str) -> int:
 	
 	if filename_found:
 		#return NotImplementedError(path, 'is an archive with no CRC')
-		return zlib.crc32(subprocess_sevenzip_get(path, filename)) & 0xffffffff
+		return zlib.crc32(subprocess_sevenzip_get(path, filename))
 	raise FileNotFoundError(filename)
 	
 #--- Inbuilt Python stuff
@@ -362,7 +362,7 @@ def get_crc32_of_archive(path: Path, filename: str) -> int:
 	if path.suffix == '.gz':
 		#Do things the old fashioned way, since we can't use the gzip module to read any CRC that might be in the gzip header
 		#This will raise an archive error if it's invalid so we don't need to raise another one
-		return zlib.crc32(gzip_get(path)) & 0xffffffff
+		return zlib.crc32(gzip_get(path))
 	if have_7z_command:
 		try:
 			return subprocess_sevenzip_crc(path, filename)
@@ -371,7 +371,7 @@ def get_crc32_of_archive(path: Path, filename: str) -> int:
 	if have_python_libarchive:
 		#Presumably this is slower for 7z archives etc than even subprocessing 7z to get it
 		try:
-			return zlib.crc32(libarchive_get(path, filename)) & 0xffffffff
+			return zlib.crc32(libarchive_get(path, filename))
 		#pylint: disable=broad-except
 		except Exception as ex:
 			raise BadArchiveError(f'{path}/{filename}') from ex

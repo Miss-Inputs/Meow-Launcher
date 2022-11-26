@@ -158,7 +158,7 @@ class FileROM(ROM):
 		return self._extension
 	
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> Optional['Software']:
-		crc32 = zlib.crc32(byteswap(self.read())) & 0xffffffff if needs_byteswap else self.crc32
+		crc32 = zlib.crc32(byteswap(self.read())) if needs_byteswap else self.crc32
 		
 		def _file_rom_reader(offset: int, amount: int) -> bytes:
 			data = self.read(seek_to=offset, amount=amount)
