@@ -162,12 +162,12 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 		if len(name_and_region_and_version_matches) == 1:
 			return name_and_region_and_version_matches.pop()
 
-		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
+		logger.debug('%s matched too many: %s', name, [m.description for m in name_and_region_matches])
 		
 	return None
 
 def find_in_software_lists(software_lists: Collection[SoftwareList], args: SoftwareMatcherArgs) -> Software | None:
-	#Does not handle hash collisions… should be fine in real life, though
+	"""Does not handle hash collisions… should be fine in real life, though"""
 	for software_list in software_lists:
 		software = software_list.find_software(args)
 		if software:
@@ -175,5 +175,5 @@ def find_in_software_lists(software_lists: Collection[SoftwareList], args: Softw
 	return None
 
 def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
-	#We _could_ use sha1 here, but there's not really a need to
+	"""Avoids using computing sha1, as right now that would mean it wastefully reads more than it has to"""
 	return SoftwareMatcherArgs(zlib.crc32(data), None, len(data), lambda offset, amount: data[offset:offset+amount])

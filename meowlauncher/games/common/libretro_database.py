@@ -149,15 +149,10 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseTy
 		for game in parsed[1]:
 			roms = game.get('roms')
 			if not roms:
-				#Well that shouldn't happen surely
-				#print("Well that shouldn't happen surely", dat, game)
-				#Narrator: It does happen
 				continue
 			for rom in cast(Sequence[RomType], roms):
 				key: int | str | None = rom.get('serial') if use_serial else int(rom.get('crc', '0'), 16)
-				if not key: #crc should never be 0 so it's okay to not just check for none
-					#print("Surely this also should not happen", dat, game)
-					#Ah… this happens with PS1 hacks which use the crc of the whole bin
+				if key is None:
 					continue
 
 				this_game = games.setdefault(key, {})

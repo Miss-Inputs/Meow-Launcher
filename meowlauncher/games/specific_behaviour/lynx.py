@@ -1,14 +1,15 @@
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.common.generic_info import add_generic_software_info
+from meowlauncher.games.roms.rom import FileROM
+
 from .static_platform_info import add_lynx_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
 
-def add_info_from_lynx_header(header: bytes, metadata: 'GameInfo') -> None:
+def add_info_from_lynx_header(header: bytes, game_info: 'GameInfo') -> None:
 	#TODO: Where is this from?
 	#UBYTE   magic[4];
 	#UWORD   page_size_bank0;
@@ -19,20 +20,20 @@ def add_info_from_lynx_header(header: bytes, metadata: 'GameInfo') -> None:
 	#UBYTE   rotation;
 	#UBYTE   spare[5];
 	try:
-		metadata.add_alternate_name(header[0x0a:0x2a].rstrip(b'\0 ').decode('ascii', 'backslashreplace'), 'Header Title')
+		game_info.add_alternate_name(header[0x0a:0x2a].rstrip(b'\0 ').decode('ascii', 'backslashreplace'), 'Header Title')
 	except UnicodeDecodeError:
 		pass	
 	try:
-		metadata.publisher = header[0x2a:0x3a].strip(b'\0').decode('ascii')
+		game_info.publisher = header[0x2a:0x3a].strip(b'\0').decode('ascii')
 	except UnicodeDecodeError:
 		pass
 	rotation = header[0x3a]
 	if rotation == 0:
-		metadata.specific_info['Display Rotation'] = 'None'
+		game_info.specific_info['Display Rotation'] = 'None'
 	elif rotation == 1:
-		metadata.specific_info['Display Rotation'] = 'Left'
+		game_info.specific_info['Display Rotation'] = 'Left'
 	elif rotation == 2:
-		metadata.specific_info['Display Rotation'] = 'Right'
+		game_info.specific_info['Display Rotation'] = 'Right'
 
 def add_lynx_custom_info(game: 'ROMGame') -> None:
 	add_lynx_info(game.info)

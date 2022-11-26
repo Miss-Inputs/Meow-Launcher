@@ -2,8 +2,8 @@ from enum import Enum
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config_types import (EmulatorConfig,
-                                       RunnerConfigValue, TypeOfConfigValue)
+from meowlauncher.config_types import (EmulatorConfig, RunnerConfigValue,
+                                       TypeOfConfigValue)
 
 from .emulated_game import EmulatedGame
 from .runner import HostPlatform, Runner
@@ -11,6 +11,7 @@ from .runner import HostPlatform, Runner
 EmulatorGameType_co = TypeVar('EmulatorGameType_co', bound=EmulatedGame, covariant=True)
 if TYPE_CHECKING:
 	from collections.abc import Callable, Collection, Mapping, MutableMapping
+
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 	from .launch_command import LaunchCommand

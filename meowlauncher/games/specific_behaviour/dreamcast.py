@@ -3,20 +3,17 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import SaveType
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import SaturnDreamcastRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
-from meowlauncher.games.common.generic_info import add_generic_software_info
-
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 _licensee_codes = load_dict(None, 'sega_licensee_codes')
-
-#I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
 _gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 

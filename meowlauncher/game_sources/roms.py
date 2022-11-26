@@ -7,7 +7,7 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Union
 
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config, ignored_directories
+from meowlauncher.config.main_config import ignored_directories, main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.config_types import (EmulatorConfig, PlatformConfig,
                                        TypeOfConfigValue)

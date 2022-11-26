@@ -1,8 +1,8 @@
-from functools import lru_cache
 import logging
 import re
 from collections.abc import Collection
 from datetime import datetime
+from functools import lru_cache
 from itertools import chain
 from typing import TYPE_CHECKING, Any, Union
 

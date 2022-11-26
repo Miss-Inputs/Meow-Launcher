@@ -1,4 +1,5 @@
 from enum import Enum, auto
+from functools import lru_cache
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_info
@@ -12,7 +13,8 @@ from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
 if TYPE_CHECKING:
-	from collections.abc import Iterator, Sequence
+	from collections.abc import Collection, Sequence
+
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
@@ -62,13 +64,13 @@ class ColecoController(Enum):
 	RollerController = auto()
 	DrivingController = auto()
 
-def add_colecovision_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
+def add_colecovision_software_info(software: 'Software', game_info: 'GameInfo') -> None:
+	"""Can get year, publisher unreliably from the title screen info in the ROM, or you could also not do that"""
 
 	peripheral: ColecoController = ColecoController.Normal
 	peripheral_required = False
 
-	software.add_standard_metadata(metadata)
+	software.add_standard_metadata(game_info)
 
 	usage = software.get_info('usage')
 	if usage == 'Supports Super Action Controllers':
@@ -87,7 +89,7 @@ def add_colecovision_software_info(software: 'Software', metadata: 'GameInfo') -
 		peripheral = ColecoController.DrivingController
 		peripheral_required = True
 	else:
-		metadata.add_notes(usage)
+		game_info.add_notes(usage)
 
 	normal_controller_part = input_info.NormalController()
 	normal_controller_part.face_buttons = 2
@@ -109,18 +111,18 @@ def add_colecovision_software_info(software: 'Software', metadata: 'GameInfo') -
 	driving_controller = input_info.SteeringWheel()
 	#Gas pedal is on + off so I guess it counts as one button
 
-	metadata.specific_info['Peripheral'] = peripheral
+	game_info.specific_info['Peripheral'] = peripheral
 	if peripheral == ColecoController.Normal:
-		metadata.input_info.add_option(normal_controller)
+		game_info.input_info.add_option(normal_controller)
 	else:
 		if peripheral == ColecoController.DrivingController:
-			metadata.input_info.add_option(driving_controller)
+			game_info.input_info.add_option(driving_controller)
 		elif peripheral == ColecoController.RollerController:
-			metadata.input_info.add_option(roller_controller)
+			game_info.input_info.add_option(roller_controller)
 		elif peripheral == ColecoController.SuperActionController:
-			metadata.input_info.add_option(super_action_controller)
+			game_info.input_info.add_option(super_action_controller)
 		if not peripheral_required:
-			metadata.input_info.add_option(normal_controller)
+			game_info.input_info.add_option(normal_controller)
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
 def add_ibm_pcjr_custom_info(game: 'ROMGame') -> None:
@@ -186,18 +188,14 @@ def add_pet_info_from_filename_tags(tags: 'Sequence[str]', game_info: 'GameInfo'
 				game_info.specific_info['Minimum RAM'] = ByteAmount(ram * 1024)
 				continue
 	
-def _get_uapce_games() -> 'Iterator[Machine]':
+@lru_cache(maxsize=1)
+def _get_uapce_games() -> 'Collection[Machine]':
 	try:
-		yield from _get_uapce_games.result #type: ignore[attr-defined]
-	except AttributeError:
-		try:
-			if not default_mame_executable:
-				#CBF tbhkthbai
-				return	
-			_get_uapce_games.result = set(iter_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
-		except MAMENotInstalledException:
-			return
-		yield from _get_uapce_games.result #type: ignore[attr-defined]
+		if not default_mame_executable:
+			return []
+		return set(iter_machines_from_source_file('uapce', default_mame_executable))
+	except MAMENotInstalledException:
+		return []
 
 def find_equivalent_pc_engine_arcade(game_name: str) -> Machine | None:
 	for uapce_machine in _get_uapce_games():

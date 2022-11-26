@@ -5,8 +5,9 @@ from typing import TYPE_CHECKING, Any
 from meowlauncher.common_types import MediaType
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom import ROM, FolderROM
 	from collections.abc import Callable, Collection, Mapping, MutableMapping
+
+	from meowlauncher.games.roms.rom import ROM, FolderROM
 
 
 @dataclass(frozen=True)
