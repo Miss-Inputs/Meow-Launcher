@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
 import inspect
 import logging
 import os
 import types
 import typing
+from abc import ABC, abstractmethod
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
 from collections.abc import Callable, Collection, Sequence
 from functools import wraps
@@ -11,7 +11,7 @@ from pathlib import Path, PurePath
 from typing import Any, Generic, TypeVar, get_args, get_origin
 
 from meowlauncher.common_paths import config_dir, data_dir
-from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
+from meowlauncher.util.utils import NoNonsenseConfigParser
 
 from ._config_utils import parse_value
 
