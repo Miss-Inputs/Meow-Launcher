@@ -42,7 +42,7 @@ def _get_game_source(name: str) -> type[GameSource] | None:
 def add_games() -> int:
 	"""Add all the games. Returns total amount of games successfully added"""
 	total = 0
-	
+
 	source_names = main_config.sources
 	do_mame_software = False
 	sources: Sequence[type[GameSource]]
@@ -53,25 +53,25 @@ def add_games() -> int:
 		do_itch_io = False
 		try:
 			source_names.remove('GOG')
-		except KeyError:
+		except ValueError:
 			pass
 		else:
 			do_gog = True
 		try:
 			source_names.remove('gog')
-		except KeyError:
+		except ValueError:
 			pass
 		else:
 			do_gog = True
 		try:
 			source_names.remove('itch.io')
-		except KeyError:
+		except ValueError:
 			pass
 		else:
 			do_itch_io = True
 		try:
 			source_names.remove('mame_software')
-		except KeyError:
+		except ValueError:
 			pass
 		else:
 			do_mame_software = True
