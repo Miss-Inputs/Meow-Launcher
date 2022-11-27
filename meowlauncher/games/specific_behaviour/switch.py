@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 from collections.abc import Collection, Mapping
 from dataclasses import dataclass, field
-from enum import Enum, Flag
+from enum import IntEnum, IntFlag
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
@@ -53,14 +53,14 @@ game_card_size = {
 	0xe2: ByteAmount(32 * 1024 * 1024 * 1024),
 }
 
-class GamecardFlags(Flag):
+class GamecardFlags(IntFlag):
 	AutoBoot = 1
 	HistoryErase = 2
 	RepairTool = 4
 	DifferentRegionCupToTerraDevice = 8
 	DifferentRegionCupToGlobalDevice = 16
 
-class ContentType(Enum):
+class ContentType(IntEnum):
 	Meta = 0
 	Program = 1
 	Data = 2

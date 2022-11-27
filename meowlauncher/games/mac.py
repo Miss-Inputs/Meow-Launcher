@@ -2,7 +2,7 @@ import datetime
 import io
 import logging
 from collections.abc import Mapping, MutableSequence, Sequence
-from enum import Enum
+from enum import IntEnum
 from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NewType, Union, cast
@@ -112,13 +112,13 @@ mac_os_16_palette = (
 	64, 64, 64,
 	0, 0, 0,
 )
-class BuildStage(Enum):
+class BuildStage(IntEnum):
 	Final = 0x80
 	Beta = 0x60
 	Alpha = 0x40
 	Development = 0x20
 
-class CountryCode(Enum):
+class CountryCode(IntEnum):
 	USA = 0
 	France = 1
 	Britain = 2

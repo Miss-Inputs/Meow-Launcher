@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from enum import Flag
+from enum import IntFlag
 from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher.common_types import MediaType
@@ -55,7 +55,7 @@ categories = {
 	#VI = video file?
 }
 
-class AttributeFlags(Flag):
+class AttributeFlags(IntFlag):
 	PSPRemotePlay = 1
 	PSPExport = 2
 	PSPRemotePlayV2 = 4
@@ -78,7 +78,7 @@ class AttributeFlags(Flag):
 	MoveControllerEnabled = 0x800000
 	NeoGeo = 0x4000000
 
-class Resolutions(Flag):
+class Resolutions(IntFlag):
 	_640x480 = 1
 	_768x576 = 2
 	_1280x720 = 4
@@ -86,7 +86,7 @@ class Resolutions(Flag):
 	_854x480 = 16
 	_1024x576 = 32
 
-class SoundFormats(Flag):
+class SoundFormats(IntFlag):
 	Stereo = 1
 	Encoded = 2
 	_5_1 = 4

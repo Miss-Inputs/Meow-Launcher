@@ -1,6 +1,6 @@
 import logging
 import os
-from enum import Enum
+from enum import IntEnum
 from xml.etree import ElementTree
 
 from meowlauncher.config.platform_config import platform_configs
@@ -14,7 +14,7 @@ from .gametdb import TDB, add_info_from_tdb
 logger = logging.getLogger(__name__)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
-class NintendoDiscRegion(Enum):
+class NintendoDiscRegion(IntEnum):
 	NTSC_J = 0
 	NTSC_U = 1
 	PAL = 2
