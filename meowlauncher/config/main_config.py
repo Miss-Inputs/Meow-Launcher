@@ -47,7 +47,7 @@ class ConfigProperty(Generic[T]):
 		self.type = inspect.get_annotations(func, eval_str=True).get('return', str)
 		if isinstance(self.type, types.UnionType) or get_origin(self.type) == typing.Union:
 			type_args = get_args(self.type)
-			#Remove optional from the return type, as that's not what we use .type for, but I don't think we're allowed to simply import _UnionGenericAlias, so it gets confused with trying to handle __args__ directly, and also we do want to make sure we don't strip out the args from 
+			#Remove optional from the return type, as that's not what we use .type for, but I don't think we're allowed to simply import _UnionGenericAlias, so it gets confused with trying to handle __args__ directly, and also we do want to make sure we don't strip out the args from Sequence
 			#We'll just assume all unions and such are like this, don't be weird and type a config as str | int or something
 			self.type = type_args[0]
 	def __get__(self, __obj: S, _: Any) -> T:
