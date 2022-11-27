@@ -60,34 +60,28 @@ class InfoJSONFile():
 		self.language_name = j.get('language') #English name of the language (I guess the default language?)
 		#languages: Array of language codes (e.g. en-US)
 		self.name = j.get('name')
-		self.play_tasks = tuple(GOGTask(task_json) for task_json in j.get('playTasks', []))
-		self.support_tasks = {GOGTask(task_json) for task_json in j.get('supportTasks', [])}
+		self.play_tasks = {Task.get(task_json) for task_json in j.get('playTasks', [])}
+		self.support_tasks = {Task.get(task_json) for task_json in j.get('supportTasks', [])}
 		#version: Always 1 if there?
 		#osBitness: Array containing '64' as a string rather than just a number like a normal person? I guess we don't need it (unless we care about 32-bit Wine users)
 		#overlaySupported: Probably GOG Galaxy related
 
 	@property
-	def primary_play_task(self) -> 'GOGTask | None':
+	def primary_play_task(self) -> 'Task | None':
 		primary_tasks = tuple(task for task in self.play_tasks if task.is_primary)
 		if len(primary_tasks) == 1:
-			return primary_tasks[0]
+			primary_task = primary_tasks[0]
+			if not isinstance(primary_task, FileTask):
+				logger.debug('What the! Turns out you can have primary task as a %s', type(primary_task))
+				return None
+			return primary_task
 		return None #Not sure what happens if more than one has isPrimary tbh, guess it doesn't matter
 
-class GOGTask():
-	"""Launch "task" defined for a Windows GOG game in the gog-blahwhatever.info file"""
+class Task():
+	""""task" defined for a Windows GOG game in the gog-blahwhatever.info file under playTasks or supportTasks"""
 	def __init__(self, json_object: Mapping[str, Any]):
 		self.is_primary: bool = json_object.get('isPrimary', False)
-		self.task_type: str | None = json_object.get('type') #Just FileTask or URLTask?
-		path: str | None = json_object.get('path') #I guess this is also only for FileTask? I hope
-		self.path = PureWindowsPath(path) if path else None
-		working_directory: str | None = json_object.get('workingDir') #This would only matter for FileTask I guess
-		self.working_directory = PureWindowsPath(working_directory) if working_directory else None
 		self.category: str | None = json_object.get('category') #"game", "tool", "document"
-
-		self.args: Sequence[str] = ()
-		args: str | None = json_object.get('arguments')
-		if args:
-			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
 
 		#languages: Language codes (without dialect eg just "en"), but seems to be ('*', ) most of the time
 		self.name: str | None = json_object.get('name') #Might not be provided if it is the primary task
@@ -97,12 +91,32 @@ class GOGTask():
 		if compatFlags:
 			self.compatibility_flags = compatFlags.split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
 		#osBitness: As in GOGJSONGameInfo
-		self.link: str | None = json_object.get('link') #For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
+	
+	@staticmethod
+	def get(json_object: Mapping[str, Any]) -> 'Task':
+		task_type = json_object.get('type')
+		if task_type == 'FileTask':
+			return FileTask(json_object)
+		if task_type == 'URLTask':
+			return URLTask(json_object)
+		raise Exception(f'What the heck? task type is {task_type}')
+
+class FileTask(Task):
+	def __init__(self, json_object: Mapping[str, Any]):
+		super().__init__(json_object)
+		self.path = PureWindowsPath(json_object['path'])
+		working_directory: str | None = json_object.get('workingDir')
+		self.working_directory = PureWindowsPath(working_directory) if working_directory else None
+
+		self.args: Sequence[str] = () #This probably isn't applicable if type = document
+		args: str | None = json_object.get('arguments')
+		if args:
+			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
 
 	@property
 	def is_probably_subtask(self) -> bool:
-		"""Tries to guess if this is something like a configuration utility or a different option, not a different game in one"""
+		"""Tries to guess if this is something like a configuration utility or a different option, not a different game in e.g. a compilation"""
 		if self.is_primary:
 			return False
 
@@ -110,28 +124,35 @@ class GOGTask():
 			return True
 		if name_utils.is_probably_related_tool(self.name) or name_utils.is_probably_different_mode(self.name):
 			return True
-		if self.path and (name_utils.is_probably_related_tool(self.path.stem) or name_utils.is_probably_different_mode(self.path.stem)):
+		if name_utils.is_probably_related_tool(self.path.stem) or name_utils.is_probably_different_mode(self.path.stem):
 			return True
 
 		return False
 
 	@property
 	def is_dosbox(self) -> bool:
-		if not self.path or not self.working_directory:
+		"""Attempts to detect if this task is for launching a bundled DOSBox.
+		TODO: This wouldn't work for .info files provided with Linux games"""
+		if not self.working_directory:
 			return False
-		return self.path.name.lower() == 'dosbox.exe' and self.working_directory.stem.lower() in {'dosbox', 'dosbox_windows'} and self.task_type == 'FileTask'
+		return self.path.name.lower() == 'dosbox.exe' and self.working_directory.stem.lower() in {'dosbox', 'dosbox_windows'}
 
 	@property
 	def is_scummvm(self) -> bool:
-		if not self.path or not self.working_directory:
+		if not self.working_directory:
 			return False
-		return self.path.name.lower() == 'scummvm.exe' and self.working_directory.stem.lower() == 'scummvm' and self.task_type == 'FileTask'
+		return self.path.name.lower() == 'scummvm.exe' and self.working_directory.stem.lower() == 'scummvm'
 
 	@property
 	def is_residualvm(self) -> bool:
-		if not self.path or not self.working_directory:
+		if not self.working_directory:
 			return False
-		return self.path.name.lower() == 'residualvm.exe' and self.working_directory.stem.lower() == 'residualvm' and self.task_type == 'FileTask'
+		return self.path.name.lower() == 'residualvm.exe' and self.working_directory.stem.lower() == 'residualvm'
+
+class URLTask(Task):
+	def __init__(self, json_object: Mapping[str, Any]):
+		super().__init__(json_object)
+		self.link: str = json_object['link']
 
 class GOGGame(Game, ABC):
 	"""GOG game natively on Linux, see subclasses NormalGOGGame, DOSBoxGOGGame, ScummVMGOGGame, WineGOGGame"""
@@ -323,18 +344,18 @@ class WindowsGOGGame(Game):
 			return _find_subpath_case_insensitive(self.folder, folder.relative_to('..'))
 		return _find_subpath_case_insensitive(self.folder, folder.relative_to(subfolder))
 
-	def get_dosbox_launch_params(self, task: GOGTask) -> LaunchCommand:
+	def get_dosbox_launch_params(self, task: FileTask) -> LaunchCommand:
 		args = tuple(str(self.fix_subfolder_relative_folder(PureWindowsPath(arg), PureWindowsPath('dosbox'))) for arg in task.args if '\\' in arg)
 		dosbox_folder = _find_subpath_case_insensitive(self.folder, PureWindowsPath('dosbox')) #Game's config files are expecting to be launched from here
 		return LaunchCommand(main_config.dosbox_path, args, working_directory=dosbox_folder)
 
-	def get_wine_launch_params(self, task: GOGTask) -> LaunchCommand | None:
-		if not task.path:
-			logger.info('Oh dear - task %s (%s %s %s) in %s has no path and we can\'t deal with that right now', task.name, task.args, task.task_type, task.category, self.name)
-			return None
+	def get_wine_launch_params(self, task: FileTask) -> LaunchCommand | None:
+		# if not task.path:
+		# 	logger.info('Oh dear - task %s (%s %s) in %s has no path and we can\'t deal with that right now', task.name, task.args, task.category, self.name)
+		# 	return None
 
 		if task.path.suffix.lower() == '.lnk':
-			logger.debug(self.name, 'task %s (%s %s %s) in %s cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', task.name, task.args, task.task_type, task.category, self.name)
+			logger.debug(self.name, 'task %s (%s %s %s) in %s cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', task.name, task.args, task.category, self.name)
 			return None
 
 		exe_path = _find_subpath_case_insensitive(self.folder, task.path)
@@ -344,7 +365,7 @@ class WindowsGOGGame(Game):
 		
 		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
 
-	def get_launcher_params(self, task: GOGTask) -> tuple[str, LaunchCommand | None]:
+	def get_launcher_params(self, task: FileTask) -> tuple[str, LaunchCommand | None]:
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 
@@ -352,11 +373,9 @@ class WindowsGOGGame(Game):
 		
 		return 'Wine', self.get_wine_launch_params(task)
 		
-	def make_launcher(self, task: GOGTask) -> None:
+	def make_launcher(self, task: FileTask) -> None:
 		emulator_name, params = self.get_launcher_params(task)
 		if not params:
-			return
-		if not task.path: #It already won't be, just satisfying automated code checkers
 			return
 		
 		task_metadata = copy.deepcopy(self.info)
@@ -403,13 +422,16 @@ class WindowsGOGGame(Game):
 				documents.add(task)
 			elif task.name and name_utils.is_probably_documentation(task.name):
 				documents.add(task)
-			elif task.task_type == 'URLTask':
+			elif isinstance(task, URLTask):
 				documents.add(task)
 			elif task.is_hidden:
 				continue
-			else:
+			elif isinstance(task, FileTask):
 				actual_tasks.add(task)
 		for task in chain(self.json_info.support_tasks, documents):
-			self.info.documents[task.name] = task.link if task.task_type == 'URLTask' else _find_subpath_case_insensitive(self.folder, task.path)
+			if isinstance(task, URLTask):
+				self.info.documents[task.name or self.name] = task.link
+			elif isinstance(task, FileTask):
+				self.info.documents[task.name or self.name] = _find_subpath_case_insensitive(self.folder, task.path)
 		for task in actual_tasks:
 			self.make_launcher(task)
