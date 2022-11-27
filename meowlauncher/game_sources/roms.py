@@ -155,7 +155,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		#rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
 			if not rom_dir.is_dir():
-				logger.warning('Oh no %s has invalid ROM dir: %s', self.name, rom_dir)
+				logger.warning('Oh no %s has invalid ROM dir: %s', self.name(), rom_dir)
 				continue
 			#used_m3u_filenames = []
 			for root, dirs, files in os.walk(rom_dir):
