@@ -23,7 +23,7 @@ stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(n
 logger = logging.getLogger(__package__)
 logger.addHandler(stream_handler)
 logger.setLevel(main_config.logging_level)
-main(print)
+main()
 
 if main_config.print_times:
 	overall_time_ended = time.perf_counter()
