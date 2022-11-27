@@ -164,14 +164,13 @@ def load_json(subpackage: str | None, resource: str) -> Any:
 	with importlib.resources.open_binary(package, resource) as f: #It would be text, but I don't know if I wanna accidentally fuck around with encodings
 		return json.load(f)
 
-def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str|None=None) -> str:
+def format_unit(n: int | float, suffix: str, base_unit: int=1000, singular_suffix: str|None=None) -> str:
 	try:
 		if n < base_unit:
 			return f'{n:n} {singular_suffix if singular_suffix else suffix}'
 	except TypeError:
 		return str(n)
-	#unit_suffixes = 'KMGTPE'
-	unit_suffixes = 'KM'
+	unit_suffixes = 'KMGTPE'
 	for i, unit_suffix in enumerate(unit_suffixes, 1):
 		if n >= base_unit ** (i + 1):
 			continue
@@ -184,7 +183,7 @@ def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str|
 	return f'{n / (base_unit ** len(unit_suffixes)):.2f}'.rstrip('0') + f' {unit_suffixes[-1]}{suffix}'
 	
 def format_byte_size(b: int, metric: bool=False) -> str:
-	return _format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
+	return format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
 	
 def decode_bcd(i: int) -> int:
 	hi = (i & 0xf0) >> 4

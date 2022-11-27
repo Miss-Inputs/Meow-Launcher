@@ -17,7 +17,7 @@ from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
 from meowlauncher.util.region_info import get_common_language_from_regions
-from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
+from meowlauncher.util.utils import find_filename_tags_at_end, format_unit, pluralize
 
 if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
@@ -50,22 +50,11 @@ class CPU():
 				self.clock_speed = int(xml.attrib['clock'])
 			except ValueError:
 				pass
-		
-	@staticmethod
-	def format_clock_speed(hertz: float, precision: int=4) -> str:
-		if hertz >= 1_000_000_000:
-			return ('{0:.' + str(precision) + 'g} GHz').format(hertz / 1_000_000_000)
-		if hertz >= 1_000_000:
-			return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
-		if hertz >= 1_000:
-			return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
-
-		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 
 	@property
 	def formatted_clock_speed(self) -> str | None:
 		if self.clock_speed:
-			return CPU.format_clock_speed(self.clock_speed)
+			return format_unit(self.clock_speed, 'Hz')
 		return None
 
 class CPUInfo():
@@ -117,7 +106,7 @@ class Display():
 	@property
 	def formatted_refresh_rate(self) -> str | None:
 		if self.refresh_rate:
-			return CPU.format_clock_speed(self.refresh_rate)
+			return format_unit(self.refresh_rate, 'Hz')
 		return None
 
 	@property
