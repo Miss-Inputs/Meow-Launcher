@@ -14,7 +14,7 @@ from .config.main_config import main_config
 overall_time_started = time.perf_counter()
 locale.setlocale(locale.LC_ALL, '')
 
-parser = ArgumentParser(add_help=True, parents=[main_config.parser])
+parser = ArgumentParser(add_help=True, parents=[main_config.parser], prog=f'python -m {__package__}')
 main_config.values.update(vars(parser.parse_known_intermixed_args()[0]))
 
 stream_handler = logging.StreamHandler()
