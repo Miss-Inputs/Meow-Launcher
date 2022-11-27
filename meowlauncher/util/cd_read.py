@@ -58,42 +58,48 @@ def get_first_data_cue_track(cue_path: Path) -> tuple[Path, int] | None:
 def read_mode_1_cd(path: Path, sector_size: int, seek_to: int=0, amount: int=1) -> bytes:
 	if sector_size == 2048:
 		return read_file(path, seek_to=seek_to, amount=amount)
-	if sector_size == ((12 + 3 + 1) + (4 + 8 + 276) + 2048):
-		return _sectored_read(path, 12 + 3 + 1, 4 + 8 + 276, 2048, seek_to=seek_to, amount=amount)
+	if sector_size == ((12 + 3 + 1) + (4 + 8 + 276) + 2048): #Most normal people would just write 2532 here, myself… I guess just to make sure I know what I'm on about
+		return _sectored_read(path, 12 + 3 + 1, 4 + 8 + 276, 2048, offset=seek_to, amount=amount)
 	
 	raise NotImplementedError('no')
 
-def _sectored_read(path: Path, raw_header_size: int, raw_footer_size: int, data_size: int, seek_to: int=0, amount: int=-1) -> bytes:
-	"""Raw header size + raw footer size + data size = total sector size; e.g. 16 + data correction stuff + 2048 = 2532
+def _sectored_read(path: Path, raw_header_size: int, raw_footer_size: int, data_size: int, offset: int=0, amount: int=-1) -> bytes:
+	"""Reads from path converting sectors automatically, usually to read a .bin file as though it was 2048 bytes per sector when it isn't (so offset and amount are offsets into the data, not the file)
+	data_size = usually 2048 where a track with 2532-byte sectors would have raw_header_size = 16 and raw_footer_size = whatever the data correction stuff is that adds up to that much
 	I stole this code from myself, and I forgot how it works"""
-	end = seek_to + amount
-	start = _cooked_position_to_real(seek_to, raw_header_size, raw_footer_size, data_size)
-	raw_end = _cooked_position_to_real(end, raw_header_size, raw_footer_size, data_size)
-	raw_count = (raw_end - start) + 1
+	end_offset = offset + amount
+	raw_start = _cooked_position_to_real(offset, raw_header_size, raw_footer_size, data_size)
+	raw_end = _cooked_position_to_real(end_offset, raw_header_size, raw_footer_size, data_size)
+	raw_count = (raw_end - raw_start) + 1
 
-	number_of_sectors = int(math.ceil((raw_count - amount) / ((raw_header_size + raw_footer_size) + 1)))
+	num_sectors_to_read_from = math.ceil((raw_count - amount) / ((raw_header_size + raw_footer_size) + 1))
 
-	if number_of_sectors == 1:
-		return read_file(path, seek_to=start, amount=amount)
+	with path.open('rb') as f:
+		if num_sectors_to_read_from == 1:
+			#Nice and easy if we are not crossing sectors
+			f.seek(raw_start)
+			return f.read(amount)
 
-	#We're crossing sectors? Crap...
-	start_sector = int(math.ceil(seek_to / data_size))
-	start_offset_in_sector = int(seek_to % data_size)
-	end_sector = int(math.ceil(end / data_size))
-	end_offset_in_sector = int(end % data_size)
+		start_sector = math.ceil(offset / data_size)
+		start_offset_in_sector = int(offset % data_size)
+		end_sector = math.ceil(end_offset / data_size)
+		end_offset_in_sector = int(end_offset % data_size)
 
-	#Read remainder of the start sector first
-	result = read_file(path, seek_to=start, amount=data_size - start_offset_in_sector)
+		#Read remainder of the start sector first
+		f.seek(raw_start)
+		result = f.read(data_size - start_offset_in_sector)
 
-	#Read any sectors between start and end
-	for i in range(0, number_of_sectors - 2):
-		this_sector_start = _cooked_position_to_real(data_size * (start_sector + i + 1), raw_header_size, raw_footer_size, data_size)
-		result += read_file(path, seek_to=this_sector_start, amount=data_size)
+		#Read any sectors between start and end
+		for i in range(0, num_sectors_to_read_from - 2):
+			this_sector_start = _cooked_position_to_real(data_size * (start_sector + i + 1), raw_header_size, raw_footer_size, data_size)
+			f.seek(this_sector_start)
+			result += f.read(data_size)
 
-	#Read as much out of the end sector as needed
-	end_sector_start = _cooked_position_to_real(data_size * end_sector, raw_header_size, raw_footer_size, data_size)
-	result += read_file(path, seek_to=end_sector_start, amount=end_offset_in_sector + 1)
-	return result
+		#Read as much out of the end sector as needed
+		end_sector_start = _cooked_position_to_real(data_size * end_sector, raw_header_size, raw_footer_size, data_size)
+		f.seek(end_sector_start)
+		result += f.read(end_offset_in_sector + 1)
+		return result
 
 def _cooked_position_to_real(cooked_position: int, raw_header_size: int, raw_footer_size: int, cooked_sector_size: int) -> int:
 	sector_count = cooked_position // cooked_sector_size
