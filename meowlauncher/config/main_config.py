@@ -1,13 +1,13 @@
 import inspect
 import logging
 import os
+import types
+import typing
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
-from collections.abc import Collection, Sequence, Callable
+from collections.abc import Callable, Collection, Sequence
 from functools import wraps
 from pathlib import Path, PurePath
-import types
 from typing import Any, Generic, TypeVar, get_args, get_origin
-import typing
 
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.util.utils import NoNonsenseConfigParser, sentence_case
@@ -135,6 +135,17 @@ class MainConfig(Config):
 		return data_dir.joinpath('organized_apps')
 
 	@configoption('General')
+	def sources(self) ->  Sequence[str]:
+		"""If specified, only add games from GameSources with this name
+		Useful for testing and such"""
+		return []
+
+	@configoption('General')
+	def disambiguate(self) -> bool:
+		"""After adding games, add info in brackets to the end of the names of games that have the same name to identify them (such as what type or platform they are), defaults to true"""
+		return True
+
+	@configoption('General')
 	def logging_level(self) -> str:
 		"""Logging level (e.g. INFO, DEBUG, WARNING, etc)"""
 		return str(logging.getLevelName(logger.getEffectiveLevel()))
@@ -149,11 +160,11 @@ class MainConfig(Config):
 		'Print how long it takes to do things'
 		return False
 
-	#These shouldn't end up in config.ini as they're intended to be set per-run
 	@configoption('General')
 	def full_rescan(self) -> bool:
 		'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'
 		return False
+
 	@configoption('General')
 	def organize_folders(self) -> bool:
 		'Use the organized folders frontend'
