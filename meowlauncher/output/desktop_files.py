@@ -16,6 +16,7 @@ from meowlauncher.util.io_utils import (ensure_exist, ensure_unique_path,
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
                                      find_filename_tags_at_end,
                                      remove_filename_tags)
+from meowlauncher.version import __version__
 
 if TYPE_CHECKING:
 	import configparser
@@ -24,9 +25,9 @@ if TYPE_CHECKING:
 	from meowlauncher.launch_command import LaunchCommand
 	from meowlauncher.launcher import Launcher
 
+id_section_name = 'ID'
 section_prefix = 'X-Meow Launcher '
 info_section_name = 'Game Info'
-id_section_name = 'ID'
 junk_section_name = 'Junk'
 image_section_name = 'Images'
 
@@ -91,10 +92,8 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 
 		fields[junk_section_name]['Filename Tags'] = filename_tags
 	fields[junk_section_name]['Original Name'] = display_name #Will be most likely touched by disambiguate later
 
-	fields[id_section_name] = {}
-	fields[id_section_name]['Type'] = game_type
-	fields[id_section_name]['Unique ID'] = game_id
-
+	fields[id_section_name] = {'Type': game_type, 'Unique ID': game_id, 'Version': __version__}
+	
 	for section_name, section in fields.items():
 		if not section:
 			continue

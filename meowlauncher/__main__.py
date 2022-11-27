@@ -9,12 +9,14 @@ from argparse import ArgumentParser
 from meowlauncher.frontend.main import main
 from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 
-from .config.main_config import main_config
+from meowlauncher.config.main_config import main_config
+from meowlauncher import __version__
 
 overall_time_started = time.perf_counter()
 locale.setlocale(locale.LC_ALL, '')
 
 parser = ArgumentParser(add_help=True, parents=[main_config.parser], prog=f'python -m {__package__}')
+parser.add_argument('--version', action='version', version=__version__)
 main_config.values.update(vars(parser.parse_known_intermixed_args()[0]))
 
 stream_handler = logging.StreamHandler()
