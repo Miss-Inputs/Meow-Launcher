@@ -1,3 +1,4 @@
+from fractions import Fraction
 import logging
 from collections import Counter
 from collections.abc import Iterable, Sequence
@@ -51,12 +52,6 @@ class CPU():
 			except ValueError:
 				pass
 
-	@property
-	def formatted_clock_speed(self) -> str | None:
-		if self.clock_speed:
-			return format_unit(self.clock_speed, 'Hz')
-		return None
-
 class CPUInfo():
 	def __init__(self, cpus: Iterable[CPU]) -> None:
 		self.cpus = set(cpus)
@@ -71,7 +66,7 @@ class CPUInfo():
 
 	@property
 	def clock_speeds(self) -> str | None:
-		return _format_count(cpu.formatted_clock_speed for cpu in self.cpus)
+		return _format_count(format_unit(cpu.clock_speed, 'Hz') for cpu in self.cpus if cpu.clock_speed)
 
 	@property
 	def tags(self) -> str | None:
@@ -104,24 +99,9 @@ class Display():
 		return self.type.capitalize()
 
 	@property
-	def formatted_refresh_rate(self) -> str | None:
-		if self.refresh_rate:
-			return format_unit(self.refresh_rate, 'Hz')
-		return None
-
-	@property
-	def aspect_ratio(self) -> tuple[int, int] | None:
+	def aspect_ratio(self) -> Fraction | None:
 		if self.width and self.height:
-			return self.find_aspect_ratio(self.width, self.height)
-		return None
-
-	@staticmethod
-	def find_aspect_ratio(width: int, height: int) -> tuple[int, int] | None:
-		for i in reversed(range(1, max(int(width), int(height)) + 1)):
-			if (width % i) == 0 and (height % i) == 0:
-				return width // i, height // i
-
-		#This wouldn't happen unless one of the arguments is 0 or something silly like that
+			return Fraction(self.width, self.height)
 		return None
 
 class DisplayCollection():
@@ -137,11 +117,11 @@ class DisplayCollection():
 
 	@property
 	def refresh_rates(self) -> str | None:
-		return _format_count(display.formatted_refresh_rate for display in self.displays if display.formatted_refresh_rate)
+		return _format_count(format_unit(display.refresh_rate, 'Hz') for display in self.displays if display.refresh_rate)
 
 	@property
 	def aspect_ratios(self) -> str | None:
-		return _format_count(f'{display.aspect_ratio[0]:.0f}:{display.aspect_ratio[1]:.0f}' for display in self.displays if display.aspect_ratio)
+		return _format_count(display.aspect_ratio for display in self.displays if display.aspect_ratio)
 
 	@property
 	def display_types(self) -> str | None:
