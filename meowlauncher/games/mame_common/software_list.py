@@ -1,3 +1,4 @@
+from enum import Enum
 import re
 import zlib
 from collections.abc import Callable, Iterable, Iterator, Sequence
@@ -9,6 +10,7 @@ from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.mame_common.mame_types import ROMStatus
 from meowlauncher.info import Date, GameInfo
 
 from .mame_helpers import get_image, verify_software_list
@@ -16,6 +18,12 @@ from .mame_support_files import add_history
 from .mame_utils import consistentify_manufacturer, image_config_keys
 
 SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
+
+class SoftwareStatus(Enum):
+	""""supported" attribute in <software> element"""
+	Supported = "yes" #default/implied
+	Partial = "partial"
+	Unsupported = "no"
 
 _is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
 def _parse_release_date(release_info: str) -> Date | None:
@@ -76,8 +84,10 @@ class DataAreaROM():
 		return _parse_size_attribute(self.xml.attrib.get('size')) or 0
 
 	@property
-	def status(self) -> str:
-		return self.xml.attrib.get('status', 'good')
+	def status(self) -> ROMStatus:
+		"""ROM dump status"""
+		status = self.xml.attrib.get('status')
+		return ROMStatus(status) if status else ROMStatus.Good
 
 	@cached_property
 	def crc32(self) -> int | None:
@@ -124,7 +134,7 @@ class DataArea():
 	@property
 	def not_dumped(self) -> bool:
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return all(rom.status == 'nodump' for rom in self.roms) if self.roms else False
+		return all(rom.status == ROMStatus.NoDump for rom in self.roms) if self.roms else False
 
 	def matches(self, args: 'SoftwareMatcherArgs') -> bool:
 		if len(self.roms) == 1:
@@ -162,7 +172,7 @@ class DiskAreaDisk():
 	def name(self) -> str | None:
 		return self.xml.attrib.get('name')
 
-	@property
+	@cached_property
 	def sha1(self) -> bytes | None:
 		sha = self.xml.attrib.get('sha1')
 		return bytes.fromhex(sha) if sha else None
@@ -172,8 +182,10 @@ class DiskAreaDisk():
 		return self.xml.attrib.get('writeable', 'no') == 'yes'
 	
 	@property
-	def status(self) -> str:
-		return self.xml.attrib.get('status', 'good')
+	def status(self) -> ROMStatus:
+		"""ROM dump status"""
+		status = self.xml.attrib.get('status')
+		return ROMStatus(status) if status else ROMStatus.Good
 
 class DiskArea():
 	def __init__(self, xml: ElementTree.Element, part: 'SoftwarePart'):
@@ -189,7 +201,7 @@ class DiskArea():
 	@property
 	def not_dumped(self) -> bool:
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return all(rom.status == 'nodump' for rom in self.disks) if self.disks else False
+		return all(rom.status == ROMStatus.NoDump for rom in self.disks) if self.disks else False
 
 class SoftwarePart():
 	def __init__(self, xml: ElementTree.Element, software: 'Software'):
