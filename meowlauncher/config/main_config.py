@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import inspect
 import logging
 import os
@@ -62,7 +63,7 @@ def configoption(section: str, readable_name: str | None = None) -> 'Callable[[C
 		return ConfigProperty(inner, section, readable_name)
 	return deco
 
-class Config():
+class Config(ABC):
 	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
 	
 	Loads from stuff in this order:
@@ -117,8 +118,26 @@ class Config():
 			else:
 				group.add_argument(option, type=v.type, help=description, default=self.values.get(k, SUPPRESS), dest=k)
 
+	@classmethod
+	@abstractmethod
+	def section(cls) -> str:
+		"""Section that should be used for reading this from config.ini. Not used yet"""
+
+	@classmethod
+	@abstractmethod
+	def prefix(cls) -> str | None:
+		"""Prefix to be added to command line arguments for these options. Not used yet"""
+
 class MainConfig(Config):
 	"""General options not specific to anything else"""
+
+	@classmethod
+	def section(cls) -> str:
+		return 'General'
+	
+	@classmethod
+	def prefix(cls) -> str | None:
+		return None
 		
 	@configoption('Paths')
 	def output_folder(self) -> Path:
