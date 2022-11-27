@@ -79,33 +79,34 @@ class Config(ABC):
 	The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but it would need a prefix, --duckstation-compat-db=<path> or whatever
 	"""
 	def __init__(self) -> None:
-		self._configs = {k: v for k, v in vars(self.__class__).items() if isinstance(v, ConfigProperty)}
+		_configs = {k: v for k, v in vars(self.__class__).items() if isinstance(v, ConfigProperty)}
 
-		self._config_parser = NoNonsenseConfigParser()
+		_config_parser = NoNonsenseConfigParser()
 		self.values: dict[str, Any] = {}
-		self._config_file_argument_parser = ArgumentParser(add_help=False)
-		#TODO: Load additional config files - but let this be specified in the main config file as an "include" etc - see also issue #146
-		self._config_file_argument_parser.add_argument('--config-file', help='If provided, load config from here instead of config.ini')
-		args, self._remaining_args = self._config_file_argument_parser.parse_known_args()
+		# _config_file_argument_parser = ArgumentParser(add_help=False)
+		# #TODO: Load additional config files - but let this be specified in the main config file as an "include" etc - see also issue #146
+		# _config_file_argument_parser.add_argument('--config-file', help='If provided, load config from here instead of config.ini')
+		# args, self._remaining_args = _config_file_argument_parser.parse_known_args()
+		#TODO: Nah that sucks because I don't want to do the arg parsing here
 		
-		self._config_parser.read(args.config_file if args.config_file else _main_config_path)
-		for section in self._config_parser.sections():
-			for option, value in self._config_parser.items(section):
-				if option not in self._configs:
+		_config_parser.read(_main_config_path)
+		for section in _config_parser.sections():
+			for option, value in _config_parser.items(section):
+				if option not in _configs:
 					logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
 					continue
-				config = self._configs[option]
+				config = _configs[option]
 				self.values[option] = parse_value(value, config.type)
 
-		for k, v in self._configs.items():
+		for k, v in _configs.items():
 			env_var = os.getenv('MEOW_LAUNCHER_' + k.upper())
 			if env_var:
 				self.values[k] = parse_value(env_var, v.type)
 
-		self.parser = ArgumentParser(add_help=False, parents=[self._config_file_argument_parser])
+		self.parser = ArgumentParser(add_help=False)
 		section_groups: dict[str, Any | ArgumentParser]  = {}
 		#We lie somewhat to the type checker here because it bugs me that _ArgumentGroup is a private type and so we can't really type hint it with that, but this will be close enough
-		for k, v in self._configs.items():
+		for k, v in _configs.items():
 			group = section_groups.setdefault(v.section, self.parser.add_argument_group(v.section)) #Should have a description innit
 			option = f'--{k.replace("_", "-")}'
 			description = v.description.splitlines()[0]
