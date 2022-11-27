@@ -6,7 +6,7 @@ import typing
 from abc import ABC, abstractmethod
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
 from collections.abc import Callable, Collection, Sequence
-from functools import wraps
+from functools import update_wrapper
 from pathlib import Path, PurePath
 from typing import Any, Generic, TypeVar, get_args, get_origin
 
@@ -40,8 +40,7 @@ class ConfigProperty(Generic[T]):
 	"""Similar to property() with some more attributes, used with @configoption
 	Damn here I was thinking "haha I'll never need to know how descriptors work" okay maybe I didn't need to do this
 	
-	func here is actually configoption.inner at this point
-	Because @configoption has to be a method, we can't get the default value from here…"""
+	Because decorators can't be bound to classmethods (as of 3.11 anyway), func needs a self, so we can't call it to get the default value from here…"""
 	def __init__(self, func: 'Callable[[S], T]', section: str, readable_name: str | None) -> None:
 		self.func = func
 		self.section = section
@@ -53,18 +52,16 @@ class ConfigProperty(Generic[T]):
 			#Remove optional from the return type, as that's not what we use .type for, but I don't think we're allowed to simply import _UnionGenericAlias, so it gets confused with trying to handle __args__ directly, and also we do want to make sure we don't strip out the args from Sequence
 			#We'll just assume all unions and such are like this, don't be weird and type a config as str | int or something
 			self.type = type_args[0]
-
+		
 	def __get__(self, obj: S, _: type[S] | None) -> T:
-		return self.func(obj)
+		return obj.values.get(self.func.__name__, self.func(obj))
 
 def configoption(section: str, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]':
 	"""Decorator: Marks this method as being a config option, which replaces it with a ConfigProperty instance; must be inside a Config
 	Description is taken from docstring, readable_name is the function name in sentence case if not provided, default value is the original function return value"""
 	def deco(func: 'Callable[[S], T]') -> 'ConfigProperty[T]':
-		@wraps(func)
-		def inner(self: S) -> T:
-			return self.values.get(func.__name__, func(self))
-		return ConfigProperty(inner, section, readable_name)
+		wrapped = ConfigProperty(func, section, readable_name)
+		return update_wrapper(wrapped, func)
 	return deco
 
 class Config(ABC):
