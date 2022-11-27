@@ -19,7 +19,10 @@ main_config.values.update(vars(parser.parse_known_intermixed_args()[0]))
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s'))
-logging.basicConfig(handlers={stream_handler}, level=main_config.logging_level)
+
+logger = logging.getLogger(__package__)
+logger.addHandler(stream_handler)
+logger.setLevel(main_config.logging_level)
 main(print)
 
 if main_config.print_times:
