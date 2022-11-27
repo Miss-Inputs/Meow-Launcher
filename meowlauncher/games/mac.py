@@ -1,5 +1,6 @@
 import datetime
 import io
+import itertools
 import logging
 from collections.abc import Mapping, MutableSequence, Sequence
 from enum import IntEnum
@@ -62,9 +63,8 @@ def _machfs_read_file(path: Path) -> 'machfs.Volume':
 	return v
 	
 def _get_macos_256_palette() -> Sequence[int]:
-	#This is stored in the ROM as a clut resource otherwise
-	#TODO: I'd like this to be a tuple, but do you want to specify the type hint for 256 * 3 ints? I don't
-	#Yoinked from http://belkadan.com/blog/2018/01/Color-Palette-8/ and converted to make sense for Python
+	"""This is stored in the ROM as a clut resource otherwise
+	Yoinked from http://belkadan.com/blog/2018/01/Color-Palette-8/ and converted to make sense for Python"""
 	pal: MutableSequence[int] = []
 	for i in range(0, 215):
 		#Primary colours
@@ -78,14 +78,13 @@ def _get_macos_256_palette() -> Sequence[int]:
 		shade = int((i - 215) % 10)
 		shade_of = int((i - 215) / 10)
 		if shade_of == 0:
-			colours = (shades[shade], 0, 0)
+			pal += (shades[shade], 0, 0)
 		elif shade_of == 1:
-			colours = (0, shades[shade], 0)
+			pal += (0, shades[shade], 0)
 		elif shade_of == 2:
-			colours = (0, 0, shades[shade])
+			pal += (0, 0, shades[shade])
 		elif shade_of == 3:
-			colours = (shades[shade], shades[shade], shades[shade])
-		pal += colours
+			pal += (shades[shade], shades[shade], shades[shade])
 		
 	#Black is always last
 	pal += [0, 0, 0]
@@ -287,23 +286,21 @@ class MacApp(ManuallySpecifiedGame):
 				#Supposed to be BNDL 128, but not always
 				bndl = next((b for b in bndls.values() if b[0:4] == self._file.creator), next(iter(bndls.values())))
 
-				for fref in resources.get(b'FREF', {}).values():
-					if fref[0:4] == self._file.type:
-						icon_local_id = int.from_bytes(fref[4:6], 'big')
-						bndl_type_count = int.from_bytes(bndl[6:8], 'big') + 1 #Why does it minus 1??? wtf
-						type_offset = 8
-						for _ in range(0, bndl_type_count):
-							type_header = bndl[type_offset: type_offset + 6]
-							count_of_ids = int.from_bytes(type_header[4:6], 'big') + 1
-							ids = bndl[type_offset + 6: type_offset + 6 + (count_of_ids * 4)] #Array of two integers (local ID, resource ID)
-							type_offset += 6 + (count_of_ids * 4)
-							if type_header[0:4] == b'ICN#':
-								for i in range(0, count_of_ids):
-									this_id = ids[i * 4: (i * 4) + 4]
-									if int.from_bytes(this_id[0:2], 'big') == icon_local_id:
-										not_custom_resource_id = resource_id = int.from_bytes(this_id[2:4], 'big')
-										break
-						break
+				for fref in (fref for fref in resources.get(b'FREF', {}).values() if fref[0:4] == self._file.type):
+					icon_local_id = int.from_bytes(fref[4:6], 'big')
+					bndl_type_count = int.from_bytes(bndl[6:8], 'big') + 1 #Why does it minus 1??? wtf
+					type_offset = 8
+					for _ in range(0, bndl_type_count):
+						type_header = bndl[type_offset: type_offset + 6]
+						count_of_ids = int.from_bytes(type_header[4:6], 'big') + 1
+						ids = bndl[type_offset + 6: type_offset + 6 + (count_of_ids * 4)] #Array of two integers (local ID, resource ID)
+						type_offset += 6 + (count_of_ids * 4)
+						if type_header[0:4] == b'ICN#':
+							for this_id in (ids[start: end] for start, end in itertools.pairwise(range(0, count_of_ids * 4 + 1, 4))):
+								if int.from_bytes(this_id[0:2], 'big') == icon_local_id:
+									not_custom_resource_id = resource_id = int.from_bytes(this_id[2:4], 'big')
+									break
+					break
 		try:
 			if resource_id in resources.get(b'icns', {}):
 				return Image.open(io.BytesIO(resources[b'icns'][resource_id]), formats=('ICNS',))
