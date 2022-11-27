@@ -24,9 +24,10 @@ from meowlauncher.util import name_utils, region_info
 
 logger = logging.getLogger(__name__)
 
-class GOGGameInfo():
-	"""File named "gameinfo" for Linux games
-	Shit now we need to name this something else shitshitshit"""
+__doc__ = """Classes for GOG game source"""
+
+class GameInfoFile():
+	"""File named "gameinfo" for Linux GOG games"""
 	def __init__(self, path: Path):
 		self.name = path.name
 		self.version = None
@@ -46,9 +47,8 @@ class GOGGameInfo():
 			except IndexError:
 				pass
 
-class GOGJSONGameInfo():
-	"""File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
-	Hmm maybe this also needs a renamerooni"""
+class InfoJSONFile():
+	"""File named "gog-<gameid>.info" for Windows GOG games (and sometimes distributed in game folder of Linux GOG games)"""
 	def __init__(self, path: Path):
 		j = json.loads(path.read_bytes())
 		self.game_id = j.get('gameId')
@@ -134,8 +134,8 @@ class GOGTask():
 		return self.path.name.lower() == 'residualvm.exe' and self.working_directory.stem.lower() == 'residualvm' and self.task_type == 'FileTask'
 
 class GOGGame(Game, ABC):
-	"""GOG game natively on Linux, see subclasses NormalGOGGame, DOSBoxGOGGame, ScummVMGOGGame"""
-	def __init__(self, game_folder: Path, info: GOGGameInfo, start_script: Path, support_folder: Path):
+	"""GOG game natively on Linux, see subclasses NormalGOGGame, DOSBoxGOGGame, ScummVMGOGGame, WineGOGGame"""
+	def __init__(self, game_folder: Path, info: GameInfoFile, start_script: Path, support_folder: Path):
 		super().__init__()
 		self.folder = game_folder
 		self.info_file = info
@@ -192,7 +192,7 @@ class NormalGOGGame(GOGGame):
 		#TODO: Should this just be in GOGGame? Is NormalGOGGame a needed class? I guess you don't want to do engine_detect stuff on a DOS/ScummVM game as it takes time and probably won't get anything
 		for file in game_data_folder.iterdir():
 			if file.name.startswith('goggame-') and file.suffix == '.info':
-				json_info = GOGJSONGameInfo(file)
+				json_info = InfoJSONFile(file)
 				#This isn't always here, usually this is used for Windows games, but might as well poke at it if it's here
 				self.info.specific_info['Build ID'] = json_info.build_id
 				self.info.specific_info['Client ID'] = json_info.client_id
@@ -222,7 +222,12 @@ class ScummVMGOGGame(GOGGame):
 		#TODO: Detect engine from scummvm.ini
 		self.info.specific_info['Wrapper'] = 'ScummVM'
 
-#I think there can be Wine bundled with a game sometimes too?
+class WineGOGGame(GOGGame):
+	"""Game from GOG that is packaged as a Linux version, but is a Windows game bundled with Wine
+	TODO: Let user use native Wine"""
+	def add_info(self) -> None:
+		super().add_info()
+		self.info.specific_info['Wrapper'] = 'Wine'
 
 class LinuxGOGLauncher(Launcher):
 	def __init__(self, game: GOGGame, runner: ConfiguredRunner) -> None:
@@ -257,7 +262,7 @@ def _find_subpath_case_insensitive(path: Path, subpath: PureWindowsPath) -> Path
 class WindowsGOGGame(Game):
 	def __init__(self, folder: Path, info_file: Path, game_id: str) -> None:
 		super().__init__()
-		self.json_info = GOGJSONGameInfo(info_file)
+		self.json_info = InfoJSONFile(info_file)
 		self.id_file = None
 		id_path = info_file.with_suffix('.id')
 		if id_path.is_file():

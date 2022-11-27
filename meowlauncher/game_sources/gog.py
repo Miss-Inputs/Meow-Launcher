@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import cast
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
+from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GameInfoFile,
                                     NormalGOGGame, ScummVMGOGGame,
-                                    WindowsGOGGame)
+                                    WindowsGOGGame, WineGOGGame)
 from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ def look_in_linux_gog_folder(folder: Path) -> GOGGame | None:
 	gameinfo_path = folder.joinpath('gameinfo')
 	if not gameinfo_path.is_file():
 		return None
-	gameinfo = GOGGameInfo(gameinfo_path)
+	gameinfo = GameInfoFile(gameinfo_path)
 
 	launch_script = folder.joinpath('start.sh')
 	if not launch_script.is_file():
@@ -35,6 +35,8 @@ def look_in_linux_gog_folder(folder: Path) -> GOGGame | None:
 	if folder.joinpath('scummvm').is_dir():
 		return ScummVMGOGGame(folder, gameinfo, launch_script, support_folder)
 	if folder.joinpath('game').is_dir():
+		if folder.joinpath('game', 'Wine').is_dir():
+			return WineGOGGame(folder, gameinfo, launch_script, support_folder)
 		return NormalGOGGame(folder, gameinfo, launch_script, support_folder)
 
 	return None
