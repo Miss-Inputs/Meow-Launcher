@@ -17,6 +17,8 @@ def remove_nonexistent_games() -> None:
 
 	time_started = time.perf_counter()
 
+	game_types = {source.game_type(): source() for source in game_sources}
+
 	for path in main_config.output_folder.iterdir():
 		launcher = get_desktop(path)
 		game_type = get_field(launcher, 'Type', id_section_name)
@@ -31,9 +33,9 @@ def remove_nonexistent_games() -> None:
 		elif game_type == 'itch.io':
 			should_remove = not os.path.exists(game_id)
 		else:
-			for game_source_type in game_sources:
-				if game_source_type.game_type() == game_type:
-					should_remove = game_source_type().no_longer_exists(game_id)
+			game_source = game_types.get(game_type)
+			if game_source:
+				should_remove = game_source.no_longer_exists(game_id)
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:
