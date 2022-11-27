@@ -42,7 +42,7 @@ class ConfigProperty(Generic[T]):
 	def __init__(self, func: 'Callable[[S], T]', section: str, readable_name: str | None) -> None:
 		self.func = func
 		self.section = section
-		self.readable_name = readable_name or sentence_case(func.__name__.replace('_', ' '))
+		self.readable_name = readable_name or func.__name__.replace('_', ' ').capitalize()
 		self.description = func.__doc__ or self.readable_name
 		self.type = inspect.get_annotations(func, eval_str=True).get('return', str)
 		if isinstance(self.type, types.UnionType) or get_origin(self.type) == typing.Union:

@@ -218,8 +218,3 @@ class NoNonsenseConfigParser(RawConfigParser):
 
 	def optionxform(self, optionstr: str) -> str:
 		return optionstr
-
-def sentence_case(s: str) -> str:
-	words = s.lower().split(' ')
-	return ' '.join([words[0].title(), ' '] + words[1:])
-	
