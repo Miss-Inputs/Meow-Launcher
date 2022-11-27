@@ -42,8 +42,7 @@ def _get_game_source(name: str) -> type[GameSource] | None:
 def add_games() -> int:
 	"""Add all the games. Returns total amount of games successfully added"""
 	total = 0
-	#sources, unknowns = _get_game_sources()
-
+	
 	source_names = main_config.sources
 	do_mame_software = False
 	sources: Sequence[type[GameSource]]
