@@ -106,15 +106,16 @@ class Config():
 		for k, v in self._configs.items():
 			group = section_groups.setdefault(v.section, self.parser.add_argument_group(v.section)) #Should have a description innit
 			option = f'--{k.replace("_", "-")}'
+			description = v.description.splitlines()[0]
 			if v.type == bool:
-				group.add_argument(option, action=BooleanOptionalAction, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, action=BooleanOptionalAction, help=description, default=self.values.get(k, SUPPRESS), dest=k)
 			elif v.type == Sequence[Path]:
 				#TODO: It would be more useful to add to the default value
-				group.add_argument(option, nargs='*', type=Path, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, nargs='*', type=Path, help=description, default=self.values.get(k, SUPPRESS), dest=k)
 			elif v.type == Sequence[str]:
-				group.add_argument(option, nargs='*', help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, nargs='*', help=description, default=self.values.get(k, SUPPRESS), dest=k)
 			else:
-				group.add_argument(option, type=v.type, help=v.description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, type=v.type, help=description, default=self.values.get(k, SUPPRESS), dest=k)
 
 class MainConfig(Config):
 	"""General options not specific to anything else"""
