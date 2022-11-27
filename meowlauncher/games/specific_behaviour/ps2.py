@@ -78,17 +78,15 @@ def add_info_from_iso(iso: 'PyCdlib', metadata: 'GameInfo', object_for_warning: 
 def add_ps2_custom_info(game: 'ROMGame') -> None:
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
-		iso = PyCdlib()
-		try:
-			iso.open(str(game.rom.path))
+		with game.rom.path.open('rb') as iso_file:
 			try:
+				iso = PyCdlib()
+				iso.open_fp(iso_file)
 				add_info_from_iso(iso, game.info, game.rom)
-			finally:
-				iso.close()	
-		except PyCdlibInvalidISO:
-			logger.info('%s is invalid ISO', game.rom, exc_info=True)
-		except struct.error:
-			logger.info('%s is invalid ISO and has some struct.error', game.rom)
+			except PyCdlibInvalidISO:
+				logger.info('%s is invalid ISO', game.rom, exc_info=True)
+			except struct.error:
+				logger.info('%s is invalid ISO and has some struct.error', game.rom)
 	#.elf is just a standard ordinary whole entire .elf
 	if game.info.product_code:
 		parse_product_code(game.info, game.info.product_code)
