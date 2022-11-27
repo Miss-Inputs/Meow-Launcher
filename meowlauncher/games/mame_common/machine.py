@@ -230,7 +230,7 @@ class Machine():
 		return None
 
 	@property
-	def bios(self) -> 'Machine' | None:
+	def bios(self) -> 'Machine | None':
 		bios_basename = self.bios_basename
 		if bios_basename:
 			return Machine(self._exe.get_mame_xml(bios_basename), self._exe)
