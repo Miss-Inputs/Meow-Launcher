@@ -17,8 +17,7 @@ def scan_itch_dir(path: Path) -> ItchGame | None:
 	return game
 
 def do_itch_io_games() -> None:
-	for itch_io_folder_str in main_config.itch_io_folders:
-		itch_io_folder = Path(itch_io_folder_str)
+	for itch_io_folder in main_config.itch_io_folders:
 		if not itch_io_folder.is_dir():
 			logger.warning('%s does not exist/is not a directory', itch_io_folder)
 			continue
