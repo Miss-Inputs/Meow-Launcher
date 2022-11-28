@@ -14,8 +14,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.util.io_utils import (ensure_exist, ensure_unique_path,
                                         sanitize_name)
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
-                                     find_filename_tags_at_end,
-                                     remove_filename_tags)
+                                     find_tags)
 from meowlauncher.version import __version__
 
 if TYPE_CHECKING:
@@ -60,9 +59,8 @@ def _write_field(desktop: 'configparser.RawConfigParser', section_name: str, key
 def make_linux_desktop_for_launcher(launcher: 'Launcher', game_type: str) -> None:
 	name = launcher.game.name
 
-	filename_tags = find_filename_tags_at_end(name)
-	name = remove_filename_tags(name)
-
+	name, filename_tags = find_tags(name)
+	
 	if launcher.runner.is_emulated:
 		launcher.game.info.emulator_name = launcher.runner.name
 
@@ -70,7 +68,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher', game_type: str) -> Non
 	_make_linux_desktop(launcher.command, name, launcher.game.info, filename_tags, game_type, launcher.game_id)
 
 def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 'GameInfo', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
-	path = ensure_unique_path(Path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True)).with_suffix('.desktop'))
+	path = ensure_unique_path(Path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True) + '.desktop'))
 
 	configwriter = NoNonsenseConfigParser()
 
@@ -129,8 +127,7 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 
 
 def make_launcher(launch_params: 'LaunchCommand', name: str, game_info: 'GameInfo', id_type: str, unique_id: str) -> None:
 	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
-	display_name = remove_filename_tags(name)
-	filename_tags = find_filename_tags_at_end(name)
+	display_name, filename_tags = find_tags(name)
 
 	#For very future use, this is where the underlying host platform is abstracted away. Right now we only run on Linux though so zzzzz
 	_make_linux_desktop(launch_params, display_name, game_info, filename_tags, id_type, unique_id)
