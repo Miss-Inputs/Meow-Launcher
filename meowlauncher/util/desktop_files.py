@@ -1,4 +1,5 @@
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Sequence, Collection
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -56,8 +57,9 @@ def _iter_existing_launchers() -> Iterator[tuple[str, str]]:
 			continue
 		yield existing_type, existing_id
 
-def has_been_done(game_type: str, game_id: str) -> bool:
-	if not hasattr(has_been_done, 'existing_launchers'):
-		has_been_done.existing_launchers = tuple(_iter_existing_launchers()) #type: ignore[attr-defined]
+@lru_cache(maxsize=1)
+def _existing_launchers() -> Collection[tuple[str, str]]:
+	return tuple(_iter_existing_launchers())
 
-	return any(existing_type == game_type and existing_id == game_id for (existing_type, existing_id) in has_been_done.existing_launchers) #type: ignore[attr-defined]
+def has_been_done(game_type: str, game_id: str) -> bool:
+	return any(existing_type == game_type and existing_id == game_id for (existing_type, existing_id) in _existing_launchers())
