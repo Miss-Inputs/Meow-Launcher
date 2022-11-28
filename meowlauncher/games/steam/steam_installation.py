@@ -3,7 +3,6 @@ import logging
 import re
 import zipfile
 from collections.abc import Collection, Iterator, Mapping
-from enum import IntFlag
 from operator import attrgetter
 from pathlib import Path
 from typing import Any
@@ -18,30 +17,9 @@ except ModuleNotFoundError:
 
 from meowlauncher.config.main_config import main_config
 
-logger = logging.getLogger(__name__)
+from .steam_types import StateFlags
 
-class StateFlags(IntFlag):
-	"""See also https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/EAppState.h
-	Used in .acf manifests"""
-	Invalid = 0
-	Uninstalled = 1
-	UpdateRequired = 2
-	FullyInstalled = 4
-	UpdateQueued = 8
-	UpdateOptional = 16
-	FilesMissing = 32
-	SharedOnly = 64
-	FilesCorrupt = 128
-	UpdateRunning = 256
-	UpdatePaused = 512
-	UpdateStarted = 1024
-	Uninstalling = 2048
-	BackupRunning = 4096
-	AppRunning = 8192
-	ComponentInUse = 16384
-	MovingFolder = 32768
-	Reconfiguring = 65536
-	PrefetchingInfo = 131072
+logger = logging.getLogger(__name__)
 
 class IconError(Exception):
 	pass

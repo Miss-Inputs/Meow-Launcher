@@ -9,6 +9,8 @@ from functools import cached_property
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
+from meowlauncher.games.steam.steam_types import ExternalAccountType
+
 try:
 	from steamfiles import appinfo
 	have_steamfiles = True
@@ -559,21 +561,13 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			game.info.descriptions['Full Description'] = full_description
 
 	if social_media:
-		social_media_types = {
-			#https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/enums.steamd#L916 (EExternalAccountType)
-			0: 'None',
-			1: 'Steam',
-			2: 'Google',
-			3: 'Facebook',
-			4: 'Twitter',
-			5: 'Twitch',
-			6: 'YouTube',
-			7: 'Facebook Page',
-		}
 		for social_medium in social_media:
 			#strName is just the account's name on that platform I think?
-			key = social_media_types.get(social_medium.get('eType'), f'Unknown Social Media {social_medium.get("eType")}')
-			game.info.documents[key] = social_medium.get('strURL')
+			try:
+				info_name = ExternalAccountType(social_medium['eType']).name
+			except ValueError:
+				info_name = f'Unknown Social Media {social_medium["eType"]}'
+			game.info.documents[info_name] = social_medium.get('strURL')
 
 	if is_single_user and achievements:
 		total_achievements = achievements.get('nTotal', 0)
