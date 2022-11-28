@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import logging
-import sys
+from pathlib import PurePath
 import time
 from collections.abc import Collection, Mapping, Sequence
 
@@ -12,8 +12,8 @@ from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_find_utils import \
     get_software_list_by_name
-from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.info import GameInfo
+from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.region_info import TVSystem
 
@@ -93,7 +93,7 @@ class SoftwareLauncher():
 		#		raise EmulationNotSupportedException('Not supported')
 		#TODO Have option to skip if not working
 
-		launch_params = LaunchCommand('mame', self.platform.get_launch_command(self))
+		launch_params = LaunchCommand(PurePath('mame'), self.platform.get_launch_command(self))
 
 		make_launcher(launch_params, self.software.description, self.info, 'MAME software', self.id)
 
@@ -136,15 +136,6 @@ def add_software_list_platform(platform: SoftwareListPlatform) -> None:
 
 def add_mame_software() -> None:
 	time_started = time.perf_counter()
-
-	if '--platform' in sys.argv:
-		arg_index = sys.argv.index('--platform')
-		for platform in software_list_platforms:
-			if platform.name == sys.argv[arg_index + 1]:
-				add_software_list_platform(platform)
-				break
-		return
-	#TODO: Debugging argument to create a launcher for one specific software item (./mame_software.py --software neogeo:mslugx or whatever) (can I do that?)
 
 	for platform in software_list_platforms:
 		add_software_list_platform(platform)

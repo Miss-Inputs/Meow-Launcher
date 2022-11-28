@@ -3,7 +3,6 @@
 import datetime
 import os
 import shutil
-import sys
 import time
 from collections.abc import Callable, Collection
 from pathlib import Path
@@ -195,35 +194,3 @@ def move_into_folders() -> None:
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-def main() -> None:
-	if '--organize-folder' in sys.argv:
-		time_started = time.perf_counter()
-
-		arg_index = sys.argv.index('--organize-folder')
-		key = sys.argv[arg_index + 1]
-		if '--name' in sys.argv:
-			name_arg_index = sys.argv.index('--name')
-			name = sys.argv[name_arg_index + 1]
-		else:
-			name = 'By ' + key
-
-		missing_value: str | None
-		if '--missing-value' in sys.argv:
-			missing_value_arg_index = sys.argv.index('--missing-value')
-			missing_value = sys.argv[missing_value_arg_index + 1]
-		else:
-			missing_value = None
-
-		for root, _, files in os.walk(main_config.output_folder):
-			for f in files:
-				path = Path(root, f)
-				if path.suffix == '.desktop':
-					desktop = get_desktop(path)
-					_move_into_extra_subfolder(path, desktop, sanitize_name(name, safe_for_fat32=True), key, missing_value)
-		if main_config.print_times:
-			time_ended = time.perf_counter()
-			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-		
-	else:
-		move_into_folders()
