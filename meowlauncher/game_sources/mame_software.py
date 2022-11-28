@@ -135,11 +135,5 @@ def add_software_list_platform(platform: SoftwareListPlatform) -> None:
 				add_software(software)
 
 def add_mame_software() -> None:
-	time_started = time.perf_counter()
-
 	for platform in software_list_platforms:
 		add_software_list_platform(platform)
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('MAME software finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

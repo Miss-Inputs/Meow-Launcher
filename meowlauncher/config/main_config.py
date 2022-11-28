@@ -177,11 +177,6 @@ class MainConfig(Config):
 		"""If there is no icon, use these images as icons, if they are there"""
 		return []
 
-	@configoption('General') #TODO: Some kind of "don't put in the config.ini" attribute if we ever make code again that generates a template config.ini
-	def print_times(self) -> bool:
-		'Print how long it takes to do things'
-		return False
-
 	@configoption('General')
 	def full_rescan(self) -> bool:
 		'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'

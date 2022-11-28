@@ -8,9 +8,12 @@ from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
 
-__doc__ = """The important part that actually scans games and creates launchers. The logger here outputs progress messages so it may be useful to add a handler to it, for GUIs or if printed output might look nicer that way"""
+__doc__ = """The important part that actually scans games and creates launchers. 
+Uses two loggers with non-standard names: meowlauncher.frontend.progress and meowlauncher.frontend.time, to report progress and time taken to do each component respectively, so you may want to set those to be formatted differently"""
 
 logger = logging.getLogger(__name__)
+progress_logger = logging.getLogger('meowlauncher.frontend.progress')
+time_logger = logging.getLogger('meowlauncher.frontend.time')
 
 def add_game_source(source: GameSource) -> int:
 	"""Add all games from a single game source.
@@ -18,7 +21,7 @@ def add_game_source(source: GameSource) -> int:
 	time_started = time.perf_counter()
 	count = 0
 	
-	logger.info('Adding %s', source.description())
+	progress_logger.info('Adding %s', source.description())
 	if isinstance(source, CompoundGameSource):
 		count += sum(add_game_source(subsource) for subsource in source.sources)
 	else:
@@ -30,10 +33,10 @@ def add_game_source(source: GameSource) -> int:
 	time_taken = datetime.timedelta(seconds=time_ended - time_started)
 
 	if count:
-		logger.info('Added %d %s in %s (%s per game)', count, source.description(), time_taken, time_taken / count)
+		time_logger.info('Added %d %s in %s (%s per game)', count, source.description(), time_taken, time_taken / count)
 	else:
 		logger.warning('Did not add any %s', source.description())
-	logger.info('-' * 10)
+	progress_logger.info('-' * 10)
 	return count
 
 def _get_game_source(name: str) -> type[GameSource] | None:
@@ -80,7 +83,7 @@ def add_games() -> int:
 		for source_name in source_names:
 			source_type = _get_game_source(source_name)
 			if not source_type:
-				logging.warning('Unknown game source: %s', source_name)
+				logger.warning('Unknown game source: %s', source_name)
 				continue
 			sources.append(source_type)
 			
@@ -95,16 +98,22 @@ def add_games() -> int:
 			logger.warning('%s was specified, but it is not available', game_source.name())
 			continue
 		total += add_game_source(game_source)
-	logger.info('Added total of %d games', total) #Well other than those down below but sshhh pretend they aren't there
+	progress_logger.info('Added total of %d games', total) #Well other than those down below but sshhh pretend they aren't there
 
 	if do_gog:		
-		logger.info('Adding GOG games')
+		progress_logger.info('Adding GOG games')
+		time_started = time.perf_counter()
 		gog.do_gog_games()
+		time_logger.info('GOG finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started))
 	if do_itch_io:		
-		logger.info('Adding itch.io games')
+		progress_logger.info('Adding itch.io games')
+		time_started = time.perf_counter()
 		itch_io.do_itch_io_games()
+		time_logger.info('itch.io finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started))
 	if do_mame_software:
-		logger.info('Adding MAME software, which is not finished yet and this might not work')
+		progress_logger.info('Adding MAME software, which is not finished yet and this might not work')
+		time_started = time.perf_counter()
 		mame_software.add_mame_software()
+		time_logger.info('MAME software finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started))
 
 	return total

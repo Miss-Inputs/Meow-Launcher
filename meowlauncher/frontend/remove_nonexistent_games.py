@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import datetime
 import logging
 import os
-import time
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game_sources import game_sources
@@ -14,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 def remove_nonexistent_games() -> None:
 	'If not doing a full rescan, we want to remove games that are no longer there'
-
-	time_started = time.perf_counter()
 
 	game_types = {source.game_type(): source() for source in game_sources}
 
@@ -41,9 +37,5 @@ def remove_nonexistent_games() -> None:
 		if should_remove:
 			logger.debug('%s %s no longer exists, removing', game_type, game_id)
 			path.unlink()
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 __doc__ = remove_nonexistent_games.__doc__ or "Shut up mypy"

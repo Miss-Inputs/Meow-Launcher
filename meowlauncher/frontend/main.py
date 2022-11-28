@@ -1,4 +1,6 @@
 import logging
+import time
+from datetime import timedelta
 
 from meowlauncher.config.main_config import main_config
 
@@ -8,10 +10,16 @@ from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
 
 logger = logging.getLogger(__name__)
+progress_logger = logging.getLogger('meowlauncher.frontend.progress')
+time_logger = logging.getLogger('meowlauncher.frontend.time')
 
 def main() -> None:
-	"""Recreates output folder if it doesn't exist, calls add_games and does the other things (disambiguate, series detect, etc). The logger here outputs progress messages so it may be useful to add a handler to it, for GUIs or if printed output might look nicer that way"""
-	logger.info('Creating output folder')
+	"""Recreates output folder if it doesn't exist, calls add_games and does the other things (disambiguate, series detect, etc).
+	Uses two loggers with non-standard names: meowlauncher.frontend.progress and meowlauncher.frontend.time, to report progress and time taken to do each component respectively, so you may want to set those to be formatted differently"""
+
+	overall_time_started = time.perf_counter()
+
+	progress_logger.info('Creating output folder')
 
 	if main_config.full_rescan:
 		if main_config.output_folder.is_dir():
@@ -23,19 +31,29 @@ def main() -> None:
 	add_games()
 
 	if not main_config.full_rescan:
-		logger.info('Removing games which no longer exist')
+		progress_logger.info('Removing games which no longer exist')
+		time_started = time.perf_counter()
 		remove_nonexistent_games()
+		time_logger.info('Removal of games which no longer exist finished in %s', timedelta(seconds=time.perf_counter() - time_started))
 
 	if main_config.get_series_from_name:
-		logger.info('Detecting series')
+		progress_logger.info('Detecting series')
+		time_started = time.perf_counter()
 		series_detect.detect_series_for_all_desktops()
+		time_logger.info('Series detection by name finished in %s', timedelta(seconds=time.perf_counter() - time_started))
 
 	if main_config.disambiguate:
-		logger.info('Disambiguating names')
+		progress_logger.info('Disambiguating names')
+		time_started = time.perf_counter()
 		disambiguate_names()
+		time_logger.info('Name disambiguation finished in %s', timedelta(seconds=time.perf_counter() - time_started))
 
 	if main_config.organize_folders:
-		logger.info('Organizing into folders')
+		progress_logger.info('Organizing into folders')
+		time_started = time.perf_counter()
 		organize_folders.move_into_folders()
+		time_logger.info('Folder organization finished in %s', timedelta(seconds=time.perf_counter() - time_started))
 
+	time_logger.info('Whole thing finished in %s', timedelta(seconds=time.perf_counter() - overall_time_started))
+	
 __doc__ = main.__doc__ or __name__

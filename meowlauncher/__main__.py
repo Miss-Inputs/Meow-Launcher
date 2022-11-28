@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-import datetime
 import locale
 import logging
-import time
 from argparse import ArgumentParser
 
 from meowlauncher.frontend.main import main
@@ -12,7 +10,6 @@ from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 from meowlauncher.config.main_config import main_config
 from meowlauncher import __version__
 
-overall_time_started = time.perf_counter()
 locale.setlocale(locale.LC_ALL, '')
 
 parser = ArgumentParser(add_help=True, parents=[main_config.parser], prog=f'python -m {__package__}')
@@ -25,8 +22,16 @@ stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(n
 logger = logging.getLogger(__package__)
 logger.addHandler(stream_handler)
 logger.setLevel(main_config.logging_level)
-main()
 
-if main_config.print_times:
-	overall_time_ended = time.perf_counter()
-	print('Whole thing finished in', str(datetime.timedelta(seconds=overall_time_ended - overall_time_started)))
+progress_logger = logging.getLogger('meowlauncher.frontend.progress')
+progress_logger.propagate = False
+progress_logger.handlers.clear()
+progress_logger.addHandler(logging.StreamHandler())
+progress_logger.setLevel(logging.INFO)
+time_logger = logging.getLogger('meowlauncher.frontend.time')
+time_logger.propagate = False
+time_logger.handlers.clear()
+time_logger.addHandler(logging.StreamHandler())
+time_logger.setLevel(logging.INFO)
+
+main()

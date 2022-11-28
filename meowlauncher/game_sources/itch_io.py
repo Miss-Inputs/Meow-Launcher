@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-import datetime
 import logging
-import time
 from pathlib import Path
 
 from meowlauncher.config.main_config import main_config
@@ -19,8 +17,6 @@ def scan_itch_dir(path: Path) -> ItchGame | None:
 	return game
 
 def do_itch_io_games() -> None:
-	time_started = time.perf_counter()
-
 	for itch_io_folder_str in main_config.itch_io_folders:
 		itch_io_folder = Path(itch_io_folder_str)
 		if not itch_io_folder.is_dir():
@@ -44,7 +40,3 @@ def do_itch_io_games() -> None:
 
 			game.add_info()
 			game.make_launcher()
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('itch.io finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

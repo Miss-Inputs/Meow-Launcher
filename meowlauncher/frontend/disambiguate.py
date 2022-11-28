@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import collections
-import datetime
 import itertools
 import logging
-import time
 from collections.abc import Callable, Collection, Iterable, MutableMapping
 from pathlib import Path
 
@@ -237,8 +235,6 @@ def _platform_type_disambiguate(d: DesktopWithPath) -> str | None:
 	return get_field(d.parser, 'Platform') if typey in {'ROMs', 'Arcade / standalone machines'} else typey
 		
 def disambiguate_names() -> None:
-	time_started = time.perf_counter()
-
 	desktops = [DesktopWithPath(path) for path in main_config.output_folder.iterdir()]
 	
 	_fix_duplicate_names(desktops, 'Platform/Type', field_getter=_platform_type_disambiguate)
@@ -264,7 +260,3 @@ def disambiguate_names() -> None:
 	for desktop in desktops:
 		desktop.update_name()
 	_fix_duplicate_names(desktops, 'check')
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-import datetime
 import re
-import time
 from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -214,8 +212,6 @@ def _iter_existing_seriesless_launchers() -> Iterator[tuple['RawConfigParser', P
 		yield desktop, path
 
 def detect_series_for_all_desktops() -> None:
-	time_started = time.perf_counter()
-
 	for desktop, path in _iter_existing_seriesless_launchers():
 		_detect_series(desktop, path)
 	existing = _find_existing_serieses()
@@ -227,7 +223,3 @@ def detect_series_for_all_desktops() -> None:
 			_force_add_series_with_index(desktop, path, existing)
 
 	_detect_series_index_for_things_with_series()
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('Series detection finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
