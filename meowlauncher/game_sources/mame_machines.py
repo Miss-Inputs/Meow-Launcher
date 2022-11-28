@@ -96,15 +96,15 @@ class MAME(GameSource):
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
 		assert self.emu, 'MAME.iter_launchers should never be called without checking is_available! What the'
-		if main_config.driver_list:
-			for driver_name in main_config.driver_list:
+		if main_config.mame_drivers:
+			for driver_name in main_config.mame_drivers:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
 				if launcher:
 					yield launcher
 			return 
 
-		if main_config.source_file:		
-			for machine in iter_machines_from_source_file(main_config.source_file, self.emu.executable):
+		if main_config.source_files:		
+			for machine in iter_machines_from_source_file(main_config.source_files, self.emu.executable):
 				if not _is_actually_machine(machine):
 					continue
 				if not machine.launchable:

@@ -366,12 +366,12 @@ class MainConfig(Config):
 		return []
 	
 	@configoption('Arcade')
-	def driver_list(self) -> Sequence[str]:
+	def mame_drivers(self) -> Sequence[str]:
 		"""Really just here for debugging/testing, forces MAME game source to only use certain drivers"""
 		return []
 
 	@configoption('Arcade')
-	def source_file(self) -> str | None:
+	def source_files(self) -> str | None:
 		"""Really just here for debugging/testing, forces MAME game source to only use drivers from certain source files"""
 		return None
 
