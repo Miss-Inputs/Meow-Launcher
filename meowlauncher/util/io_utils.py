@@ -1,12 +1,6 @@
 import pathlib
 import re
 
-
-def ensure_exist(path: pathlib.Path) -> None:
-	"""Makes sure @path is a file that exists (by touching it if not), and that its parent folders exist"""
-	path.parent.mkdir(exist_ok=True, parents=True)
-	path.touch()
-
 def read_file(path: pathlib.Path, seek_to: int=0, amount: int=-1) -> bytes:
 	"""Reads a certain amount from an ordinary file from a certain position… why is this here?"""
 	with path.open('rb') as f:

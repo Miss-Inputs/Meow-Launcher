@@ -3,7 +3,6 @@ from meowlauncher.common_paths import config_dir
 from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.emulated_platforms import (manually_specified_platforms,
                                                   platforms)
-from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
 from ._config_utils import parse_path_list, parse_string_list, parse_config_section_value
@@ -31,7 +30,6 @@ class PlatformConfigs():
 	"""Holds all the config for all the ROM platforms. This class will definitely be replaced with something better"""
 	def __init__(self) -> None:
 		parser = NoNonsenseConfigParser(allow_no_value=True)
-		ensure_exist(_platform_config_path)
 		parser.read(_platform_config_path)
 
 		self.configs = {platform_name: _get_config(section, platform_name) for platform_name, section in parser.items()}

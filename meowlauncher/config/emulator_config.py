@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 from meowlauncher.common_paths import config_dir
 from meowlauncher.config_types import EmulatorConfig, RunnerConfigValue
 from meowlauncher.data.emulators import all_emulators
-from meowlauncher.util.io_utils import ensure_exist
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
 from ._config_utils import parse_config_section_value
@@ -33,7 +32,6 @@ def _get_config(parser: 'configparser.RawConfigParser', config_name: str, defaul
 class EmulatorConfigs():
 	def __init__(self) -> None:
 		parser = NoNonsenseConfigParser(allow_no_value=True)
-		ensure_exist(_emulator_config_path)
 		parser.read(_emulator_config_path)
 
 		self.configs = {emulator.config_name: _get_config(parser, emulator.config_name, emulator.default_exe_name, emulator.configs) for emulator in all_emulators}

@@ -11,8 +11,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.util.io_utils import (ensure_exist, ensure_unique_path,
-                                        sanitize_name)
+from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
                                      find_tags)
 from meowlauncher.version import __version__
@@ -118,7 +117,6 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 
 		if desktop_entry_icon:
 			desktop_entry['Icon'] = desktop_entry_icon
 		
-	ensure_exist(path)
 	with path.open('wt', encoding='utf-8') as f:
 		configwriter.write(f)
 
