@@ -18,6 +18,8 @@ from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
 
 logger = logging.getLogger(__name__)
 
+#This is to handle discrepancies for _does_name_fuzzy_match, where the name to be matched is a ROM name and thus from No-Intro/Redump and it is different than MAME for whether it has a subtitle or not
+#Maybe I don't actually need this and it's just weird
 subtitles = load_dict(None, 'subtitles')
 
 def iter_all_software_lists() -> Iterator[tuple[Path, SoftwareList]]:
@@ -62,6 +64,7 @@ def find_in_software_lists_with_custom_matcher(software_lists: Collection[Softwa
 def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	#TODO Handle annoying multiple discs
 	proto_tags = {'beta', 'proto', 'sample'}
+	demo_tags = {'demo', 'playable game preview', 'trade demo'}
 
 	software_tags: Collection[str]
 	name_tags: Collection[str]
@@ -82,11 +85,12 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 				return False
 		else:
 			return False
-	if 'demo' in software_tags and 'demo' not in ', '.join(name_tags):
-		return False
-	if 'demo' in name_tags and 'demo' not in software_tags:
-		return False
 
+	name_is_demo = any(t == 'demo' or t.startswith('demo ') for t in name_tags)
+	software_is_demo = any(t in software_tags or t.startswith('demo ') for t in demo_tags)
+	if (name_is_demo and not software_is_demo) or (software_is_demo and not name_is_demo):
+		return False
+	
 	software_is_prototype = any(t.startswith('prototype') for t in software_tags)
 
 	for t in proto_tags:
@@ -101,6 +105,12 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 				matches_proto = True
 		if not matches_proto:
 			return False
+
+	if 'alt' in software_tags and 'alt' not in name_tags:
+		return False
+	if 'alt' in name_tags and 'alt' not in software_tags:
+		return False
+
 	return True
 
 def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -> Software | None:
@@ -110,6 +120,7 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment
 		#Bold of you to assume I understand this code, past Megan
 		#TODO: Okay I think I see what Past Megan was trying to do here… we want to first get the matches from _does_name_fuzzy_match, then we want to filter down by region _unless_ we don't have to (because regions aren't involved), and then version if needed, so this really all happens in three parts, and yeah I guess that does mean we need to collect everything in a set so we can test length == 1
+		#TODO: Should be just narrowing everything down rather than building sets over and over again, this looks weird
 		return fuzzy_name_matches.pop()
 	if len(fuzzy_name_matches) > 1:
 		name_and_region_matches: MutableSet[Software] = set()
@@ -142,6 +153,7 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 		name_and_region_and_version_matches = set()
 		for match in name_and_region_matches:
 			match_brackets = ', '.join(t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)).split(', ')
+
 			if 'v1.1' in match_brackets:
 				if 'v1.1' in name_brackets or 'reprint' in name_brackets or 'rerelease' in name_brackets or 'rev 1' in name_brackets:
 					name_and_region_and_version_matches.add(match)
@@ -158,11 +170,17 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 						break
 				if orig_version:
 					name_and_region_and_version_matches.add(match)
+
+			for b in name_brackets:
+				if b.startswith('rev ') and b.removeprefix('rev ').isnumeric():
+					if b in match_brackets or f'v1.{b.removeprefix("rev ")}' in match_brackets:
+						name_and_region_and_version_matches.add(match)
 		
 		if len(name_and_region_and_version_matches) == 1:
 			return name_and_region_and_version_matches.pop()
 
-		logger.debug('%s matched too many: %s', name, [m.description for m in name_and_region_matches])
+		if name_and_region_matches:
+			logger.debug('%s matched too many: %s', name, [m.description for m in name_and_region_matches])
 		
 	return None
 
