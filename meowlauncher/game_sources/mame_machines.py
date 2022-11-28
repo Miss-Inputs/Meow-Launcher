@@ -19,7 +19,6 @@ from meowlauncher.games.mame_common.machine import (
     Machine, get_machine, iter_machines, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
-from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.util.desktop_files import has_been_done
 
 
@@ -56,8 +55,8 @@ class MAME(GameSource):
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		if not self.emu:
-			return False
-		return self.emu.executable.verifyroms(game_id)
+			return True
+		return not self.emu.executable.verifyroms(game_id)
 
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
