@@ -39,7 +39,7 @@ def _format_count(list_of_something: Iterable[Any]) -> str | None:
 	if len(counter) == 1:
 		if next(iter(counter.keys()), None) is None:
 			return None
-	return ' + '.join(value if count == 1 else f'{value} * {count}' for value, count in counter.items() if value)
+	return ' + '.join(str(value) if count == 1 else f'{value} * {count}' for value, count in counter.items() if value)
 
 class CPU():
 	def __init__(self, xml: ElementTree.Element):
@@ -121,7 +121,7 @@ class DisplayCollection():
 
 	@property
 	def aspect_ratios(self) -> str | None:
-		return _format_count(display.aspect_ratio for display in self.displays if display.aspect_ratio)
+		return _format_count(':'.join(str(i) for i in display.aspect_ratio.as_integer_ratio()) for display in self.displays if display.aspect_ratio)
 
 	@property
 	def display_types(self) -> str | None:
