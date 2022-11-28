@@ -96,6 +96,7 @@ def convert_roman_numerals_in_title(s: str) -> str:
 _words_regex = re.compile(r'[\w()]+')
 _apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
 def normalize_name(name: str, care_about_spaces: bool=True, normalize_words: bool=True, care_about_numerals: bool=False) -> str:
+	"""Removes punctuation and such from a string, to make it more sensible to compare two strings by calling this on both of them"""
 	if care_about_numerals:
 		name = convert_roman_numerals_in_title(name)
 	name = name.lower()
@@ -103,10 +104,14 @@ def normalize_name(name: str, care_about_spaces: bool=True, normalize_words: boo
 	name = name.replace('&', 'and')
 	name = name.replace('é', 'e')
 	name = name.replace(': ', ' - ')
+	name = name.replace('.', '')
+	name = name.replace(' Bros', ' Brothers')
+	name = name.replace(' Jr', 'Junior')
+
 	name = _apostrophes_at_word_boundary_regex.sub('', name)
 
 	if normalize_words:
-		return ('-' if care_about_spaces else '').join(match[0] for match in _words_regex.finditer(name))
+		return (' ' if care_about_spaces else '').join(match[0] for match in _words_regex.finditer(name))
 	return name
 
 dont_capitalize_these = {'the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is'}

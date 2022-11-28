@@ -9,7 +9,7 @@ from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
 from meowlauncher.util.name_utils import normalize_name
-from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
+from meowlauncher.util.utils import (find_filename_tags_at_end,
                                      remove_capital_article,
                                      remove_filename_tags)
 
@@ -20,8 +20,6 @@ from .mame_utils import consistentify_manufacturer, untangle_manufacturer
 
 if TYPE_CHECKING:
 	from .mame_executable import MAMEExecutable
-
-_subtitles = load_dict(None, 'subtitles')
 
 mame_statuses: dict[str | None, EmulationStatus] = {
 	#It is str | None so that we can .get None and have it return whatever default
@@ -268,22 +266,22 @@ class Machine():
 
 	@property
 	def requires_artwork(self) -> bool:
-		#Added in MAME 0.229, so we assume everything from previous versions doesn't require artwork
+		"""Added in MAME 0.229, so we assume everything from previous versions doesn't require artwork"""
 		return self._get_driver_bool_attrib('requiresartwork')
 
 	@property
 	def unofficial(self) -> bool:
-		#Added in MAME 0.229, so we assume everything from previous versions is official
+		"""Added in MAME 0.229, so we assume everything from previous versions is official"""
 		return self._get_driver_bool_attrib('unofficial')
 
 	@property
 	def no_sound_hardware(self) -> bool:
-		#Added in MAME 0.229, so we assume everything from previous versions has sound hardware
+		"""Added in MAME 0.229, so we assume everything from previous versions has sound hardware"""
 		return self._get_driver_bool_attrib('nosoundhardware')
 
 	@property
 	def incomplete(self) -> bool:
-		#Added in MAME 0.229, so we assume everything from previous versions is complete
+		"""Added in MAME 0.229, so we assume everything from previous versions is complete"""
 		return self._get_driver_bool_attrib('incomplete')
 	
 	@property
@@ -831,37 +829,34 @@ arcade_system_bios_names = {
 }
 
 
-#Feel like this should belong somewhere else…
 def machine_name_matches(machine_name: str, game_name: str, match_vs_system: bool=False) -> bool:
-	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	"""Feel like this should belong somewhere else…
+	game_name could have tags and they are removed here
+	TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	"""
 	
 	game_name = remove_filename_tags(game_name)
 
 	#Until I do mess around with name_consistency.dict though, here's some common substitutions
-	machine_name = machine_name.replace('Bros.', 'Brothers')
-	game_name = game_name.replace('Bros.', 'Brothers')
-	machine_name = machine_name.replace('Jr.', 'Junior')
-	game_name = game_name.replace('Jr.', 'Junior')
-
+	
 	if match_vs_system:
 		if not machine_name.upper().startswith('VS. '):
 			return False
 		machine_name = machine_name[4:]
 
-	if normalize_name(machine_name, False) == normalize_name(game_name, False):
+	normalized_name = normalize_name(game_name)
+	normalized_machine_name = normalize_name(machine_name)
+	if normalized_name == normalized_machine_name:
+		return True
+	if normalized_name.startswith(normalized_machine_name + ' - ') or normalized_machine_name.startswith(normalized_name + ' - '):
 		return True
 
-	if machine_name in _subtitles:
-		if normalize_name(machine_name + ': ' + _subtitles[machine_name], False) == normalize_name(game_name, False):
-			return True
-	elif game_name in _subtitles:
-		if normalize_name(game_name + ': ' + _subtitles[game_name], False) == normalize_name(machine_name, False):
-			return True
 	return False
 
-#TODO: Where does this really belong?
 @cache
 def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
+	"""game_name could have tags and they are removed here
+	TODO: Where does this really belong?"""
 	if machine_name_matches(machine.name_without_tags, name, match_vs_system):
 		return True
 	return any(machine_name_matches(remove_filename_tags(alt_name), name, match_vs_system) for alt_name in machine.alt_names)

@@ -9,18 +9,13 @@ from pathlib import Path
 from typing import Any
 
 from meowlauncher.util.name_utils import normalize_name
-from meowlauncher.util.utils import (find_filename_tags_at_end, find_tags,
-                                     load_dict)
+from meowlauncher.util.utils import find_filename_tags_at_end, find_tags
 
 from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
                             SoftwareMatcherArgs, SoftwarePart)
 
 logger = logging.getLogger(__name__)
-
-#This is to handle discrepancies for _does_name_fuzzy_match, where the name to be matched is a ROM name and thus from No-Intro/Redump and it is different than MAME for whether it has a subtitle or not
-#Maybe I don't actually need this and it's just weird
-subtitles = load_dict(None, 'subtitles')
 
 def iter_all_software_lists() -> Iterator[tuple[Path, SoftwareList]]:
 	if not default_mame_configuration:
@@ -76,15 +71,8 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 	software_tags = ', '.join(t.lower()[1:-1] for t in software_tags).split(', ')
 	
-	if software_normalized_name != normalized_name:
-		if name_without_brackety_bois in subtitles:
-			if normalize_name(f'{name_without_brackety_bois}: {subtitles[name_without_brackety_bois]}') != software_normalized_name:
-				return False
-		elif software_name_without_brackety_bois in subtitles:
-			if normalize_name(f'{software_name_without_brackety_bois}: {subtitles[software_name_without_brackety_bois]}') != normalized_name:
-				return False
-		else:
-			return False
+	if software_normalized_name != normalized_name and not normalized_name.startswith(software_normalized_name + ' - ') and not software_normalized_name.startswith(normalized_name + ' - '):
+		return False
 
 	name_is_demo = any(t == 'demo' or t.startswith('demo ') for t in name_tags)
 	software_is_demo = any(t in software_tags or t.startswith('demo ') for t in demo_tags)
