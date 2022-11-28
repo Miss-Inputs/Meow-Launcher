@@ -58,8 +58,8 @@ def find_in_software_lists_with_custom_matcher(software_lists: Collection[Softwa
 
 def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	#TODO Handle annoying multiple discs
-	proto_tags = {'beta', 'proto', 'sample'}
-	demo_tags = {'demo', 'playable game preview', 'trade demo'}
+	proto_tags = {'beta', 'proto', 'sample', 'pre-release', 'prerelease'}
+	demo_tags = {'demo', 'playable game preview', 'trade demo', 'taikenban'}
 
 	software_tags: Collection[str]
 	name_tags: Collection[str]
@@ -71,32 +71,22 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 	software_tags = ', '.join(t.lower()[1:-1] for t in software_tags).split(', ')
 	
-	if software_normalized_name != normalized_name and not normalized_name.startswith(software_normalized_name + ' - ') and not software_normalized_name.startswith(normalized_name + ' - '):
-		return False
-
-	name_is_demo = any(t == 'demo' or t.startswith('demo ') for t in name_tags)
-	software_is_demo = any(t in demo_tags or t.startswith('demo ') for t in software_tags)
-	if (name_is_demo and not software_is_demo) or (software_is_demo and not name_is_demo):
-		return False
-	
-	software_is_prototype = any(t.startswith('prototype') for t in software_tags)
-
-	for t in proto_tags:
-		if t in name_tags and not (software_is_prototype or t in software_tags):
-			return False
-		if t in software_tags and not t in name_tags:
-			return False
-	if software_is_prototype:
-		matches_proto = False
-		for t in proto_tags:
-			if t in name_tags:
-				matches_proto = True
-		if not matches_proto:
-			return False
-
 	if 'alt' in software_tags and 'alt' not in name_tags:
 		return False
 	if 'alt' in name_tags and 'alt' not in software_tags:
+		return False
+	
+	if software_normalized_name != normalized_name and not normalized_name.startswith(software_normalized_name + ' - ') and not software_normalized_name.startswith(normalized_name + ' - '):
+		return False
+
+	name_is_demo = any(t == 'demo' or t.startswith('demo ') or t.endswith(' demo') for t in name_tags)
+	software_is_demo = any(t in demo_tags or t.startswith('demo ') or t.endswith(' demo') for t in software_tags)
+	if (name_is_demo and not software_is_demo) or (software_is_demo and not name_is_demo):
+		return False
+	
+	name_is_prototype = any(t in proto_tags or t.startswith('prototype') for t in name_tags)
+	software_is_prototype = any(t in proto_tags or t.startswith('prototype') for t in software_tags)
+	if (name_is_prototype and not software_is_prototype) or (software_is_prototype and not name_is_prototype):
 		return False
 
 	return True
