@@ -75,7 +75,7 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 		return False
 
 	name_is_demo = any(t == 'demo' or t.startswith('demo ') for t in name_tags)
-	software_is_demo = any(t in software_tags or t.startswith('demo ') for t in demo_tags)
+	software_is_demo = any(t in demo_tags or t.startswith('demo ') for t in software_tags)
 	if (name_is_demo and not software_is_demo) or (software_is_demo and not name_is_demo):
 		return False
 	
