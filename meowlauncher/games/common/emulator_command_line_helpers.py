@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, cast
 
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.exceptions import EmulationNotSupportedException
-from meowlauncher.games.mame_common.mame_helpers import (
-    default_mame_executable, verify_romset)
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
@@ -114,9 +113,11 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 	return LaunchCommand(emulator_config.exe_path, args)
 
 def first_available_romset(driver_list: 'Collection[str]') -> str | None:
-	#TODO: Calling verify_romset instead of a thing of a MAMEExecutable is bad
+	"""TODO: This should be able to take MAMEExecutable as an argument, though this requires refactoring for launch_command_func to take an Emulator or rather ConfiguredEmulator instead of EmulatorConfig"""
+	if not default_mame_executable:
+		return None
 	for driver in driver_list:
-		if verify_romset(driver):
+		if default_mame_executable.verifyroms(driver):
 			return driver
 	return None
 
