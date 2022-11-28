@@ -252,3 +252,5 @@ class ROMs(CompoundGameSource):
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
+
+__doc__ = ROMs.__doc__ or ROMs.__name__

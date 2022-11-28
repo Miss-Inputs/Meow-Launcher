@@ -56,6 +56,7 @@ class SteamGame(Game):
 
 	@property
 	def install_dir(self) -> Path:
+		"""Directory containing this game's files"""
 		return self.library_folder.joinpath('steamapps', 'common', self.app_state['installdir'])
 
 	@cached_property
@@ -95,7 +96,7 @@ class SteamGame(Game):
 		return self._appinfo_common_section.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 
 	def add_metadata(self) -> None:
-		#Hmmm… may make sense for this to go on individual SteamLauncher, if we add some metadata based on that
+		"""Hmmm… may make sense for this to go on individual SteamLauncher, if we add some metadata based on that"""
 		self.info.specific_info['Steam AppID'] = self.appid
 		self.info.specific_info['Library Folder'] = self.library_folder
 		self.info.media_type = MediaType.Digital

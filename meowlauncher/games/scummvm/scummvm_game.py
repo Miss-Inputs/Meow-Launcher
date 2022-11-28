@@ -85,6 +85,7 @@ class ScummVMGame(Game):
 
 	@property
 	def engine(self) -> str | None:
+		"""Display name for the engine"""
 		engine_id = self.options.get('engineid')
 		if engine_id:
 			return self._engine_list_to_use().get(engine_id, engine_id)
@@ -92,6 +93,7 @@ class ScummVMGame(Game):
 
 	@property
 	def path(self) -> Path | None:
+		"""Path to folder containing game files (or filename in case of Glk etc)"""
 		pathstr = self.options.get('path')
 		if not pathstr:
 			return None
@@ -101,6 +103,7 @@ class ScummVMGame(Game):
 
 	@property
 	def language(self) -> Language | None:
+		"""Language specified by the "language" option"""
 		language_code = self.options.get('language')
 		if not language_code:
 			return None
@@ -144,6 +147,7 @@ class ScummVMGame(Game):
 
 	@property
 	def original_platform(self) -> str | None:
+		"""Platform that this version of the game was released for (uses same wording as emulated_platforms)"""
 		platform = self.options.get('platform')
 		if not platform:
 			return None
@@ -151,7 +155,6 @@ class ScummVMGame(Game):
 			return 'Amiga CD32'
 		return format_platform(platform)
 		
-
 	def add_metadata(self) -> None:
 		self.info.input_info.add_option([input_info.Mouse(), input_info.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		self.info.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
