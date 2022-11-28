@@ -7,20 +7,23 @@ from dataclasses import dataclass
 from enum import Enum
 from functools import cache, cached_property
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.mame_common.mame_types import ROMStatus
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import find_filename_tags_at_end, find_tags
 
-from .mame_helpers import (default_mame_configuration, get_image,
-                           verify_software_list)
+from .mame_helpers import default_mame_configuration, get_image
 from .mame_support_files import add_history
+from .mame_types import ROMStatus
 from .mame_utils import consistentify_manufacturer, image_config_keys
+
+if TYPE_CHECKING:
+	from .mame_executable import MAMEExecutable
+
 
 SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
 
@@ -535,7 +538,7 @@ class SoftwareList():
 		return None
 
 	_verifysoftlist_result = None
-	def iter_available_software(self) -> Iterator[Software]:
+	def iter_available_software(self, mame_executable: 'MAMEExecutable') -> Iterator[Software]:
 		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
 		
 		for software_xml in self.xml.iter('software'):
@@ -546,7 +549,7 @@ class SoftwareList():
 				continue
 			else:
 				if self._verifysoftlist_result is None:
-					self._verifysoftlist_result = verify_software_list(self.name)
+					self._verifysoftlist_result = mame_executable.verifysoftlist(self.name)
 				if software.name in self._verifysoftlist_result:
 					yield software
 

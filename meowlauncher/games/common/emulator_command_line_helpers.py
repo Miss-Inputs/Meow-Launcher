@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, cast
 
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.exceptions import EmulationNotSupportedException
-from meowlauncher.games.mame_common.mame_helpers import (have_mame,
-                                                         verify_romset)
+from meowlauncher.games.mame_common.mame_helpers import (
+    default_mame_executable, verify_romset)
 from meowlauncher.games.mame_common.software_list import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
@@ -49,13 +49,14 @@ def verify_mgba_mapper(game: 'ROMGame') -> None:
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
 def _is_software_available(software_list_name: str, software_name: str) -> bool:
-	if not have_mame():
+	#TODO: This should take a ConfiguredMAME (or both configuration/executable, get the software list from the configuration and use executable instead of default)
+	if not default_mame_executable:
 		return False
 
 	software_list = get_software_list_by_name(software_list_name)
 	if not software_list:
 		return False
-	return any(software.name == software_name for software in software_list.iter_available_software())
+	return any(software.name == software_name for software in software_list.iter_available_software(default_mame_executable))
 
 def is_highscore_cart_available() -> bool:
 	return _is_software_available('a7800', 'hiscore')

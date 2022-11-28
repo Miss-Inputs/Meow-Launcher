@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import logging
 from collections.abc import Collection, Mapping, Sequence
-from pathlib import PurePath
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.exceptions import EmulationNotSupportedException
@@ -12,6 +11,7 @@ from meowlauncher.info import GameInfo
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.region_info import TVSystem
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +88,9 @@ class SoftwareLauncher():
 		#	if self.metadata.specific_info.get('MAME Emulation Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
 		#		raise EmulationNotSupportedException('Not supported')
 		#TODO Have option to skip if not working
+		assert default_mame_executable, 'Would be checked by now'
 
-		launch_params = LaunchCommand(PurePath('mame'), self.platform.get_launch_command(self))
+		launch_params = LaunchCommand(default_mame_executable.executable, self.platform.get_launch_command(self))
 
 		make_launcher(launch_params, self.software.description, self.info, 'MAME software', self.id)
 
@@ -121,12 +122,15 @@ def add_software(software: SoftwareLauncher) -> None:
 		logger.exception('Could not launch %s', software.id)
 
 def add_software_list_platform(platform: SoftwareListPlatform) -> None:
+	if not default_mame_executable:
+		logger.error('nope cannot do that')
+		return
 	for media_type, lists in platform.lists.items():
 		for list_name in lists:
 			software_list = get_software_list_by_name(list_name)
 			if not software_list:
 				continue
-			for software_item in software_list.iter_available_software():
+			for software_item in software_list.iter_available_software(default_mame_executable):
 				software = SoftwareLauncher(software_item, platform, media_type)
 				add_software(software)
 
