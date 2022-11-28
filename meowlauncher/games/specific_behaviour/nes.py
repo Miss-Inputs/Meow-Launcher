@@ -9,8 +9,8 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list_find_utils import \
-    find_in_software_lists_with_custom_matcher
+from meowlauncher.games.mame_common.software_list import (
+    Software, SoftwarePart, find_in_software_lists_with_custom_matcher)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import NESPeripheral
@@ -18,8 +18,6 @@ from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
 
 if TYPE_CHECKING:
-	from meowlauncher.games.mame_common.software_list import (Software,
-	                                                          SoftwarePart)
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 _nes_config = platform_configs.get('NES')

@@ -7,15 +7,14 @@ from zlib import crc32
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists, matcher_args_for_bytes)
+from meowlauncher.games.mame_common.software_list import (
+    Software, find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import GameBoyColourFlag
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
-	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
 

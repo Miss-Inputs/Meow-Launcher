@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING
 
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.mame_common.software_list_find_utils import (
+from meowlauncher.games.mame_common.software_list import (
+    Software, SoftwareList, SoftwarePart,
     find_in_software_lists_with_custom_matcher, find_software_by_name,
     iter_software_lists_by_name)
 from meowlauncher.launch_command import LaunchCommand
@@ -20,9 +21,6 @@ if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
-	from meowlauncher.games.mame_common.software_list import (Software,
-	                                                          SoftwareList,
-	                                                          SoftwarePart)
 
 def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str) -> bool:
 	part_code = part.software.serial
@@ -62,7 +60,7 @@ class ROMGame(EmulatedGame):
 		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
 		return _software_lists_for_platform(self.platform)
 
-	def get_software_list_entry(self) -> 'Software | None':
+	def get_software_list_entry(self) -> Software | None:
 		if not self.platform.software_list_names:
 			return None
 

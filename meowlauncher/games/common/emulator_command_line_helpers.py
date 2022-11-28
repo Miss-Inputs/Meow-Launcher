@@ -7,7 +7,7 @@ from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.exceptions import EmulationNotSupportedException
 from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
-from meowlauncher.games.mame_common.software_list_find_utils import \
+from meowlauncher.games.mame_common.software_list import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 

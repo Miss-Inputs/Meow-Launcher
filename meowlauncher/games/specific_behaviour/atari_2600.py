@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.games.mame_common.software_list_find_utils import (
+from meowlauncher.games.mame_common.software_list import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import Atari2600Controller

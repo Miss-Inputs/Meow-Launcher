@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher.games.common.generic_info import add_generic_software_info
-from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists, matcher_args_for_bytes)
+from meowlauncher.games.mame_common.software_list import (
+    Software, find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 
 if TYPE_CHECKING:

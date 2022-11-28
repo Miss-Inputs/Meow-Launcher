@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 import logging
-from pathlib import PurePath
 from collections.abc import Collection, Mapping, Sequence
+from pathlib import PurePath
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.exceptions import EmulationNotSupportedException
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
-from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_find_utils import \
-    get_software_list_by_name
+from meowlauncher.games.mame_common.software_list import (
+    Software, get_software_list_by_name)
 from meowlauncher.info import GameInfo
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.output.desktop_files import make_launcher

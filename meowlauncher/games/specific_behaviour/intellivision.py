@@ -1,7 +1,7 @@
 import zlib
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.games.mame_common.software_list_find_utils import \
+from meowlauncher.games.mame_common.software_list import \
     find_in_software_lists_with_custom_matcher
 from meowlauncher.games.roms.rom import FileROM
 
