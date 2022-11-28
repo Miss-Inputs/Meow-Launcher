@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 
 from meowlauncher import input_info
-from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
-from meowlauncher.games.mame_common.machine import Machine, mame_statuses
+from meowlauncher.common_types import MediaType, SaveType
+from meowlauncher.games.mame_common.machine import Machine
 from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_support_files import (
     ArcadeCategory, MachineCategory, add_history, get_category, get_languages,
@@ -155,11 +155,10 @@ def add_status(machine: Machine, game_info: 'GameInfo') -> None:
 	#See comments for overall_status property for what that actually means
 	game_info.specific_info['MAME Overall Emulation Status'] = machine.overall_status
 	game_info.specific_info['MAME Emulation Status'] = machine.emulation_status
+	game_info.specific_info['Cocktail Status'] = machine.cocktail_status
 	driver = machine.driver_element
 	savestate_status = None
-	cocktail_status = EmulationStatus.Unknown
 	if driver:
-		cocktail_status = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good)
 		savestate_attrib = driver.attrib.get('savestate')
 		if savestate_attrib == 'supported': #TODO: Why did the code have this, did something change in a new version and I forgot? I guess I'll need to find out, otherwise this could just check for 'unsupported'
 			savestate_status = True
@@ -169,19 +168,20 @@ def add_status(machine: Machine, game_info: 'GameInfo') -> None:
 
 	if savestate_status is not None:
 		game_info.specific_info['Supports Savestate?'] = savestate_status
-	game_info.specific_info['Cocktail Status'] = cocktail_status
 
 	unemulated_features = set()
+	imperfect_features = set()
 	for feature_type, feature_status in machine.feature_statuses.items():
+		#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
+		#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
 		if feature_status == 'unemulated':
 			unemulated_features.add(feature_type)
 		else:
-			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
-			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
-			game_info.specific_info[f'MAME {feature_type.capitalize()} Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
-
+			imperfect_features.add(feature_type)
 	if unemulated_features:
 		game_info.specific_info['MAME Unemulated Features'] = unemulated_features
+	if imperfect_features:
+		game_info.specific_info['MAME Imperfect Features'] = unemulated_features
 
 def add_metadata_from_category(game: 'MAMEGame', category: MachineCategory | None) -> None:
 	if not category:

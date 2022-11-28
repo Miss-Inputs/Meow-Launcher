@@ -2,7 +2,6 @@
 
 from collections.abc import Iterator
 
-from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
@@ -16,20 +15,12 @@ from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
                                                        MAMEInbuiltLauncher)
 from meowlauncher.games.mame.mame_info import add_info, add_status
 from meowlauncher.games.mame_common.machine import (
-    Machine, get_machine, iter_machines, iter_machines_from_source_file)
+    Machine, MAMEStatus, get_machine, iter_machines,
+    iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.util.desktop_files import has_been_done
 
-
-def _is_actually_machine(machine: Machine) -> bool:
-	if machine.xml.attrib.get('isbios', 'no') == 'yes': #Hmm, technically there's nothing stopping you launching these
-		return False
-
-	if main_config.exclude_system_drivers and machine.is_system_driver:
-		return False
-
-	return True
 
 class MAME(GameSource):
 	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here
@@ -59,17 +50,21 @@ class MAME(GameSource):
 		return not self.emu.executable.verifyroms(game_id)
 
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
+		"""Returns a launcher for this machine, or none if it can't/shouldn't/etc"""
 		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
 		if machine.source_file in main_config.skipped_source_files:
 			return None
 
-		if not _is_actually_machine(machine):
+		if machine.is_bios: #Hmm, technically there's nothing stopping you launching these, but generally nobody wants this
+			return None
+
+		if main_config.exclude_system_drivers and machine.is_system_driver:
 			return None
 
 		if not machine.launchable:
 			return None
 
-		if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
+		if main_config.exclude_non_working and machine.emulation_status == MAMEStatus.Preliminary and machine.basename not in main_config.non_working_whitelist:
 			#This will need to be refactored if anything other than MAME is added
 			#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 			return None
@@ -101,20 +96,7 @@ class MAME(GameSource):
 					yield launcher
 			return 
 
-		if main_config.source_files:		
-			for machine in iter_machines_from_source_file(main_config.source_files, self.emu.executable):
-				if not _is_actually_machine(machine):
-					continue
-				if not machine.launchable:
-					continue
-				if not self.emu.executable.verifyroms(machine.basename):
-					continue
-				launcher = self._process_machine(machine)
-				if launcher:
-					yield launcher
-			return
-
-		for machine in iter_machines(self.emu.executable):
+		for machine in iter_machines_from_source_file(main_config.source_files, self.emu.executable) if main_config.source_files else iter_machines(self.emu.executable):
 			if not main_config.full_rescan:
 				if has_been_done('Arcade / standalone machines', machine.basename):
 					continue

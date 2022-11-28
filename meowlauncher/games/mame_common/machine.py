@@ -1,3 +1,4 @@
+from enum import Enum
 import re
 from collections.abc import Collection, Iterator, Mapping, Sequence
 from functools import cache, cached_property
@@ -5,7 +6,6 @@ from pathlib import PurePath
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
-from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
 from meowlauncher.util.name_utils import normalize_name
@@ -21,12 +21,10 @@ from .mame_utils import consistentify_manufacturer, untangle_manufacturer
 if TYPE_CHECKING:
 	from .mame_executable import MAMEExecutable
 
-mame_statuses: dict[str | None, EmulationStatus] = {
-	#It is str | None so that we can .get None and have it return whatever default
-	'good': EmulationStatus.Good,
-	'imperfect': EmulationStatus.Imperfect,
-	'preliminary': EmulationStatus.Broken,
-}
+class MAMEStatus(Enum):
+	Good = 'good'
+	Imperfect = 'imperfect'
+	Preliminary = 'preliminary'
 
 class MediaSlot():
 	def __init__(self, xml: ElementTree.Element):
@@ -126,6 +124,10 @@ class Machine():
 		return self._parent
 
 	@property
+	def is_bios(self) -> bool:
+		return self.xml.attrib.get('isbios', 'no') == 'yes'
+
+	@property
 	def family_basename(self) -> str:
 		return cast(str, self.parent_basename) if self.has_parent else self.basename
 
@@ -161,18 +163,27 @@ class Machine():
 		return self.xml.find('driver')
 
 	@property
-	def overall_status(self) -> EmulationStatus:
-		#Hmm, so how this works according to https://github.com/mamedev/mame/blob/master/src/frontend/mame/info.cpp: if any particular feature is preliminary, this is preliminary, if any feature is imperfect this is imperfect, unless protection = imperfect then this is preliminary
-		#It even says it's for the convenience of frontend developers, but since I'm an ungrateful piece of shit and I always feel the need to take matters into my own hands, I'm gonna get the other parts of the emulation too
+	def overall_status(self) -> MAMEStatus | None:
+		"""Hmm, so how this works according to https://github.com/mamedev/mame/blob/master/src/frontend/mame/info.cpp: if any particular feature is preliminary, this is preliminary, if any feature is imperfect this is imperfect, unless protection = imperfect then this is preliminary
+		It even says it's for the convenience of frontend developers, but since I'm an ungrateful piece of shit and I always feel the need to take matters into my own hands, I'm gonna get the other parts of the emulation too"""
 		if self.driver_element is None:
-			return EmulationStatus.Unknown
-		return mame_statuses.get(self.driver_element.attrib.get('status'), EmulationStatus.Unknown)
+			return None
+		return MAMEStatus(self.driver_element.attrib['status'])
 
 	@property
-	def emulation_status(self) -> EmulationStatus:
+	def emulation_status(self) -> MAMEStatus | None:
 		if self.driver_element is None:
-			return EmulationStatus.Unknown
-		return mame_statuses.get(self.driver_element.attrib.get('emulation'), EmulationStatus.Unknown)
+			return None
+		return MAMEStatus(self.driver_element.attrib['emulation'])
+
+	@property
+	def cocktail_status(self) -> MAMEStatus | None:
+		if self.driver_element is None:
+			return None
+		cocktail = self.driver_element.attrib.get('cocktail')
+		if not cocktail:
+			return None
+		return MAMEStatus(cocktail)
 
 	@property
 	def feature_statuses(self) -> Mapping[str, str]:
@@ -194,19 +205,18 @@ class Machine():
 
 	@property
 	def is_probably_skeleton_driver(self) -> bool:
-		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
-		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls, which tends to be the case for a lot of these.
-		#MACHINE_IS_SKELETON is actually defined as MACHINE_NO_SOUND and MACHINE_NOT_WORKING, so we'll look for that too
-		return self.number_of_players == 0 and self.emulation_status in {EmulationStatus.Broken, EmulationStatus.Unknown} and self.feature_statuses.get('sound') == 'unemulated'
+		"""Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
+		What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls, which tends to be the case for a lot of these.
+		MACHINE_IS_SKELETON is actually defined as MACHINE_NO_SOUND and MACHINE_NOT_WORKING, so we'll look for that too"""
+		return self.number_of_players == 0 and self.emulation_status == MAMEStatus.Preliminary and self.feature_statuses.get('sound') == 'unemulated'
 
 	def uses_device(self, name: str) -> bool:
 		return any(device_ref.attrib['name'] == name for device_ref in self.xml.iter('device_ref'))
 		
 	@property
 	def requires_chds(self) -> bool:
-		#Hmm... should this include where all <disk> has status == "nodump"? e.g. Dragon's Lair has no CHD dump, would it be useful to say that it requires CHDs because it's supposed to have one but doesn't, or not, because you have a good romset without one
-		#I guess I should have a look at how the MAME inbuilt UI does this
-		#Who really uses this kind of thing, anyway?
+		"""Hmm... should this include where all <disk> has status == "nodump"? e.g. Dragon's Lair has no CHD dump, would it be useful to say that it requires CHDs because it's supposed to have one but doesn't, or not, because you have a good romset without one
+		I guess I should have a look at how the MAME inbuilt UI does this"""
 		return self.xml.find('disk') is not None
 
 	@property
@@ -374,11 +384,21 @@ class Machine():
 		return any(tag.lower() in {'location test', 'prototype', 'development board'} for tag in tags)
 
 	@property
+	def is_device(self) -> bool:
+		return self.xml.attrib.get('isdevice', 'no') == 'yes'
+
+	@property
+	def runnable(self) -> bool:
+		"""TODO: To be honest I forgot what this does that isdevice doesn't do"""
+		return self.xml.attrib.get('runnable', 'yes') == 'yes'
+
+	@property
 	def launchable(self) -> bool:
-		if self.xml.attrib.get('isdevice', 'no') == 'yes':
+		"""If this is logically possible to even be launched at all"""
+		if self.is_device:
 			return False
 
-		if self.xml.attrib.get('runnable', 'yes') == 'no':
+		if not self.runnable:
 			return False
 
 		if self.has_mandatory_slots:
