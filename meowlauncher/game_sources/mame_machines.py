@@ -55,10 +55,9 @@ class MAME(GameSource):
 		return self.emu is not None
 
 	def no_longer_exists(self, game_id: str) -> bool:
-		#TODO: Put is_available in ConfiguredEmulator and then you can check that as well
-		if not default_mame_executable:
+		if not self.emu:
 			return False
-		return default_mame_executable.verifyroms(game_id)
+		return self.emu.executable.verifyroms(game_id)
 
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
@@ -158,7 +157,7 @@ class MAMEInbuiltGames(GameSource):
 		return self.emu is not None
 
 	def no_longer_exists(self, game_id: str) -> bool:
-		return not default_mame_executable or not default_mame_executable.verifyroms(game_id.split(':')[0])
+		return not self.emu or not self.emu.executable.verifyroms(game_id.split(':')[0])
 
 	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None=None) -> MAMEInbuiltLauncher | None:
 		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
