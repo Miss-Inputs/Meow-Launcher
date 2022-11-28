@@ -14,7 +14,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 parser = ArgumentParser(add_help=True, parents=[main_config.parser], prog=f'python -m {__package__}')
 parser.add_argument('--version', action='version', version=__version__)
-main_config.values.update(vars(parser.parse_known_intermixed_args()[0]))
+main_config.values.update(vars(parser.parse_intermixed_args()))
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s'))
