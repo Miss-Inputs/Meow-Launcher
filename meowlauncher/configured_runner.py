@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 	from .runner import Runner
 
 class ConfiguredRunner():
+	"""Combination of Runner (the info about it) and the configuration for it (including where it is etc), ready to be used to run things"""
 	def __init__(self, runner: 'Runner', config: 'RunnerConfig'):
 		self.runner = runner
 		self.config = config
@@ -24,17 +25,16 @@ class ConfiguredRunner():
 
 	@property
 	def is_emulated(self) -> bool:
+		"""True if this Runner is an emulator, whatever that information might be used for"""
 		return self.runner.is_emulated
 
 	@property
 	def is_path_valid(self) -> bool:
-		if self.config.exe_path.is_file():
-			return True
-		if shutil.which(self.config.exe_path):
-			return True
-		return False
+		"""Returns true if the default exe name is available on the system path, or if the configured exe path points to a valid executable"""
+		return shutil.which(self.config.exe_path) is not None
 
 	def set_wrapper_options(self, command: LaunchCommand) -> LaunchCommand:
+		"""Applies wrappers according to configuration such as gamemoderun/mangohud, or Wine if this Runner is for Windows, etc"""
 		if self.runner.host_platform == HostPlatform.Windows:
 			if isinstance(command, MultiLaunchCommands):
 				command = MultiLaunchCommands(command.pre_commands, launch_with_wine(main_config.wine_path, main_config.wineprefix, command.main_command.exe_name, command.main_command.exe_args), command.post_commands)
