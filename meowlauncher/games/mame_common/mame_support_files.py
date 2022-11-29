@@ -234,12 +234,12 @@ class MachineCategory():
 	
 	@property
 	def is_pinball(self) -> bool:
-		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
+		"""There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set"""
 		return self.genre == 'Electromechanical' and self.subgenre == 'Pinball'
 
 	@property
 	def is_handheld_game(self) -> bool:
-		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (e.g.: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
+		"""Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (e.g.: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either"""
 		return self.genre == 'Handheld' and self.subgenre == 'Electronic Game'
 
 	@property

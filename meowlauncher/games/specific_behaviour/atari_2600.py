@@ -254,7 +254,7 @@ def add_atari_2600_custom_info(game: 'ROMGame') -> None:
 
 	software = find_in_software_lists(game.related_software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
-		software.add_standard_metadata(game.info)
+		software.add_standard_info(game.info)
 		game.info.add_notes(software.get_info('usage'))
 		
 		if game.info.publisher == 'Homebrew':

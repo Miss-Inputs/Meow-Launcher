@@ -37,7 +37,7 @@ def _load_tdb() -> TDB | None:
 _tdb = _load_tdb()
 
 def add_cover(game_info: GameInfo, product_code: str, licensee_code: str) -> None:
-	#Intended for the covers database from GameTDB
+	"""Intended for the covers database from GameTDB"""
 	if 'Wii' not in platform_configs:
 		return
 
@@ -101,7 +101,8 @@ def add_gamecube_wii_disc_metadata(rom: FileROM, game_info: GameInfo, header: by
 		logger.info('%s lacks GameCube disc magic', rom)
 	
 def just_read_the_wia_rvz_header_for_now(rom: FileROM, game_info: GameInfo) -> None:
-	#I'll get around to it I swear
+	"""I'll get around to it I swear
+	TODO: Around to it"""
 	wia_header = rom.read(amount=0x48)
 	wia_disc_struct_size = int.from_bytes(wia_header[12:16], 'big')
 	wia_disc_struct = rom.read(seek_to=0x48, amount=wia_disc_struct_size)

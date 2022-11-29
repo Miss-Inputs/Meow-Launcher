@@ -145,8 +145,8 @@ def _parse_woz_chunk(rom: 'FileROM', game_info: GameInfo, position: int) -> int:
 	return position + chunk_data_size + 8
 
 def add_woz_metadata(rom: 'FileROM', game_info: GameInfo) -> None:
-	#https://applesaucefdc.com/woz/reference1/
-	#https://applesaucefdc.com/woz/reference2/
+	"""https://applesaucefdc.com/woz/reference1/
+	https://applesaucefdc.com/woz/reference2/"""
 	magic = rom.read(amount=8)
 	if magic == b'WOZ1\xff\n\r\n':
 		game_info.specific_info['ROM Format'] = 'WOZ v1'
@@ -166,7 +166,7 @@ def add_woz_metadata(rom: 'FileROM', game_info: GameInfo) -> None:
 		game_info.add_alternate_name(game_info.names['Header Title'] + ': ' + game_info.specific_info['Subtitle'], 'Header Title with Subtitle')
 
 def add_apple_ii_software_info(software: 'Software', game_info: 'GameInfo') -> None:
-	software.add_standard_metadata(game_info)
+	software.add_standard_info(game_info)
 	usage = software.get_info('usage')
 	if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
 		#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang

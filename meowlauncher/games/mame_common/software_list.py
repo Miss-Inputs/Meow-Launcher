@@ -143,7 +143,7 @@ class DataArea():
 
 	@property
 	def not_dumped(self) -> bool:
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		"""This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)"""
 		return all(rom.status == ROMStatus.NoDump for rom in self.roms) if self.roms else False
 
 	def matches(self, args: 'SoftwareMatcherArgs') -> bool:
@@ -210,7 +210,7 @@ class DiskArea():
 
 	@property
 	def not_dumped(self) -> bool:
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		"""This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)"""
 		return all(rom.status == ROMStatus.NoDump for rom in self.disks) if self.disks else False
 
 class SoftwarePart():
@@ -284,7 +284,7 @@ class SoftwarePart():
 		return data_area.matches(args)
 
 	def has_data_area(self, name: str) -> bool:
-		#Should probably use name in self.data_areas directly
+		"""Should probably use name in self.data_areas directly"""
 		return name in self.data_areas
 
 class Software():
@@ -321,12 +321,12 @@ class Software():
 
 	@property
 	def not_dumped(self) -> bool:
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
+		"""This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		Not actually sure what happens in this scenario with multiple parts, or somehow no parts"""
 		return all(part.not_dumped for part in self.parts.values())
 
 	def get_part(self, name: str | None=None) -> SoftwarePart:
-		#TODO: Name should not be optional and we should get rid of get_part_feature and has_data_area from this
+		"""TODO: Name should not be optional and we should get rid of get_part_feature and has_data_area from this"""
 		if name:
 			return self.parts[name]
 		first_part = self.xml.find('part')
@@ -335,7 +335,7 @@ class Software():
 		return SoftwarePart(first_part, self)
 
 	def get_info(self, name: str) -> str | None:
-		#Don't need this anymore, really
+		"""TODO: Don't need this anymore, really"""
 		return self.infos.get(name)
 
 	def get_shared_feature(self, name: str) -> str | None:
@@ -386,7 +386,7 @@ class Software():
 	def serial(self) -> str | None:
 		return self.infos.get('serial')
 
-	def add_standard_metadata(self, game_info: GameInfo) -> None:
+	def add_standard_info(self, game_info: GameInfo) -> None:
 		game_info.specific_info['MAME Software'] = self
 		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
 		#TODO: Whatever is checking metadata.names needs to just check for game.software etc manually rather than this being here, I think

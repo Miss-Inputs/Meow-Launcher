@@ -63,7 +63,7 @@ def parse_icon(rom: 'FileROM', icon_bank: int, icon_offset_x: int, icon_offset_y
 	return whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
 
 def _parse_rom_header(rom: 'FileROM', metadata: 'GameInfo', header: bytes) -> None:
-	#Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of
+	"""Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of"""
 	metadata.specific_info['Internal Title'] = header[17:26].rstrip(b' ').decode('ascii', 'backslashreplace')
 	#26:28: Game ID, but does that have any relation to product code?
 

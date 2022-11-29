@@ -32,12 +32,12 @@ _zx_hardware: dict[int, ZXHardware] = {
 	128: ZXHardware(ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
-	#https://www.worldofspectrum.org/faq/reference/z80format.htm
+def add_z80_metadata(rom: 'FileROM', game_info: 'GameInfo') -> None:
+	"""https://www.worldofspectrum.org/faq/reference/z80format.htm"""
 	header = rom.read(amount=86)
 	flags = header[29]
 	joystick_flag = (flags & 0b_1100_0000) >> 6
-	metadata.specific_info['Joystick Type'] = ZXJoystick(joystick_flag)
+	game_info.specific_info['Joystick Type'] = ZXJoystick(joystick_flag)
 	#Does joystick_flag == 1 imply expansion == Kempston?
 
 	program_counter = int.from_bytes(header[6:8], 'little')
@@ -74,25 +74,25 @@ def add_z80_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 		elif hardware_modifier_flag and machine == ZXMachine.SpectrumPlus3:
 			machine = ZXMachine.SpectrumPlus2A
 
-	metadata.specific_info['Machine'] = machine
+	game_info.specific_info['Machine'] = machine
 	if expansion:
-		metadata.specific_info['Expansion'] = expansion
+		game_info.specific_info['Expansion'] = expansion
 
-	metadata.specific_info['ROM Format'] = f'Z80 v{header_version}'
+	game_info.specific_info['ROM Format'] = f'Z80 v{header_version}'
 
-def add_speccy_software_list_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+def add_speccy_software_list_info(software: 'Software', game_info: 'GameInfo') -> None:
+	software.add_standard_info(game_info)
 	usage = software.infos.get('usage')
 	if usage == 'Requires Multiface':
-		metadata.specific_info['Expansion'] = ZXExpansion.Multiface
+		game_info.specific_info['Expansion'] = ZXExpansion.Multiface
 	elif usage == 'Requires Gun Stick light gun':
 		#This could either go into the Sinclair Interface 2 or Kempton expansions, so.. hmm
-		metadata.specific_info['Uses Gun?'] = True
+		game_info.specific_info['Uses Gun?'] = True
 	else:
 		#Side B requires Locomotive CP/M+
 		#Requires manual for password protection
 		#Disk has no autorun menu, requires loading each game from Basic.
-		metadata.add_notes(usage)
+		game_info.add_notes(usage)
 
 def _machine_from_tag(tag: str) -> ZXMachine | None:
 	if tag == '(+2)':
@@ -105,8 +105,8 @@ def _machine_from_tag(tag: str) -> ZXMachine | None:
 	return None	
 
 def _ram_requirement_from_tag(tag: str)	-> tuple[ByteAmount, ByteAmount] | None:
-	#Minimum, recommended
-	#TODO: Should this be a more generic function somewhere else?
+	"""Minimum, recommended
+	TODO: Should this be a more generic function somewhere else?"""
 	if tag == '(16K)':
 		return ByteAmount(16 * 1024), ByteAmount(16 * 1024)
 	if tag == '(48K)':

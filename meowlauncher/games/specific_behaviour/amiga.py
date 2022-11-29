@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 	from collections.abc import Collection
 
 def add_amiga_software_list_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	chipset = None
 
 	if software.software_list_name == 'amigaaga_flop':

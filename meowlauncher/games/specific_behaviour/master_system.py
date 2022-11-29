@@ -132,7 +132,7 @@ def add_info_from_standard_header(rom: 'FileROM', metadata: 'GameInfo') -> None:
 		metadata.specific_info['Japanese Only?'] = True
 
 def add_sms_gg_software_list_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 
 	usage = software.infos.get('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':

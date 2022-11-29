@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 #Straightforward stuff that doesn't really warrant going into its own source file I think
 
 def add_pc_booter_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'PC Booter':
 		usage = software.infos.get('user_notes')
@@ -28,7 +28,7 @@ def add_super_cassette_vision_software_info(software: 'Software', metadata: 'Gam
 	metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
 def add_microtan_65_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires Joystick':
 		joystick = input_info.NormalController() #1 start button
@@ -47,7 +47,7 @@ def add_microtan_65_software_info(software: 'Software', metadata: 'GameInfo') ->
 		metadata.add_notes(usage)
 
 def add_pc_engine_cd_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 	usage = software.get_info('usage')
 	if usage not in {'Game Express CD Card required', 'CD-Rom System Card required'}:
@@ -55,14 +55,14 @@ def add_pc_engine_cd_software_info(software: 'Software', metadata: 'GameInfo') -
 		metadata.add_notes(usage)
 	
 def add_amstrad_pcw_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires CP/M':
 		metadata.specific_info['Requires CP/M?'] = True
 
 _requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
 def add_fm_towns_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage:
 		match = _requires_ram_regex.match(usage)
@@ -73,7 +73,7 @@ def add_fm_towns_software_info(software: 'Software', metadata: 'GameInfo') -> No
 
 def add_sord_m5_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	#Input info if I cared: 55 key keyboard + 0 button joystick
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires 36k RAM':
 		metadata.specific_info['Minimum RAM'] = 36 * 1024
@@ -81,7 +81,7 @@ def add_sord_m5_software_info(software: 'Software', metadata: 'GameInfo') -> Non
 		metadata.add_notes(usage)
 	
 def add_msx_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage in {'Requires a Japanese system', 'Requires a Japanese system for the Japanese text'}:
 		metadata.specific_info['Japanese Only?'] = True
@@ -98,7 +98,7 @@ def add_msx_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 def add_sg1000_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	metadata.save_type = SaveType.Nothing #Until proven otherwise
 
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 	#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 
@@ -121,7 +121,7 @@ def add_virtual_boy_software_info(software: 'Software', metadata: 'GameInfo') ->
 	metadata.save_type = SaveType.Cart if has_save_hardware else SaveType.Nothing
 
 def add_atari_5200_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
 	metadata.save_type = SaveType.Nothing #Probably
@@ -138,7 +138,7 @@ def add_atari_5200_software_info(software: 'Software', metadata: 'GameInfo') -> 
 		metadata.input_info.add_option(normal_controller)
 
 def add_intellivision_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 
 	usage = software.get_info('usage')
 	if usage == 'Uses Intellivoice':

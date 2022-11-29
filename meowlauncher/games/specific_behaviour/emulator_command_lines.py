@@ -293,7 +293,7 @@ def mame_dreamcast(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config:
 	return mame_driver(game, emulator_config, system, 'cdrom')
 
 def mame_fm_towns(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	#Hmm… does this really need to be here along with fmtmarty when they are mostly identical
+	"""Hmm… does this really need to be here along with fmtmarty when they are mostly identical"""
 	if game.info.media_type == MediaType.Floppy:
 		slot = 'flop1'
 	elif game.info.media_type == MediaType.OpticalDisc:
@@ -519,7 +519,7 @@ def mame_microbee(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 	return mame_driver(game, emulator_config, system, slot, has_keyboard=True)
 
 def mame_msx1(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
+	"""Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2"""
 	if game.info.specific_info.get('Japanese Only?', False):
 		if not hasattr(mame_msx1, 'japanese_msx1_system'):
 			mame_msx1.japanese_msx1_system = first_available_romset(japanese_msx1_drivers.union(japanese_msx2_drivers).union(working_msx2plus_drivers)) #type: ignore[attr-defined]
@@ -977,7 +977,7 @@ def mednafen_snes_faust(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_co
 
 #VICE
 def vice_c64(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	#http://vice-emu.sourceforge.net/vice_7.html#SEC94
+	"""http://vice-emu.sourceforge.net/vice_7.html#SEC94"""
 	#Eh, maybe I should sort this. Or maybe convert it into unsupported_cartridge_types which seems like it would be a smaller list.
 	supported_cartridge_types = {0, 1, 50, 35, 30, 9, 15, 34, 21, 24, 25, 26, 52, 17, 32, 10, 44, 13, 3, 29, 45, 46, 7, 42, 39, 2, 51, 19, 14, 28, 38, 5, 43, 27, 12, 36, 23, 4, 47, 31, 22, 48, 8, 40, 20, 16, 11, 18,
 	#Not sure if EasyFlash Xbank (33) was supposed to be included in the mention of EasyFlash being emulated? Guess I'll find out
@@ -1060,7 +1060,7 @@ def vice_vic20(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Em
 
 #Other emulators
 def a7800(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	#Hmm, mostly the same as mame_a7800, except without the MAME
+	"""Hmm, mostly the same as mame_a7800, except without the MAME"""
 	if not game.info.specific_info.get('Headered?', False):
 		#This would only be supported via software list (although A7800 seems to have removed that anyway)
 		raise EmulationNotSupportedException('No header')

@@ -124,7 +124,8 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 
 	path.chmod(0o7777)
 
 def make_launcher(launch_params: 'LaunchCommand', name: str, game_info: 'GameInfo', id_type: str, unique_id: str) -> None:
-	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
+	"""Makes an output file for a LaunchCommand
+	TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead"""
 	display_name, filename_tags = find_tags(name)
 
 	#For very future use, this is where the underlying host platform is abstracted away. Right now we only run on Linux though so zzzzz

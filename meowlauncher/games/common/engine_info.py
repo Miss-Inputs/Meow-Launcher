@@ -130,54 +130,54 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, game_info
 		if best_icon:
 			game_info.images['Icon'] = root_path / best_icon
 
-def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', metadata: 'GameInfo') -> None:
+def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', game_info: 'GameInfo') -> None:
 	#main might come in handy (index.html, etc)
 	#no-edit-menu and position maybe not
 	#single-instance, dom_storage_quota, maybe? I dunno
 	description = package_json.get('description')
 	if description:
-		metadata.descriptions['Package Description'] = description
+		game_info.descriptions['Package Description'] = description
 	package_name = package_json.get('name')
 	if package_name:
-		metadata.add_alternate_name(package_name, 'Engine Name')
-	metadata.specific_info['Version'] = package_json.get('version')
-	metadata.specific_info['User Agent'] = package_json.get('user-agent')
-	metadata.specific_info['Chromium Arguments'] = package_json.get('chromium-args')
+		game_info.add_alternate_name(package_name, 'Engine Name')
+	game_info.specific_info['Version'] = package_json.get('version')
+	game_info.specific_info['User Agent'] = package_json.get('user-agent')
+	game_info.specific_info['Chromium Arguments'] = package_json.get('chromium-args')
 	window = package_json.get('window')
 	if window:
 		#toolbar, frame, kiosk, show?
 		min_width = window.get('min_width')
 		min_height = window.get('min_height')
 		if min_width and min_height:
-			metadata.specific_info['Minimum Resolution'] = f'{min_width}x{min_height}'
+			game_info.specific_info['Minimum Resolution'] = f'{min_width}x{min_height}'
 		resizable = window.get('resizable')
 		if not resizable:
 			width = window.get('width')
 			height = window.get('height')
 			if height and width:
-				metadata.specific_info['Display Resolution'] = f'{width}x{height}'
+				game_info.specific_info['Display Resolution'] = f'{width}x{height}'
 		#I need a better way of doing that… I can't just return a path since it might be from a zip
-		metadata.specific_info['Icon Relative Path'] = window.get('icon')
-		metadata.add_alternate_name(window.get('title'), 'Window Title')
+		game_info.specific_info['Icon Relative Path'] = window.get('icon')
+		game_info.add_alternate_name(window.get('title'), 'Window Title')
 
-def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'GameInfo') -> None:
-	add_metadata_from_nw_package_json(json.loads(package_json_path.read_bytes()), metadata)
-	if 'Icon-Relative-Path' in metadata.specific_info:
-		icon_path = folder.joinpath(metadata.specific_info.pop('Icon Relative Path'))
-		if icon_path.is_file() and 'Icon' not in metadata.images:
-			metadata.images['Icon'] = icon_path
+def add_info_from_package_json_file(folder: Path, package_json_path: Path, game_info: 'GameInfo') -> None:
+	add_metadata_from_nw_package_json(json.loads(package_json_path.read_bytes()), game_info)
+	if 'Icon-Relative-Path' in game_info.specific_info:
+		icon_path = folder.joinpath(game_info.specific_info.pop('Icon Relative Path'))
+		if icon_path.is_file() and 'Icon' not in game_info.images:
+			game_info.images['Icon'] = icon_path
 
-def add_info_from_package_json_zip(package_nw_path: Path, metadata: 'GameInfo') -> bool:
+def add_info_from_package_json_zip(package_nw_path: Path, game_info: 'GameInfo') -> bool:
 	with zipfile.ZipFile(package_nw_path) as package_nw:
 		try:
 			with package_nw.open('package.json', 'r') as package_json:
-				add_metadata_from_nw_package_json(json.load(package_json), metadata)
-			if 'Icon-Relative-Path' in metadata.specific_info:
-				icon_path = metadata.specific_info.pop('Icon Relative Path')
-				if 'Icon' not in metadata.images:
+				add_metadata_from_nw_package_json(json.load(package_json), game_info)
+			if 'Icon-Relative-Path' in game_info.specific_info:
+				icon_path = game_info.specific_info.pop('Icon Relative Path')
+				if 'Icon' not in game_info.images:
 					try:
 						with package_nw.open(icon_path, 'r') as icon_data:
-							metadata.images['Icon'] = Image.open(io.BytesIO(icon_data.read()))
+							game_info.images['Icon'] = Image.open(io.BytesIO(icon_data.read()))
 					except KeyError:
 						pass
 		except KeyError:
@@ -186,33 +186,33 @@ def add_info_from_package_json_zip(package_nw_path: Path, metadata: 'GameInfo') 
 
 #Multiline string, translatable string, normal string and boolean respectively
 define_line = re.compile(r'^define\s+(?P<key>[\w.]+)\s+=\s+(?:_p\("""(?P<multiline_string>.+?)"""\)|_\("(?P<translated_string>.+?)"\)|"(?P<string>.+?)"|(?P<bool>True|False))', re.DOTALL | re.MULTILINE)
-def add_metadata_from_renpy_options(game_folder: Path, options_path: Path, metadata: 'GameInfo') -> None:
+def add_metadata_from_renpy_options(game_folder: Path, options_path: Path, game_info: 'GameInfo') -> None:
 	options = options_path.read_text('utf-8', errors='ignore')
 	#d = {match[1]: match[2] if match[2] else (match[3] if match[3] else (match[4] if match[4] else bool(match[5]))) for match in define_line.finditer(options)}
 	for match in define_line.finditer(options):
 		if match['key'] == 'config.name':
-			metadata.add_alternate_name(match['translated_string'] if match['translated_string'] else match['string'], 'Engine Name')
+			game_info.add_alternate_name(match['translated_string'] if match['translated_string'] else match['string'], 'Engine Name')
 		if match['key'] == 'config.version':
-			metadata.specific_info['Version'] = match['string']
+			game_info.specific_info['Version'] = match['string']
 		if match['key'] == 'gui.about':
-			metadata.descriptions['About Screen'] = match['multiline_string']
+			game_info.descriptions['About Screen'] = match['multiline_string']
 		if match['key'] == 'build.name':
-			metadata.specific_info['Internal Title'] = match['string']
+			game_info.specific_info['Internal Title'] = match['string']
 		if match['key'] == 'config.has_sound':
-			metadata.specific_info['Has Sound Effects?'] = bool(match['bool'])
+			game_info.specific_info['Has Sound Effects?'] = bool(match['bool'])
 		if match['key'] == 'config.has_music':
-			metadata.specific_info['Has Music?'] = bool(match['bool'])
+			game_info.specific_info['Has Music?'] = bool(match['bool'])
 		if match['key'] == 'config.has_voice':
-			metadata.specific_info['Has Voices?'] = bool(match['bool'])
+			game_info.specific_info['Has Voices?'] = bool(match['bool'])
 		if match['key'] == 'config.save_directory' and match['string']:
 			#The actual save directory in itself doesn't matter, but it means we do have one
-			metadata.save_type = SaveType.Internal
+			game_info.save_type = SaveType.Internal
 		if match['key'] == 'config.window_icon':
 			icon_path = game_folder.joinpath(match['string'])
 			if icon_path.is_file():
-				metadata.images['Icon'] = icon_path
+				game_info.images['Icon'] = icon_path
 				
-def add_gamemaker_metadata(folder: Path, metadata: 'GameInfo') -> None:
+def add_gamemaker_metadata(folder: Path, game_info: 'GameInfo') -> None:
 	options_ini_path = folder.joinpath('options.ini')
 	if not options_ini_path.is_file():
 		options_ini_path = folder.joinpath('assets', 'options.ini')
@@ -222,15 +222,15 @@ def add_gamemaker_metadata(folder: Path, metadata: 'GameInfo') -> None:
 		if parser.has_section('Linux'):
 			#There is also an Icon and Splash that seem to refer to images that don't exist…
 			#What could AppId be for?
-			metadata.add_alternate_name(parser['Linux']['DisplayName'], 'Engine Name')
+			game_info.add_alternate_name(parser['Linux']['DisplayName'], 'Engine Name')
 				
 	icon_path = folder.joinpath('icon.png')
 	if not icon_path.is_file():
 		icon_path = folder.joinpath('assets', 'icon.png')
 	if icon_path.is_file():
-		metadata.images['Icon'] = icon_path
+		game_info.images['Icon'] = icon_path
 
-def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metadata: 'GameInfo') -> None:
+def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, game_info: 'GameInfo') -> None:
 	info: 'Mapping[str, str]' = json.loads(info_json_path.read_bytes())
 	title = info.get('title')
 	author = info.get('author')
@@ -238,34 +238,34 @@ def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metada
 	description = info.get('description')
 	#Dunno what key does
 	if title:
-		metadata.add_alternate_name(info['title'], 'Engine Name')
-	if author and not metadata.developer:
-		metadata.developer = author
-	if genre and not metadata.genre:
-		metadata.genre = genre
+		game_info.add_alternate_name(info['title'], 'Engine Name')
+	if author and not game_info.developer:
+		game_info.developer = author
+	if genre and not game_info.genre:
+		game_info.genre = genre
 	if description:
-		metadata.descriptions['Pixel Game Maker MV Description'] = description
+		game_info.descriptions['Pixel Game Maker MV Description'] = description
 		
-def add_piko_mednafen_info(folder: Path, data_path: Path, metadata: 'GameInfo') -> None:
-	metadata.save_type = SaveType.Internal #You get savestates either way, so we won't use nosram to determine that
+def add_piko_mednafen_info(folder: Path, data_path: Path, game_info: 'GameInfo') -> None:
+	game_info.save_type = SaveType.Internal #You get savestates either way, so we won't use nosram to determine that
 	for line in data_path.read_text('utf-8').splitlines():
 		if '=' not in line:
 			continue
 		k, v = line.strip().split('=')
 		if k == 'title':
-			metadata.add_alternate_name(v, 'Window Title')
+			game_info.add_alternate_name(v, 'Window Title')
 		if k == 'nosram':
-			metadata.specific_info['No SRAM?'] = v == '1'
+			game_info.specific_info['No SRAM?'] = v == '1'
 		if k == 'players':
-			metadata.specific_info['Number of Players'] = v
+			game_info.specific_info['Number of Players'] = v
 		#Dunno what xgui does (always 1 if there?), or padstyle/padui (always 0?) (yes the source is there but I don't know anything)
 	background_image_path = folder / 'res' / 'back'
 	if background_image_path.is_file():
-		metadata.images['Background Image'] = background_image_path
+		game_info.images['Background Image'] = background_image_path
 	overlay_path = folder / 'res' / 'overlay'
 	if overlay_path.is_file(): #Seems to always be?
-		metadata.images['Overlay Image'] = overlay_path
+		game_info.images['Overlay Image'] = overlay_path
 	splash_path = folder / 'res' / 'splash'
 	if splash_path.is_file():
-		metadata.images['Splash Screen'] = splash_path
+		game_info.images['Splash Screen'] = splash_path
 	#NP (or sometimes 0P, 1P, 2P) = thumbnails for the save slots, or something?

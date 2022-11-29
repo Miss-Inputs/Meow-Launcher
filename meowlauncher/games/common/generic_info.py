@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 _not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
 def add_generic_software_info(software: 'Software', game_info: 'GameInfo') -> None:
-	software.add_standard_metadata(game_info)
+	software.add_standard_info(game_info)
 	game_info.add_notes(software.get_info('usage'))
 	game_info.add_notes(software.get_info('comment'))
 	if 'pcb' in software.infos:

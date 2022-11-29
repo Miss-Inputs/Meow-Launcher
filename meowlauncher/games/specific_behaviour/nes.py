@@ -528,7 +528,7 @@ def find_equivalent_nes_arcade(name: str) -> Machine | None:
 	return None
 
 def add_nes_software_list_metadata(software: 'Software', game_info: GameInfo) -> None:
-	software.add_standard_metadata(game_info)
+	software.add_standard_info(game_info)
 
 	nes_peripheral = None
 

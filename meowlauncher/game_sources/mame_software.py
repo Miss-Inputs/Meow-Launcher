@@ -109,7 +109,7 @@ def add_software_metadata(software: SoftwareLauncher) -> None:
 	software.info.platform = software.platform.name
 	software.info.media_type = software.media_type
 	
-	software.software.add_standard_metadata(software.info)
+	software.software.add_standard_info(software.info)
 
 def add_software(software: SoftwareLauncher) -> None:
 	add_software_metadata(software)

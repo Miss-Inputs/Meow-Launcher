@@ -339,7 +339,7 @@ def add_snes_rom_header_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 		_parse_sufami_turbo_header(rom, metadata)
 
 def add_snes_software_list_metadata(software: 'Software', metadata: 'GameInfo') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	if metadata.save_type == SaveType.Unknown and metadata.platform != 'Satellaview':
 		metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 	#We can actually get lorom/hirom from feature = slot. Hmm...

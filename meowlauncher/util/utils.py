@@ -17,7 +17,8 @@ except ImportError:
 _find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
 
 def find_tags(name: str) -> tuple[str, Sequence[str]]:
-	#Where did I come up with the word "tags" anyway
+	"""(name without tags, tags)
+	Where did I come up with the word "tags" anyway"""
 	result = name
 	tags = []
 	while True:

@@ -234,7 +234,7 @@ def _parse_gbx_footer(rom: FileROM, metadata: 'GameInfo') -> None:
 
 def _add_game_boy_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	#TODO: Make sure this doesn't make slot incorrect if we are reading .gbx
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
 	metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 

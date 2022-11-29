@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 def add_info_from_uze_header(header: bytes, game_info: GameInfo) -> None:
-	#Header version: 6
-	#Target: 7 (0 = ATmega644, 1 = reserved for ATmega1284)
-	#Program size: 8-0xc (LE)
+	"""Header version: 6
+	Target: 7 (0 = ATmega644, 1 = reserved for ATmega1284)
+	Program size: 8-0xc (LE)"""
 	game_info.release_date = Date(int.from_bytes(header[0xc:0xe], 'little'))
 	game_info.add_alternate_name(header[0xe:0x2e].rstrip(b'\0').decode('ascii', errors='backslashreplace'), 'Banner Title')
 	game_info.developer = game_info.publisher = header[0x2e:0x4e].rstrip(b'\0').decode('ascii', errors='backslashreplace')

@@ -47,7 +47,7 @@ def add_vic20_custom_info(game: 'ROMGame') -> None:
 	game.info.specific_info['Headered?'] = has_header
 	software = game.get_software_list_entry()
 	if software:
-		software.add_standard_metadata(game.info)
+		software.add_standard_info(game.info)
 		notes = software.get_info('usage')
 		if notes == 'Game Paddles required':
 			game.info.specific_info['Peripheral'] = 'Paddle'
@@ -70,7 +70,7 @@ def add_colecovision_software_info(software: 'Software', game_info: 'GameInfo') 
 	peripheral: ColecoController = ColecoController.Normal
 	peripheral_required = False
 
-	software.add_standard_metadata(game_info)
+	software.add_standard_info(game_info)
 
 	usage = software.get_info('usage')
 	if usage == 'Supports Super Action Controllers':

@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def add_info_from_software_list(metadata: 'GameInfo', software: 'Software') -> None:
-	software.add_standard_metadata(metadata)
+	software.add_standard_info(metadata)
 	compatibility = software.compatibility
 	if compatibility:
 		if 'XL' in compatibility or 'XL/XE' in compatibility:
