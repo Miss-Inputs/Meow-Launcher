@@ -326,7 +326,8 @@ class Software():
 		return all(part.not_dumped for part in self.parts.values())
 
 	def get_part(self, name: str | None=None) -> SoftwarePart:
-		"""TODO: Name should not be optional and we should get rid of get_part_feature and has_data_area from this"""
+		"""TODO: Name should not be optional and we should get rid of get_part_feature and has_data_area from this
+		:raises KeyError: if the part is not found I guess"""
 		if name:
 			return self.parts[name]
 		first_part = self.xml.find('part')
