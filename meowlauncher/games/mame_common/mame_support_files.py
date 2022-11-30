@@ -249,7 +249,7 @@ class MachineCategory():
 	@property
 	def is_plug_and_play(self) -> bool:
 		return (self.genre == 'Game Console' and self.subgenre in {'Home Videogame', 'MultiGames'}) or \
-			(self.subgenre == 'Handheld' and (self.subgenre.startswith("Plug n' Play TV Game") or self.subgenre == 'Console Cartridge')) or \
+			(self.genre == 'Handheld' and (self.subgenre.startswith("Plug n' Play TV Game") or self.subgenre == 'Console Cartridge')) or \
 				(self.genre == 'Rhythm' and self.subgenre == 'Dance') or (self.genre == 'MultiGame' and self.subgenre == 'Compilation') or (self.genre == 'Game Console' and self.subgenre == 'Fitness Game') or (self.genre == 'Music' and self.subgenre == 'Instruments')
 		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
 		
