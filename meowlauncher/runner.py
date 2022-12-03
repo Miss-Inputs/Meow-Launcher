@@ -5,13 +5,16 @@ from meowlauncher.config_types import RunnerConfigValue
 
 class HostPlatform(Enum):
 	"""Platform this runner runs on"""
-	Native = auto() #Well I guess this really means Linux x86_64
+	Linux = auto() #Assume this means x86 for now
 	Windows = auto()
 	DotNet = auto()
+	Java = auto()
+	Love = auto()
+	HTML = auto()
 
 class Runner(ABC):
 	"""Base class for a runner (an emulator, compatibility layer, anything that runs a thing). Defines the capabilities/options/etc of the runner, see ConfiguredRunner for the instance with options applied"""
-	def __init__(self, host_platform: HostPlatform=HostPlatform.Native) -> None:
+	def __init__(self, host_platform: HostPlatform=HostPlatform.Linux) -> None:
 		self.host_platform = host_platform
 		self.configs = {
 			'gamemode': RunnerConfigValue(bool, False, 'Run with gamemoderun'),

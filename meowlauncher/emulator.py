@@ -33,7 +33,7 @@ class EmulatorStatus(Enum):
 class Emulator(Runner, Generic[EmulatorGameType_co]):
 	"""I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
 	Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes"""
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'GenericLaunchCommandFunc[EmulatorGameType_co] | None', configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Native, config_name: str|None=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'GenericLaunchCommandFunc[EmulatorGameType_co] | None', configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Linux, config_name: str|None=None):
 		super().__init__(host_platform)
 		self._name = name
 		self.config_name = config_name if config_name else name
@@ -57,7 +57,7 @@ class Emulator(Runner, Generic[EmulatorGameType_co]):
 
 class StandardEmulator(Emulator['ROMGame']):
 	"""Not very well named, but I mean like "something that by itself you give a ROM as a path and it launches it" or something among those lines"""
-	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'ROMGameLaunchFunc', supported_extensions: 'Collection[str]', supported_compression: 'Collection[str] | None'=None, configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Native, config_name: str | None=None):
+	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'ROMGameLaunchFunc', supported_extensions: 'Collection[str]', supported_compression: 'Collection[str] | None'=None, configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Linux, config_name: str | None=None):
 		super().__init__(display_name, status, default_exe_name, launch_command_func, configs, host_platform, config_name)
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression if supported_compression else ()
@@ -97,7 +97,7 @@ class LibretroCore(Emulator['EmulatedGame']):
 		return 'libretro core'
 
 class LibretroFrontend(Runner):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'LibretroFrontendLaunchCommandFunc', supported_compression: 'Collection[str] | None'=None, configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Native):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'LibretroFrontendLaunchCommandFunc', supported_compression: 'Collection[str] | None'=None, configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Linux):
 		self._name = name
 		self.status = status
 		self.default_exe_name = default_exe_name
