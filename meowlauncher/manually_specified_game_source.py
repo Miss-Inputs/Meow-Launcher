@@ -1,6 +1,7 @@
 import json
 import logging
 from abc import ABC
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from meowlauncher.common_paths import config_dir
@@ -93,7 +94,6 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[Manuall
 			logger.exception('Ah bugger %s had an error', app)
 			return None
 
-	#Return value here could be a generic type value I suppose, if you were into that sort of thing
 	def iter_launchers(self) -> 'Iterator[ManuallySpecifiedLauncher]':
 		assert self._app_list is not None, '_app_list is None, ManuallySpecifiedGameSource.get_launchers should not be called without checking .is_available()'
 		for app in self._app_list:
@@ -104,3 +104,8 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[Manuall
 			except KeyError as ke:
 				logger.exception('%s is missing needed key %s in %s', self._app_list_path, ke.args, app.get('name', 'unknown entry'))
 				continue
+
+	def no_longer_exists(self, game_id: str) -> bool:
+		"""Uses the same path or cd_path:path scheme as the default ManuallySpecifiedLauncher"""
+		path = game_id.partition(':')[0]
+		return not Path(path).exists()

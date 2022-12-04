@@ -11,6 +11,7 @@ from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
 	from collections.abc import Collection, Mapping
+
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredEmulator
 
@@ -94,4 +95,7 @@ class ManuallySpecifiedLauncher(EmulatorLauncher):
 	@property
 	#Could do as a default, or maybe you should override it
 	def game_id(self) -> str:
+		if self.game.is_on_cd:
+			#Need the game ID to show it's on a CD otherwise non_existent_games won't work
+			return f'{self.game.cd_path}:{self.game.path}'
 		return self.game.path

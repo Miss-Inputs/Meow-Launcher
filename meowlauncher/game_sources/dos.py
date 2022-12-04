@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import os
-
 from meowlauncher.data.emulators import dos_emulators
 from meowlauncher.games.dos import DOSApp
 from meowlauncher.manually_specified_game import ManuallySpecifiedLauncher
@@ -12,9 +10,6 @@ from meowlauncher.manually_specified_game_source import \
 class DOS(ManuallySpecifiedGameSource[DOSApp]):
 	def __init__(self) -> None:
 		super().__init__('DOS', DOSApp, ManuallySpecifiedLauncher, dos_emulators)
-
-	def no_longer_exists(self, game_id: str) -> bool:
-		return not os.path.isfile(game_id)
 
 #TODO Actually re-implement this, this is just old code and is only just there to refer to what logic I was using
 # def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
