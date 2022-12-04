@@ -40,4 +40,4 @@ class Runner(ABC):
 	def __hash__(self) -> int:
 		return self.name.__hash__()
 		
-__doc__ = Runner.__doc__ or ""
+__doc__ = Runner.__doc__ or Runner.__name__

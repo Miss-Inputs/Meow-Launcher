@@ -141,7 +141,13 @@ def parse_history(history: str) -> History:
 				sections[name] = None
 	return History(**sections)
 
-def add_history(metadata: 'GameInfo', machine_or_softlist: str, software_name: str | None=None, history_xml: HistoryXML | None=None) -> None:
+def add_history(game_info: 'GameInfo', machine_or_softlist: str, software_name: str | None=None, history_xml: HistoryXML | None=None) -> None:
+	"""Adds MAME history.xml to a GameInfo
+	:param game_info: GameInfo object to add history to
+	:param machine_or_softlist: Machine basename, or software list name depending on software_name
+	:param software_name: If None, machine_or_softlist is assumed to be a machine basename, otherwise that is the name of the software list and software_list is the software to get the history for that
+	:param history_xml: The parsed history.xml if it is not where it might be found by default
+	:raises FileNotFoundError: If get_default_history_xml doesn't find the history.xml in the default spot"""
 	if not history_xml:
 		history_xml = get_default_history_xml()
 		if not history_xml:
@@ -159,19 +165,19 @@ def add_history(metadata: 'GameInfo', machine_or_softlist: str, software_name: s
 		return
 	
 	if history.description:
-		if 'Description' in metadata.descriptions:
-			metadata.descriptions['History Description'] = history.description
+		if 'Description' in game_info.descriptions:
+			game_info.descriptions['History Description'] = history.description
 		else:
-			metadata.descriptions['Description'] = history.description
+			game_info.descriptions['Description'] = history.description
 
 	if history.technical_info:
-		metadata.descriptions['Technical'] = history.technical_info
+		game_info.descriptions['Technical'] = history.technical_info
 	if history.trivia:
-		metadata.descriptions['Trivia'] = history.trivia
+		game_info.descriptions['Trivia'] = history.trivia
 	if history.tips_and_tricks:
-		metadata.descriptions['Tips And Tricks'] = history.tips_and_tricks
+		game_info.descriptions['Tips And Tricks'] = history.tips_and_tricks
 	if history.updates:
-		metadata.descriptions['Updates'] = history.updates
+		game_info.descriptions['Updates'] = history.updates
 
 def iter_default_mame_categories_folders() -> Iterator[Path]:
 	if not default_mame_configuration:

@@ -42,13 +42,16 @@ def remove_filename_tags(name: str) -> str:
 	return find_tags(name)[0]
 
 class NotAlphanumericException(Exception):
-	pass
+	"""Thrown from convert_alphanumeric"""
 
 def convert_alphanumeric(byte_array: bytes) -> str:
+	"""Decodes byte_array as though it was UTF-8 or ASCII, but enforces it is alphanumeric
+	Questionable if this is useful as opposed to just decoding normally but checking .isalnum() afterwards
+	:raises NotAlphanumericException: If a character is not alphanumeric"""
 	string = ''
 	for byte in byte_array:
 		char = chr(byte)
-		if char not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789':
+		if not char.isalnum():
 			raise NotAlphanumericException(char)
 		string += char
 	return string
@@ -63,6 +66,9 @@ def pluralize(n: int, singular: str, plural: str|None=None) -> str:
 	return f'{n} {plural}'
 
 def convert_roman_numeral(s: str) -> int:
+	"""If s is a Roman numeral, returns the integer value
+	I guess it's used for normalizing titles of sequels for comparison and such
+	:raises ValueError: If s is not a Roman numeral"""
 	s = s.upper()
 
 	units = {
@@ -100,6 +106,7 @@ def convert_roman_numeral(s: str) -> int:
 	return value
 
 def is_roman_numeral(s: str) -> bool:
+	"""Detects if s is convertible using convert_roman_numeral"""
 	try:
 		convert_roman_numeral(s)
 		return True

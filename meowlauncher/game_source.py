@@ -61,10 +61,10 @@ class GameSource(ABC):
 
 	@classmethod
 	def game_type(cls) -> str:
-		"""Stored in the ID section to uniquely identify this launcher, to know if no_longer_exists should be called by remove_existing_games, you should also check for this in iter_launchers to skip over launchers that are done already"""
-		#Other than that, output/* needs to know this, so it just gets it from add_games currently, to know what to put in the launcher file
-		#I guess we could also just have it on Launcher after all… hrm
-		#It also could be @final and just use __qualname__
+		"""Stored in the ID section to uniquely identify this launcher, to know if no_longer_exists should be called by remove_existing_games, you should also check for this in iter_launchers to skip over launchers that are done already
+		Other than that, output/* needs to know this, so it just gets it from add_games currently, to know what to put in the launcher file
+		I guess we could also just have it on Launcher after all… hrm
+		It also could be @final and just use __name__"""
 		return cls.__name__
 
 class CompoundGameSource(GameSource, ABC):

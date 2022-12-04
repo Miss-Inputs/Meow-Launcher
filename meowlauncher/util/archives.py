@@ -57,19 +57,22 @@ _sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
 _sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
 _sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
 _sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$')
-#Looks like this:
-#"scanning the drives, listing archive, blah blah"
-#--
-#Path = archive.7z
-#blah blah blah
-# 
-#---------- (maybe not that exact amount of dashes, but more than the first part)
-#Path = inner.file
-#size attributes = blah
-# 
-#Path = another.one
-#size attributes = blah
 def subprocess_sevenzip_list(path: Path) -> Iterator[FilenameWithMaybeSizeAndCRC]:
+	"""Runs 7z in a shell and parses the output to get the listing that way.
+	Looks like this:
+	"scanning the drives, listing archive, blah blah"
+	--
+	Path = archive.7z
+	blah blah blah
+	 
+	---------- (maybe not that exact amount of dashes, but more than the first part)
+	Path = inner.file
+	size attributes = blah
+	 
+	Path = another.one
+	size attributes = blah
+	:raises BadSubprocessedArchiveError: If 7z process fails
+	"""
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout} {proc.stderr}')

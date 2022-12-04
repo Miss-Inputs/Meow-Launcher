@@ -29,12 +29,12 @@ if TYPE_CHECKING:
 
 	from .rom_game import ROMGame
 	
-def _add_metadata_from_regions(metadata: 'GameInfo') -> None:
-	if metadata.regions:
-		if not metadata.languages:
-			region_language = get_common_language_from_regions(metadata.regions)
+def _add_metadata_from_regions(game_info: 'GameInfo') -> None:
+	if game_info.regions:
+		if not game_info.languages:
+			region_language = get_common_language_from_regions(game_info.regions)
 			if region_language:
-				metadata.languages = [region_language]
+				game_info.languages = [region_language]
 
 def _add_metadata_from_arcade(game: 'ROMGame', machine: 'Machine') -> None:
 	if 'Icon' not in game.info.images:
@@ -96,19 +96,19 @@ def _add_alternate_names(rom: ROM, game_info: 'GameInfo') -> None:
 	for alt_name in alt_names:
 		game_info.add_alternate_name(alt_name)
 
-def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: LibretroDatabaseType, key: str | int) -> bool:
+def _add_metadata_from_libretro_database_entry(game_info: 'GameInfo', database: LibretroDatabaseType, key: str | int) -> bool:
 	database_entry = cast(dict[str, Any] | None, database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
 		if name:
-			metadata.add_alternate_name(name, 'Libretro Database Name')
-		if 'serial' in database_entry and not metadata.product_code:
-			metadata.product_code = database_entry['serial']
+			game_info.add_alternate_name(name, 'Libretro Database Name')
+		if 'serial' in database_entry and not game_info.product_code:
+			game_info.product_code = database_entry['serial']
 		#seems name = description = comment = usually just the name of the file from No-Intro/Redump, region we already know, enhancement_hw we already know (just SNES and Mega Drive)
 		if 'description' in database_entry:
 			description = database_entry['description']
 			if description not in {database_entry.get('comment'), database_entry.get('name')}:
-				metadata.descriptions['Libretro Description'] = description
+				game_info.descriptions['Libretro Description'] = description
 
 		date = Date()
 		if 'releaseyear' in database_entry:
@@ -120,65 +120,65 @@ def _add_metadata_from_libretro_database_entry(metadata: 'GameInfo', database: L
 			date.month = database_entry['releasemonth']
 		if 'releaseday' in database_entry:
 			date.day = database_entry['releaseday']
-		if date.is_better_than(metadata.release_date):
-			metadata.release_date = date
+		if date.is_better_than(game_info.release_date):
+			game_info.release_date = date
 
 		if 'developer' in database_entry:
 			developer = database_entry['developer']
 			while junk_suffixes.search(developer):
 				developer = junk_suffixes.sub('', developer)
-			metadata.developer = company_name_overrides.get(developer, developer)
+			game_info.developer = company_name_overrides.get(developer, developer)
 		if 'publisher' in database_entry:
 			publisher = database_entry['publisher']
 			while junk_suffixes.search(publisher):
 				publisher = junk_suffixes.sub('', publisher)
-			metadata.publisher = company_name_overrides.get(publisher, publisher)
+			game_info.publisher = company_name_overrides.get(publisher, publisher)
 		if 'manufacturer' in database_entry:
 			publisher = database_entry['manufacturer']
 			while junk_suffixes.search(publisher):
 				publisher = junk_suffixes.sub('', publisher)
-			metadata.publisher = company_name_overrides.get(publisher, publisher)
+			game_info.publisher = company_name_overrides.get(publisher, publisher)
 
 
 		if 'genre' in database_entry:
 			genre = database_entry['genre']
 			if '/' in genre:
-				metadata.genre, metadata.subgenre = genre.split('/', 1)
+				game_info.genre, game_info.subgenre = genre.split('/', 1)
 			else:
-				metadata.genre = genre
+				game_info.genre = genre
 		if 'franchise' in database_entry:
-			metadata.series = database_entry['franchise']
+			game_info.series = database_entry['franchise']
 		if 'version' in database_entry:
-			metadata.specific_info['Version'] = database_entry['version']
+			game_info.specific_info['Version'] = database_entry['version']
 
 		if 'users' in database_entry:
-			metadata.specific_info['Number of Players'] = database_entry['users']
+			game_info.specific_info['Number of Players'] = database_entry['users']
 		if 'homepage' in database_entry:
-			metadata.documents['Homepage'] = database_entry['homepage']
+			game_info.documents['Homepage'] = database_entry['homepage']
 		if 'patch' in database_entry:
-			metadata.documents['Patch Homepage'] = database_entry['patch']
+			game_info.documents['Patch Homepage'] = database_entry['patch']
 		if 'esrb_rating' in database_entry:
-			metadata.specific_info['ESRB Rating'] = database_entry['esrb_rating']
+			game_info.specific_info['ESRB Rating'] = database_entry['esrb_rating']
 		if 'bbfc_rating' in database_entry:
-			metadata.specific_info['BBFC Rating'] = database_entry['bbfc_rating']
+			game_info.specific_info['BBFC Rating'] = database_entry['bbfc_rating']
 		if 'elspa_rating' in database_entry:
-			metadata.specific_info['ELSPA Rating'] = database_entry['elspa_rating']
+			game_info.specific_info['ELSPA Rating'] = database_entry['elspa_rating']
 		if 'origin' in database_entry:
-			metadata.specific_info['Development Origin'] = database_entry['origin']
+			game_info.specific_info['Development Origin'] = database_entry['origin']
 		if 'edge_review' in database_entry:
-			metadata.descriptions['EDGE Review'] = database_entry['edge_review']
+			game_info.descriptions['EDGE Review'] = database_entry['edge_review']
 		if 'edge_rating' in database_entry:
-			metadata.specific_info['EDGE Rating'] = database_entry['edge_rating']
+			game_info.specific_info['EDGE Rating'] = database_entry['edge_rating']
 		if 'edge_issue' in database_entry:
-			metadata.specific_info['EDGE Issue'] = database_entry['edge_issue']
+			game_info.specific_info['EDGE Issue'] = database_entry['edge_issue']
 		if 'famitsu_rating' in database_entry:
-			metadata.specific_info['Famitsu Rating'] = database_entry['famitsu_rating']
+			game_info.specific_info['Famitsu Rating'] = database_entry['famitsu_rating']
 		
 		if database_entry.get('analog', 0) == 1:
 			#This is PS1 specific
-			metadata.specific_info['Uses Analog?'] = True
+			game_info.specific_info['Uses Analog?'] = True
 		if database_entry.get('rumble', 0) == 1:
-			metadata.specific_info['Force Feedback?'] = True
+			game_info.specific_info['Force Feedback?'] = True
 
 		# for k, v in database_entry.items():
 		# 	if k not in ('name', 'description', 'region', 'releaseyear', 'releasemonth', 'releaseday', 'genre', 'developer', 'serial', 'comment', 'franchise', 'version', 'homepage', 'patch', 'publisher', 'users', 'esrb_rating', 'origin', 'enhancement_hw', 'edge_review', 'edge_rating', 'edge_issue', 'famitsu_rating', 'analog', 'rumble'):

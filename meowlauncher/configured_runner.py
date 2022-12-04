@@ -1,6 +1,6 @@
 import shutil
 from pathlib import PurePath
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, final
 
 from meowlauncher.config.config import main_config
 
@@ -19,8 +19,10 @@ class ConfiguredRunner():
 		self.runner = runner
 		self.config = config
 
+	@final
 	@property
 	def name(self) -> str:
+		"""This is just runner.name, and has no reason to be anything else"""
 		return self.runner.name
 
 	@property
@@ -58,3 +60,4 @@ class ConfiguredRunner():
 	def __hash__(self) -> int:
 		return self.runner.__hash__()
 		
+__doc__ = ConfiguredRunner.__doc__ or ConfiguredRunner.__name__

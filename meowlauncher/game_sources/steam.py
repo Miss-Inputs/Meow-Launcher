@@ -9,8 +9,6 @@ from functools import cached_property
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
-from meowlauncher.games.steam.steam_types import ExternalAccountType
-
 try:
 	from steamfiles import appinfo
 	have_steamfiles = True
@@ -28,6 +26,7 @@ from meowlauncher.games.common.engine_detect import (
 from meowlauncher.games.common.pc_common_info import add_info_for_raw_exe
 from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
                                                  SteamLauncher)
+from meowlauncher.games.steam.steam_types import ExternalAccountType
 from meowlauncher.games.steam.steam_utils import (format_genre,
                                                   normalize_developer,
                                                   store_categories,

@@ -247,10 +247,7 @@ class ROMs(CompoundGameSource):
 		
 	@property
 	def sources(self) -> 'Sequence[GameSource]':
-		if self.config.platforms:
-			return tuple(_rom_platform(only_platform)(self.config, platform_configs[only_platform], platforms[only_platform]) for only_platform in self.config.platforms)
-		else:
-			return tuple(self._iter_platform_sources())
+		return tuple((_rom_platform(only_platform)(self.config, platform_configs[only_platform], platforms[only_platform]) for only_platform in self.config.platforms) if self.config.platforms else self._iter_platform_sources())
 
 	@classmethod
 	def description(cls) -> str:

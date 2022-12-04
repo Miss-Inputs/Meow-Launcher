@@ -58,42 +58,42 @@ def get_exe_properties(path: Path) -> tuple['Mapping[str, str] | None', datetime
 			pass
 	return None, None
 
-def add_info_for_raw_exe(path: Path, metadata: 'GameInfo') -> None:
+def add_info_for_raw_exe(path: Path, game_info: 'GameInfo') -> None:
 	props, timedatestamp = get_exe_properties(path)
 	
 	if props:
 		#Possible values to expect: https://docs.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea#remarks
-		if not metadata.publisher and not metadata.developer:
+		if not game_info.publisher and not game_info.developer:
 			company_name = props.get('CompanyName')
 			if company_name:
 				while junk_suffixes.search(company_name):
 					company_name = junk_suffixes.sub('', company_name)
-				metadata.publisher = company_name
+				game_info.publisher = company_name
 
 		product_name = props.get('ProductName')
 		if product_name:
-			metadata.add_alternate_name(product_name, 'Product Name')
+			game_info.add_alternate_name(product_name, 'Product Name')
 		copyright_string = props.get('LegalCopyright')
 		if copyright_string:
-			metadata.specific_info['Copyright'] = copyright_string
+			game_info.specific_info['Copyright'] = copyright_string
 		description = props.get('FileDescription')
 		if description and description != product_name:
-			metadata.descriptions['File Description'] = description
+			game_info.descriptions['File Description'] = description
 		comments = props.get('Comments')
 		if comments and comments != product_name:
-			metadata.specific_info['File Comment'] = comments
+			game_info.specific_info['File Comment'] = comments
 		trademarks = props.get('LegalTrademarks')
 		if trademarks and trademarks != copyright_string:
-			metadata.specific_info['Trademarks'] = trademarks
+			game_info.specific_info['Trademarks'] = trademarks
 	
 	if timedatestamp:
 		if not (timedatestamp.year < 1993 or timedatestamp > datetime.datetime.now()):
 			#If the date has not even happened yet, or is before Windows NT 3.1 and hence the PE format was even invented, I think the fuck not
 			build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
-			metadata.specific_info['Build Date'] = build_date
+			game_info.specific_info['Build Date'] = build_date
 			guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
-			if guessed_date.is_better_than(metadata.release_date):
-				metadata.release_date = guessed_date
+			if guessed_date.is_better_than(game_info.release_date):
+				game_info.release_date = guessed_date
 
 def _pe_directory_to_dict(directory: 'pefile.ResourceDirData') -> 'Mapping[str | int, pefile.ResourceDirEntryData]':
 	return {entry.name if entry.name else entry.id: _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry for entry in directory.entries}
@@ -195,23 +195,23 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Path |
 		return next((f for f in folder.iterdir() if f.suffix.lower() == '.ico'), None)
 	return None
 
-def check_for_interesting_things_in_folder(folder: Path, metadata: 'GameInfo', find_wrappers: bool=False) -> None:
+def check_for_interesting_things_in_folder(folder: Path, game_info: 'GameInfo', find_wrappers: bool=False) -> None:
 	"""Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
-	#Not sure if any of these are in lowercase? Or they might be in a different directory"""
+	Not sure if any of these are in lowercase? Or they might be in a different directory"""
 	dir_entries = tuple(folder.iterdir())
 	files = {f.name.lower() for f in dir_entries if f.is_file()}
 	subdirs = {f.name.lower() for f in dir_entries if f.is_dir()}
 	
 	if 'libdiscord-rpc.so' in files or 'discord-rpc.dll' in files:
-		metadata.specific_info['Discord Rich Presence?'] = True
+		game_info.specific_info['Discord Rich Presence?'] = True
 
 	if find_wrappers:
 		#This is only really relevant for Steam etc
 		if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
-			metadata.specific_info['Wrapper'] = 'DOSBox'
+			game_info.specific_info['Wrapper'] = 'DOSBox'
 
 		if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
-			metadata.specific_info['Wrapper'] = 'ScummVM'
+			game_info.specific_info['Wrapper'] = 'ScummVM'
 
 		if folder.joinpath('support', 'UplayInstaller.exe').is_file():
-			metadata.specific_info['Launcher'] = 'uPlay'
+			game_info.specific_info['Launcher'] = 'uPlay'

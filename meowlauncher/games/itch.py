@@ -6,7 +6,7 @@ import logging
 import subprocess
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from meowlauncher.config.config import main_config
 from meowlauncher.game import Game
@@ -21,6 +21,7 @@ from meowlauncher.util.name_utils import fix_name
 if TYPE_CHECKING:
 	from meowlauncher.game_sources.itch_io import ItchioConfig
 	from collections.abc import Collection, Iterator, Mapping
+	from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,8 @@ def _butler_configure(folder: Path, os_filter: str | None=None, ignore_arch: boo
 			args.append('--no-filter')
 		args.append(folder)
 		butler_proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
-		return json.loads(butler_proc.stdout.splitlines()[-1])
+		j: 'Mapping[str, Any]' = json.loads(butler_proc.stdout.splitlines()[-1])
+		return j
 	except (subprocess.CalledProcessError, FileNotFoundError):
 		return None
 
