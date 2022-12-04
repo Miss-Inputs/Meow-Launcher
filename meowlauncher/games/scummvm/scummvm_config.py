@@ -2,7 +2,7 @@ import subprocess
 from collections.abc import Mapping
 from pathlib import Path
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
 
@@ -12,7 +12,6 @@ def _get_vm_config(path: Path) -> NoNonsenseConfigParser:
 	return parser
 
 class ScummVMConfig():
-	"""TODO: This should be a ConfiguredRunner"""
 	def __init__(self) -> None:
 		self.have_scummvm_config = main_config.scummvm_config_path.is_file()
 

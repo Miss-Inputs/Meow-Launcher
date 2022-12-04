@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
                                                info_section_name,
                                                section_prefix)

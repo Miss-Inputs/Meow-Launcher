@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.info import Date, GameInfo
@@ -10,12 +9,16 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.machine import Machine
 
 	from .mame import ConfiguredMAME
+	from .mame_config import ArcadeMAMEConfig
 
 class MAMEGame(EmulatedGame):
-	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig'):
+	"""Wrapper around Machine to add info fields and stuff I guess
+	Hmm… the class design here is probably not that good, but eh, it works I guess"""
+	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig', config: 'ArcadeMAMEConfig'):
 		super().__init__(platform_config)
 		self.machine = machine
 		self.info = GameInfo()
+		self.config = config
 
 		self._add_metadata_fields()
 
@@ -78,9 +81,9 @@ class MAMEGame(EmulatedGame):
 
 	@property
 	def is_wanted(self) -> bool:
-		if main_config.exclude_pinball and self.machine.is_pinball:
+		if self.config.exclude_pinball and self.machine.is_pinball:
 			return False
-		if main_config.exclude_non_arcade and self.info.platform == 'Non-Arcade':
+		if self.config.exclude_non_arcade and self.info.platform == 'Non-Arcade':
 			return False
 
 		return True

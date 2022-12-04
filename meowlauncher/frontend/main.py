@@ -2,7 +2,7 @@ import logging
 import time
 from datetime import timedelta
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 
 from . import organize_folders, series_detect
 from .add_games import add_games

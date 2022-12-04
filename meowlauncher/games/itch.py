@@ -9,7 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_info import (add_info_for_raw_exe,

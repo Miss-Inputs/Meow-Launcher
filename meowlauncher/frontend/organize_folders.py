@@ -9,7 +9,7 @@ from collections.abc import Callable, Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import sanitize_name
 

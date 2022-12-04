@@ -8,7 +8,7 @@ from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from pathlib import Path
 from typing import cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,7 @@ from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_info

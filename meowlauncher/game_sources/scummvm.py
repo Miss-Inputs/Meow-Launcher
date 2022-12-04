@@ -3,7 +3,7 @@
 from collections.abc import Iterator
 
 from meowlauncher import global_runners
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.scummvm.scummvm_config import scummvm_config
 from meowlauncher.games.scummvm.scummvm_game import (ScummVMGame,

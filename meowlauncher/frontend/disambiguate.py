@@ -6,7 +6,7 @@ import logging
 from collections.abc import Callable, Collection, Iterable, MutableMapping
 from pathlib import Path
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
                                                junk_section_name,
                                                section_prefix)

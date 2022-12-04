@@ -78,7 +78,19 @@ class Config(ABC):
 
 	The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but it would need a prefix, --duckstation-compat-db=<path> or whatever
 	"""
+	_instance = None
+	def __new__(cls):
+		if not cls._instance:
+			cls._instance = super(Config, cls).__new__(cls)
+			cls._instance._inited = False
+		return cls._instance
+
 	def __init__(self) -> None:
+		self._inited: bool
+		if self._inited:
+			#Apparently this is how singletons work and have always worked, as this is called repeatedly otherwise and self.values is set again to {} and that defeats the purpose
+			return
+		self._inited = True
 		_configs = {k: v for k, v in vars(self.__class__).items() if isinstance(v, ConfigProperty)}
 
 		_config_parser = NoNonsenseConfigParser()
@@ -93,7 +105,8 @@ class Config(ABC):
 		for section in _config_parser.sections():
 			for option, value in _config_parser.items(section):
 				if option not in _configs:
-					logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
+					#TODO: Only warn if it is in your section
+					#logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
 					continue
 				config = _configs[option]
 				self.values[option] = parse_value(value, config.type)
@@ -217,43 +230,6 @@ class MainConfig(Config):
 		'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'
 		return 0 #TODO: Good case for an enum to be used here, even if argparse docs say don't use that with choices etc
 
-	#TODO: This should be some kind of per-source options, whichever the best way to do that might be
-	
-	@configoption('Arcade')
-	def skipped_source_files(self) -> Sequence[str]:
-		'List of MAME source files to skip (not including extension)'
-		return ()
-
-	@configoption('Arcade')
-	def exclude_non_arcade(self) -> bool:
-		'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'
-		return False
-
-	@configoption('Arcade')
-	def exclude_pinball(self) -> bool:
-		'Whether or not to skip pinball games (physical pinball, not video pinball)'
-		return False
-
-	@configoption('Arcade')
-	def exclude_system_drivers(self) -> bool:
-		'Skip machines used to launch other software (computers, consoles, etc)'
-		return False
-
-	@configoption('Arcade')
-	def exclude_non_working(self) -> bool:
-		'Skip any driver marked as not working'
-		return False
-
-	@configoption('Arcade')
-	def non_working_whitelist(self) -> Sequence[str]:
-		'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'
-		return ()
-
-	@configoption('Arcade')
-	def use_xml_disk_cache(self) -> bool:
-		'Store machine XML files on disk, maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)'
-		return True
-
 	@configoption('Steam')
 	def force_create_launchers(self) -> bool:
 		'Create launchers even for games which are\'nt launchable'
@@ -360,14 +336,4 @@ class MainConfig(Config):
 		"""Really just here for debugging/testing, forces ROMs game source to only use certain platforms"""
 		return []
 	
-	@configoption('Arcade')
-	def mame_drivers(self) -> Sequence[str]:
-		"""Really just here for debugging/testing, forces MAME game source to only use certain drivers"""
-		return []
-
-	@configoption('Arcade')
-	def source_files(self) -> str | None:
-		"""Really just here for debugging/testing, forces MAME game source to only use drivers from certain source files"""
-		return None
-
 main_config = MainConfig()

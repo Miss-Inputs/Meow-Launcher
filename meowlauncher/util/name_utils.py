@@ -1,7 +1,7 @@
 import re
 from collections.abc import Collection
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
     capitalized_words
 

@@ -6,7 +6,7 @@ from pathlib import PurePath
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import (find_filename_tags_at_end,

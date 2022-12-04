@@ -4,7 +4,7 @@ from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
 from meowlauncher.output.desktop_files import (info_section_name,

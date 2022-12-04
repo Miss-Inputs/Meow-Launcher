@@ -4,7 +4,7 @@ from pathlib import Path
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common.pc_common_info import \

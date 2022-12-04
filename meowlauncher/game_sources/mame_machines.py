@@ -3,13 +3,14 @@
 from collections.abc import Iterator
 
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.machines_with_inbuilt_games import (
     InbuiltGame, bioses_with_inbuilt_games, machines_with_inbuilt_games)
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.mame.mame import ConfiguredMAME
+from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
 from meowlauncher.games.mame.mame_game import MAMEGame, MAMELauncher
 from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
                                                        MAMEInbuiltLauncher)
@@ -24,9 +25,10 @@ from meowlauncher.util.desktop_files import has_been_done
 
 class MAME(GameSource):
 	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here
-	TODO: Probably needs a rename to Arcade or similar"""
+	TODO: Probably needs a rename to Arcade or similar… but what's all-encompassing"""
 	def __init__(self) -> None:
 		super().__init__()
+		self.config: ArcadeMAMEConfig
 		self.emu: ConfiguredMAME | None = None
 		try:
 			mame_config = emulator_configs.get('MAME')
@@ -34,11 +36,15 @@ class MAME(GameSource):
 				self.emu = ConfiguredMAME(mame_config)
 		except MAMENotInstalledException:
 			pass
-		self.platform_config = PlatformConfig('MAME', set(), (), {}) #Not needed for now, it is just to satisfy EmulatedGame constructor… may be a good idea some day
+		self.platform_config = PlatformConfig('MAME', set(), (), {}) #TODO: Refactor EmulatedGame constructor so we don't do this
 
 	@classmethod
 	def description(cls) -> str:
 		return 'MAME machines'
+
+	@classmethod
+	def config_class(cls) -> type[ArcadeMAMEConfig] | None:
+		return ArcadeMAMEConfig
 
 	@property
 	def is_available(self) -> bool:
@@ -52,19 +58,19 @@ class MAME(GameSource):
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		"""Returns a launcher for this machine, or none if it can't/shouldn't/etc"""
 		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
-		if machine.source_file in main_config.skipped_source_files:
+		if machine.source_file in self.config.skipped_source_files:
 			return None
 
 		if machine.is_bios: #Hmm, technically there's nothing stopping you launching these, but generally nobody wants this
 			return None
 
-		if main_config.exclude_system_drivers and machine.is_system_driver:
+		if self.config.exclude_system_drivers and machine.is_system_driver:
 			return None
 
 		if not machine.launchable:
 			return None
 
-		if main_config.exclude_non_working and machine.emulation_status == MAMEStatus.Preliminary and machine.basename not in main_config.non_working_whitelist:
+		if self.config.exclude_non_working and machine.emulation_status == MAMEStatus.Preliminary and machine.basename not in self.config.non_working_whitelist:
 			#This will need to be refactored if anything other than MAME is added
 			#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 			return None
@@ -74,7 +80,7 @@ class MAME(GameSource):
 			#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 			return None
 
-		game = MAMEGame(machine, self.platform_config)
+		game = MAMEGame(machine, self.platform_config, self.config)
 		if not game.is_wanted:
 			return None
 
@@ -89,14 +95,14 @@ class MAME(GameSource):
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
 		assert self.emu, 'MAME.iter_launchers should never be called without checking is_available! What the'
-		if main_config.mame_drivers:
-			for driver_name in main_config.mame_drivers:
+		if self.config.mame_drivers:
+			for driver_name in self.config.mame_drivers:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
 				if launcher:
 					yield launcher
 			return 
 
-		for machine in iter_machines_from_source_file(main_config.source_files, self.emu.executable) if main_config.source_files else iter_machines(self.emu.executable):
+		for machine in iter_machines_from_source_file(self.config.source_files, self.emu.executable) if self.config.source_files else iter_machines(self.emu.executable):
 			if not main_config.full_rescan:
 				if has_been_done('Arcade / standalone machines', machine.basename):
 					continue
@@ -110,6 +116,8 @@ class MAME(GameSource):
 		return 'Arcade / standalone machines'
 
 class MAMEInbuiltGames(GameSource):
+	"""MAME machines that are consoles, etc that have games inbuilt into them which wouldn't be used with just ROMs"""
+
 	def __init__(self) -> None:
 		super().__init__()
 		self.blank_platform_config = PlatformConfig('MAME', set(), (), {})

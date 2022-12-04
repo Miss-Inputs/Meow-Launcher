@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import ByteAmount, MediaType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.games.mame_common.software_list import (
     SoftwareMatcherArgs, find_in_software_lists)
 from meowlauncher.util import archives, cd_read, io_utils

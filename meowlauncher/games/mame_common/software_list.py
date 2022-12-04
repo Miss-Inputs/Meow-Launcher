@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import find_filename_tags_at_end, find_tags

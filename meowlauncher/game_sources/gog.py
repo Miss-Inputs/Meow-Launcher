@@ -5,7 +5,7 @@ from collections.abc import Collection
 from pathlib import Path
 from typing import cast
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GameInfoFile,
                                     NormalGOGGame, ScummVMGOGGame,
                                     WindowsGOGGame, WineGOGGame)

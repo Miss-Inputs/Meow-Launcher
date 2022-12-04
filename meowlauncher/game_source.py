@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, TypeVar, Union
+from typing import TYPE_CHECKING, Generic, TypeVar
+from meowlauncher.config.config import Config
 
 from meowlauncher.emulator import Emulator
 
@@ -18,6 +19,11 @@ logger = logging.getLogger(__name__)
 class GameSource(ABC):
 	"""Base class for all game sources. For now you will need to put this in meowlauncher/game_sources/__init__.py"""
 
+	def __init__(self) -> None:
+		config_class: type[Config] | None = self.config_class()
+		if config_class:
+			self.config = config_class() #pylint: disable=not-callable #Dunno if it's because Config is abstract?
+
 	@classmethod
 	def name(cls) -> str:
 		"""Display name for humans to read, though defaults to the class name"""
@@ -27,6 +33,11 @@ class GameSource(ABC):
 	def description(cls) -> str:
 		"""Full name of sorts, e.g. "blah games" (defaults to self.name + "games"), maybe description is the wrong word here whoops"""
 		return f'{cls.name()} games'
+
+	@classmethod
+	def config_class(cls) -> type[Config] | None:
+		"""Return a Config class containing configuration for this GameSource or don't"""
+		return None
 
 	def __str__(self) -> str:
 		return f'{self.name()} ({self.description()})'
@@ -59,6 +70,7 @@ class GameSource(ABC):
 class CompoundGameSource(GameSource, ABC):
 	"""Chains GameSources together, so that iter_launchers returns each one that's available"""
 	def __init__(self, sources: 'Sequence[GameSource]') -> None:
+		super().__init__()
 		self.sources = sources
 
 	def iter_launchers(self) -> 'Iterator[Launcher]':
@@ -74,12 +86,13 @@ EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['EmulatedGame'], cov
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 	"""Game source that has options for the user to choose which emulators they use or prefer"""
 	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: 'Mapping[str, EmulatorType_co]', libretro_cores: 'Mapping[str, LibretroCore] | None'=None) -> None:
+		super().__init__()
 		self.platform_config = platform_config
 		self.platform = platform
 		self.emulators = emulators
 		self.libretro_cores = libretro_cores
 	
-	def iter_chosen_emulators(self) -> 'Iterator[Union[EmulatorType_co, LibretroCore]]':
+	def iter_chosen_emulators(self) -> 'Iterator[EmulatorType_co | LibretroCore]':
 		"""Gets the actual emulator objects for the user's choices, in order"""
 		for emulator_name in self.platform_config.chosen_emulators:
 			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \

@@ -3,7 +3,7 @@
 import logging
 from pathlib import Path
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.games.itch import ItchGame
 from meowlauncher.util.desktop_files import has_been_done
 

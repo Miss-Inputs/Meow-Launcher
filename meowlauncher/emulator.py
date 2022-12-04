@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.config_types import (EmulatorConfig, RunnerConfigValue,
                                        TypeOfConfigValue)
 

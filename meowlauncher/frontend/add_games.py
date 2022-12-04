@@ -3,7 +3,7 @@ import logging
 import time
 from collections.abc import Sequence
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher

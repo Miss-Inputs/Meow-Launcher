@@ -2,7 +2,7 @@ import shutil
 from pathlib import PurePath
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 
 from .launch_command import (LaunchCommand, MultiLaunchCommands,
                              launch_with_wine)

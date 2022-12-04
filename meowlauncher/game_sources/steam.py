@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.config import main_config
 from meowlauncher.exceptions import (GameNotSupportedException,
                                      NotActuallyLaunchableGameException,
                                      NotLaunchableException)
@@ -609,6 +609,7 @@ def add_info_from_user_cache(game: 'SteamGame') -> None:
 
 class Steam(GameSource):
 	def __init__(self) -> None:
+		super().__init__()
 		self._steam_installation: 'SteamInstallation | None' = None
 		if not have_steamfiles:
 			self._is_available = False
