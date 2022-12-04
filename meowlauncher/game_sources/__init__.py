@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from .dos import DOS
 from .mac import Mac
-from .mame_machines import MAME, MAMEInbuiltGames
+from .arcade import Arcade, MAMEInbuiltGames
 from .roms import ROMs
 from .scummvm import ScummVM
 from .steam import Steam
@@ -17,7 +17,7 @@ __doc__ = "Registry of all GameSources, so they can be iterated over to get each
 game_sources: 'Sequence[type[GameSource]]' = (
 	DOS,
 	Mac,
-	MAME,
+	Arcade,
 	MAMEInbuiltGames,
 	ROMs,
 	ScummVM,

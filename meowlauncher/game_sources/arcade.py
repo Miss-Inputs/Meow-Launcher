@@ -23,9 +23,8 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.util.desktop_files import has_been_done
 
 
-class MAME(GameSource):
-	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here
-	TODO: Probably needs a rename to Arcade or similar… but what's all-encompassing"""
+class Arcade(GameSource):
+	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here as they are launchable by MAME (nitpicking is not allwoed)"""
 	def __init__(self) -> None:
 		super().__init__()
 		self.config: ArcadeMAMEConfig
@@ -40,7 +39,7 @@ class MAME(GameSource):
 
 	@classmethod
 	def description(cls) -> str:
-		return 'MAME machines'
+		return 'Arcade / standalone machines'
 
 	@classmethod
 	def config_class(cls) -> type[ArcadeMAMEConfig] | None:
@@ -57,7 +56,7 @@ class MAME(GameSource):
 
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		"""Returns a launcher for this machine, or none if it can't/shouldn't/etc"""
-		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
+		assert self.emu, 'Arcade._process_machine should never be called without checking is_available! What the'
 		if machine.source_file in self.config.skipped_source_files:
 			return None
 
@@ -94,7 +93,7 @@ class MAME(GameSource):
 		return MAMELauncher(game, self.emu)
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
-		assert self.emu, 'MAME.iter_launchers should never be called without checking is_available! What the'
+		assert self.emu, 'Arcade.iter_launchers should never be called without checking is_available! What the'
 		if self.config.mame_drivers:
 			for driver_name in self.config.mame_drivers:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
