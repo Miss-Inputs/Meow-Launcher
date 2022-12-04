@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.config import main_config
+from meowlauncher.config.config import Config, configoption, main_config
 from meowlauncher.exceptions import (GameNotSupportedException,
                                      NotActuallyLaunchableGameException,
                                      NotLaunchableException)
@@ -47,6 +47,30 @@ if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
 
 logger = logging.getLogger(__name__)
+
+class SteamConfig(Config):
+	@classmethod
+	def section(cls) -> str:
+		return 'Steam'
+
+	@classmethod
+	def prefix(cls) -> str | None:
+		return 'steam'
+
+	@configoption()
+	def force_create_launchers(self) -> bool:
+		'Create launchers even for games which are\'nt launchable'
+		return False
+
+	@configoption()
+	def warn_about_missing_icons(self) -> bool:
+		'Spam console with debug messages about icons not existing or being missing'
+		return False
+
+	@configoption()
+	def use_steam_as_platform(self) -> bool:
+		'Set platform in game info to Steam instead of underlying platform'
+		return True
 
 class SteamState():
 	"""Singleton for storing where Steam is installed and if it's installed or not
@@ -179,7 +203,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 			icon_exception = None
 			found_an_icon = True
 			break
-	if main_config.warn_about_missing_icons:
+	if SteamConfig().warn_about_missing_icons:
 		if icon_exception:
 			logger.error(game, exc_info=icon_exception)
 		elif potentially_has_icon and not found_an_icon:
@@ -247,7 +271,7 @@ def add_info_from_appinfo_common_section(game: 'SteamGame', common: Mapping[byte
 	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
 
 	oslist = common.get(b'oslist')
-	if not main_config.use_steam_as_platform:
+	if not SteamConfig().use_steam_as_platform:
 		#It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
 		if oslist == b'windows':
 			game.info.platform = 'Windows'
@@ -508,7 +532,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 
 	if launcher.args and '-uplay_steam_mode' in launcher.args:
 		game.info.specific_info['Launcher'] = 'uPlay'
-	if not main_config.use_steam_as_platform:
+	if not SteamConfig().use_steam_as_platform:
 		launcher_platform = launcher.platform
 		if launcher_platform:
 			if 'linux' in launcher_platform.lower():
@@ -610,6 +634,7 @@ def add_info_from_user_cache(game: 'SteamGame') -> None:
 class Steam(GameSource):
 	def __init__(self) -> None:
 		super().__init__()
+		self.config: SteamConfig
 		self._steam_installation: 'SteamInstallation | None' = None
 		if not have_steamfiles:
 			self._is_available = False
@@ -654,7 +679,7 @@ class Steam(GameSource):
 		#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 		assert self._steam_installation, 'process_game called without checking steam_state.is_steam_installed'
 		game = SteamGame(appid, folder, app_state, self._steam_installation)
-		if main_config.use_steam_as_platform:
+		if self.config.use_steam_as_platform:
 			game.info.platform = 'Steam'
 		else:
 			#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
@@ -713,7 +738,7 @@ class Steam(GameSource):
 				#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
 				game.info.specific_info['No Valid Launchers?'] = True
 				launcher = None
-				if not main_config.force_create_launchers:
+				if not self.config.force_create_launchers:
 					raise GameNotSupportedException('Platform not supported and Steam Play not used')
 
 		if launcher:
@@ -732,3 +757,6 @@ class Steam(GameSource):
 		
 		return SteamLauncher(game)
 
+	@classmethod
+	def config_class(cls) -> type[SteamConfig] | None:
+		return SteamConfig

@@ -2,6 +2,7 @@ from pathlib import Path, PurePath
 
 from meowlauncher.config.config import main_config
 from meowlauncher.config_types import RunnerConfig, RunnerConfigValue
+from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig
 
 from .configured_runner import ConfiguredRunner
 from .runner import Runner
@@ -40,7 +41,7 @@ class _ScummVM(Runner):
 
 class ScummVM(ConfiguredRunner):
 	def __init__(self) -> None:
-		config = RunnerConfig(main_config.scummvm_exe_path)
+		config = RunnerConfig(ScummVMConfig().scummvm_exe_path)
 		super().__init__(_ScummVM(), config)
 
 wine = Wine(_WineConfig(main_config.wine_path, main_config.wineprefix))

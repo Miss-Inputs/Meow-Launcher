@@ -5,10 +5,10 @@ import types
 import typing
 from abc import ABC, abstractmethod
 from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from functools import update_wrapper
 from pathlib import Path, PurePath
-from typing import Any, Generic, TypeVar, get_args, get_origin
+from typing import Any, Generic, TypeVar, get_args, get_origin, overload
 
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.util.utils import NoNonsenseConfigParser
@@ -41,9 +41,8 @@ class ConfigProperty(Generic[T]):
 	Damn here I was thinking "haha I'll never need to know how descriptors work" okay maybe I didn't need to do this
 	
 	Because decorators can't be bound to classmethods (as of 3.11 anyway), func needs a self, so we can't call it to get the default value from here…"""
-	def __init__(self, func: 'Callable[[S], T]', section: str, readable_name: str | None) -> None:
+	def __init__(self, func: 'Callable[[S], T]', readable_name: str | None) -> None:
 		self.func = func
-		self.section = section
 		self.readable_name = readable_name or func.__name__.replace('_', ' ').capitalize()
 		self.description = func.__doc__ or self.readable_name
 		self.type = inspect.get_annotations(func, eval_str=True).get('return', str)
@@ -56,12 +55,19 @@ class ConfigProperty(Generic[T]):
 	def __get__(self, obj: S, _: type[S] | None) -> T:
 		return obj.values.get(self.func.__name__, self.func(obj))
 
-def configoption(section: str, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]':
+@overload
+def configoption(func: 'Callable[[S], T]', *, readable_name: str | None = None) -> ConfigProperty[T]: ...
+@overload
+def configoption(func: None=None, *, readable_name: str | None = None) -> 'Callable[[Callable[[S], T]], ConfigProperty[T]]': ...
+
+def configoption(func: 'Callable[[S], T] | None' = None, *, readable_name: str | None = None):
 	"""Decorator: Marks this method as being a config option, which replaces it with a ConfigProperty instance; must be inside a Config
 	Description is taken from docstring, readable_name is the function name in sentence case if not provided, default value is the original function return value"""
 	def deco(func: 'Callable[[S], T]') -> 'ConfigProperty[T]':
-		wrapped = ConfigProperty(func, section, readable_name)
+		wrapped = ConfigProperty(func, readable_name)
 		return update_wrapper(wrapped, func)
+	if func:
+		return deco(func)
 	return deco
 
 class Config(ABC):
@@ -74,9 +80,7 @@ class Config(ABC):
 	environment variables
 	Command line arguments
 	
-	TODO: We probably want each section to be for each Config instance, so MainConfig would be the General section (I guess there'd be a class variable somewhere), we would have a RomsConfig(Config) with section == ROMs or for everything else
-
-	The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but it would need a prefix, --duckstation-compat-db=<path> or whatever
+	TODO: The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but it would need a prefix, --duckstation-compat-db=<path> or whatever
 	"""
 	_instance = None
 	def __new__(cls):
@@ -85,13 +89,17 @@ class Config(ABC):
 			cls._instance._inited = False
 		return cls._instance
 
+	@classmethod
+	def get_configs(cls) -> Mapping[str, ConfigProperty[Any]]:
+		return {k: v for k, v in vars(cls).items() if isinstance(v, ConfigProperty)}
+
 	def __init__(self) -> None:
 		self._inited: bool
 		if self._inited:
 			#Apparently this is how singletons work and have always worked, as this is called repeatedly otherwise and self.values is set again to {} and that defeats the purpose
 			return
 		self._inited = True
-		_configs = {k: v for k, v in vars(self.__class__).items() if isinstance(v, ConfigProperty)}
+		_configs = self.get_configs()
 
 		_config_parser = NoNonsenseConfigParser()
 		self.values: dict[str, Any] = {}
@@ -102,46 +110,55 @@ class Config(ABC):
 		#TODO: Nah that sucks because I don't want to do the arg parsing here
 		
 		_config_parser.read(_main_config_path)
-		for section in _config_parser.sections():
-			for option, value in _config_parser.items(section):
+		if _config_parser.has_section(self.section()):
+			for option, value in _config_parser.items(self.section()):
 				if option not in _configs:
-					#TODO: Only warn if it is in your section
-					#logger.warning('Unknown config option %s in section %s (value: %s)', option, section, value)
+					logger.warning('Unknown config option %s in section %s (value: %s)', option, self.section(), value)
 					continue
 				config = _configs[option]
 				self.values[option] = parse_value(value, config.type)
 
+		prefix = self.prefix()
 		for k, v in _configs.items():
-			env_var = os.getenv('MEOW_LAUNCHER_' + k.upper())
+			env_var = os.getenv(f'MEOW_LAUNCHER_{prefix.upper().replace("-", "_") + "_" if prefix else ""}{k.upper()}')
 			if env_var:
 				self.values[k] = parse_value(env_var, v.type)
 
-		self.parser = ArgumentParser(add_help=False)
-		section_groups: dict[str, Any | ArgumentParser]  = {}
-		#We lie somewhat to the type checker here because it bugs me that _ArgumentGroup is a private type and so we can't really type hint it with that, but this will be close enough
-		for k, v in _configs.items():
-			group = section_groups.setdefault(v.section, self.parser.add_argument_group(v.section)) #Should have a description innit
-			option = f'--{k.replace("_", "-")}'
+	def add_argparser_group(self, argparser: ArgumentParser) -> None:
+		"""Adds a group for this config to an ArgumentParser. See __main__ for how to parse it - to avoid namespace collisions, the qualified name of this class is added"""
+		group = argparser.add_argument_group(self.section(), description=self.section_help())
+		prefix = self.prefix()
+		for k, v in self.get_configs().items():
+			option = k.replace("_", "-")
+			if prefix:
+				option = f'{prefix}-{option}'
+			option = f'--{option}'
 			description = v.description.splitlines()[0]
+			destination_in_namespace = f'{self.__class__.__qualname__}.{k}'
 			if v.type == bool:
-				group.add_argument(option, action=BooleanOptionalAction, help=description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, action=BooleanOptionalAction, help=description, default=self.values.get(k, SUPPRESS), dest=destination_in_namespace, metavar=k)
 			elif v.type == Sequence[Path]:
 				#TODO: It would be more useful to add to the default value
-				group.add_argument(option, nargs='*', type=Path, help=description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, nargs='*', type=Path, help=description, default=self.values.get(k, SUPPRESS), dest=destination_in_namespace, metavar=k)
 			elif v.type == Sequence[str]:
-				group.add_argument(option, nargs='*', help=description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, nargs='*', help=description, default=self.values.get(k, SUPPRESS), dest=destination_in_namespace, metavar=k)
 			else:
-				group.add_argument(option, type=v.type, help=description, default=self.values.get(k, SUPPRESS), dest=k)
+				group.add_argument(option, type=v.type, help=description, default=self.values.get(k, SUPPRESS), dest=destination_in_namespace, metavar=k)
 
 	@classmethod
 	@abstractmethod
 	def section(cls) -> str:
-		"""Section that should be used for reading this from config.ini. Not used yet"""
+		"""Section that should be used for reading this from config.ini."""
 
 	@classmethod
-	@abstractmethod
+	def section_help(cls) -> str | None:
+		"""Help text to be added to argument group"""
+		return cls.__doc__
+
+	@classmethod
 	def prefix(cls) -> str | None:
-		"""Prefix to be added to command line arguments for these options. Not used yet"""
+		"""Prefix to be added to command line arguments for these options."""
+		return None
 
 class MainConfig(Config):
 	"""General options not specific to anything else"""
@@ -149,191 +166,108 @@ class MainConfig(Config):
 	@classmethod
 	def section(cls) -> str:
 		return 'General'
-	
-	@classmethod
-	def prefix(cls) -> str | None:
-		return None
 		
-	@configoption('Paths')
+	@configoption
 	def output_folder(self) -> Path:
 		"""Folder where launchers go"""
 		return data_dir.joinpath('apps')
 
-	@configoption('Paths')
+	@configoption
 	def image_folder(self) -> Path:
 		'Folder to store images extracted from games with embedded images'
 		return data_dir.joinpath('images')
 
-	@configoption('Paths')
+	@configoption
 	def organized_output_folder(self) -> Path:
 		'Folder to put subfolders in for the organized folders frontend'
 		return data_dir.joinpath('organized_apps')
 
-	@configoption('General')
+	@configoption
 	def sources(self) ->  Sequence[str]:
 		"""If specified, only add games from GameSources with this name
 		Useful for testing and such"""
 		return []
 
-	@configoption('General')
+	@configoption
 	def disambiguate(self) -> bool:
 		"""After adding games, add info in brackets to the end of the names of games that have the same name to identify them (such as what type or platform they are), defaults to true"""
 		return True
 
-	@configoption('General')
+	@configoption
 	def logging_level(self) -> str:
 		"""Logging level (e.g. INFO, DEBUG, WARNING, etc)"""
 		return str(logging.getLevelName(logger.getEffectiveLevel()))
 
-	@configoption('General')
+	@configoption
 	def other_images_to_use_as_icons(self) -> Sequence[str]:
 		"""If there is no icon, use these images as icons, if they are there"""
 		return []
 
-	@configoption('General')
+	@configoption
 	def full_rescan(self) -> bool:
-		'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'
+		"""Regenerate every launcher from scratch instead of just what's new and removing what's no longer there"""
 		return False
 
-	@configoption('General')
+	@configoption
 	def organize_folders(self) -> bool:
-		'Use the organized folders frontend'
+		"""Use the organized folders frontend
+		It sucks, so it's turned off by default"""
 		return False
 
-	@configoption('General')
+	@configoption
 	def get_series_from_name(self) -> bool:
 		'Attempt to get series from parsing name'
 		return False
 
-	@configoption('General')
+	@configoption
 	def sort_multiple_dev_names(self) -> bool:
 		'For games with multiple entities in developer/publisher field, sort alphabetically'
 		return False
 
-	@configoption('General')
+	@configoption
 	def wine_path(self) -> Path:
-		'Path to Wine executable for Windows games/emulators'
+		"""Path to Wine executable for Windows games/emulators
+		TODO: This should just be a config for a global Runner"""
 		return Path('wine')
 
-	@configoption('General')
+	@configoption
 	def wineprefix(self) -> Path | None:
-		'Optional Wine prefix to use for Wine'
+		"""Optional Wine prefix to use for Wine
+		TODO: This should just be a config for a global Runner"""
 		return None
 
-	@configoption('General')
+	@configoption
 	def simple_disambiguate(self) -> bool:
 		'Use a simpler method of disambiguating games with same names'
 		return True
 
-	@configoption('General')
+	@configoption
 	def normalize_name_case(self) -> int:
 		'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'
 		return 0 #TODO: Good case for an enum to be used here, even if argparse docs say don't use that with choices etc
 
-	@configoption('Steam')
-	def force_create_launchers(self) -> bool:
-		'Create launchers even for games which are\'nt launchable'
-		return False
-
-	@configoption('Steam')
-	def warn_about_missing_icons(self) -> bool:
-		'Spam console with debug messages about icons not existing or being missing'
-		return False
-
-	@configoption('Steam')
-	def use_steam_as_platform(self) -> bool:
-		'Set platform in game info to Steam instead of underlying platform'
-		return True
-
-	@configoption('Roms')
-	def skipped_subfolder_names(self) -> Sequence[str]:
-		'Always skip these subfolders in every ROM dir'
-		return ()
-
-	@configoption('Roms')
-	def find_equivalent_arcade_games(self) -> bool:
-		'Get info from MAME machines of the same name'
-		return False
-
-	@configoption('Roms')
-	def max_size_for_storing_in_memory(self) -> int:
-		'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'
-		return 1024 * 1024
-
-	@configoption('Roms')
+	@configoption
 	def libretro_database_path(self) -> Path | None:
 		'Path to libretro database for yoinking info from'
+		#Not sure if this should be in ROMsConfig instead…
 		return None
 
-	@configoption('Roms')
+	@configoption
 	def libretro_frontend(self) -> str | None:
-		'Name of libretro frontend to use'
+		"""Name of libretro frontend to use
+		TODO: This should be a default and you can specify things instead"""
 		return 'RetroArch'
 
-	@configoption('Roms')
+	@configoption
 	def libretro_cores_directory(self) -> Path:
 		"""Path to search for libretro cores if not default of /usr/lib/libretro
-		TODO: This should look at retroarch.cfg"""
+		TODO: This should look at retroarch.cfg for the default value (I guess)
+		TODO: Maybe this should be more than one directory? It's just to set the default path of LibretroCore, so it should look wherever it exists"""
 		return Path('/usr/lib/libretro')
 
-	@configoption('ScummVM')
-	def use_original_platform(self) -> bool:
-		'Set the platform in game info to the original platform instead of leaving blank'
-		return False
-
-	@configoption('ScummVM')
-	def scummvm_config_path(self) -> Path:
-		'Path to scummvm.ini, if not the default'
-		return Path('~/.config/scummvm/scummvm.ini').expanduser()
-
-	@configoption('ScummVM')
-	def scummvm_exe_path(self) -> Path:
-		'Path to scummvm executable, if not the default'
-		return Path('scummvm')
-
-	@configoption('GOG')
-	def gog_folders(self) -> Sequence[Path]:
-		'Folders where GOG games are installed'
-		return ()
-
-	@configoption('GOG')
-	def use_gog_as_platform(self) -> bool:
-		'Set platform in game info to GOG instead of underlying platform'
-		return False
-
-	@configoption('GOG')
-	def windows_gog_folders(self) -> Sequence[Path]:
-		'Folders where Windows GOG games are installed'
-		return ()
-
-	@configoption('GOG')
-	def use_system_dosbox(self) -> bool:
-		'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'
-		return True
-
-	@configoption('GOG')
+	@configoption
 	def dosbox_path(self) -> Path:
 		'If using system DOSBox, executable name/path or just "dosbox" if left blank'
 		return Path('dosbox')
 
-	@configoption('itch.io')
-	def itch_io_folders(self) -> Sequence[Path]:
-		'Folders where itch.io games are installed'
-		return ()
-
-	@configoption('itch.io')
-	def use_itch_io_as_platform(self) -> bool:
-		'Set platform in game info to itch.io instead of underlying platform'
-		return False
-
-	@configoption('Roms')
-	def excluded_platforms(self) -> Sequence[str]:
-		"""Really just here for debugging/testing, excludes platforms from the ROMs game source"""
-		return []
-
-	@configoption('Roms')
-	def platforms(self) -> Sequence[str]:
-		"""Really just here for debugging/testing, forces ROMs game source to only use certain platforms"""
-		return []
-	
 main_config = MainConfig()

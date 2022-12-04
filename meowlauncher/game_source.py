@@ -69,9 +69,11 @@ class GameSource(ABC):
 
 class CompoundGameSource(GameSource, ABC):
 	"""Chains GameSources together, so that iter_launchers returns each one that's available"""
-	def __init__(self, sources: 'Sequence[GameSource]') -> None:
-		super().__init__()
-		self.sources = sources
+
+	@property
+	@abstractmethod
+	def sources(self) -> 'Sequence[GameSource]':
+		"""Individual GameSources"""
 
 	def iter_launchers(self) -> 'Iterator[Launcher]':
 		for source in self.sources:

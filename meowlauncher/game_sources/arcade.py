@@ -94,8 +94,8 @@ class Arcade(GameSource):
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
 		assert self.emu, 'Arcade.iter_launchers should never be called without checking is_available! What the'
-		if self.config.mame_drivers:
-			for driver_name in self.config.mame_drivers:
+		if self.config.drivers:
+			for driver_name in self.config.drivers:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
 				if launcher:
 					yield launcher

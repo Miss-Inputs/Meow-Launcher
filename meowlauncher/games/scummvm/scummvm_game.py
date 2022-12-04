@@ -4,16 +4,14 @@ from pathlib import Path
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
-from meowlauncher.games.common.pc_common_info import \
-    look_for_icon_in_folder
+from meowlauncher.games.common.pc_common_info import look_for_icon_in_folder
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
 from meowlauncher.util.region_info import Language, get_language_by_short_code
 
-from .scummvm_config import scummvm_config
+from .scummvm_config import ScummVMConfig, scummvm_config
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +174,7 @@ class ScummVMGame(Game):
 				#TODO How about you put a TODO comment instead
 				self.info.categories = ('Trials', )
 		
-		if main_config.use_original_platform:
+		if ScummVMConfig().use_original_platform:
 			self.info.platform = self.original_platform
 
 		language = self.language		
@@ -207,7 +205,7 @@ class ScummVMLauncher(Launcher):
 	@property
 	def command(self) -> LaunchCommand:
 		args = ['-f']
-		if main_config.scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():
-			args.append(f'--config={main_config.scummvm_config_path}')
+		if ScummVMConfig().scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():
+			args.append(f'--config={ScummVMConfig().scummvm_config_path}')
 		args.append(self.game.game_id)
 		return LaunchCommand(self.runner.config.exe_path, args)

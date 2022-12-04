@@ -5,10 +5,9 @@ import logging
 import os
 import shlex
 from abc import ABC
-from collections.abc import Mapping, Sequence
 from itertools import chain
 from pathlib import Path, PureWindowsPath
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.config import main_config
@@ -21,6 +20,10 @@ from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.launcher import Launcher
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util import name_utils, region_info
+
+if TYPE_CHECKING:
+	from meowlauncher.game_sources.gog import GOGConfig
+	from collections.abc import Mapping, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +82,7 @@ class InfoJSONFile():
 
 class Task():
 	""""task" defined for a Windows GOG game in the gog-blahwhatever.info file under playTasks or supportTasks"""
-	def __init__(self, json_object: Mapping[str, Any]):
+	def __init__(self, json_object: 'Mapping[str, Any]'):
 		self.is_primary: bool = json_object.get('isPrimary', False)
 		self.category: str | None = json_object.get('category') #"game", "tool", "document"
 
@@ -94,7 +97,7 @@ class Task():
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
 	
 	@staticmethod
-	def get(json_object: Mapping[str, Any]) -> 'Task':
+	def get(json_object: 'Mapping[str, Any]') -> 'Task':
 		task_type = json_object.get('type')
 		if task_type == 'FileTask':
 			return FileTask(json_object)
@@ -103,13 +106,13 @@ class Task():
 		raise Exception(f'What the heck? task type is {task_type}')
 
 class FileTask(Task):
-	def __init__(self, json_object: Mapping[str, Any]):
+	def __init__(self, json_object: 'Mapping[str, Any]'):
 		super().__init__(json_object)
 		self.path = PureWindowsPath(json_object['path'])
 		working_directory: str | None = json_object.get('workingDir')
 		self.working_directory = PureWindowsPath(working_directory) if working_directory else None
 
-		self.args: Sequence[str] = () #This probably isn't applicable if type = document
+		self.args: 'Sequence[str]' = () #This probably isn't applicable if type = document
 		args: str | None = json_object.get('arguments')
 		if args:
 			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
@@ -150,18 +153,19 @@ class FileTask(Task):
 		return self.path.name.lower() == 'residualvm.exe' and self.working_directory.stem.lower() == 'residualvm'
 
 class URLTask(Task):
-	def __init__(self, json_object: Mapping[str, Any]):
+	def __init__(self, json_object: 'Mapping[str, Any]'):
 		super().__init__(json_object)
 		self.link: str = json_object['link']
 
 class GOGGame(Game, ABC):
 	"""GOG game natively on Linux, see subclasses NormalGOGGame, DOSBoxGOGGame, ScummVMGOGGame, WineGOGGame"""
-	def __init__(self, game_folder: Path, info: GameInfoFile, start_script: Path, support_folder: Path):
+	def __init__(self, game_folder: Path, info: GameInfoFile, start_script: Path, support_folder: Path, config: 'GOGConfig'):
 		super().__init__()
 		self.folder = game_folder
 		self.info_file = info
 		self.start_script = start_script
 		self.support_folder = support_folder #Is this necessary to pass as an argument? I guess not but I've already found it in look_in_linux_gog_folder
+		self.config = config
 
 	@property
 	def name(self) -> str:
@@ -176,7 +180,7 @@ class GOGGame(Game, ABC):
 		self.info.specific_info['Language Code'] = self.info_file.language
 		self.info.specific_info['GOG Product ID'] = self.info_file.gameid
 
-		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
+		self.info.platform = 'GOG' if self.config.use_gog_as_platform else 'Linux'
 		self.info.media_type = MediaType.Digital
 		self.info.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
@@ -281,8 +285,9 @@ def _find_subpath_case_insensitive(path: Path, subpath: PureWindowsPath) -> Path
 	raise FileNotFoundError(alleged_path)
 
 class WindowsGOGGame(Game):
-	def __init__(self, folder: Path, info_file: Path, game_id: str) -> None:
+	def __init__(self, folder: Path, info_file: Path, game_id: str, config: 'GOGConfig') -> None:
 		super().__init__()
+		self.config = config
 		self.json_info = InfoJSONFile(info_file)
 		self.id_file = None
 		id_path = info_file.with_suffix('.id')
@@ -316,7 +321,7 @@ class WindowsGOGGame(Game):
 		if engine:
 			self.info.specific_info['Engine'] = engine
 
-		self.info.platform = 'GOG' if main_config.use_gog_as_platform else 'Windows'
+		self.info.platform = 'GOG' if self.config.use_gog_as_platform else 'Windows'
 		self.info.media_type = MediaType.Digital
 		self.info.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
@@ -366,7 +371,7 @@ class WindowsGOGGame(Game):
 		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
 
 	def get_launcher_params(self, task: FileTask) -> tuple[str, LaunchCommand | None]:
-		if main_config.use_system_dosbox and task.is_dosbox:
+		if self.config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 
 		#Bruh how we gonna do ScummVM when the .ini file gonna have Windows paths though?

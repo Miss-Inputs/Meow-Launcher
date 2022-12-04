@@ -4,10 +4,9 @@ import gzip
 import json
 import logging
 import subprocess
-from collections.abc import Collection, Iterator, Mapping
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.config.config import main_config
 from meowlauncher.game import Game
@@ -18,6 +17,10 @@ from meowlauncher.info import Date
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
+
+if TYPE_CHECKING:
+	from meowlauncher.game_sources.itch_io import ItchioConfig
+	from collections.abc import Collection, Iterator, Mapping
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +60,7 @@ def _butler_configure(folder: Path, os_filter: str | None=None, ignore_arch: boo
 	except (subprocess.CalledProcessError, FileNotFoundError):
 		return None
 
-def _is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collection[str]) -> bool:
+def _is_probably_unwanted_candidate(path: Path, all_candidate_basenames: 'Collection[str]') -> bool:
 	name = path.name
 	if name in {'LinuxPlayer_s.debug', 'UnityPlayer_s.debug'}:
 		#Sorry we don't need debug mode go away (also are these just libraries anyway?)
@@ -77,9 +80,10 @@ def _is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collect
 	return False
 
 class ItchGame(Game):
-	"""Represents a game folder installed by the itch.io client. You probably want .itch/receipt.json.gz to be in there"""
-	def __init__(self, path: Path) -> None:
+	"""Represents a game folder installed by the itch.io client. You probably want .itch/receipt.json.gz to be in there, otherwise this isn't terribly useful"""
+	def __init__(self, path: Path, config: 'ItchioConfig') -> None:
 		super().__init__()
+		self.config = config
 		self.path = path
 		try:
 			with gzip.open(path.joinpath('.itch', 'receipt.json.gz')) as receipt_file:
@@ -88,7 +92,7 @@ class ItchGame(Game):
 			self.receipt = None
 		self._name = path.name #This will be replaced later; as the folder name is some kind of game-name formatted sort of thing
 		self.is_demo = False
-		self.platforms: Collection[str] = set()
+		self.platforms: 'Collection[str]' = set()
 		self.category = 'game'
 		self.game_type = 'default'
 
@@ -181,7 +185,7 @@ class ItchGame(Game):
 		self.info.categories = [category]
 
 		platform = None
-		if main_config.use_itch_io_as_platform:
+		if self.config.use_itch_io_as_platform:
 			platform = 'itch.io'
 		elif self.game_type == 'flash':
 			platform = 'Flash'
@@ -279,7 +283,7 @@ class ItchGame(Game):
 				continue
 			self._make_exe_launcher(flavour, path, windows_info)
 
-def get_launch_params(flavour: str, exe_path: Path, windows_info: Mapping[str, bool] | None) -> tuple[LaunchCommand, str | None] | None:
+def get_launch_params(flavour: str, exe_path: Path, windows_info: 'Mapping[str, bool] | None') -> tuple[LaunchCommand, str | None] | None:
 	if flavour in {'linux', 'script'}:
 		#ez pez
 		return LaunchCommand(exe_path, []), None

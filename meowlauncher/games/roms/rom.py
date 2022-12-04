@@ -8,11 +8,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import ByteAmount, MediaType
-from meowlauncher.config.config import main_config
 from meowlauncher.games.mame_common.software_list import (
     SoftwareMatcherArgs, find_in_software_lists)
 from meowlauncher.util import archives, cd_read, io_utils
 from meowlauncher.util.utils import byteswap
+
+from .roms_config import ROMsConfig
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import (Software,
@@ -20,6 +21,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 __doc__ = """Classes for abstracting various kinds of ROM files, etc"""
+max_size_for_slurp = ROMsConfig().max_size_for_storing_in_memory
 
 class ROM(ABC):
 	"""Base abstract class for all kinds of ROMs"""
@@ -93,9 +95,9 @@ class FileROM(ROM):
 
 	@property
 	def should_read_whole_thing(self) -> bool:
-		if main_config.max_size_for_storing_in_memory < 0:
+		if max_size_for_slurp < 0:
 			return False
-		return self._get_size() < main_config.max_size_for_storing_in_memory
+		return self._get_size() < max_size_for_slurp
 
 	def read_whole_thing(self) -> None:
 		"""

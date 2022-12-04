@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Any, cast
 
-from meowlauncher.config.config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
 from meowlauncher.games.common.generic_info import (
@@ -22,6 +21,7 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, find_tags,
                                      junk_suffixes, remove_filename_tags)
 
 from .rom import ROM, CompressedROM, FileROM, FolderROM, GCZFileROM
+from .roms_config import ROMsConfig
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.machine import Machine
@@ -93,7 +93,6 @@ def _add_alternate_names(rom: ROM, game_info: 'GameInfo') -> None:
 			#The name is something like "aaa (bbb) ~ ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing (this wouldn't usually happen with any naming convention I know of, but I copypasta'd this code from mame_machine.py and I guess why not handle a possible thing happening while we're here)
 			alt_names[-1] += ' ' + ' '.join(tags_at_end)
 
-	#rom.name = primary_name #FIXME: That's a read only property, we shouldn't be changing the ROM's name logically speaking anyway; there should be a display_name type thing for Game
 	for alt_name in alt_names:
 		game_info.add_alternate_name(alt_name)
 
@@ -273,7 +272,7 @@ def _add_platform_specific_metadata(game: 'ROMGame') -> None:
 		if not equivalent_arcade:
 			equivalent_arcade = arcade_equivalent_finder(game.name)
 	
-	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
+	if not equivalent_arcade and ROMsConfig().find_equivalent_arcade_games:
 		if software:
 			equivalent_arcade = find_equivalent_arcade_game(game.name, game.info.names.values(), software)
 			
@@ -297,7 +296,7 @@ def add_info(game: 'ROMGame') -> None:
 	_add_platform_specific_metadata(game)
 				
 	equivalent_arcade = game.info.specific_info.get('Equivalent Arcade')
-	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
+	if not equivalent_arcade and ROMsConfig().find_equivalent_arcade_games:
 		software = game.info.specific_info.get('MAME Software')
 		if software:
 			equivalent_arcade = find_equivalent_arcade_game(game.name, game.info.names.values(), software)

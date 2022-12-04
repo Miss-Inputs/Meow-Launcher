@@ -1,17 +1,47 @@
 #!/usr/bin/env python3
 
 import logging
-from collections.abc import Collection
+from collections.abc import Sequence
 from pathlib import Path
-from typing import cast
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config.config import Config, configoption, main_config
 from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GameInfoFile,
                                     NormalGOGGame, ScummVMGOGGame,
                                     WindowsGOGGame, WineGOGGame)
 from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
+
+class GOGConfig(Config):
+	"""Configs for GOG source"""
+
+	@classmethod
+	def section(cls) -> str:
+		return 'GOG'
+
+	@classmethod
+	def prefix(cls) -> str | None:
+		return 'gog'
+
+	@configoption
+	def folders(self) -> Sequence[Path]:
+		'Folders where GOG games are installed'
+		return ()
+
+	@configoption(readable_name='Use GOG as platform')
+	def use_gog_as_platform(self) -> bool:
+		'Set platform in game info to GOG instead of underlying platform'
+		return False
+
+	@configoption
+	def windows_gog_folders(self) -> Sequence[Path]:
+		"""Folders where Windows GOG games are installed"""
+		return ()
+
+	@configoption
+	def use_system_dosbox(self) -> bool:
+		'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'
+		return True
 
 def look_in_linux_gog_folder(folder: Path) -> GOGGame | None:
 	gameinfo_path = folder.joinpath('gameinfo')
@@ -29,13 +59,13 @@ def look_in_linux_gog_folder(folder: Path) -> GOGGame | None:
 		return None
 
 	if folder.joinpath('dosbox').is_dir():
-		return DOSBoxGOGGame(folder, gameinfo, launch_script, support_folder)
+		return DOSBoxGOGGame(folder, gameinfo, launch_script, support_folder, GOGConfig())
 	if folder.joinpath('scummvm').is_dir():
-		return ScummVMGOGGame(folder, gameinfo, launch_script, support_folder)
+		return ScummVMGOGGame(folder, gameinfo, launch_script, support_folder, GOGConfig())
 	if folder.joinpath('game').is_dir():
 		if folder.joinpath('game', 'Wine').is_dir():
-			return WineGOGGame(folder, gameinfo, launch_script, support_folder)
-		return NormalGOGGame(folder, gameinfo, launch_script, support_folder)
+			return WineGOGGame(folder, gameinfo, launch_script, support_folder, GOGConfig())
+		return NormalGOGGame(folder, gameinfo, launch_script, support_folder, GOGConfig())
 
 	return None
 
@@ -48,11 +78,10 @@ def look_in_windows_gog_folder(folder: Path) -> WindowsGOGGame | None:
 		#Or user could have deleted it
 		return None
 	game_id = info_file.stem.removeprefix('goggame-')
-	return WindowsGOGGame(folder, info_file, game_id)
+	return WindowsGOGGame(folder, info_file, game_id, GOGConfig())
 
 def do_linux_gog_games() -> None:
-	gog_folders = cast(Collection[Path], main_config.gog_folders)
-	for gog_folder in gog_folders:
+	for gog_folder in GOGConfig().folders:
 		if not gog_folder.is_dir():
 			logger.warning('%s does not exist/is not a directory', gog_folder)
 			continue
@@ -71,8 +100,7 @@ def do_linux_gog_games() -> None:
 			game.make_launcher()
 
 def do_windows_gog_games() -> None:
-	windows_gog_folders = cast(Collection[Path], main_config.windows_gog_folders)
-	for windows_gog_folder in windows_gog_folders:
+	for windows_gog_folder in GOGConfig().windows_gog_folders:
 		if not windows_gog_folder.is_dir():
 			logger.warning('%s does not exist/is not a directory', windows_gog_folder)
 			continue

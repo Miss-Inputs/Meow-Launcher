@@ -6,8 +6,8 @@ from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Union
 
+from meowlauncher.config.config import Config, ignored_directories, main_config
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.config import ignored_directories, main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.config_types import (EmulatorConfig, PlatformConfig,
                                        TypeOfConfigValue)
@@ -22,10 +22,11 @@ from meowlauncher.exceptions import (EmulationNotSupportedException,
                                      ExtensionNotSupportedException,
                                      NotActuallyLaunchableGameException)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
-                                      CompoundGameSource)
+                                      CompoundGameSource, GameSource)
 from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.rom_info import add_info
+from meowlauncher.games.roms.roms_config import ROMsConfig
 from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
 
@@ -53,9 +54,10 @@ def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> Emu
 class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	"""An emulated game system, as an individual source. Use with ROMs to cycle through all of them"""
 
-	def __init__(self, platform_config: PlatformConfig, platform: 'StandardEmulatedPlatform') -> None:
+	def __init__(self, roms_config: ROMsConfig, platform_config: PlatformConfig, platform: 'StandardEmulatedPlatform') -> None:
 		#Bit naughty, because it has a different signature? Hmm maybe not
 		self.platform: 'StandardEmulatedPlatform' = platform
+		self.roms_config = roms_config
 		super().__init__(platform_config, platform, emulators, libretro_cores)
 
 	@property
@@ -165,7 +167,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					continue
 
 				subfolders = root_path.relative_to(rom_dir).parts
-				if subfolders and any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
+				if subfolders and any(subfolder in self.roms_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
 
 				folder_check = self.platform.folder_check
@@ -225,26 +227,30 @@ def _rom_platform(platform: str) -> type[ROMPlatform]:
 class ROMs(CompoundGameSource):
 	"""Source for emulated games that are "normal" and are mostly just one file for each game (if not a folder or a few files), and are simple conceptually"""
 
-	@staticmethod
-	def _iter_platform_sources() -> Iterator[ROMPlatform]:
+	def _iter_platform_sources(self) -> Iterator[ROMPlatform]:
 		"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
 		for platform_name, platform_config in platform_configs.items():
 			platform = platforms.get(platform_name)
 			if not platform:
 				#As DOS, Mac, etc would be in platform_configs too
 				continue
-			if platform_name in main_config.excluded_platforms:
+			if platform_name in self.config.excluded_platforms:
 				continue
-			platform_source = _rom_platform(platform_name)(platform_config, platform)
+			platform_source = _rom_platform(platform_name)(self.config, platform_config, platform)
 			if not platform_source.is_available:
 				continue
 			yield platform_source
 
 	def __init__(self) -> None:
-		if main_config.platforms:
-			super().__init__(tuple(_rom_platform(only_platform)(platform_configs[only_platform], platforms[only_platform]) for only_platform in main_config.platforms))
+		super().__init__()
+		self.config: ROMsConfig
+		
+	@property
+	def sources(self) -> 'Sequence[GameSource]':
+		if self.config.platforms:
+			return tuple(_rom_platform(only_platform)(self.config, platform_configs[only_platform], platforms[only_platform]) for only_platform in self.config.platforms)
 		else:
-			super().__init__(tuple(self._iter_platform_sources()))
+			return tuple(self._iter_platform_sources())
 
 	@classmethod
 	def description(cls) -> str:
@@ -252,5 +258,9 @@ class ROMs(CompoundGameSource):
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
+
+	@classmethod
+	def config_class(cls) -> type[Config] | None:
+		return ROMsConfig
 
 __doc__ = ROMs.__doc__ or ROMs.__name__
