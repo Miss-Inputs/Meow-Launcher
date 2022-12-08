@@ -91,7 +91,10 @@ class Config(ABC):
 
 	@classmethod
 	def get_configs(cls) -> Mapping[str, ConfigProperty[Any]]:
-		return {k: v for k, v in vars(cls).items() if isinstance(v, ConfigProperty)}
+		"""Gets all the ConfigProperty objects in this class.
+		Uses dir() and getattr() so that it works with inheritance"""
+		return {k: getattr(cls, k) for k in dir(cls) if isinstance(getattr(cls, k), ConfigProperty)}
+		#return {k: v for k, v in vars(cls).items() if isinstance(v, ConfigProperty)}
 
 	def __init__(self) -> None:
 		self._inited: bool
