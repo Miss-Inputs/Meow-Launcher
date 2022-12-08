@@ -10,15 +10,15 @@ if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 
 def add_info_from_lynx_header(header: bytes, game_info: 'GameInfo') -> None:
-	#TODO: Where is this from?
-	#UBYTE   magic[4];
-	#UWORD   page_size_bank0;
-	#UWORD   page_size_bank1;
-	#UWORD   version; #That'd be the header version by the looks of it, not the revision of the cart
-	#UBYTE   cartname[32];
-	#UBYTE   manufname[16];
-	#UBYTE   rotation;
-	#UBYTE   spare[5];
+	"""TODO: Where is this from?
+	UBYTE   magic[4];
+	UWORD   page_size_bank0;
+	UWORD   page_size_bank1;
+	UWORD   version; #That'd be the header version by the looks of it, not the revision of the cart
+	UBYTE   cartname[32];
+	UBYTE   manufname[16];
+	UBYTE   rotation;
+	UBYTE   spare[5];"""
 	try:
 		game_info.add_alternate_name(header[0x0a:0x2a].rstrip(b'\0 ').decode('ascii', 'backslashreplace'), 'Header Title')
 	except UnicodeDecodeError:

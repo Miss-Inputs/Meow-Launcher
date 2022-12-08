@@ -82,13 +82,13 @@ def _clean_up_company_name(company_name: str) -> str:
 	return ', '.join(sorted(cleaned_names))
 
 def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info: GameInfo) -> None:
+	"""id: What we just found
+	(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
+	region: PAL, etc (we can see region code already)
+	languages: "EN" "JA" etc (I guess we could parse this if the filename isn't good enough for us)
+	rom: What they think the ROM should be named
+	case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the game box"""
 	game_info.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
-	#(Pylint is on drugs if I don't add more text here) id: What we just found
-	#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
-	#region: PAL, etc (we can see region code already)
-	#languages: "EN" "JA" etc (I guess we could parse this if the filename isn't good enough for us)
-	#rom: What they think the ROM should be named
-	#case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the db_entry box
 	
 	for element in db_entry:
 		if element.tag not in {'developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'}:
@@ -120,7 +120,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, game_info:
 	
 	rating = db_entry.find('rating')
 	if rating is not None:
-		#Rating board (attrib "type") is implied by region (db_entrys released in e.g. both Europe and Australia just tend to not have this here)
+		#Rating board (attrib "type") is implied by region (game released in e.g. both Europe and Australia just tend to not have this here)
 		value = rating.attrib.get('value')
 		if value:
 			game_info.specific_info['Age Rating'] = value

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.input_info import InputInfo
@@ -20,7 +20,7 @@ _description_section_name = 'Descriptions'
 
 class Date():
 	"""Class to hold a maybe-incorrect/maybe-guessed/maybe-incomplete date, but I thought MaybeIncompleteMaybeGuessedDate was a bit too much of a mouthful and I'm not clever enough to know what else to call it"""
-	def __init__(self, year: Union[int, str, None]=None, month: Union[int, str, None]=None, day: Union[int, str, None]=None, is_guessed: bool=False) -> None:
+	def __init__(self, year: int | str | None=None, month: int | str | None=None, day: int | str | None=None, is_guessed: bool=False) -> None:
 		self.year = str(year) if year else None
 		self.month = str(month) if month else None
 		self.day = str(day) if day else None
@@ -85,7 +85,7 @@ class GameInfo():
 		self.disc_number: int | None = None
 		self.disc_total: int | None = None
 		self.series: 'str | Collection[str] | None' = None
-		self.series_index: Union[str, int, None] = None
+		self.series_index: str | int | None = None
 
 		self.input_info = InputInfo() #hmm…
 

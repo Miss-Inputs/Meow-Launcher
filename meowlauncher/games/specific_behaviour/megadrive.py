@@ -4,7 +4,7 @@ from collections.abc import Collection
 from datetime import datetime
 from functools import lru_cache
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
@@ -98,7 +98,7 @@ def _add_info_from_copyright_string(game_info: GameInfo, copyright_string: str) 
 		if maker in _licensee_codes:
 			game_info.publisher = _licensee_codes[maker]
 		year = copyright_match[2]
-		month: Union[str, int]
+		month: str | int
 		try:
 			month = datetime.strptime(copyright_match[3], '%b').month
 		except ValueError:

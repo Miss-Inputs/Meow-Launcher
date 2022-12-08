@@ -95,16 +95,16 @@ class SoftwareLauncher():
 		make_launcher(launch_params, self.software.description, self.info, 'MAME software', self.id)
 
 def add_software_metadata(software: SoftwareLauncher) -> None:
+	"""TODO: Info:
+	categories (but how?)
+	languages (detect from regions)
+	save_type
+	input_info
+	regions (from filename tags)
+	Is notes automatic from software?
+	disc_number, disc_total: From part stuff
+	tv_type: From region/tags"""
 	software.info.emulator_name = 'MAME' #Will probably always be the case
-	#TODO: Info:
-	#categories (but how?)
-	#languages (detect from regions)
-	#save_type
-	#input_info
-	#regions (from filename tags)
-	#Is notes automatic from software?
-	#disc_number, disc_total: From part stuff
-	#tv_type: From region/tags
 	
 	software.info.platform = software.platform.name
 	software.info.media_type = software.media_type

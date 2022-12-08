@@ -2,9 +2,8 @@
 
 import logging
 import os
-from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from meowlauncher.config.config import Config, ignored_directories, main_config
 from meowlauncher.config.emulator_config import emulator_configs
@@ -32,10 +31,11 @@ from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
+	from collections.abc import Collection, Iterator, Sequence
 
 logger = logging.getLogger(__name__)
 
-def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> EmulatorConfig:
+def _get_emulator_config(emulator: StandardEmulator | LibretroCore) -> EmulatorConfig:
 	"""TODO: Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out"""
 	if isinstance(emulator, (MednafenModule, ViceEmulator, MAMEDriver)):
 		specific = emulator_configs[emulator.config_name]
@@ -64,7 +64,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def is_available(self) -> bool:
 		return self.platform_config.is_available
 
-	def _process_rom(self, rom: ROM, subfolders: Sequence[str]) -> ROMLauncher | None:
+	def _process_rom(self, rom: ROM, subfolders: 'Sequence[str]') -> ROMLauncher | None:
 		game = ROMGame(rom, self.platform, self.platform_config)
 
 		categories = subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
@@ -119,7 +119,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		
 		return launcher
 
-	def _process_file_list(self, file_list: Collection[tuple[Path, Sequence[str]]]) -> Iterator[ROMLauncher]:
+	def _process_file_list(self, file_list: 'Collection[tuple[Path, Sequence[str]]]') -> 'Iterator[ROMLauncher]':
 		for path, subfolders in file_list:
 			try:
 				rom = get_rom(path)
@@ -152,7 +152,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			if launcher:
 				yield launcher
 
-	def iter_launchers(self) -> Iterator[ROMLauncher]:
+	def iter_launchers(self) -> 'Iterator[ROMLauncher]':
 		file_list = []
 		#rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
@@ -227,7 +227,7 @@ def _rom_platform(platform: str) -> type[ROMPlatform]:
 class ROMs(CompoundGameSource):
 	"""Source for emulated games that are "normal" and are mostly just one file for each game (if not a folder or a few files), and are simple conceptually"""
 
-	def _iter_platform_sources(self) -> Iterator[ROMPlatform]:
+	def _iter_platform_sources(self) -> 'Iterator[ROMPlatform]':
 		"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
 		for platform_name, platform_config in platform_configs.items():
 			platform = platforms.get(platform_name)

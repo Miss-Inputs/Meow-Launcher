@@ -6,7 +6,7 @@ from collections.abc import Mapping, MutableSequence, Sequence
 from enum import IntEnum
 from functools import cached_property, lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NewType, Union, cast
+from typing import TYPE_CHECKING, Any, NewType, cast
 
 try:
 	import machfs
@@ -52,7 +52,7 @@ def does_exist(hfv_path: Path, path: PathInsideHFS) -> bool:
 	except FileNotFoundError:
 		return False
 		
-def get_path(volume: 'machfs.Volume', path: PathInsideHFS) -> Union['machfs.File', 'machfs.Folder']:
+def get_path(volume: 'machfs.Volume', path: PathInsideHFS) -> 'machfs.File | machfs.Folder':
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
@@ -168,6 +168,7 @@ mac_epoch = datetime.datetime(1904, 1, 1)
 def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: Any=None) -> 'Image.Image | None':
 	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 	mask: Image.Image | None = None
+	icon_bw = None
 	if icn_resource:
 		if len(icn_resource) != 256:
 			logger.debug('Baaa %s has a bad ICN## with size %s, should be 256', path_for_warning, len(icn_resource))
@@ -367,9 +368,11 @@ class MacApp(ManuallySpecifiedGame):
 		except UnicodeDecodeError:
 			pass
 
-	def _add_additional_metadata_from_resources(self, file: 'Union[machfs.Folder, machfs.File]') -> None:
+	def _add_additional_metadata_from_resources(self, file: 'machfs.Folder | machfs.File') -> None:
 		if have_pillow:
-			self.info.images['Icon'] = self._get_icon()
+			icon = self._get_icon()
+			if icon:
+				self.info.images['Icon'] = icon
 
 		sizes = self._get_resources().get(b'SIZE')
 		if sizes:
