@@ -51,10 +51,6 @@ class Emulator(Runner, Generic[EmulatorGameType_co]):
 	def friendly_type_name(self) -> str:
 		return type(self).__name__.lower()
 
-	@property
-	def is_emulated(self) -> bool:
-		return True
-
 class StandardEmulator(Emulator['ROMGame']):
 	"""Not very well named, but I mean like "something that by itself you give a ROM as a path and it launches it" or something among those lines"""
 	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'ROMGameLaunchFunc', supported_extensions: 'Collection[str]', supported_compression: 'Collection[str] | None'=None, configs: 'Mapping[str, RunnerConfigValue] | None'=None, host_platform: HostPlatform=HostPlatform.Linux, config_name: str | None=None):

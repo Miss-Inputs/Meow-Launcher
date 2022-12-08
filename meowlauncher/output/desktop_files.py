@@ -11,6 +11,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.config import main_config
+from meowlauncher.emulator import Emulator
 from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
                                      find_tags)
@@ -60,8 +61,9 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher', game_type: str) -> Non
 
 	name, filename_tags = find_tags(name)
 	
-	if launcher.runner.is_emulated:
+	if isinstance(launcher.runner, Emulator):
 		launcher.game.info.emulator_name = launcher.runner.name
+	#TODO: Better way to put that information in there
 
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
 	_make_linux_desktop(launcher.command, name, launcher.game.info, filename_tags, game_type, launcher.game_id)

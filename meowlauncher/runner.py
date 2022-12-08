@@ -44,19 +44,9 @@ class Runner(ABC):
 		}
 
 	@property
-	def is_available(self) -> bool:
-		'If this is installed, etc.'
-		return True
-
-	@property
 	@abstractmethod
 	def name(self) -> str:
 		pass
-
-	@property
-	def is_emulated(self) -> bool:
-		#Basically just decides if we should use the "Emulator" field or not
-		return False
 
 	def __hash__(self) -> int:
 		return self.name.__hash__()

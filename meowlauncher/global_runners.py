@@ -20,10 +20,6 @@ class _Wine(Runner):
 	def name(self) -> str:
 		return 'Wine'
 
-	@property
-	def is_emulated(self) -> bool:
-		return True #Yeah, I know… I just think it makes more sene to call it one
-
 	#TODO: We should do something with launch_with_wine
 
 class _WineConfig(RunnerConfig):

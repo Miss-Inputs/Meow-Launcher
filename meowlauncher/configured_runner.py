@@ -26,11 +26,6 @@ class ConfiguredRunner():
 		return self.runner.name
 
 	@property
-	def is_emulated(self) -> bool:
-		"""True if this Runner is an emulator, whatever that information might be used for"""
-		return self.runner.is_emulated
-
-	@property
 	def is_path_valid(self) -> bool:
 		"""Returns true if the default exe name is available on the system path, or if the configured exe path points to a valid executable"""
 		return shutil.which(self.config.exe_path) is not None
