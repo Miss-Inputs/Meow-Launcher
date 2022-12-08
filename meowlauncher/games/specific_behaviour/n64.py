@@ -69,7 +69,7 @@ def _get_mupen64plus_database() -> 'Mapping[str, Mapping[str, str]] | None':
 
 	return database
 
-def parse_n64_header(metadata: 'GameInfo', header: bytes) -> None:
+def _parse_n64_header(metadata: 'GameInfo', header: bytes) -> None:
 	#Clock rate, apparently? 0:4
 	#Program counter: 4-8
 	#Release address: 8-12
@@ -87,7 +87,7 @@ def parse_n64_header(metadata: 'GameInfo', header: bytes) -> None:
 		pass
 	metadata.specific_info['Revision'] = header[63]
 
-def add_info_from_database_entry(metadata: 'GameInfo', database_entry: 'Mapping[str, str]') -> None:
+def _add_info_from_database_entry(metadata: 'GameInfo', database_entry: 'Mapping[str, str]') -> None:
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
 	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
 	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)
@@ -142,7 +142,7 @@ def add_n64_custom_info(game: 'ROMGame') -> None:
 	if is_byteswapped:
 		header = byteswap(header)
 
-	parse_n64_header(game.info, header)
+	_parse_n64_header(game.info, header)
 
 	normal_controller = input_info.NormalController()
 	normal_controller.face_buttons = 6 #A, B, 4 * C
@@ -156,7 +156,7 @@ def add_n64_custom_info(game: 'ROMGame') -> None:
 		rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
 		database_entry = database.get(rom_md5)
 		if database_entry:
-			add_info_from_database_entry(game.info, database_entry)
+			_add_info_from_database_entry(game.info, database_entry)
 
 	software = game.get_software_list_entry()
 	if software:

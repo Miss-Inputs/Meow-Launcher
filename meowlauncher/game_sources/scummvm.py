@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class ScummVM(GameSource):
+	"""Games defined in scummvm.ini
+	This used to have ResidualVM as well, but I guess I decided that if you don't update to the new version of stuff that's on you"""
 	@property
 	def is_available(self) -> bool:
 		return scummvm_config.have_scummvm
@@ -40,3 +42,5 @@ class ScummVM(GameSource):
 	@classmethod
 	def config_class(cls) -> type[Config] | None:
 		return ScummVMConfig
+
+__doc__ = ScummVM.__doc__ or ScummVM.__name__
