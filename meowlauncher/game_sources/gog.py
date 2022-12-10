@@ -12,6 +12,9 @@ from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
 
+default_gog_folder = Path('~/GOG Games').expanduser()
+default_wine_gog_folder = Path('~/.wine/drive_c/GOG Games').expanduser()
+
 class GOGConfig(Config):
 	"""Configs for GOG source"""
 
@@ -26,7 +29,7 @@ class GOGConfig(Config):
 	@configoption
 	def folders(self) -> Sequence[Path]:
 		'Folders where GOG games are installed'
-		return ()
+		return (default_gog_folder, )
 
 	@configoption(readable_name='Use GOG as platform')
 	def use_gog_as_platform(self) -> bool:
@@ -36,7 +39,7 @@ class GOGConfig(Config):
 	@configoption
 	def windows_gog_folders(self) -> Sequence[Path]:
 		"""Folders where Windows GOG games are installed"""
-		return ()
+		return (default_wine_gog_folder, )
 
 	@configoption
 	def use_system_dosbox(self) -> bool:
@@ -83,7 +86,8 @@ def look_in_windows_gog_folder(folder: Path) -> WindowsGOGGame | None:
 def do_linux_gog_games() -> None:
 	for gog_folder in GOGConfig().folders:
 		if not gog_folder.is_dir():
-			logger.warning('%s does not exist/is not a directory', gog_folder)
+			if gog_folder != default_gog_folder:
+				logger.warning('%s does not exist/is not a directory', gog_folder)
 			continue
 
 		for subfolder in gog_folder.iterdir():
@@ -102,7 +106,8 @@ def do_linux_gog_games() -> None:
 def do_windows_gog_games() -> None:
 	for windows_gog_folder in GOGConfig().windows_gog_folders:
 		if not windows_gog_folder.is_dir():
-			logger.warning('%s does not exist/is not a directory', windows_gog_folder)
+			if windows_gog_folder != default_wine_gog_folder:
+				logger.warning('%s does not exist/is not a directory', windows_gog_folder)
 			continue
 
 		for subfolder in windows_gog_folder.iterdir():
