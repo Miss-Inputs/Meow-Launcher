@@ -57,6 +57,7 @@ class ROMGame(EmulatedGame):
 
 	@property
 	def related_software_lists(self) -> 'Collection[SoftwareList]':
+		"""Returns software lists for this game's platform"""
 		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
 		return _software_lists_for_platform(self.platform)
 
@@ -65,6 +66,7 @@ class ROMGame(EmulatedGame):
 			return None
 
 		software_lists = self.related_software_lists
+		software = None
 		try:
 			software = self.rom.get_software_list_entry(software_lists, self.platform.databases_are_byteswapped)
 		except NotImplementedError:
@@ -103,7 +105,10 @@ class ROMLauncher(EmulatorLauncher):
 
 	@property
 	def command(self) -> LaunchCommand:
+		"""Returns an actual command that runs the game
+		Uses 7z if necessary"""
 		#TODO: Ideally EmulatorLauncher would do something useful with self.runner and then we call super() but that also needs refactoring
+		#TODO: Add a check for self.game.rom.outer_extension being supported by 7zip, so we can add other formats to CompressedROM (zstd, etc)
 		command = super().command
 		if isinstance(self.game.rom, CompressedROM) and not self.runner.supports_compressed_extension(self.game.rom.outer_extension):
 				temp_extraction_folder = PurePath(tempfile.gettempdir(), 'meow-launcher-' + self._make_very_safe_temp_filename())
