@@ -196,7 +196,7 @@ def _parse_ncch(rom: FileROM, game_info: 'GameInfo', offset: int) -> None:
 
 def _parse_plain_region(rom: FileROM, metadata: 'GameInfo', offset: int, length: int) -> None:
 	"""Plain region stores the libraries used, at least for official games
-	#See also: https://github.com/Zowayix/ROMniscience/wiki/3DS-libraries-used for research
+	#See also: https://github.com/miss-inputs/ROMniscience/wiki/3DS-libraries-used for research
 	#Hmm… since I sort of abandoned ROMniscience I should put that somewhere else"""
 	plain_region = rom.read(seek_to=offset, amount=length)
 	libraries = (lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib)

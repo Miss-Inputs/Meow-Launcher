@@ -16,7 +16,7 @@ In order to best achieve the goal of "determine what is the best way to run a ce
 
 Technically there is nothing stopping Meow Launcher stopping you from launching non-game software, but any documentation (or class names) make that assumption that you will be using it for entertainment. Meow Launcher does not demand that a game be "scraped" from some database for it to work, it merely attempts to use any databases it does find to assist finding interesting information.
 
-Meow Launcher does include a list of emulators and emulated platforms that it knows it can use for a "just launch it and it works" experience, which does not include anything involving typing weird commands or anything like that (which excludes a lot of home microcomputer software). I'd like to close issue [#135](https://github.com/Zowayix/Meow-Launcher/issues/135) and then get rid of this sentence that I'm typing now, but that's not done yet and that's one of the main reasons I have that disclaimer up there.
+Meow Launcher does include a list of emulators and emulated platforms that it knows it can use for a "just launch it and it works" experience, which does not include anything involving typing weird commands or anything like that (which excludes a lot of home microcomputer software). I'd like to close issue [#135](https://github.com/miss-inputs/Meow-Launcher/issues/135) and then get rid of this sentence that I'm typing now, but that's not done yet and that's one of the main reasons I have that disclaimer up there.
 
 ## The rest of the readme, which I am going to rewrite completely sorry and none of that is necessarily accurate
 
