@@ -280,7 +280,7 @@ def compressed_list(path: Path) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	if have_python_libarchive:
 		try:
 			yield from libarchive_list(path)
-		except Exception as ex:	#pylint: disable=broad-except
+		except Exception as ex:	#pylint: disable=broad-exception-caught
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
 			raise BadArchiveError(path) from ex
 	if have_7z_command:
@@ -310,7 +310,7 @@ def compressed_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> 
 	if have_python_libarchive:
 		try:
 			return libarchive_get(path, filename, offset, amount)
-		#pylint: disable=broad-except
+		#pylint: disable=broad-exception-caught
 		except Exception as ex:
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
 			raise BadArchiveError(f'{path}/{filename}') from ex
@@ -340,7 +340,7 @@ def compressed_getsize(path: Path, filename: str) -> ByteAmount:
 	if have_python_libarchive:
 		try:
 			return libarchive_getsize(path, filename)
-		#pylint: disable=broad-except
+		#pylint: disable=broad-exception-caught
 		except Exception as ex:
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
 			raise BadArchiveError(f'{path}/{filename}') from ex
@@ -375,7 +375,7 @@ def get_crc32_of_archive(path: Path, filename: str) -> int:
 		#Presumably this is slower for 7z archives etc than even subprocessing 7z to get it
 		try:
 			return zlib.crc32(libarchive_get(path, filename))
-		#pylint: disable=broad-except
+		#pylint: disable=broad-exception-caught
 		except Exception as ex:
 			raise BadArchiveError(f'{path}/{filename}') from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')
