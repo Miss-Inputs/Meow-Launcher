@@ -352,9 +352,9 @@ def add_ines_metadata(rom: FileROM, game_info: GameInfo, header: bytes) -> None:
 
 		game_info.specific_info['Submapper'] = (header[8] & 0b1111_0000) >> 4
 		
-		prg_size_msb = ((header[9] & 0b1111) << 4)
+		prg_size_msb = (header[9] & 0b1111) << 4
 		game_info.specific_info['PRG Size'] = (prg_size_msb | prg_size) * 16 * 1024 if prg_size_msb != 15 else (2 ** ((prg_size & 0b1111_1100) >> 2)) * (((prg_size & 0b11) * 2) + 1)
-		chr_size_msb = (header[9] & 0b1111_0000)
+		chr_size_msb = header[9] & 0b1111_0000
 		game_info.specific_info['CHR Size'] = (chr_size_msb | chr_size) * 8 * 1024 if chr_size_msb != 15 else (2 ** ((chr_size & 0b1111_1100) >> 2)) * (((chr_size & 0b11) * 2) + 1)
 
 		#9/10: PRG/CHR RAM and NVRAM size

@@ -56,7 +56,7 @@ def parse_icon(rom: 'FileROM', icon_bank: int, icon_offset_x: int, icon_offset_y
 		for j in range(4):
 			pixel = (i * 4) + j
 			x = pixel // 256
-			y = (pixel % 256)
+			y = pixel % 256
 			data[y * 256 + x] = colours[j]
 	whole_bank.putdata(data)
 

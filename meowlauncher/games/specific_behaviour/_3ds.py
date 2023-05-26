@@ -148,11 +148,11 @@ def _parse_ncch(rom: FileROM, game_info: 'GameInfo', offset: int) -> None:
 	game_info.specific_info['Decrypted'] = is_decrypted
 
 	plain_region_offset = (int.from_bytes(header[140:144], 'little') * media_unit) + offset
-	plain_region_length = (int.from_bytes(header[144:148], 'little') * media_unit)
+	plain_region_length = int.from_bytes(header[144:148], 'little') * media_unit
 	#logo_region_offset = (int.from_bytes(header[148:152], 'little') * media_unit) + offset
 	#logo_region_length = (int.from_bytes(header[152:156], 'little') * media_unit)
 	exefs_offset = (int.from_bytes(header[156:160], 'little') * media_unit) + offset
-	exefs_length = (int.from_bytes(header[160:164], 'little') * media_unit)
+	exefs_length = int.from_bytes(header[160:164], 'little') * media_unit
 	#romfs_offset = (int.from_bytes(header[172:176], 'little') * media_unit) + offset
 	#romfs_length = (int.from_bytes(header[176:180], 'little') * media_unit)
 

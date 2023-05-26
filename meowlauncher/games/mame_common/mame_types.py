@@ -30,4 +30,3 @@ class ROMStatus(Enum):
 	Good = 'good'
 	BadDump = 'baddump'
 	NoDump = 'nodump'
-
