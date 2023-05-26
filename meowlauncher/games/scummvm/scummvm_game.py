@@ -58,6 +58,7 @@ def format_platform(platform: str) -> str:
 	}.get(platform, platform.title())
 
 class ScummVMGame(Game):
+	"""Game playable via ScummVM"""
 	def __init__(self, game_id: str):
 		super().__init__()
 		#The [game_id] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
@@ -194,6 +195,7 @@ class ScummVMGame(Game):
 		#Everything else is gonna be an actual option
 
 class ScummVMLauncher(Launcher):
+	"""Launcher for a ScummVMGame launched with ScummVM"""
 	def __init__(self, game: ScummVMGame, runner: ConfiguredRunner) -> None:
 		self.game: ScummVMGame = game
 		super().__init__(game, runner)

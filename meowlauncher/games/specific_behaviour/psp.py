@@ -133,6 +133,7 @@ def _add_psp_iso_info(path: Path, game_info: 'GameInfo') -> None:
 			logger.info('%s is invalid ISO and has some struct.error', path)
 		
 def add_psp_custom_info(game: 'ROMGame') -> None:
+	"""Called from info_helpers for now"""
 	add_psp_info(game.info)
 
 	if game.rom.is_folder:

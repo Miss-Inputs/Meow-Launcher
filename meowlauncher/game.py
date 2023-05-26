@@ -12,6 +12,6 @@ class Game(ABC):
 	@property
 	@abstractmethod
 	def name(self) -> str:
-		pass
+		"""Normal human-readable name of the game. Includes parentheses and such."""
 
 __doc__ = Game.__doc__ or Game.__name__

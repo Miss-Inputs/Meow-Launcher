@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 _duckstation_config = emulator_configs.get('DuckStation')
 
 class DuckStationCompatibility(IntEnum):
+	"""DuckStation compatibility as defined by compatibility database"""
 	NoIssues = 5
 	GraphicalOrAudioIssues = 4
 	CrashesInGame = 3
@@ -29,6 +30,7 @@ class DuckStationCompatibility(IntEnum):
 
 @dataclass
 class DuckStationCompatibilityEntry():
+	"""Represents DuckStation database <compatibility> element"""
 	compatibility: DuckStationCompatibility
 	comments: str | None
 	upscaling_issues: str | None
@@ -101,6 +103,7 @@ def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'GameInfo'
 		metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
 
 def add_info_from_product_code(product_code: str, metadata: 'GameInfo') -> None:
+	"""If DuckStation is configured, add info from its database, otherwise do nothing"""
 	if _duckstation_config:
 		compat = _find_duckstation_compat_info(product_code)
 		if compat:
@@ -112,6 +115,7 @@ def add_info_from_product_code(product_code: str, metadata: 'GameInfo') -> None:
 			_add_duckstation_db_info(db_entry, metadata)
 
 def add_ps1_custom_info(game: 'ROMGame') -> None:
+	"""Adds info from the software list entry and product code."""
 	try:
 		software = game.get_software_list_entry()
 		if software:

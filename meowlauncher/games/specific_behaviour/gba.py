@@ -99,6 +99,7 @@ def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'GameInfo') -> None:
 		metadata.developer = 'Rare' #probably
 	
 def add_gba_rom_file_info(rom: 'FileROM', game_info: 'GameInfo') -> None:
+	"""Adds info from the entire cart (to look for sound driver), called directly from info_helpers for now"""
 	entire_cart = rom.read()
 	if len(entire_cart) >= 0xc0:
 		header = entire_cart[0:0xc0]
