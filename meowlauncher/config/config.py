@@ -52,7 +52,9 @@ class ConfigProperty(Generic[T]):
 			#We'll just assume all unions and such are like this, don't be weird and type a config as str | int or something
 			self.type = type_args[0]
 		
-	def __get__(self, obj: S, _: type[S] | None) -> T:
+	def __get__(self, obj: S | None, _: type[S] | None) -> 'T | ConfigProperty[T]':
+		if obj is None:
+			return self
 		return obj.values.get(self.func.__name__, self.func(obj))
 
 @overload
