@@ -181,7 +181,7 @@ static_info_funcs: Mapping[str, Callable[['GameInfo'], None]] = {
 	'Neo Geo CD': add_neogeo_cd_info,
 	'Neo Geo Pocket': add_ngp_info,
 	'Nichibutsu My Vision': add_nichibutsu_my_vision_info,
-	'Pokemon Mini': add_pokemini_info,
+	'Pokémon Mini': add_pokemini_info,
 	'Super A\'Can': add_super_acan_info,
 	'Super Cassette Vision': add_super_cassette_vision_info,
 	'V.Smile Baby': add_vsmile_babby_info,

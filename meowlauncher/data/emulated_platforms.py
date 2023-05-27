@@ -217,8 +217,8 @@ platforms = {
 	StandardEmulatedPlatform('Microvision',{'microvsn'}, {'microvision'}, {'MAME (Microvision)'}, {MediaType.Cartridge: generic_cart_extensions}),
 	StandardEmulatedPlatform('Neo Geo CD',{'neocdz'}, {'neocd'}, {'NeoCD (libretro)', 'MAME (Neo Geo CD)'}, {MediaType.OpticalDisc: cdrom_formats}),
 	StandardEmulatedPlatform('PC-FX',{'pcfx'}, {'pcfx'}, {'Beetle PC-FX (libretro)', 'Mednafen (PC-FX)'}, {MediaType.OpticalDisc: cdrom_formats}),
-	StandardEmulatedPlatform('Pokemon Mini',
-		{'pokemini'}, {'pokemini'}, {'PokeMini (libretro)', 'PokeMini', 'MAME (Pokemon Mini)'}, {MediaType.Cartridge: {'min', 'bin'}}, dat_names={'Nintendo - Pokemon Mini'}
+	StandardEmulatedPlatform('Pokémon Mini',
+		{'pokemini'}, {'pokemini'}, {'PokeMini (libretro)', 'PokeMini', 'MAME (Pokémon Mini)'}, {MediaType.Cartridge: {'min', 'bin'}}, dat_names={'Nintendo - Pokemon Mini'}
 	),
 	StandardEmulatedPlatform('SG-1000',
 		{'sg1000', 'sc3000'}, {'sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'},

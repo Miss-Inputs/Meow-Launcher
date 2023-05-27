@@ -306,7 +306,7 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	#You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
 	MAMEDriver('N64', EmulatorStatus.Experimental, command_lines.mame_n64, {'v64', 'z64', 'rom', 'n64', 'bin'}),
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working.union(imperfect) graphics
-	MAMEDriver('Pokemon Mini', EmulatorStatus.Experimental, simple_mame_driver('pokemini', 'cart'), {'bin', 'min'}),
+	MAMEDriver('Pokémon Mini', EmulatorStatus.Experimental, simple_mame_driver('pokemini', 'cart'), {'bin', 'min'}),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
 	MAMEDriver('Saturn', EmulatorStatus.Experimental, command_lines.mame_saturn, mame_cdrom_formats),
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
