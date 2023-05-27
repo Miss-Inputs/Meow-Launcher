@@ -113,6 +113,8 @@ class SteamInstallation():
 	def _steamplay_appinfo_extended(self) -> Mapping[bytes, Any] | None:
 		steamplay_manifest_appid = 891390
 
+		if not self.app_info:
+			return None
 		steamplay_appinfo = self.app_info.get(steamplay_manifest_appid)
 		if steamplay_appinfo is None:
 			return None
