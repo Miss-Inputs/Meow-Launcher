@@ -183,7 +183,7 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	#Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
 	MAMEDriver('Nichibutsu My Vision', EmulatorStatus.Good, simple_mame_driver('myvision', 'cart'), {'bin'}),
 	MAMEDriver('PC Engine', EmulatorStatus.Good, command_lines.mame_pc_engine, {'pce', 'bin', 'sgx'}),
-	MAMEDriver('SAM Coupe', EmulatorStatus.Good, simple_mame_driver('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True), mame_floppy_formats),
+	MAMEDriver('SAM Coupé', EmulatorStatus.Good, simple_mame_driver('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True), mame_floppy_formats),
 	MAMEDriver('SG-1000', EmulatorStatus.Good, command_lines.mame_sg1000, {'bin', 'sg', 'sc', 'sf', 'sf7'}.union(mame_floppy_formats)),
 	MAMEDriver('Sharp X1', EmulatorStatus.Good, simple_mame_driver('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats.union({'2d'})),
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve (hope there's no compatibility shenanigans)

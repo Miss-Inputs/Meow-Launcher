@@ -419,7 +419,7 @@ platforms = {
 	StandardEmulatedPlatform('Plus/4',{'c264'}, {'plus4_cart', 'plus4_cass', 'plus4_flop'}, {'VICE (Plus/4)'},
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: {'tap', 't64'}, MediaType.Executable: {'prg', 'p00'}, MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	), 	#Also includes C16 and C116 (I admit I am not cool enough to know the difference)
-	StandardEmulatedPlatform('SAM Coupe',{'samcoupe'}, {'samcoupe_cass', 'samcoupe_flop'}, {'SimCoupe', 'MAME (SAM Coupe)'}, {MediaType.Floppy: {'mgt', 'sad', 'dsk', 'sdf'}, MediaType.Executable: {'sbt'}}),
+	StandardEmulatedPlatform('SAM Coupé',{'samcoupe'}, {'samcoupe_cass', 'samcoupe_flop'}, {'SimCoupe', 'MAME (SAM Coupé)'}, {MediaType.Floppy: {'mgt', 'sad', 'dsk', 'sdf'}, MediaType.Executable: {'sbt'}}),
 	StandardEmulatedPlatform('Sharp X1',{'x1'}, {'x1_cass', 'x1_flop'}, {'X Millennium (libretro)', 'MAME (Sharp X1)'}, {MediaType.Floppy: {'2d', 'm3u'}.union(mame_floppy_formats), MediaType.Tape: {'wav', 'tap'}}),
 	StandardEmulatedPlatform('TI-99',{'ti99_4', 'ti99_4a', 'ti99_8'}, {'ti99_cart'}, set(), {MediaType.Cartridge: {'bin', 'rpk', 'c', 'g'}, MediaType.Tape: {'wav'}, MediaType.Floppy: mame_floppy_formats}, autodetect_tv_type=True),
 	StandardEmulatedPlatform('VIC-20',{'vic1001'}, {'vic1001_cart', 'vic1001_cass', 'vic1001_flop'}, {'MAME (VIC-20)', 'VICE (VIC-20)'},
