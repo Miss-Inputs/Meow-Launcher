@@ -18,7 +18,6 @@ from ._config_utils import parse_value
 __doc__ = """Config options are defined here, other than those specific to emulators or platforms"""
 logger = logging.getLogger(__name__)
 
-_main_config_path = config_dir.joinpath('config.ini')
 _ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
 
 def _load_ignored_directories() -> Collection[PurePath]:
@@ -114,7 +113,7 @@ class Config(ABC):
 		# args, self._remaining_args = _config_file_argument_parser.parse_known_args()
 		#TODO: Nah that sucks because I don't want to do the arg parsing here
 		
-		_config_parser.read(_main_config_path)
+		_config_parser.read(self.options_file_name())
 		if _config_parser.has_section(self.section()):
 			for option, value in _config_parser.items(self.section()):
 				if option not in _configs:
@@ -153,7 +152,7 @@ class Config(ABC):
 	@classmethod
 	@abstractmethod
 	def section(cls) -> str:
-		"""Section that should be used for reading this from config.ini."""
+		"""Section that should be used for reading this from options_file_name."""
 
 	@classmethod
 	def section_help(cls) -> str | None:
@@ -164,6 +163,11 @@ class Config(ABC):
 	def prefix(cls) -> str | None:
 		"""Prefix to be added to command line arguments for these options."""
 		return None
+	
+	@classmethod
+	def options_file_name(cls) -> str:
+		"""Name of the file to load options from. Defaults to config.ini"""
+		return 'config.ini'
 
 class MainConfig(Config):
 	"""General options not specific to anything else"""

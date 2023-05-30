@@ -46,7 +46,7 @@ class Runner(ABC):
 	@property
 	@abstractmethod
 	def name(self) -> str:
-		pass
+		"""Name (readable) of this runner"""
 
 	def __hash__(self) -> int:
 		return self.name.__hash__()
