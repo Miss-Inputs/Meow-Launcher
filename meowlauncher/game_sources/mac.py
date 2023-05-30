@@ -10,6 +10,7 @@ from meowlauncher.manually_specified_game_source import \
 
 
 class Mac(ManuallySpecifiedGameSource[MacApp]):
+	"""GameSource for Classic Mac games, installed to a disk image and paths inside that disk image specified manually, or with a CD and a path to run that game from the CD image."""
 	def __init__(self) -> None:
 		super().__init__('Mac', MacApp, MacLauncher, mac_emulators)
 

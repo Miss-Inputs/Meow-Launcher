@@ -47,6 +47,7 @@ class GOGConfig(Config):
 		return True
 
 def look_in_linux_gog_folder(folder: Path) -> GOGGame | None:
+	"""Finds a GOGGame inside folder, if it is a GOG game folder, or None"""
 	gameinfo_path = folder.joinpath('gameinfo')
 	if not gameinfo_path.is_file():
 		return None
@@ -83,7 +84,7 @@ def look_in_windows_gog_folder(folder: Path) -> WindowsGOGGame | None:
 	game_id = info_file.stem.removeprefix('goggame-')
 	return WindowsGOGGame(folder, info_file, game_id, GOGConfig())
 
-def do_linux_gog_games() -> None:
+def _do_linux_gog_games() -> None:
 	for gog_folder in GOGConfig().folders:
 		if not gog_folder.is_dir():
 			if gog_folder != default_gog_folder:
@@ -103,7 +104,7 @@ def do_linux_gog_games() -> None:
 			game.add_info()
 			game.make_launcher()
 
-def do_windows_gog_games() -> None:
+def _do_windows_gog_games() -> None:
 	for windows_gog_folder in GOGConfig().windows_gog_folders:
 		if not windows_gog_folder.is_dir():
 			if windows_gog_folder != default_wine_gog_folder:
@@ -124,9 +125,9 @@ def do_windows_gog_games() -> None:
 			windows_game.make_launchers()
 
 def do_gog_games() -> None:
-	do_linux_gog_games()
+	_do_linux_gog_games()
 
 	#TODO: Should have is_wine_available helper function or whatever
 	#TODO: Actually, shouldn't check that at all - once we do this properly, it could be possible to not have Wine but to run DOS WindowsGOGGames with DOSBox etc
 	if main_config.wine_path.is_file():
-		do_windows_gog_games()
+		_do_windows_gog_games()

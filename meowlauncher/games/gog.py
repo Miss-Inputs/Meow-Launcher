@@ -103,7 +103,7 @@ class Task():
 			return FileTask(json_object)
 		if task_type == 'URLTask':
 			return URLTask(json_object)
-		raise Exception(f'What the heck? task type is {task_type}')
+		assert False, f'What the heck? task type is {task_type}'
 
 class FileTask(Task):
 	def __init__(self, json_object: 'Mapping[str, Any]'):

@@ -27,6 +27,7 @@ class _WineConfig(RunnerConfig):
 		super().__init__(exe_path, {'wineprefix': str(wineprefix)})
 
 class Wine(ConfiguredRunner):
+	"""The default Wine version used when it is needed"""
 	def __init__(self, config: RunnerConfig):
 		super().__init__(_Wine(), config)
 
@@ -36,6 +37,7 @@ class _ScummVM(Runner):
 		return 'ScummVM'
 
 class ScummVM(ConfiguredRunner):
+	"""The default ScummVM version used when it is needed"""
 	def __init__(self) -> None:
 		config = RunnerConfig(ScummVMConfig().scummvm_exe_path)
 		super().__init__(_ScummVM(), config)
