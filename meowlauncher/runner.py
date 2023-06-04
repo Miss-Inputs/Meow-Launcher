@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 
-from meowlauncher.config_types import RunnerConfigValue
 from meowlauncher.config.config import Config, configoption
 
 class HostPlatform(Enum):
@@ -14,8 +13,7 @@ class HostPlatform(Enum):
 	HTML = auto()
 
 class BaseRunnerConfig(Config):
-	"""All runners would have this config. Section not defined here, so it is still abstract
-	TODO: Use this once we refactor Emulator and Emulator.configs"""
+	"""All runners would have this config. Section not defined here, so it is still abstract"""
 	
 	@configoption
 	def gamemode(self) -> bool:
@@ -37,12 +35,7 @@ class Runner(ABC):
 	"""Base class for a runner (an emulator, compatibility layer, anything that runs a thing). Defines the capabilities/options/etc of the runner, see ConfiguredRunner for the instance with options applied"""
 	def __init__(self, host_platform: HostPlatform=HostPlatform.Linux) -> None:
 		self.host_platform = host_platform
-		self.configs = {
-			'gamemode': RunnerConfigValue(bool, False, 'Run with gamemoderun'),
-			'mangohud': RunnerConfigValue(bool, False, 'Run with MangoHUD'),
-			'force_opengl_version': RunnerConfigValue(bool, False, 'Hack to force Mesa OpenGL version to 4.3 by environment variable if you need it'),
-		}
-
+	
 	@property
 	@abstractmethod
 	def name(self) -> str:
@@ -50,5 +43,10 @@ class Runner(ABC):
 
 	def __hash__(self) -> int:
 		return self.name.__hash__()
+	
+	@classmethod
+	def config_class(cls) -> type[Config] | None:
+		"""Return a Config class containing configuration for this runner/emulator or don't"""
+		return None
 		
 __doc__ = Runner.__doc__ or Runner.__name__
