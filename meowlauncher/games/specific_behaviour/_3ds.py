@@ -12,7 +12,7 @@ from xml.etree import ElementTree
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.data.name_cleanup._3ds_publisher_overrides import \
     consistentified_manufacturers
 from meowlauncher.games.roms.rom import FileROM

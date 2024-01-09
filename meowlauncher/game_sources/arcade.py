@@ -2,24 +2,29 @@
 
 from collections.abc import Iterator
 
-from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.config import main_config
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.config import main_config
+from meowlauncher.settings.emulator_config import emulator_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.machines_with_inbuilt_games import (
-    InbuiltGame, bioses_with_inbuilt_games, machines_with_inbuilt_games)
+	InbuiltGame,
+	bioses_with_inbuilt_games,
+	machines_with_inbuilt_games,
+)
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.mame.mame import ConfiguredMAME
 from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
 from meowlauncher.games.mame.mame_game import MAMEGame, MAMELauncher
-from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
-                                                       MAMEInbuiltLauncher)
+from meowlauncher.games.mame.mame_inbuilt_game import MAMEInbuiltGame, MAMEInbuiltLauncher
 from meowlauncher.games.mame.mame_info import add_info, add_status
 from meowlauncher.games.mame_common.machine import (
-    Machine, MAMEStatus, get_machine, iter_machines,
-    iter_machines_from_source_file)
-from meowlauncher.games.mame_common.mame_executable import \
-    MAMENotInstalledException
+	Machine,
+	MAMEStatus,
+	get_machine,
+	iter_machines,
+	iter_machines_from_source_file,
+)
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
 from meowlauncher.util.desktop_files import has_been_done
 
 

@@ -10,7 +10,7 @@ try:
 except ModuleNotFoundError:
 	have_pycrypto = False
 
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM, FolderROM
 from meowlauncher.info import Date
 from meowlauncher.platform_types import WiiTitleType

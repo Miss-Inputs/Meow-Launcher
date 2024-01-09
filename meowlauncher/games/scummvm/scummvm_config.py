@@ -2,7 +2,7 @@ import subprocess
 from collections.abc import Mapping
 from pathlib import Path
 
-from meowlauncher.config.config import Config, configoption
+from meowlauncher.settings.settings import Settings
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
 
@@ -11,7 +11,7 @@ def _get_vm_config(path: Path) -> NoNonsenseConfigParser:
 	parser.read(path)
 	return parser
 
-class ScummVMConfig(Config):
+class ScummVMConfig(Settings):
 	"""Config options relating to ScummVM as a GameSource"""
 	@classmethod
 	def section(cls) -> str:

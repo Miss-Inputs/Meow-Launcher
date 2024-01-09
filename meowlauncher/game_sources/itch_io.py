@@ -4,13 +4,14 @@ import logging
 from collections.abc import Sequence
 from pathlib import Path
 
-from meowlauncher.config.config import Config, configoption, main_config
+from meowlauncher.config import main_config
+from meowlauncher.settings.settings import Settings
 from meowlauncher.games.itch import ItchGame
 from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
 
-class ItchioConfig(Config):
+class ItchioConfig(Settings):
 	@classmethod
 	def section(cls) -> str:
 		return 'itch.io'

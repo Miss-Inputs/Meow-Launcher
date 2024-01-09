@@ -3,11 +3,11 @@
 from typing import TYPE_CHECKING
 
 from meowlauncher import global_runners
-from meowlauncher.config.config import Config, main_config
+from meowlauncher.config import main_config
+from meowlauncher.settings.settings import Settings
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig, scummvm_config
-from meowlauncher.games.scummvm.scummvm_game import (ScummVMGame,
-                                                     ScummVMLauncher)
+from meowlauncher.games.scummvm.scummvm_game import ScummVMGame, ScummVMLauncher
 from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
@@ -40,7 +40,7 @@ class ScummVM(GameSource):
 			yield ScummVMLauncher(game, global_runners.scummvm)
 
 	@classmethod
-	def config_class(cls) -> type[Config] | None:
+	def config_class(cls) -> type[Settings] | None:
 		return ScummVMConfig
 
 __doc__ = ScummVM.__doc__ or ScummVM.__name__

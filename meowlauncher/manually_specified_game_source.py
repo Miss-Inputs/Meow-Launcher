@@ -5,15 +5,16 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.settings.emulator_config import emulator_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.data.emulated_platforms import manually_specified_platforms
-from meowlauncher.exceptions import (EmulationNotSupportedException,
-                                     NotActuallyLaunchableGameException)
+from meowlauncher.exceptions import (
+	EmulationNotSupportedException,
+	NotActuallyLaunchableGameException,
+)
 from meowlauncher.game_source import ChooseableEmulatorGameSource
-from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
-                                                  ManuallySpecifiedLauncher)
+from meowlauncher.manually_specified_game import ManuallySpecifiedGame, ManuallySpecifiedLauncher
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping, Sequence

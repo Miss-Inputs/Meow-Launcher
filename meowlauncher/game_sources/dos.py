@@ -3,8 +3,7 @@
 from meowlauncher.data.emulators import dos_emulators
 from meowlauncher.games.dos import DOSApp
 from meowlauncher.manually_specified_game import ManuallySpecifiedLauncher
-from meowlauncher.manually_specified_game_source import \
-    ManuallySpecifiedGameSource
+from meowlauncher.manually_specified_game_source import ManuallySpecifiedGameSource
 
 
 class DOS(ManuallySpecifiedGameSource[DOSApp]):

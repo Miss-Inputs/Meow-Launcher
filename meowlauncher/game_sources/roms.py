@@ -5,23 +5,27 @@ import os
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.config import Config, ignored_directories, main_config
-from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.config_types import (EmulatorConfig, PlatformConfig,
-                                       TypeOfConfigValue)
-from meowlauncher.configured_emulator import (ConfiguredStandardEmulator,
-                                              LibretroCoreWithFrontend)
+from meowlauncher.config import main_config
+from meowlauncher.settings.emulator_config import emulator_configs
+from meowlauncher.settings.platform_config import platform_configs
+from meowlauncher.settings.settings import Settings, ignored_directories
+from meowlauncher.config_types import EmulatorConfig, PlatformConfig, TypeOfConfigValue
+from meowlauncher.configured_emulator import ConfiguredStandardEmulator, LibretroCoreWithFrontend
 from meowlauncher.data.emulated_platforms import platforms
-from meowlauncher.data.emulators import (emulators, libretro_cores,
-                                         libretro_frontends)
-from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
-                                   StandardEmulator, ViceEmulator)
-from meowlauncher.exceptions import (EmulationNotSupportedException,
-                                     ExtensionNotSupportedException,
-                                     NotActuallyLaunchableGameException)
-from meowlauncher.game_source import (ChooseableEmulatorGameSource,
-                                      CompoundGameSource, GameSource)
+from meowlauncher.data.emulators import emulators, libretro_cores, libretro_frontends
+from meowlauncher.emulator import (
+	LibretroCore,
+	MAMEDriver,
+	MednafenModule,
+	StandardEmulator,
+	ViceEmulator,
+)
+from meowlauncher.exceptions import (
+	EmulationNotSupportedException,
+	ExtensionNotSupportedException,
+	NotActuallyLaunchableGameException,
+)
+from meowlauncher.game_source import ChooseableEmulatorGameSource, CompoundGameSource, GameSource
 from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.rom_info import add_info
@@ -30,8 +34,9 @@ from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
-	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 	from collections.abc import Collection, Iterator, Sequence
+
+	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 
 logger = logging.getLogger(__name__)
 
@@ -257,7 +262,7 @@ class ROMs(CompoundGameSource):
 		return not os.path.exists(game_id)
 
 	@classmethod
-	def config_class(cls) -> type[Config] | None:
+	def config_class(cls) -> type[Settings] | None:
 		return ROMsConfig
 
 __doc__ = ROMs.__doc__ or ROMs.__name__

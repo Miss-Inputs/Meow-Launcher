@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_name, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \

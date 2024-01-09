@@ -16,21 +16,27 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.config import Config, configoption, main_config
-from meowlauncher.exceptions import (GameNotSupportedException,
-                                     NotActuallyLaunchableGameException,
-                                     NotLaunchableException)
+from meowlauncher.config import main_config
+from meowlauncher.settings.settings import Settings
+from meowlauncher.exceptions import (
+	GameNotSupportedException,
+	NotActuallyLaunchableGameException,
+	NotLaunchableException,
+)
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.common.engine_detect import (
-    try_and_detect_engine_from_folder, try_detect_engine_from_exe)
+	try_and_detect_engine_from_folder,
+	try_detect_engine_from_exe,
+)
 from meowlauncher.games.common.pc_common_info import add_info_for_raw_exe
-from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
-                                                 SteamLauncher)
+from meowlauncher.games.steam.steam_game import LauncherInfo, SteamGame, SteamLauncher
 from meowlauncher.games.steam.steam_types import ExternalAccountType
-from meowlauncher.games.steam.steam_utils import (format_genre,
-                                                  normalize_developer,
-                                                  store_categories,
-                                                  translate_language_list)
+from meowlauncher.games.steam.steam_utils import (
+	format_genre,
+	normalize_developer,
+	store_categories,
+	translate_language_list,
+)
 from meowlauncher.info import Date
 from meowlauncher.util.desktop_files import has_been_done
 from meowlauncher.util.name_utils import normalize_name_case
@@ -39,15 +45,17 @@ from meowlauncher.util.utils import remove_capital_article
 if have_steamfiles or TYPE_CHECKING:
 	#TODO: This isn't to avoid a circular import, it just assumes steamfiles can be imported because I can't be bothered doing "have_steamfiles" in there
 	#Maybe this should just require steamfiles anyway…
-	from meowlauncher.games.steam.steam_installation import (IconError,
-	                                                         IconNotFoundError,
-	                                                         SteamInstallation)
+	from meowlauncher.games.steam.steam_installation import (
+		IconError,
+		IconNotFoundError,
+		SteamInstallation,
+	)
 if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
 
 logger = logging.getLogger(__name__)
 
-class SteamConfig(Config):
+class SteamConfig(Settings):
 	@classmethod
 	def section(cls) -> str:
 		return 'Steam'

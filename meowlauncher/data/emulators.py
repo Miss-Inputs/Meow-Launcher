@@ -3,23 +3,37 @@ from typing import TYPE_CHECKING
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
 from meowlauncher.config_types import RunnerConfigValue
-from meowlauncher.emulated_game import EmulatedGame
-from meowlauncher.emulator import (Emulator, EmulatorStatus, LibretroCore,
-                                   LibretroFrontend, MAMEDriver,
-                                   MednafenModule, StandardEmulator,
-                                   ViceEmulator)
+from meowlauncher.emulator import (
+	Emulator,
+	EmulatorStatus,
+	LibretroCore,
+	LibretroFrontend,
+	MAMEDriver,
+	MednafenModule,
+	StandardEmulator,
+	ViceEmulator,
+)
 from meowlauncher.games.common.emulator_command_line_helpers import (
-    SimpleMednafenModule, simple_emulator, simple_gb_emulator,
-    simple_mame_driver, simple_md_emulator)
+	SimpleMednafenModule,
+	simple_emulator,
+	simple_gb_emulator,
+	simple_mame_driver,
+	simple_md_emulator,
+)
 from meowlauncher.launch_command import rom_path_argument
 from meowlauncher.runner import HostPlatform, Runner
 
-from .format_info import (atari_2600_cartridge_extensions,
-                          generic_cart_extensions, mame_cdrom_formats,
-                          mame_floppy_formats)
+from .format_info import (
+	atari_2600_cartridge_extensions,
+	generic_cart_extensions,
+	mame_cdrom_formats,
+	mame_floppy_formats,
+)
 
 if TYPE_CHECKING:
 	from collections.abc import Collection, MutableSequence
+
+	from meowlauncher.emulated_game import EmulatedGame
 	from meowlauncher.games.mame.mame_game import MAMEGame
 
 _bsnes_options = {
@@ -32,7 +46,7 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	StandardEmulator('A7800', EmulatorStatus.Good, 'a7800', command_lines.a7800, {'bin', 'a78'}, {'7z', 'zip'}),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
-	StandardEmulator('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes, {'sfc', 'smc', 'st', 'bs', 'gb', 'gbc'}, {'zip', '7z'}, _bsnes_options),
+	StandardEmulator('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes, {'sfc', 'smc', 'st', 'bs', 'gb', 'gbc'}, {'zip', '7z'}, configs=_bsnes_options),
 	StandardEmulator('cxNES', EmulatorStatus.Good, 'cxnes', command_lines.cxnes, {'nes', 'fds', 'unf', 'unif'}, {'7z', 'zip'}),
 	#Or is it good? Have not tried it in a fair bit
 	StandardEmulator('Dolphin', EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, {'iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'}),
@@ -422,8 +436,8 @@ _libretro_cores = {
 	LibretroCore('Beetle VB', EmulatorStatus.Good, 'mednafen_vb', None, {'vb', 'vboy', 'bin'}),
 	LibretroCore('BlastEm', EmulatorStatus.Good, 'blastem', command_lines.blastem, {'md', 'bin', 'smd', 'gen', 'sms'}), #Does not claim to support Master System in info file, but does
 	LibretroCore('blueMSX', EmulatorStatus.Good, 'bluemsx', None, {'dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u'}), #Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves; needs_fullpath=true
-	LibretroCore('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, {'sfc', 'smc', 'gb', 'gbc', 'bs'}, _bsnes_options),
-	LibretroCore('bsnes-hd beta', EmulatorStatus.Good, 'bsnes_hd_beta', command_lines.bsnes_libretro, {'sfc', 'smc', 'gb', 'gbc', 'bs'}, _bsnes_options), #Does not claim to support .bs, but does
+	LibretroCore('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, {'sfc', 'smc', 'gb', 'gbc', 'bs'}, configs=_bsnes_options),
+	LibretroCore('bsnes-hd beta', EmulatorStatus.Good, 'bsnes_hd_beta', command_lines.bsnes_libretro, {'sfc', 'smc', 'gb', 'gbc', 'bs'}, configs=_bsnes_options), #Does not claim to support .bs, but does
 	LibretroCore('Caprice32', EmulatorStatus.Good, 'cap32', None, {'dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u'}), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks; needs_fullpath=true
 	LibretroCore('ChaiLove', EmulatorStatus.Good, 'chailove', None, {'chai', 'chailove'}), #needs_fullpath=true
 	LibretroCore('Dinothawr', EmulatorStatus.Good, 'dinothawr', None, {'game'}),

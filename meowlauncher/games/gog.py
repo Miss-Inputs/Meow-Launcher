@@ -10,20 +10,20 @@ from pathlib import Path, PureWindowsPath
 from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_info
-from meowlauncher.games.common.engine_detect import \
-    try_and_detect_engine_from_folder
+from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.launcher import Launcher
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util import name_utils, region_info
 
 if TYPE_CHECKING:
-	from meowlauncher.game_sources.gog import GOGConfig
 	from collections.abc import Mapping, Sequence
+
+	from meowlauncher.game_sources.gog import GOGConfig
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
-from meowlauncher.config.emulator_config import emulator_configs
+from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.util.region_info import get_language_by_english_name
 

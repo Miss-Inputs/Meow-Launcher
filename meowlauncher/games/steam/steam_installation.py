@@ -15,7 +15,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 
 from .steam_types import StateFlags
 

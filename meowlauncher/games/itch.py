@@ -8,20 +8,20 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
-from meowlauncher.games.common.pc_common_info import (add_info_for_raw_exe,
-                                                      look_for_icon_for_file)
+from meowlauncher.games.common.pc_common_info import add_info_for_raw_exe, look_for_icon_for_file
 from meowlauncher.info import Date
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
-	from meowlauncher.game_sources.itch_io import ItchioConfig
 	from collections.abc import Collection, Iterator, Mapping
 	from typing import Any
+
+	from meowlauncher.game_sources.itch_io import ItchioConfig
 
 logger = logging.getLogger(__name__)
 

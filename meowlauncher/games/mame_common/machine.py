@@ -1,21 +1,27 @@
-from enum import Enum
 import re
 from collections.abc import Collection, Iterator, Mapping, Sequence
+from enum import Enum
 from functools import cache, cached_property
 from pathlib import PurePath
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
 from meowlauncher.util.name_utils import normalize_name
-from meowlauncher.util.utils import (find_filename_tags_at_end,
-                                     remove_capital_article,
-                                     remove_filename_tags)
+from meowlauncher.util.utils import (
+	find_filename_tags_at_end,
+	remove_capital_article,
+	remove_filename_tags,
+)
 
-from .mame_support_files import (MachineCategory, OrganizedCatlist,
-                                 get_category, get_machine_cat,
-                                 organize_catlist)
+from .mame_support_files import (
+	MachineCategory,
+	OrganizedCatlist,
+	get_category,
+	get_machine_cat,
+	organize_catlist,
+)
 from .mame_utils import consistentify_manufacturer, untangle_manufacturer
 
 if TYPE_CHECKING:

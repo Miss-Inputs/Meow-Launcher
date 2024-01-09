@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from enum import Enum, auto
 
-from meowlauncher.config.config import Config, configoption
+from meowlauncher.settings.settings import Settings
 
 class HostPlatform(Enum):
 	"""Platform this runner runs on"""
@@ -12,25 +12,19 @@ class HostPlatform(Enum):
 	Love = auto()
 	HTML = auto()
 
-class BaseRunnerConfig(Config):
+class BaseRunnerConfig(Settings):
 	"""All runners would have this config. Section not defined here, so it is still abstract"""
 	
-	@configoption
-	def gamemode(self) -> bool:
-		"""Run this with gamemoderun"""
-		return False
+	gamemode: bool = False
+	"""Run this with gamemoderun"""
 	
-	@configoption
-	def mangohud(self) -> bool:
-		"""Run this with MangoHUD"""
-		return False
-
-	@configoption
-	def force_opengl_version(self) -> bool:
-		"""Forces Mesa OpenGL version to 4.3 via environment variable if you need it
-		Is this still needed? I don't know"""
-		return False
-
+	mangohud: bool = False
+	"""Run this with MangoHUD"""
+	
+	force_opengl_version: bool = False
+	"""Forces Mesa OpenGL version to 4.3 via environment variable if you need it
+	Is this still needed? I don't know"""
+	
 class Runner(ABC):
 	"""Base class for a runner (an emulator, compatibility layer, anything that runs a thing). Defines the capabilities/options/etc of the runner, see ConfiguredRunner for the instance with options applied"""
 	def __init__(self, host_platform: HostPlatform=HostPlatform.Linux) -> None:
@@ -45,7 +39,7 @@ class Runner(ABC):
 		return self.name.__hash__()
 	
 	@classmethod
-	def config_class(cls) -> type[Config] | None:
+	def config_class(cls) -> type[Settings] | None:
 		"""Return a Config class containing configuration for this runner/emulator or don't"""
 		return None
 		

@@ -10,8 +10,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 
+import meowlauncher
 from meowlauncher.common_types import EmulationStatus
-from meowlauncher.config.config import main_config
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import find_filename_tags_at_end, find_tags
@@ -450,7 +450,7 @@ class Software():
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:
 					publishers: Iterable[str] = (cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
-					if main_config.sort_multiple_dev_names:
+					if meowlauncher.config.main_config.sort_multiple_dev_names:
 						publishers = sorted(publishers)
 					publisher = ', '.join(publishers)
 

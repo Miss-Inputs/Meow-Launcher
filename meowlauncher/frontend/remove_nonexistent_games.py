@@ -3,7 +3,7 @@
 import logging
 import os
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 from meowlauncher.game_sources import game_sources
 from meowlauncher.output.desktop_files import id_section_name
 from meowlauncher.util.desktop_files import get_desktop, get_field

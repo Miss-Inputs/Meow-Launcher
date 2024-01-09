@@ -12,7 +12,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher import input_info
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import Region, regions_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,

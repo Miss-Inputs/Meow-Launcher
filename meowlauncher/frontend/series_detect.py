@@ -4,16 +4,12 @@ from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.config import main_config
-from meowlauncher.data.series_detect.series_detect_overrides import \
-    series_overrides
-from meowlauncher.output.desktop_files import (info_section_name,
-                                               section_prefix)
+from meowlauncher.config import main_config
+from meowlauncher.data.series_detect.series_detect_overrides import series_overrides
+from meowlauncher.output.desktop_files import info_section_name, section_prefix
 from meowlauncher.util.desktop_files import get_desktop, get_field
-from meowlauncher.util.name_utils import (chapter_matcher,
-                                          convert_roman_numerals_in_title)
-from meowlauncher.util.utils import (convert_roman_numeral,
-                                     remove_capital_article)
+from meowlauncher.util.name_utils import chapter_matcher, convert_roman_numerals_in_title
+from meowlauncher.util.utils import convert_roman_numeral, remove_capital_article
 
 if TYPE_CHECKING:
 	from configparser import RawConfigParser

@@ -2,10 +2,7 @@ import shutil
 from pathlib import PurePath
 from typing import TYPE_CHECKING, final
 
-from meowlauncher.config.config import main_config
-
-from .launch_command import (LaunchCommand, MultiLaunchCommands,
-                             launch_with_wine)
+from .launch_command import LaunchCommand, MultiLaunchCommands, launch_with_wine
 from .runner import HostPlatform
 
 if TYPE_CHECKING:
@@ -32,6 +29,8 @@ class ConfiguredRunner():
 
 	def set_wrapper_options(self, command: LaunchCommand) -> LaunchCommand:
 		"""Applies wrappers according to configuration such as gamemoderun/mangohud, or Wine if this Runner is for Windows, etc"""
+		from meowlauncher.config import main_config
+		#TODO: Circular import probably shouldn't happen in the first place
 		if self.runner.host_platform == HostPlatform.Windows:
 			if isinstance(command, MultiLaunchCommands):
 				command = MultiLaunchCommands(command.pre_commands, launch_with_wine(main_config.wine_path, main_config.wineprefix, command.main_command.exe_name, command.main_command.exe_args), command.post_commands)

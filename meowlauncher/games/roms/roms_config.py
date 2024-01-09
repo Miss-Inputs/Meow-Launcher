@@ -1,37 +1,31 @@
 from collections.abc import Sequence
 
-from meowlauncher.config.config import Config, configoption
+from pydantic import Field
+
+from meowlauncher.settings.settings import Settings
 
 __doc__ = """Putting this here so roms_info can use it too, without causing a circular import by importing roms… hrm does this make sense?
 TODO: Maybe .roms_config could just be accessible from ROMGame"""
 
-class ROMsConfig(Config):
+
+class ROMsConfig(Settings):
 	"""Config specific to ROMs entirely as a game source"""
+
 	@classmethod
 	def section(cls) -> str:
 		return 'ROMs'
 
-	@configoption
-	def skipped_subfolder_names(self) -> Sequence[str]:
-		'Always skip these subfolders in every ROM dir'
-		return ()
+	skipped_subfolder_names: Sequence[str] = Field(default_factory=tuple)
+	'Always skip these subfolders in every ROM dir'
 
-	@configoption
-	def excluded_platforms(self) -> Sequence[str]:
-		"""Really just here for debugging/testing, excludes platforms from the ROMs game source"""
-		return []
+	excluded_platforms: Sequence[str] = Field(default_factory=tuple)
+	"""Really just here for debugging/testing, excludes platforms from the ROMs game source"""
 
-	@configoption
-	def platforms(self) -> Sequence[str]:
-		"""Really just here for debugging/testing, forces ROMs game source to only use certain platforms"""
-		return []
-	
-	@configoption
-	def find_equivalent_arcade_games(self) -> bool:
-		'Get info from MAME machines of the same name'
-		return False
+	platforms: Sequence[str] = Field(default_factory=tuple)
+	"""Really just here for debugging/testing, forces ROMs game source to only use certain platforms"""
 
-	@configoption
-	def max_size_for_storing_in_memory(self) -> int:
-		'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'
-		return 1024 * 1024
+	find_equivalent_arcade_games: bool = False
+	'Get info from MAME machines of the same name'
+
+	max_size_for_storing_in_memory: int = 1024 * 1024
+	"Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn't actually speed things up)"

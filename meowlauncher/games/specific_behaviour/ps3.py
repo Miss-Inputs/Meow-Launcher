@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 from collections.abc import Mapping
 
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
 from meowlauncher.games.roms.rom import FolderROM

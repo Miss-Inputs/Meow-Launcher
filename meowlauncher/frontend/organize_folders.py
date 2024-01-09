@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""This is sort of considered separate from the main launcher generator.
+Consider it to be its own kind of frontend, perhaps.
+This code sucks titty balls, so it will probably all be thrown out the window and redone at some point"""
 
 import datetime
 import logging
@@ -9,16 +12,13 @@ from collections.abc import Callable, Collection
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import sanitize_name
 
 if TYPE_CHECKING:
 	from configparser import RawConfigParser
 
-__doc__ = """This is sort of considered separate from the main launcher generator.
-Consider it to be its own kind of frontend, perhaps.
-This code sucks titty balls, so it will probably all be thrown out the window and redone at some point"""
 
 time_logger = logging.getLogger('meowlauncher.frontend.time')
 

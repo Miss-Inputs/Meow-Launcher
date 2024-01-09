@@ -1,6 +1,6 @@
 from pathlib import Path, PurePath
 
-from meowlauncher.config.config import main_config
+from meowlauncher.config import main_config
 from meowlauncher.config_types import RunnerConfig, RunnerConfigValue
 from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig
 
