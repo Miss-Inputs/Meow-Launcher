@@ -12,6 +12,7 @@ from meowlauncher.settings.settings import MainConfig, Settings
 from meowlauncher.version import __version__
 
 settings_classes: Collection[type[Settings]] = {
+	MainConfig,
 	ArcadeMAMEConfig,
 	ROMsConfig,
 	SteamConfig,
@@ -23,8 +24,6 @@ settings_classes: Collection[type[Settings]] = {
 
 def _setup_config():
 	"""Initializes config with command line arguments, etc"""
-
-	_main_config = MainConfig()
 
 	parser = ArgumentParser(add_help=True, prog=f'python -m {__package__}')
 	parser.add_argument('--version', action='version', version=__version__)
@@ -39,10 +38,10 @@ def _setup_config():
 	for k, v in vars(parser.parse_intermixed_args()).items():
 		cls, option_name = option_to_config[k]
 		setattr(settings.setdefault(cls, cls()), option_name, v)
-	return _main_config, settings
+	return settings
 
 
-main_config, __current_config = _setup_config()
+__current_config = _setup_config()
 T = TypeVar('T', bound=Settings)
 
 
@@ -52,3 +51,6 @@ def current_config(cls: type[T]) -> T:
 		return cls()
 	assert isinstance(config, cls)
 	return config
+
+
+main_config = current_config(MainConfig)

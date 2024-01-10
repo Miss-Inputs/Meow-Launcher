@@ -1,12 +1,11 @@
 """Config options are defined here, other than those specific to emulators or platforms"""
 
 import logging
-from abc import ABC, abstractmethod
-from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
-from collections.abc import Callable, Collection, Mapping, Sequence
-from functools import update_wrapper
+from abc import abstractmethod
+from argparse import ArgumentParser, BooleanOptionalAction
+from collections.abc import Collection, Sequence
 from pathlib import Path, PurePath
-from typing import Any, Generic, Literal, TypeVar, get_args, get_origin, overload
+from typing import Literal, get_args
 
 from class_doc import extract_docs_from_cls_obj
 from pydantic import Field
@@ -112,7 +111,7 @@ class Settings(BaseSettings):
 	@classmethod
 	def add_argparser_group(cls, argparser: ArgumentParser) -> None:
 		"""Adds a group for this config to an ArgumentParser. See config for how to parse it - to avoid namespace collisions, the qualified name of this class is added"""
-		group = argparser.add_argument_group(cls.section(), description=cls.section_help())
+		group = argparser if cls.section() == MainConfig.section() else argparser.add_argument_group(cls.section(), description=cls.section_help())
 		prefix = cls.prefix()
 		docstrings = extract_docs_from_cls_obj(cls)
 
@@ -124,7 +123,7 @@ class Settings(BaseSettings):
 			description = v.description or (docstrings[k][0] if k in docstrings else None)
 			destination_in_namespace = f'{cls.__qualname__}.{k}'
 
-			default = v.default_factory() if callable(v.default_factory) else v.default
+			default = v.get_default(call_default_factory=True)
 			t = _remove_optional(v.annotation)
 			if t == bool:
 				group.add_argument(
@@ -159,6 +158,8 @@ class Settings(BaseSettings):
 				if not t:
 					logger.warning('%s in %s has no type annotation, defaulting to str', k, cls)
 					t = str
+				if not callable(t):
+					t = parse_value
 				group.add_argument(
 					option,
 					type=t,
@@ -192,7 +193,7 @@ class MainConfig(Settings):
 	disambiguate: bool = True
 	"""After adding games, add info in brackets to the end of the names of games that have the same name to identify them (such as what type or platform they are), defaults to true"""
 
-	logging_level: int | str = logging.getLevelName(logger.getEffectiveLevel())
+	logging_level: str = Field(default_factory=lambda: logging.getLevelName(logger.getEffectiveLevel()))
 	"""Logging level (e.g. INFO, DEBUG, WARNING, etc)"""
 
 	other_images_to_use_as_icons: Sequence[str] = Field(default_factory=list)

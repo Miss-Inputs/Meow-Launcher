@@ -30,17 +30,17 @@ def parse_bool(value: str) -> bool:
 
 	raise ValueError(value)
 
-def parse_value(value: str, value_type: type) -> Any:
+def parse_value(value: str, value_annotation: type) -> Any:
 	"""Parses a user-supplied (via config etc) string into whatever type it is expected to be"""
-	if value_type == bool:
+	if value_annotation == bool:
 		return parse_bool(value)
-	if value_type in {Path, PurePath}:
+	if value_annotation in {Path, PurePath}:
 		return Path(value).expanduser()
-	if value_type == Sequence[str]:
+	if value_annotation == Sequence[str]:
 		return parse_string_list(value)
-	if value_type in {Sequence[Path], Sequence[PurePath]}:
+	if value_annotation in {Sequence[Path], Sequence[PurePath]}:
 		return parse_path_list(value)
-	return value_type(value)
+	return value_annotation(value)
 
 def parse_config_section_value(section: 'configparser.SectionProxy', name: str, value_type: type, default_value: Any) -> Any:
 	"""TODO: This is currently used by platform_config and emulator_config and probably won't be when they are reworked"""
