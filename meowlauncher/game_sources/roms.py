@@ -6,9 +6,6 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 
 from meowlauncher.config import main_config
-from meowlauncher.settings.emulator_config import emulator_configs
-from meowlauncher.settings.platform_config import platform_configs
-from meowlauncher.settings.settings import Settings, ignored_directories
 from meowlauncher.config_types import EmulatorConfig, PlatformConfig, TypeOfConfigValue
 from meowlauncher.configured_emulator import ConfiguredStandardEmulator, LibretroCoreWithFrontend
 from meowlauncher.data.emulated_platforms import platforms
@@ -30,6 +27,9 @@ from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.rom_info import add_info
 from meowlauncher.games.roms.roms_config import ROMsConfig
+from meowlauncher.settings.emulator_config import emulator_configs
+from meowlauncher.settings.platform_config import platform_configs
+from meowlauncher.settings.settings import Settings, ignored_directories
 from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
 

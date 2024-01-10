@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import contextlib
 import re
 from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path
@@ -149,10 +150,8 @@ def _get_series_from_whole_thing(series: str, whole_name: str) -> str:
 	if rest:
 		if rest not in _probably_not_a_series_index:
 			#Don't convert things that aren't actually roman numerals
-			try:
+			with contextlib.suppress(ValueError):
 				rest = str(convert_roman_numeral(rest))
-			except ValueError:
-				pass
 			return convert_roman_numerals_in_title(rest)
 		return rest
 	

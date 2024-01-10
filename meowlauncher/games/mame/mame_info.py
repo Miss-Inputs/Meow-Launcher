@@ -1,7 +1,8 @@
-from fractions import Fraction
+import contextlib
 import logging
 from collections import Counter
 from collections.abc import Iterable, Sequence
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
 
@@ -10,13 +11,20 @@ from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.games.mame_common.machine import Machine
 from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_support_files import (
-    ArcadeCategory, MachineCategory, add_history, get_category, get_languages,
-    organize_catlist)
-from meowlauncher.games.mame_common.mame_utils import (image_config_keys,
-                                                       iter_cpus)
+	ArcadeCategory,
+	MachineCategory,
+	add_history,
+	get_category,
+	get_languages,
+	organize_catlist,
+)
+from meowlauncher.games.mame_common.mame_utils import image_config_keys, iter_cpus
 from meowlauncher.util.detect_things_from_filename import (
-    get_languages_from_tags_directly, get_regions_from_filename_tags,
-    get_revision_from_filename_tags, get_version_from_filename_tags)
+	get_languages_from_tags_directly,
+	get_regions_from_filename_tags,
+	get_revision_from_filename_tags,
+	get_version_from_filename_tags,
+)
 from meowlauncher.util.region_info import get_common_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, format_unit, pluralize
 
@@ -36,9 +44,8 @@ _not_actually_save_supported = {'diggerma', 'neobombe', 'pbobbl2n', 'popbounc', 
 
 def _format_count(list_of_something: Iterable[Any]) -> str | None:
 	counter = Counter(list_of_something)
-	if len(counter) == 1:
-		if next(iter(counter.keys()), None) is None:
-			return None
+	if len(counter) == 1 and next(iter(counter.keys()), None) is None:
+		return None
 	return ' + '.join(str(value) if count == 1 else f'{value} * {count}' for value, count in counter.items() if value)
 
 class CPU():
@@ -47,10 +54,8 @@ class CPU():
 		self.tag = xml.attrib.get('tag')
 		self.clock_speed = None
 		if xml.attrib['name'] != 'Netlist CPU Device' and 'clock' in xml.attrib:
-			try:
+			with contextlib.suppress(ValueError):
 				self.clock_speed = int(xml.attrib['clock'])
-			except ValueError:
-				pass
 
 class CPUInfo():
 	def __init__(self, cpus: Iterable[CPU]) -> None:

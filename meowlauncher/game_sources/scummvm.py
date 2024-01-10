@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 
 from meowlauncher import global_runners
 from meowlauncher.config import main_config
-from meowlauncher.settings.settings import Settings
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig, scummvm_config
 from meowlauncher.games.scummvm.scummvm_game import ScummVMGame, ScummVMLauncher
+from meowlauncher.settings.settings import Settings
 from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
@@ -32,9 +32,8 @@ class ScummVM(GameSource):
 			if section == 'cloud':
 				#This is not a game either
 				continue
-			if not main_config.full_rescan:
-				if has_been_done('ScummVM', section):
-					continue
+			if not main_config.full_rescan and has_been_done('ScummVM', section):
+				continue
 
 			game = ScummVMGame(section)
 			yield ScummVMLauncher(game, global_runners.scummvm)

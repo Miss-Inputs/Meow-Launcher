@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
 import logging
-from collections.abc import Sequence
 from pathlib import Path
 
-from pydantic import Field
-
-from meowlauncher.config import main_config
+from meowlauncher.config import current_config, main_config
 from meowlauncher.game_sources.settings import (
 	GOGConfig,
 	default_gog_folder,
@@ -22,7 +19,6 @@ from meowlauncher.games.gog import (
 	WineGOGGame,
 )
 from meowlauncher.util.desktop_files import has_been_done
-from meowlauncher.config import current_config
 
 logger = logging.getLogger(__name__)
 gog_config = current_config(GOGConfig)
@@ -83,9 +79,8 @@ def _do_linux_gog_games() -> None:
 			continue
 
 		for subfolder in gog_folder.iterdir():
-			if not main_config.full_rescan:
-				if has_been_done('GOG', str(subfolder)):
-					continue
+			if not main_config.full_rescan and has_been_done('GOG', str(subfolder)):
+				continue
 			if not subfolder.is_dir():
 				continue
 			if not (game := look_in_linux_gog_folder(subfolder)):
@@ -107,9 +102,8 @@ def _do_windows_gog_games() -> None:
 			continue
 
 		for subfolder in windows_gog_folder.iterdir():
-			if not main_config.full_rescan:
-				if has_been_done('GOG', str(subfolder)):
-					continue
+			if not main_config.full_rescan and has_been_done('GOG', str(subfolder)):
+				continue
 			if not subfolder.is_dir():
 				continue
 			if not (windows_game := look_in_windows_gog_folder(subfolder)):

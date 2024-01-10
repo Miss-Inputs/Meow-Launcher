@@ -2,8 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from meowlauncher.emulator import Emulator
 from meowlauncher.config import current_config
+from meowlauncher.emulator import Emulator
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping, Sequence

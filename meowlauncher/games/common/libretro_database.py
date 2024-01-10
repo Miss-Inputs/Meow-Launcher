@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import contextlib
 import functools
 import logging
 import os
@@ -124,19 +125,14 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseTy
 	dat_folder = Path(libretro_database_path, 'dat')
 	metadat_folder = Path(libretro_database_path, 'metadat')
 	
-	try:
-		for file in dat_folder.iterdir():
-			if file.stem == name and file.suffix == '.dat':
-				relevant_dats.append(file)
-	except OSError:
-		pass
+	with contextlib.suppress(OSError):
+		relevant_dats += [file for file in dat_folder.iterdir() if file.stem == name and file.suffix == '.dat']
 	if metadat_folder.is_dir():
 		for root, _, files in os.walk(metadat_folder):
 			for filename in files:
 				path = Path(root, filename)
-				if path.stem == name and path.suffix == '.dat':
-					if path.is_file():
-						relevant_dats.append(path)
+				if path.stem == name and path.suffix == '.dat' and path.is_file():
+					relevant_dats.append(path)
 	
 	if not relevant_dats:
 		logger.info('Megan is a dork error: %s', name)

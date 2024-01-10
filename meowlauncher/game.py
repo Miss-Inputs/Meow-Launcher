@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from meowlauncher.info import GameInfo
 
+
 class Game(ABC):
 	"""Base class for Game, whatever it really does by itself, I dunno
 	Whoops!

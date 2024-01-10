@@ -3,8 +3,7 @@ from zlib import crc32
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.util.utils import (NotAlphanumericException,
-                                     convert_alphanumeric, load_dict)
+from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM

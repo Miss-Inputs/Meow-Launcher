@@ -30,6 +30,7 @@ from meowlauncher.util.desktop_files import has_been_done
 
 class Arcade(GameSource):
 	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here as they are launchable by MAME (nitpicking is not allwoed)"""
+
 	def __init__(self) -> None:
 		super().__init__()
 		self.config: ArcadeMAMEConfig
@@ -40,7 +41,9 @@ class Arcade(GameSource):
 				self.emu = ConfiguredMAME(mame_config)
 		except MAMENotInstalledException:
 			pass
-		self.platform_config = PlatformConfig('MAME', set(), (), {}) #TODO: Refactor EmulatedGame constructor so we don't do this
+		self.platform_config = PlatformConfig(
+			'MAME', set(), (), {}
+		)  # TODO: Refactor EmulatedGame constructor so we don't do this
 
 	@classmethod
 	def description(cls) -> str:
@@ -61,11 +64,13 @@ class Arcade(GameSource):
 
 	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		"""Returns a launcher for this machine, or none if it can't/shouldn't/etc"""
-		assert self.emu, 'Arcade._process_machine should never be called without checking is_available! What the'
+		assert (
+			self.emu
+		), 'Arcade._process_machine should never be called without checking is_available! What the'
 		if machine.source_file in self.config.skipped_source_files:
 			return None
 
-		if machine.is_bios: #Hmm, technically there's nothing stopping you launching these, but generally nobody wants this
+		if machine.is_bios:  # Hmm, technically there's nothing stopping you launching these, but generally nobody wants this
 			return None
 
 		if self.config.exclude_system_drivers and machine.is_system_driver:
@@ -74,14 +79,18 @@ class Arcade(GameSource):
 		if not machine.launchable:
 			return None
 
-		if self.config.exclude_non_working and machine.emulation_status == MAMEStatus.Preliminary and machine.basename not in self.config.non_working_whitelist:
-			#This will need to be refactored if anything other than MAME is added
-			#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
+		if (
+			self.config.exclude_non_working
+			and machine.emulation_status == MAMEStatus.Preliminary
+			and machine.basename not in self.config.non_working_whitelist
+		):
+			# This will need to be refactored if anything other than MAME is added
+			# The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 			return None
 
 		if machine.is_probably_skeleton_driver:
-			#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
-			#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
+			# Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
+			# this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 			return None
 
 		game = MAMEGame(machine, self.platform_config, self.config)
@@ -89,27 +98,34 @@ class Arcade(GameSource):
 			return None
 
 		if not self.emu.executable.verifyroms(machine.basename):
-			#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
-			#However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
+			# We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
+			# However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
 			return None
 
 		add_info(game)
-		
+
 		return MAMELauncher(game, self.emu)
 
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
-		assert self.emu, 'Arcade.iter_launchers should never be called without checking is_available! What the'
+		assert (
+			self.emu
+		), 'Arcade.iter_launchers should never be called without checking is_available! What the'
 		if self.config.drivers:
 			for driver_name in self.config.drivers:
 				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
 				if launcher:
 					yield launcher
-			return 
+			return
 
-		for machine in iter_machines_from_source_file(self.config.source_files, self.emu.executable) if self.config.source_files else iter_machines(self.emu.executable):
-			if not main_config.full_rescan:
-				if has_been_done('Arcade / standalone machines', machine.basename):
-					continue
+		for machine in (
+			iter_machines_from_source_file(self.config.source_files, self.emu.executable)
+			if self.config.source_files
+			else iter_machines(self.emu.executable)
+		):
+			if not main_config.full_rescan and has_been_done(
+				'Arcade / standalone machines', machine.basename
+			):
+				continue
 
 			launcher = self._process_machine(machine)
 			if launcher:
@@ -118,6 +134,7 @@ class Arcade(GameSource):
 	@classmethod
 	def game_type(cls) -> str:
 		return 'Arcade / standalone machines'
+
 
 class MAMEInbuiltGames(GameSource):
 	"""MAME machines that are consoles, etc that have games inbuilt into them which wouldn't be used with just ROMs"""
@@ -152,17 +169,19 @@ class MAMEInbuiltGames(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not self.emu or not self.emu.executable.verifyroms(game_id.split(':')[0])
 
-	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None=None) -> MAMEInbuiltLauncher | None:
+	def _process_inbuilt_game(
+		self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None = None
+	) -> MAMEInbuiltLauncher | None:
 		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
 		if not self.emu.executable.verifyroms(machine_name):
 			return None
 
-		#Actually, this probably doesn't matter at all… but eh, just feels more correct than simply passing blank_platform_config to satisfy EmulatedGame constructor
+		# Actually, this probably doesn't matter at all… but eh, just feels more correct than simply passing blank_platform_config to satisfy EmulatedGame constructor
 		platform_config = platform_configs.get(inbuilt_game.platform, self.blank_platform_config)
-			
-		#MachineNotFoundException shouldn't happen because verifyroms already returned true? Probably
+
+		# MachineNotFoundException shouldn't happen because verifyroms already returned true? Probably
 		machine = get_machine(machine_name, self.emu.executable)
-		
+
 		game = MAMEInbuiltGame(machine_name, inbuilt_game, platform_config, bios_name)
 		add_status(machine, game.info)
 		return MAMEInbuiltLauncher(game, self.emu)
@@ -177,8 +196,12 @@ class MAMEInbuiltGames(GameSource):
 				yield launcher
 		for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
 			if not main_config.full_rescan:
-				if has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
+				if has_been_done(
+					'Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]
+				):
 					continue
-			launcher = self._process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])
+			launcher = self._process_inbuilt_game(
+				machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1]
+			)
 			if launcher:
-				yield launcher	
+				yield launcher

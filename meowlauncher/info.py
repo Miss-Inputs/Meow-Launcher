@@ -3,11 +3,13 @@ from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.input_info import InputInfo
-from meowlauncher.util.region_info import Language, Region
 
 if TYPE_CHECKING:
-	from collections.abc import MutableMapping, Collection, Sequence
+	from collections.abc import Collection, MutableMapping, Sequence
+
 	from PIL.Image import Image
+
+	from meowlauncher.util.region_info import Language, Region
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
 #to_info_fields should probably be in desktop_files
