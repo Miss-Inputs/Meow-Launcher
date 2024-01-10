@@ -59,7 +59,7 @@ class Emulator(Runner, Generic[EmulatorGameType_co]):
 		self.status = status
 		self.default_exe_name = default_exe_name
 		self.launch_command_func = launch_command_func
-		self.configs = configs or {} # TODO: Use this, just leaving it here for now
+		self.configs = configs or {}  # TODO: Use this, just leaving it here for now
 
 	@property
 	def name(self) -> str:
@@ -140,7 +140,9 @@ class MAMEDriver(StandardEmulator):
 					'0 = broken 1 = imperfect 2 = working other value = ignore; anything in the software list needs this to be considered compatible or -1 to ignore',
 				),
 				'skip_unknown_stuff': RunnerConfigValue(
-					bool, False, "Skip anything that doesn't have a match in the software list"
+					bool,
+					default_value=False,
+					description="Skip anything that doesn't have a match in the software list",
 				),
 			}
 		)
@@ -248,7 +250,7 @@ class LibretroFrontend(Runner):
 		self.launch_command_func = launch_command_func
 		self.supported_compression = supported_compression if supported_compression else ()
 		self.config_name = name  # emulator_configs needs this, as we have decided that frontends can have their own config
-		self.configs = {} #TODO: XXX: this is just here to make it work for now
+		self.configs = {}  # TODO: XXX: this is just here to make it work for now
 		super().__init__(host_platform)
 
 	@property

@@ -10,11 +10,13 @@ from meowlauncher.exceptions import NotLaunchableError
 
 try:
 	import termcolor
+
 	have_termcolor = True
 except ImportError:
 	have_termcolor = False
 
 _find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
+
 
 def find_tags(name: str) -> tuple[str, Sequence[str]]:
 	"""(name without tags, tags)
@@ -29,20 +31,24 @@ def find_tags(name: str) -> tuple[str, Sequence[str]]:
 		start = search.span()[0]
 		result = result[:start]
 		if not result:
-			#Handle the whole name being (all in parentheses)
+			# Handle the whole name being (all in parentheses)
 			return name, ()
 		if result[-1] == ' ':
 			result = result[:-1]
 	return result, tags[::-1]
 
+
 def find_filename_tags_at_end(name: str) -> Sequence[str]:
 	return find_tags(name)[1]
+
 
 def remove_filename_tags(name: str) -> str:
 	return find_tags(name)[0]
 
-class NotAlphanumericException(Exception):
+
+class NotAlphanumericError(Exception):
 	"""Thrown from convert_alphanumeric"""
+
 
 def convert_alphanumeric(byte_array: bytes) -> str:
 	"""Decodes byte_array as though it was UTF-8 or ASCII, but enforces it is alphanumeric
@@ -52,18 +58,23 @@ def convert_alphanumeric(byte_array: bytes) -> str:
 	for byte in byte_array:
 		char = chr(byte)
 		if not char.isalnum():
-			raise NotAlphanumericException(char)
+			raise NotAlphanumericError(char)
 		string += char
 	return string
 
-junk_suffixes = re.compile(r'((?:(?:,)? (?:Inc|LLC|Kft)|(?:Co\.)?(?:,)? Ltd|Corp|GmbH)(?:\.)?|Co\.)$')
 
-def pluralize(n: int, singular: str, plural: str|None=None) -> str:
+junk_suffixes = re.compile(
+	r'((?:(?:,)? (?:Inc|LLC|Kft)|(?:Co\.)?(?:,)? Ltd|Corp|GmbH)(?:\.)?|Co\.)$'
+)
+
+
+def pluralize(n: int, singular: str, plural: str | None = None) -> str:
 	if n == 1:
 		return singular
 	if not plural:
 		plural = singular + 's'
 	return f'{n} {plural}'
+
 
 def convert_roman_numeral(s: str) -> int:
 	"""If s is a Roman numeral, returns the integer value
@@ -93,10 +104,12 @@ def convert_roman_numeral(s: str) -> int:
 			if next_char not in units:
 				raise ValueError('Invalid char: ' + next_char)
 			next_char_value, next_unit_index = units[next_char]
-			if next_unit_index == unit_index + 1 or (int(next_unit_index) == unit_index and next_unit_index != unit_index):
-				#Subtractive notation thingo
-				#IV and IX are valid, but VX is not valid, probably
-				value += (next_char_value - char_value)
+			if next_unit_index == unit_index + 1 or (
+				int(next_unit_index) == unit_index and next_unit_index != unit_index
+			):
+				# Subtractive notation thingo
+				# IV and IX are valid, but VX is not valid, probably
+				value += next_char_value - char_value
 				i += 2
 				continue
 			if unit_index < next_unit_index:
@@ -105,18 +118,22 @@ def convert_roman_numeral(s: str) -> int:
 		i += 1
 	return value
 
+
 def is_roman_numeral(s: str) -> bool:
 	"""Detects if s is convertible using convert_roman_numeral"""
 	try:
 		convert_roman_numeral(s)
-		return True
 	except ValueError:
 		return False
+	else:
+		return True
+
 
 def title_word(s: str) -> str:
 	"""Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns"""
 	actual_word_parts = re.split(r"([\w']+)", s)
 	return ''.join(part.capitalize() for part in actual_word_parts)
+
 
 def remove_capital_article(s: str | None) -> str:
 	if not s:
@@ -129,8 +146,12 @@ def remove_capital_article(s: str | None) -> str:
 		new_words.append(lower if lower in {'the', 'a'} else word)
 	return ' '.join(new_words)
 
-def clean_string(s: str, preserve_newlines: bool=False) -> str:
-	return ''.join(c for c in s if c.isprintable() or c == '\t' or (c in {'\n', '\r'} and preserve_newlines))
+
+def clean_string(s: str, preserve_newlines: bool = False) -> str:
+	return ''.join(
+		c for c in s if c.isprintable() or c == '\t' or (c in {'\n', '\r'} and preserve_newlines)
+	)
+
 
 def byteswap(b: bytes) -> bytes:
 	bb = b if len(b) % 2 == 0 else b[:-1]
@@ -142,7 +163,12 @@ def byteswap(b: bytes) -> bytes:
 		byte_array.append(last_byte)
 	return bytes(byte_array)
 
-_dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
+
+_dict_line_regex = re.compile(
+	r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$'
+)
+
+
 def load_dict(subpackage: str | None, resource: str) -> Mapping[int | str, str]:
 	d = {}
 	package = 'meowlauncher.data'
@@ -159,20 +185,34 @@ def load_dict(subpackage: str | None, resource: str) -> Mapping[int | str, str]:
 			d[key] = match['value']
 	return d
 
+
 def load_list(subpackage: str | None, resource: str) -> Sequence[str]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
-	return tuple(line for line in (line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
+	return tuple(
+		line
+		for line in (
+			line.split('#', 1)[0]
+			for line in importlib.resources.read_text(package, resource + '.list').splitlines()
+		)
+		if line
+	)
+
 
 def load_json(subpackage: str | None, resource: str) -> Any:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
-	with importlib.resources.open_binary(package, resource) as f: #It would be text, but I don't know if I wanna accidentally fuck around with encodings
+	with importlib.resources.open_binary(
+		package, resource
+	) as f:  # It would be text, but I don't know if I wanna accidentally fuck around with encodings
 		return json.load(f)
 
-def format_unit(n: int | float, suffix: str, base_unit: int=1000, singular_suffix: str|None=None) -> str:
+
+def format_unit(
+	n: float, suffix: str, base_unit: int = 1000, singular_suffix: str | None = None
+) -> str:
 	try:
 		if n < base_unit:
 			return f'{n:n} {singular_suffix if singular_suffix else suffix}'
@@ -182,47 +222,75 @@ def format_unit(n: int | float, suffix: str, base_unit: int=1000, singular_suffi
 	for i, unit_suffix in enumerate(unit_suffixes, 1):
 		if n >= base_unit ** (i + 1):
 			continue
-		unit = base_unit ** i
+		unit = base_unit**i
 		div, mod = divmod(n, unit)
 		if not mod:
 			return f'{div:n} {unit_suffix}{suffix}'
-		#Would like to use :n here, but then it doesn't work for having only two decimal points (ideally I'd want one or two or none, but not precisely 2, and not removing decimals if there is one)
+		# Would like to use :n here, but then it doesn't work for having only two decimal points (ideally I'd want one or two or none, but not precisely 2, and not removing decimals if there is one)
 		return f'{n / unit:.2f}'.rstrip('0') + f' {unit_suffix}{suffix}'
-	return f'{n / (base_unit ** len(unit_suffixes)):.2f}'.rstrip('0') + f' {unit_suffixes[-1]}{suffix}'
-	
-def format_byte_size(b: int, metric: bool=False) -> str:
+	return (
+		f'{n / (base_unit ** len(unit_suffixes)):.2f}'.rstrip('0') + f' {unit_suffixes[-1]}{suffix}'
+	)
+
+
+def format_byte_size(b: int, metric: bool = False) -> str:
 	return format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
-	
+
+
 def decode_bcd(i: int) -> int:
-	hi = (i & 0xf0) >> 4
-	lo = i & 0x0f
+	hi = (i & 0xF0) >> 4
+	lo = i & 0x0F
 	return (hi * 10) + lo
+
 
 class ColouredFormatter(logging.Formatter):
 	"""Formats stuff as different colours with termcolor (if it can) depending on log level"""
+
 	def format(self, record: logging.LogRecord) -> str:
 		message = super().format(record)
 		if have_termcolor:
-			#TODO: Make this configurable lol whoops
-			message = termcolor.colored(message, {logging.WARNING: 'yellow', logging.ERROR: 'red', logging.DEBUG: 'green'}.get(record.levelno))
+			# TODO: Make this configurable lol whoops
+			message = termcolor.colored(
+				message,
+				{logging.WARNING: 'yellow', logging.ERROR: 'red', logging.DEBUG: 'green'}.get(
+					record.levelno
+				),
+			)
 		return message
-		
+
+
 class NotLaunchableExceptionFormatter(ColouredFormatter):
 	"""Puts NotLaunchableException on one line as to read more naturally"""
+
 	def format(self, record: logging.LogRecord) -> str:
-		if record.exc_info:
-			if isinstance(record.exc_info[1], NotLaunchableError):
-				#Avoid super().format putting it on a new line
-				record.msg += f' because {"".join(record.exc_info[1].args)}'
-				record.exc_text = None
-				record.exc_info = None
+		if record.exc_info and isinstance(record.exc_info[1], NotLaunchableError):
+			# Avoid super().format putting it on a new line
+			record.msg += f' because {"".join(record.exc_info[1].args)}'
+			record.exc_text = None
+			record.exc_info = None
 		return super().format(record)
+
 
 class NoNonsenseConfigParser(RawConfigParser):
 	"""No "interpolation", no using : as a delimiter, no lowercasing every option, that's all silly"""
-	def __init__(self, defaults=None, allow_no_value=False, strict=True, empty_lines_in_values=True, comment_prefixes='#'):
-		#Less of these weird options please, just parse the ini
-		super().__init__(defaults=defaults, allow_no_value=allow_no_value, delimiters='=', comment_prefixes=comment_prefixes, strict=strict, empty_lines_in_values=empty_lines_in_values)
+
+	def __init__(
+		self,
+		defaults=None,
+		allow_no_value=False,
+		strict=True,
+		empty_lines_in_values=True,
+		comment_prefixes='#',
+	):
+		# Less of these weird options please, just parse the ini
+		super().__init__(
+			defaults=defaults,
+			allow_no_value=allow_no_value,
+			delimiters='=',
+			comment_prefixes=comment_prefixes,
+			strict=strict,
+			empty_lines_in_values=empty_lines_in_values,
+		)
 
 	def optionxform(self, optionstr: str) -> str:
 		return optionstr

@@ -3,7 +3,7 @@ from zlib import crc32
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
+from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric, load_dict
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
@@ -33,7 +33,7 @@ def _parse_gba_header(game_info: 'GameInfo', header: bytes) -> None:
 			game_info.specific_info['Force Feedback?'] = game_type in {'R', 'V'}
 
 			game_info.product_code = product_code
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 
 	licensee_code = None
@@ -42,7 +42,7 @@ def _parse_gba_header(game_info: 'GameInfo', header: bytes) -> None:
 
 		if licensee_code in nintendo_licensee_codes:
 			game_info.publisher = nintendo_licensee_codes[licensee_code]
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 
 	#"Fixed value": 0xb2, apparently should be 0x96

@@ -2,7 +2,7 @@
 TODO: Maybe .roms_config could just be accessible from ROMGame"""
 from collections.abc import Sequence
 
-from pydantic import Field
+from pydantic import ByteSize, Field
 
 from meowlauncher.settings.settings import Settings
 
@@ -26,5 +26,5 @@ class ROMsConfig(Settings):
 	find_equivalent_arcade_games: bool = False
 	'Get info from MAME machines of the same name'
 
-	max_size_for_storing_in_memory: int = 1024 * 1024
+	max_size_for_storing_in_memory: ByteSize = ByteSize(1024 * 1024)
 	"Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn't actually speed things up)"

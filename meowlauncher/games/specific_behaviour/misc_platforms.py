@@ -1,3 +1,5 @@
+"""Not worth putting these in their own source file I think
+#TODO: Yeah sure but they still belong somewhere else??"""
 from enum import Enum, auto
 from functools import lru_cache
 from typing import TYPE_CHECKING, cast
@@ -6,9 +8,11 @@ from meowlauncher import input_info
 from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_name, iter_machines_from_source_file)
-from meowlauncher.games.mame_common.mame_executable import \
-    MAMENotInstalledException
+	Machine,
+	does_machine_match_name,
+	iter_machines_from_source_file,
+)
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
@@ -19,8 +23,6 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
 
-__doc__ = """Not worth putting these in their own source file I think
-#TODO: Yeah sure but they still belong somewhere else??"""
 
 def add_vic10_custom_info(game: 'ROMGame') -> None:
 	#Input info: Keyboard or joystick

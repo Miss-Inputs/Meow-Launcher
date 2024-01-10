@@ -13,7 +13,7 @@ from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledExcep
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.util.region_info import regions_by_name
-from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
+from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric, load_dict
 
 from .common import snes_controllers as controllers
 
@@ -193,7 +193,7 @@ def _parse_snes_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, Any]':
 		try:
 			maker_code = convert_alphanumeric(header[0xB0:0xB2])
 			metadata['Licensee'] = maker_code
-		except NotAlphanumericException as nae:
+		except NotAlphanumericError as nae:
 			raise BadSNESHeaderError(
 				f'Licensee code in extended header not alphanumeric: {header[0xb0:0xb2].decode("ascii", errors="backslashreplace")}'
 			) from nae
@@ -201,12 +201,12 @@ def _parse_snes_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str, Any]':
 		try:
 			product_code = convert_alphanumeric(header[0xB2:0xB6])
 			metadata['Product code'] = product_code
-		except NotAlphanumericException as nae:
+		except NotAlphanumericError as nae:
 			if header[0xB4:0xB6] == b'  ':
 				try:
 					product_code = convert_alphanumeric(header[0xB2:0xB4])
 					metadata['Product code'] = product_code
-				except NotAlphanumericException as naenae:  # get naenaed
+				except NotAlphanumericError as naenae:  # get naenaed
 					raise BadSNESHeaderError(
 						f'2 char product code not alphanumeric: {header[0xb2:0xb4].decode("ascii", errors="backslashreplace")}'
 					) from naenae
@@ -271,7 +271,7 @@ def _parse_satellaview_header(rom: 'FileROM', base_offset: int) -> 'Mapping[str,
 	try:
 		publisher = convert_alphanumeric(header[0xB0:0xB2])
 		metadata['Publisher'] = publisher
-	except NotAlphanumericException as nae:
+	except NotAlphanumericError as nae:
 		raise BadSNESHeaderError('Publisher not alphanumeric') from nae
 
 	try:

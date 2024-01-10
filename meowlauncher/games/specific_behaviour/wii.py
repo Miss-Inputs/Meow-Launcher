@@ -16,7 +16,7 @@ from meowlauncher.games.roms.rom import FileROM, FolderROM
 from meowlauncher.info import Date
 from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.settings.platform_config import platform_configs
-from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
+from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric, load_dict
 
 from .common.gamecube_wii_common import (
 	NintendoDiscRegion,
@@ -88,7 +88,7 @@ def _parse_tmd(metadata: 'GameInfo', tmd: bytes) -> None:
 		maker_code = convert_alphanumeric(tmd[408:410])
 		if maker_code in _nintendo_licensee_codes:
 			metadata.publisher = _nintendo_licensee_codes[maker_code]
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 	
 	if product_code:

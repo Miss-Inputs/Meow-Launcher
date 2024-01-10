@@ -1,15 +1,18 @@
 import hashlib
 import subprocess
+from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.games.mame_common.software_list import (
-    find_in_software_lists, matcher_args_for_bytes)
+	find_in_software_lists,
+	matcher_args_for_bytes,
+)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import Atari2600Controller
+from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.util.region_info import TVSystem
 
 from .common import atari_controllers as controllers
@@ -23,8 +26,9 @@ if TYPE_CHECKING:
 _stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
+@cache
 def get_stella_database(exe: Path) -> 'Mapping[str, Mapping[str, str]]':
-	proc = subprocess.run([exe, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+	proc = subprocess.run([exe, '-listrominfo'], stdout=subprocess.PIPE, text=True, check=True)
 
 	lines = proc.stdout.splitlines()
 	first_line = lines[0]
@@ -225,25 +229,8 @@ def _parse_peripherals(metadata: 'GameInfo') -> None:
 	if right is not None and right != left:
 		_add_input_info_from_peripheral(metadata, right)
 
-class StellaDB():
-	class __StellaDB():
-		def __init__(self) -> None:
-			self.db = None
-			if _stella_configs:
-				try:
-					self.db = get_stella_database(_stella_configs.exe_path)
-				except (subprocess.CalledProcessError, FileNotFoundError):
-					pass
-
-	__instance = None
-	@staticmethod
-	def get_stella_db() -> 'Mapping[str, Mapping[str, str]] | None':
-		if StellaDB.__instance is None:
-			StellaDB.__instance = StellaDB.__StellaDB()
-		return StellaDB.__instance.db
-
 def add_atari_2600_custom_info(game: 'ROMGame') -> None:
-	stella_db = StellaDB.get_stella_db()
+	stella_db = get_stella_database()
 
 	whole_cart = cast(FileROM, game.rom).read()
 	if stella_db:

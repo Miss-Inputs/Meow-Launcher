@@ -5,6 +5,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+import contextlib
 import logging
 import os
 from enum import Enum
@@ -17,7 +18,7 @@ from meowlauncher.data.name_cleanup._3ds_publisher_overrides import consistentif
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.utils import (
-	NotAlphanumericException,
+	NotAlphanumericError,
 	convert_alphanumeric,
 	junk_suffixes,
 	load_dict,
@@ -31,7 +32,6 @@ from .common.nintendo_common import (
 	add_ratings_info,
 )
 from .static_platform_info import add_3ds_info
-import contextlib
 
 if TYPE_CHECKING:
 	from collections.abc import Mapping
@@ -125,7 +125,7 @@ def _parse_ncch(rom: FileROM, game_info: 'GameInfo', offset: int) -> None:
 		maker = convert_alphanumeric(header[12:14])
 		if maker in nintendo_licensee_codes:
 			game_info.publisher = nintendo_licensee_codes[maker]
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 	game_info.specific_info['NCCH Version'] = int.from_bytes(header[14:16], 'little')  # Always 2?
 	# Something about a hash: 16-20

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.util.utils import (NotAlphanumericException,
+from meowlauncher.util.utils import (NotAlphanumericError,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
@@ -42,12 +42,12 @@ def add_virtual_boy_rom_info(rom: FileROM, metadata: 'GameInfo') -> None:
 			metadata.publisher = nintendo_licensee_codes[licensee_code]
 		elif licensee_code in unofficial_vb_publishers:
 			metadata.publisher = unofficial_vb_publishers[licensee_code]
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 
 	try:
 		metadata.product_code = convert_alphanumeric(header[27:31])
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 	#Can get country from product_code[3] if needed
 

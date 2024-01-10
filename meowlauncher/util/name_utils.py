@@ -50,8 +50,7 @@ def fix_name(name: str) -> str:
 	name = normalize_name_case(name, name_to_test_for_upper)
 		
 	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
-	name = _name_suffix_matcher.sub(r' (\1)', name)
-	return name
+	return _name_suffix_matcher.sub(r' (\1)', name)
 
 tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor')
 def is_probably_related_tool(name: str | None) -> bool:

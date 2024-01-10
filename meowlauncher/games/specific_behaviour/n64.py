@@ -10,7 +10,7 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.utils import (NoNonsenseConfigParser,
-                                     NotAlphanumericException, byteswap,
+                                     NotAlphanumericError, byteswap,
                                      convert_alphanumeric)
 
 if TYPE_CHECKING:
@@ -83,7 +83,7 @@ def _parse_n64_header(metadata: 'GameInfo', header: bytes) -> None:
 	try:
 		product_code = convert_alphanumeric(header[59:63])
 		metadata.product_code = product_code
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 	metadata.specific_info['Revision'] = header[63]
 

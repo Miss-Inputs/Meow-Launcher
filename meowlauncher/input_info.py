@@ -3,13 +3,14 @@ from collections.abc import Collection, MutableSequence
 from meowlauncher.util.utils import pluralize
 
 
-class Controller():
+class Controller:
 	def describe(self) -> str:
 		return type(self).__name__
 
 	@property
 	def is_standard(self) -> bool:
 		return False
+
 
 class NormalController(Controller):
 	def __init__(self) -> None:
@@ -30,19 +31,18 @@ class NormalController(Controller):
 			return False
 		if self.dpads > 1:
 			if (self.analog_sticks + self.dpads) > 3:
-				#It's okay to have two digital joysticks if one can just be mapped to one of the analog sticks
+				# It's okay to have two digital joysticks if one can just be mapped to one of the analog sticks
 				return False
 
 		if self.face_buttons > 4:
 			return False
 
-		if self.shoulder_buttons > 2:
-			if (self.shoulder_buttons + self.analog_triggers) > 4:
-				#It's okay to have 4 shoulder buttons if two can be mapped to the analog triggers
-				return False
+		if self.shoulder_buttons > 2 and (self.shoulder_buttons + self.analog_triggers) > 4:
+			# It's okay to have 4 shoulder buttons if two can be mapped to the analog triggers
+			return False
 
 		if self.analog_triggers > 2:
-			#Anything more than that is definitely non-standard, regardless of how I go with my "are analog triggers standard" debate
+			# Anything more than that is definitely non-standard, regardless of how I go with my "are analog triggers standard" debate
 			return False
 
 		return True
@@ -62,8 +62,10 @@ class NormalController(Controller):
 
 		return ' + '.join(description)
 
+
 class Biological(Controller):
 	"""e.g. Mindlink for Atari 2600 (actually just senses muscle movement); N64 heart rate sensor"""
+
 
 class Dial(Controller):
 	def __init__(self) -> None:
@@ -74,6 +76,7 @@ class Dial(Controller):
 			return f'{self.buttons}-button dial'
 		return 'Dial'
 
+
 class Gambling(Controller):
 	def __init__(self) -> None:
 		self.buttons = 0
@@ -83,14 +86,16 @@ class Gambling(Controller):
 			return f'{self.buttons}-button gambling controls'
 		return 'Gambling Controls'
 
+
 class Hanafuda(Controller):
 	def __init__(self) -> None:
-		self.buttons = 0 #Or are they more accurately called keys
+		self.buttons = 0  # Or are they more accurately called keys
 
 	def describe(self) -> str:
 		if self.buttons > 0:
 			return f'{self.buttons}-button hanafuda controller'
 		return 'Hanafuda Controller'
+
 
 class Keyboard(Controller):
 	def __init__(self) -> None:
@@ -101,6 +106,7 @@ class Keyboard(Controller):
 			return f'{self.keys}-key keyboard'
 		return 'Keyboard'
 
+
 class Keypad(Controller):
 	def __init__(self) -> None:
 		self.keys = 0
@@ -109,6 +115,7 @@ class Keypad(Controller):
 		if self.keys > 0:
 			return f'{self.keys}-key keypad'
 		return 'Keypad'
+
 
 class LightGun(Controller):
 	def __init__(self) -> None:
@@ -119,18 +126,21 @@ class LightGun(Controller):
 			return f'{self.buttons}-button light gun'
 		return 'Light Gun'
 
+
 class Mahjong(Controller):
 	def __init__(self) -> None:
-		self.buttons = 0 #Or are they more accurately called keys (is this even really a different controller type anyway?)
+		self.buttons = 0  # Or are they more accurately called keys (is this even really a different controller type anyway?)
 
 	def describe(self) -> str:
 		if self.buttons > 0:
 			return f'{self.buttons}-button mahjong controller'
 		return 'Mahjong Controller'
 
+
 class MotionControls(Controller):
 	def describe(self) -> str:
 		return 'Motion Controls'
+
 
 class Mouse(Controller):
 	def __init__(self) -> None:
@@ -141,6 +151,7 @@ class Mouse(Controller):
 			return f'{self.buttons}-button mouse'
 		return 'Mouse'
 
+
 class Paddle(Controller):
 	def __init__(self) -> None:
 		self.buttons = 0
@@ -150,18 +161,23 @@ class Paddle(Controller):
 			return f'{self.buttons}-button paddle'
 		return 'Paddle'
 
+
 class Pedal(Controller):
 	pass
 
+
 class Positional(Controller):
 	"""Not entirely sure what this is, but it's in some MAME machines"""
+
 
 class SteeringWheel(Controller):
 	def describe(self) -> str:
 		return 'Steering Wheel'
 
+
 class Touchscreen(Controller):
 	pass
+
 
 class Trackball(Controller):
 	def __init__(self) -> None:
@@ -172,16 +188,18 @@ class Trackball(Controller):
 			return f'{self.buttons}-button trackball'
 		return 'Trackball'
 
+
 class Custom(Controller):
-	def __init__(self, custom_description: str|None=None) -> None:
+	def __init__(self, custom_description: str | None = None) -> None:
 		self.custom_description = custom_description
 
 	def describe(self) -> str:
 		return self.custom_description if self.custom_description else 'Custom'
 
+
 class CombinedController(Controller):
-	def __init__(self, components: MutableSequence[Controller]|None=None) -> None:
-		#TODO: Components probably shouldn't need to be a list since the order is unimportant but I'd need to readjust a few classes
+	def __init__(self, components: MutableSequence[Controller] | None = None) -> None:
+		# TODO: Components probably shouldn't need to be a list since the order is unimportant but I'd need to readjust a few classes
 		self.components: MutableSequence[Controller] = []
 		if components:
 			self.components.extend(components)
@@ -192,20 +210,21 @@ class CombinedController(Controller):
 
 	def describe(self) -> str:
 		if not self.components:
-			#Theoretically shouldn't happen. $2 says I will be proven wrong and have to delete this comment
+			# Theoretically shouldn't happen. $2 says I will be proven wrong and have to delete this comment
 			return '<weird controller>'
 		if len(self.components) == 1:
 			return self.components[0].describe()
 		return ' + '.join(component.describe() for component in self.components)
 
-class InputOption():
+
+class InputOption:
 	def __init__(self) -> None:
-		#TODO: This should logically be a Collection as the order is not relevant, but some things in games.specific_behaviours like to mutate it, so that's not nice I guess
+		# TODO: This should logically be a Collection as the order is not relevant, but some things in games.specific_behaviours like to mutate it, so that's not nice I guess
 		self.inputs: MutableSequence[Controller] = []
 
 	@property
 	def is_standard(self) -> bool:
-		#Hmm could this be wrong... feel like there's a case I'm not thinking of right now where something could be standard inputs individually but not usable with standard controllers when all together
+		# Hmm could this be wrong... feel like there's a case I'm not thinking of right now where something could be standard inputs individually but not usable with standard controllers when all together
 		return all(input.is_standard for input in self.inputs)
 
 	def describe(self) -> str:
@@ -213,14 +232,15 @@ class InputOption():
 			return 'Nothing'
 		return ' + '.join(input.describe() for input in self.inputs)
 
-class InputInfo():
+
+class InputInfo:
 	def __init__(self) -> None:
 		self.input_options: MutableSequence[InputOption] = []
-		#Allows us to say that something explicitly has 0 inputs, admittedly not used opften
+		# Allows us to say that something explicitly has 0 inputs, admittedly not used opften
 		self._is_inited = False
 
 	def add_option(self, inputs: Collection[Controller] | Controller) -> None:
-		#TODO: Should inputs ever really be iterable? Or should I be using CombinedController in those instances (SCV, ScummVM, Atari 8 bit)
+		# TODO: Should inputs ever really be iterable? Or should I be using CombinedController in those instances (SCV, ScummVM, Atari 8 bit)
 		opt = InputOption()
 		opt.inputs = list(inputs) if isinstance(inputs, Collection) else [inputs]
 		self.input_options.append(opt)
@@ -237,4 +257,8 @@ class InputInfo():
 		return any(option.is_standard for option in self.input_options) or not self.input_options
 
 	def describe(self) -> Collection[str] | None:
-		return {opt.describe().capitalize() for opt in self.input_options} if self.input_options else {'Nothing'}
+		return (
+			{opt.describe().capitalize() for opt in self.input_options}
+			if self.input_options
+			else {'Nothing'}
+		)

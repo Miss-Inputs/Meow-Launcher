@@ -1,7 +1,7 @@
-__doc__ = """Putting Steam-related enums here"""
+"""Putting Steam-related enums here"""
 
 
-from enum import IntFlag, IntEnum
+from enum import IntEnum, IntFlag
 
 
 class StateFlags(IntFlag):

@@ -1,10 +1,11 @@
+"""Where we just want to detect stuff from filename tags, nothing fancy"""
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
 	from collections.abc import Sequence
+
 	from meowlauncher.info import GameInfo
 
-__doc__ = """Where we just want to detect stuff from filename tags, nothing fancy"""
 
 def _atari_st_machine_from_tags(tags: 'Sequence[str]') -> str | None:
 	if '(Mega ST)' in tags:

@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 from enum import IntEnum
@@ -5,10 +6,9 @@ from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 from meowlauncher.settings.platform_config import platform_configs
-from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
+from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric, load_dict
 
 from .gametdb import TDB, add_info_from_tdb
-import contextlib
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
@@ -61,7 +61,7 @@ def add_gamecube_wii_disc_metadata(rom: 'FileROM', game_info: 'GameInfo', header
 		return
 
 	product_code = None
-	with contextlib.suppress(NotAlphanumericException):
+	with contextlib.suppress(NotAlphanumericError):
 		product_code = convert_alphanumeric(header[:4])
 
 	publisher = None
@@ -69,7 +69,7 @@ def add_gamecube_wii_disc_metadata(rom: 'FileROM', game_info: 'GameInfo', header
 	try:
 		licensee_code = convert_alphanumeric(header[4:6])
 		publisher = nintendo_licensee_codes.get(licensee_code)
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 
 	if not (product_code == 'RELS' and licensee_code == 'AB'):

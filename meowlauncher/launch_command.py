@@ -2,13 +2,20 @@ import shlex
 from collections.abc import Collection, Mapping, MutableMapping, Sequence
 from pathlib import Path, PurePath, PureWindowsPath
 
-#This is basically just here in case the path of a ROM changes between when we generate the LaunchCommand for the game and when we generate the actual launcher (as with compressed stuff where the emulator doesn't support that compression type)… it can't be just a sentinel object as sometimes you might want to replace something like "--arg=$<path>", unless I think of a better way to handle that
+# This is basically just here in case the path of a ROM changes between when we generate the LaunchCommand for the game and when we generate the actual launcher (as with compressed stuff where the emulator doesn't support that compression type)… it can't be just a sentinel object as sometimes you might want to replace something like "--arg=$<path>", unless I think of a better way to handle that
 rom_path_argument = '$<path>'
 
-#I guess if one ever cared about Not Linux, you would need to split LaunchCommand into BaseLaunchCommand and subclasses, rename make_linux_command_string -> make_command_string, put in subclass
+# I guess if one ever cared about Not Linux, you would need to split LaunchCommand into BaseLaunchCommand and subclasses, rename make_linux_command_string -> make_command_string, put in subclass
 
-class LaunchCommand():
-	def __init__(self, exe_name: PurePath, exe_args: Sequence[str], env_vars: MutableMapping[str, str] | None=None, working_directory: PurePath | None=None):
+
+class LaunchCommand:
+	def __init__(
+		self,
+		exe_name: PurePath,
+		exe_args: Sequence[str],
+		env_vars: MutableMapping[str, str] | None = None,
+		working_directory: PurePath | None = None,
+	):
 		self._exe_name = exe_name
 		self._exe_args = exe_args
 		self._env_vars = {} if env_vars is None else env_vars
@@ -41,25 +48,35 @@ class LaunchCommand():
 		return LaunchCommand(command, new_args)
 
 	def prepend_command(self, prepended_command: 'LaunchCommand') -> 'LaunchCommand':
-		return MultiLaunchCommands((prepended_command, ), self, ())
-		
+		return MultiLaunchCommands((prepended_command,), self, ())
+
 	def append_command(self, appended_params: 'LaunchCommand') -> 'LaunchCommand':
-		return MultiLaunchCommands((), self, (appended_params, ))
+		return MultiLaunchCommands((), self, (appended_params,))
 
 	def replace_path_argument(self, path: PurePath) -> 'LaunchCommand':
 		path_arg = str(path)
-		replaced_args = tuple(path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg) for arg in self.exe_args)
+		replaced_args = tuple(
+			path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg)
+			for arg in self.exe_args
+		)
 		return LaunchCommand(self.exe_name, replaced_args, self._env_vars)
 
 	def set_env_var(self, k: str, v: str) -> None:
 		self._env_vars[k] = v
 
+
 class MultiLaunchCommands(LaunchCommand):
-	def __init__(self, pre_commands: Sequence[LaunchCommand], main_command: LaunchCommand, post_commands: Sequence[LaunchCommand], working_directory: PurePath | None=None):
+	def __init__(
+		self,
+		pre_commands: Sequence[LaunchCommand],
+		main_command: LaunchCommand,
+		post_commands: Sequence[LaunchCommand],
+		working_directory: PurePath | None = None,
+	):
 		self.pre_commands = pre_commands
 		self.main_command = main_command
 		self.post_commands = post_commands
-		#self.working_directory = working_directory
+		# self.working_directory = working_directory
 		super().__init__(main_command.exe_name, '', {}, working_directory)
 
 	@property
@@ -81,10 +98,12 @@ class MultiLaunchCommands(LaunchCommand):
 
 	@property
 	def whole_shell_command(self) -> LaunchCommand:
-		#Purrhaps I should add an additional field for this object to optionally use ; instead of &&
-		inner_commands = tuple(command.make_linux_command_string() for command in self.pre_commands) + \
-			(self.main_command.make_linux_command_string(), ) + \
-			tuple(command.make_linux_command_string() for command in self.post_commands)
+		# Purrhaps I should add an additional field for this object to optionally use ; instead of &&
+		inner_commands = (
+			*(command.make_linux_command_string() for command in self.pre_commands),
+			self.main_command.make_linux_command_string(),
+			*(command.make_linux_command_string() for command in self.post_commands),
+		)
 		joined_commands = ' && '.join(inner_commands)
 		return LaunchCommand(Path('sh'), ('-c', joined_commands))
 
@@ -92,7 +111,9 @@ class MultiLaunchCommands(LaunchCommand):
 		return self.whole_shell_command.make_linux_command_string()
 
 	def wrap(self, command: PurePath) -> 'LaunchCommand':
-		return MultiLaunchCommands(self.pre_commands, self.main_command.wrap(command), self.post_commands)
+		return MultiLaunchCommands(
+			self.pre_commands, self.main_command.wrap(command), self.post_commands
+		)
 
 	def prepend_command(self, prepended_command: LaunchCommand) -> LaunchCommand:
 		new_precommands = [prepended_command]
@@ -105,12 +126,21 @@ class MultiLaunchCommands(LaunchCommand):
 		return MultiLaunchCommands(self.pre_commands, self.main_command, new_postcommands)
 
 	def replace_path_argument(self, path: PurePath) -> LaunchCommand:
-		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
-	
+		return MultiLaunchCommands(
+			self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands
+		)
+
 	def set_env_var(self, k: str, v: str) -> None:
 		self.main_command.set_env_var(k, v)
 
-def launch_with_wine(wine_path: PurePath, wineprefix: PurePath | None, exe_path: PurePath, exe_args: Collection[str], working_directory: PureWindowsPath | None=None) -> LaunchCommand:
+
+def launch_with_wine(
+	wine_path: PurePath,
+	wineprefix: PurePath | None,
+	exe_path: PurePath,
+	exe_args: Collection[str],
+	working_directory: PureWindowsPath | None = None,
+) -> LaunchCommand:
 	env_vars = None
 	if wineprefix:
 		env_vars = {'WINEPREFIX': str(wineprefix)}

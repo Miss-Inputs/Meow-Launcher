@@ -55,10 +55,7 @@ class ConfiguredScummVM:
 	def _get_vm_engines(exe_name: Path) -> Mapping[str, str]:
 		try:
 			proc = subprocess.run(
-				[exe_name, '--list-engines'],
-				stdout=subprocess.PIPE,
-				check=True,
-				text=True,
+				[exe_name, '--list-engines'], stdout=subprocess.PIPE, check=True, text=True
 			)
 			lines = proc.stdout.splitlines()[2:]  # Ignore header and ----
 
@@ -69,9 +66,10 @@ class ConfiguredScummVM:
 				name = name.removesuffix(' [all games]')
 				engines[engine_id] = name
 			engines['agi'] = 'AGI'  # Not this weird 'AGI v32qrrbvdsnuignedogsafgd' business
-			return engines
 		except subprocess.CalledProcessError:
 			return {}
+		else:
+			return engines
 
 	@property
 	def have_scummvm(self) -> bool:

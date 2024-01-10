@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 from meowlauncher.common_types import SaveType
 
 from meowlauncher.info import Date
-from meowlauncher.util.utils import (NotAlphanumericException,
+from meowlauncher.util.utils import (NotAlphanumericError,
                                      convert_alphanumeric)
 
 if TYPE_CHECKING:
@@ -34,7 +34,7 @@ def add_vectrex_header_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 					metadata.release_date = metadata.release_date
 		except ValueError:
 			pass
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 
 def add_doom_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
@@ -51,7 +51,7 @@ def add_pokemini_rom_file_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	try:
 		product_code = convert_alphanumeric(product_code_bytes)
 		metadata.product_code = product_code
-	except NotAlphanumericException:
+	except NotAlphanumericError:
 		pass
 	title = header[4:16].rstrip(b'\0 ').decode('shift_jis', errors='backslashreplace')
 	if title:

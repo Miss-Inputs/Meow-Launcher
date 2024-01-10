@@ -13,8 +13,7 @@ except ModuleNotFoundError:
 from meowlauncher.config import main_config
 from meowlauncher.emulator import Emulator
 from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
-from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
-                                     find_tags)
+from meowlauncher.util.utils import NoNonsenseConfigParser, clean_string, find_tags
 from meowlauncher.version import __version__
 
 if TYPE_CHECKING:
@@ -101,15 +100,14 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, game_info: 
 		for k, v in section.items():
 			if v is None:
 				continue
-			if have_pillow:
-				if isinstance(v, Image.Image):
-					this_image_folder = main_config.image_folder.joinpath(k)
-					this_image_folder.mkdir(exist_ok=True, parents=True)
-					image_path = this_image_folder.joinpath(path.stem + '.png')
-					v.save(image_path, 'png', optimize=True, compress_level=9)
-					#v = image_path
-					_write_field(configwriter, section_name, k, image_path)
-					continue
+			if have_pillow and isinstance(v, Image.Image):
+				this_image_folder = main_config.image_folder.joinpath(k)
+				this_image_folder.mkdir(exist_ok=True, parents=True)
+				image_path = this_image_folder.joinpath(path.stem + '.png')
+				v.save(image_path, 'png', optimize=True, compress_level=9)
+				#v = image_path
+				_write_field(configwriter, section_name, k, image_path)
+				continue
 
 			_write_field(configwriter, section_name, k, v)
 

@@ -3,14 +3,13 @@ from collections.abc import Collection, Mapping
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.data.name_cleanup.gametdb_company_name_cleanup import \
-    company_name_cleanup
+from meowlauncher.data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.utils import junk_suffixes
 
 logger = logging.getLogger(__name__)
 
-class TDB():
+class TDB:
 	def __init__(self, xml: ElementTree.ElementTree):
 		self.xml = xml
 		
