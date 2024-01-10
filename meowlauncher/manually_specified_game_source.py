@@ -10,8 +10,8 @@ from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.data.emulated_platforms import manually_specified_platforms
 from meowlauncher.exceptions import (
-	EmulationNotSupportedException,
-	NotActuallyLaunchableGameException,
+	EmulationNotSupportedError,
+	NotActuallyLaunchableGameError,
 )
 from meowlauncher.game_source import ChooseableEmulatorGameSource
 from meowlauncher.manually_specified_game import ManuallySpecifiedGame, ManuallySpecifiedLauncher
@@ -64,17 +64,17 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[Manuall
 			try:
 				if 'compat' in app.json:
 					if not app.json['compat'].get(chosen_emulator.config_name, True):
-						raise EmulationNotSupportedException('Apparently not supported')
+						raise EmulationNotSupportedError('Apparently not supported')
 				potential_emulator = ConfiguredEmulator(chosen_emulator, emulator_config)
 				#TODO: This doesn't seem right… why are we just throwing away the result here
 				potential_emulator.get_launch_command_for_game(app, self.platform_config.options)
 				emulator = potential_emulator
 				break
-			except (EmulationNotSupportedException, NotActuallyLaunchableGameException) as ex:
+			except (EmulationNotSupportedError, NotActuallyLaunchableGameError) as ex:
 				exception_reason = ex
 
 		if not emulator:
-			if isinstance(exception_reason, EmulationNotSupportedException):
+			if isinstance(exception_reason, EmulationNotSupportedError):
 				logger.warning('%s could not be launched by %s', app, self.platform_config.chosen_emulators, exc_info=exception_reason)
 			else:
 				logger.debug('%s could not be launched by %s', app, self.platform_config.chosen_emulators, exc_info=exception_reason)

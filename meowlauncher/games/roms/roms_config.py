@@ -1,11 +1,10 @@
+"""Putting this here so roms_info can use it too, without causing a circular import by importing roms… hrm does this make sense?
+TODO: Maybe .roms_config could just be accessible from ROMGame"""
 from collections.abc import Sequence
 
 from pydantic import Field
 
 from meowlauncher.settings.settings import Settings
-
-__doc__ = """Putting this here so roms_info can use it too, without causing a circular import by importing roms… hrm does this make sense?
-TODO: Maybe .roms_config could just be accessible from ROMGame"""
 
 
 class ROMsConfig(Settings):

@@ -19,9 +19,9 @@ except ModuleNotFoundError:
 from meowlauncher.common_types import SaveType
 from meowlauncher.config import main_config, current_config
 from meowlauncher.exceptions import (
-	GameNotSupportedException,
-	NotActuallyLaunchableGameException,
-	NotLaunchableException,
+	GameNotSupportedError,
+	NotActuallyLaunchableGameError,
+	NotLaunchableError,
 )
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.common.engine_detect import (
@@ -563,7 +563,7 @@ def process_appinfo_config_section(
 		if launch:
 			process_launchers(game, launch)
 		else:
-			raise NotActuallyLaunchableGameException('No launch entries in config section')
+			raise NotActuallyLaunchableGameError('No launch entries in config section')
 
 
 def add_info_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes, Any]) -> None:
@@ -787,7 +787,7 @@ class Steam(GameSource):
 
 			try:
 				yield self.process_game(app_id, folder, app_state)
-			except NotLaunchableException:
+			except NotLaunchableError:
 				logger.warning(
 					'%s %s is skipped', app_state.get('name', app_id), app_id, exc_info=True
 				)
@@ -816,7 +816,7 @@ class Steam(GameSource):
 		appid_str = str(game.appid)
 
 		if not game.launchers:
-			raise NotActuallyLaunchableGameException('Game cannot be launched')
+			raise NotActuallyLaunchableGameError('Game cannot be launched')
 
 		launcher: LauncherInfo | None = next(iter(game.launchers.values()))  # Hmm
 		tools = self._steam_installation.steamplay_compat_tools
@@ -860,7 +860,7 @@ class Steam(GameSource):
 				game.info.specific_info['No Valid Launchers?'] = True
 				launcher = None
 				if not self.config.force_create_launchers:
-					raise GameNotSupportedException(
+					raise GameNotSupportedError(
 						'Platform not supported and Steam Play not used'
 					)
 

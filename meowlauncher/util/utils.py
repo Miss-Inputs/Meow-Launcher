@@ -6,7 +6,7 @@ from collections.abc import Mapping, Sequence
 from configparser import RawConfigParser
 from typing import Any
 
-from meowlauncher.exceptions import NotLaunchableException
+from meowlauncher.exceptions import NotLaunchableError
 
 try:
 	import termcolor
@@ -211,7 +211,7 @@ class NotLaunchableExceptionFormatter(ColouredFormatter):
 	"""Puts NotLaunchableException on one line as to read more naturally"""
 	def format(self, record: logging.LogRecord) -> str:
 		if record.exc_info:
-			if isinstance(record.exc_info[1], NotLaunchableException):
+			if isinstance(record.exc_info[1], NotLaunchableError):
 				#Avoid super().format putting it on a new line
 				record.msg += f' because {"".join(record.exc_info[1].args)}'
 				record.exc_text = None

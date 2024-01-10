@@ -12,11 +12,10 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher import input_info
-from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.region_info import Region, regions_by_name
-from meowlauncher.util.utils import (NotAlphanumericException,
-                                     convert_alphanumeric, load_dict)
+from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
 
 from .common.gametdb import TDB, add_info_from_tdb
 from .common.nintendo_common import DSi3DSAgeRatings, add_ratings_info
@@ -159,11 +158,10 @@ def _parse_banner(rom: FileROM, metadata: 'GameInfo', header: bytes, is_dsi: boo
 			banner_title = banner_titles.get('English', next(iter(banner_titles.values())))
 			_add_banner_title_metadata(metadata, banner_title)
 
-		if len(banner) >= 0x240:
-			if have_pillow:
-				icon_bitmap = banner[0x20:0x220]
-				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
-				metadata.images['Icon'] = _decode_icon(icon_bitmap, icon_palette)
+		if len(banner) >= 0x240 and have_pillow:
+			icon_bitmap = banner[0x20:0x220]
+			icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
+			metadata.images['Icon'] = _decode_icon(icon_bitmap, icon_palette)
 
 def _add_info_from_ds_header(rom: FileROM, metadata: 'GameInfo', header: bytes) -> None:
 	if header[0:4] == b'.\0\0\xea':

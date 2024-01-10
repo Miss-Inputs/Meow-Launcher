@@ -4,7 +4,7 @@ from pathlib import PurePath
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
-from meowlauncher.exceptions import EmulationNotSupportedException
+from meowlauncher.exceptions import EmulationNotSupportedError
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import \
     get_software_list_by_name
@@ -27,7 +27,7 @@ def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Collection[
 
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
-		raise EmulationNotSupportedException('Mapper is not detected at all')
+		raise EmulationNotSupportedError('Mapper is not detected at all')
 	
 	if mapper == 'ROM only':
 		#Literally everything will work with this
@@ -36,10 +36,10 @@ def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Collection[
 	if game.info.specific_info.get('Override Mapper?', False) and mapper not in detected_mappers:
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
 		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
-		raise EmulationNotSupportedException(f'Overriding the mapper to {mapper} is not supported')
+		raise EmulationNotSupportedError(f'Overriding the mapper to {mapper} is not supported')
 
 	if mapper not in supported_mappers and mapper not in detected_mappers:
-		raise EmulationNotSupportedException(f'Mapper {mapper} not supported')
+		raise EmulationNotSupportedError(f'Mapper {mapper} not supported')
 
 def verify_mgba_mapper(game: 'ROMGame') -> None:
 	supported_mappers = {'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5'}
@@ -103,11 +103,11 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 		#We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
 		game_compatibility = software.emulation_status
 		if game_compatibility and game_compatibility < compat_threshold:
-			raise EmulationNotSupportedException(f'{software.name} is {game_compatibility.name}')
+			raise EmulationNotSupportedError(f'{software.name} is {game_compatibility.name}')
 
 	skip_unknown = emulator_config.options.get('skip_unknown_stuff', False)
 	if skip_unknown and not software:
-		raise EmulationNotSupportedException('Does not match anything in software list')
+		raise EmulationNotSupportedError('Does not match anything in software list')
 	
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
 	return LaunchCommand(emulator_config.exe_path, args)
@@ -137,7 +137,7 @@ def simple_md_emulator(args: Sequence[str], unsupported_mappers: Collection[str]
 	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		mapper = game.info.specific_info.get('Mapper')
 		if mapper and mapper in unsupported_mappers:
-			raise EmulationNotSupportedException(mapper + ' not supported')
+			raise EmulationNotSupportedError(mapper + ' not supported')
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 

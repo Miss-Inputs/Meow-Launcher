@@ -6,8 +6,8 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
 
-from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.games.common.generic_info import add_generic_software_info
+from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.util.region_info import get_language_by_english_name
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ class DuckStationCompatibility(IntEnum):
 	Unknown = 0
 
 @dataclass
-class DuckStationCompatibilityEntry():
+class DuckStationCompatibilityEntry:
 	"""Represents DuckStation database <compatibility> element"""
 	compatibility: DuckStationCompatibility
 	comments: str | None

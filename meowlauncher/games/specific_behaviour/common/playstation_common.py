@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 @dataclass
-class PlayStationCategory():
+class PlayStationCategory:
 	cat: str
 	metadata_category: str | None #What we might like to set metadata.categories to
 

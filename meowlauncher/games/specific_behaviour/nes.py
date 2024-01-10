@@ -3,17 +3,22 @@ from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_name, iter_machines_from_source_file)
-from meowlauncher.games.mame_common.mame_executable import \
-    MAMENotInstalledException
+	Machine,
+	does_machine_match_name,
+	iter_machines_from_source_file,
+)
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import (
-    Software, SoftwarePart, find_in_software_lists_with_custom_matcher)
+	Software,
+	SoftwarePart,
+	find_in_software_lists_with_custom_matcher,
+)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import NESPeripheral
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
 
@@ -345,10 +350,7 @@ def add_ines_metadata(rom: FileROM, game_info: GameInfo, header: bytes) -> None:
 		mapper_upper_upper_nibble = header[8] & 0b1111
 		mapper = mapper_lower_nibble | mapper_upper_nibble | (mapper_upper_upper_nibble << 8)
 		game_info.specific_info['Mapper Number'] = mapper
-		if mapper in _ines_mappers:
-			game_info.specific_info['Mapper'] = _ines_mappers[mapper]
-		else:
-			game_info.specific_info['Mapper'] = f'NES 2.0 Mapper {mapper}'
+		game_info.specific_info['Mapper'] = _ines_mappers.get(mapper, f'NES 2.0 Mapper {mapper}')
 
 		game_info.specific_info['Submapper'] = (header[8] & 0b1111_0000) >> 4
 		
@@ -382,10 +384,7 @@ def add_ines_metadata(rom: FileROM, game_info: GameInfo, header: bytes) -> None:
 		game_info.specific_info['Header Format'] = 'iNES'
 		mapper = mapper_lower_nibble | mapper_upper_nibble
 		game_info.specific_info['Mapper Number'] = mapper
-		if mapper in _ines_mappers:
-			game_info.specific_info['Mapper'] = _ines_mappers[mapper]
-		else:
-			game_info.specific_info['Mapper'] = f'iNES Mapper {mapper}'
+		game_info.specific_info['Mapper'] = _ines_mappers.get(mapper, f'iNES Mapper {mapper}')
 
 		game_info.specific_info['PRG Size'] = prg_size * 16 * 1024
 		game_info.specific_info['CHR Size'] = chr_size * 8 * 1024

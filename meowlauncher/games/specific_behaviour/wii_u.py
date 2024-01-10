@@ -5,18 +5,17 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
-from meowlauncher.common_types import ByteAmount
 
-from meowlauncher.settings.platform_config import platform_configs
-from meowlauncher.games.common.engine_detect import \
-    try_and_detect_engine_from_folder
+from meowlauncher.common_types import ByteAmount
+from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
 from meowlauncher.games.roms.rom import ROM, FolderROM
 from meowlauncher.info import Date
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.utils import load_dict
 
 from .common.gametdb import TDB, add_info_from_tdb
-from .common.nintendo_common import (WiiU3DSRegionCode,
-                                     add_info_from_local_titles)
+from .common.nintendo_common import WiiU3DSRegionCode, add_info_from_local_titles
+import contextlib
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -55,7 +54,7 @@ class WiiUVirtualConsolePlatform(Enum):
 	PCEngine = 'PCEngine'
 
 def _load_tdb() -> TDB | None:
-	if not 'Wii U' in platform_configs:
+	if 'Wii U' not in platform_configs:
 		return None
 	tdb_path = platform_configs['Wii U'].options.get('tdb_path')
 	if not tdb_path:
@@ -91,10 +90,8 @@ def _add_meta_xml_metadata(metadata: 'GameInfo', meta_xml: ElementTree.ElementTr
 	product_code = meta_xml.findtext('product_code')
 	if product_code:
 		metadata.product_code = product_code
-		try:
+		with contextlib.suppress(ValueError):
 			metadata.specific_info['Virtual Console Platform'] = WiiUVirtualConsolePlatform(metadata.product_code[6])
-		except ValueError:
-			pass
 		gametdb_id = product_code[-4:]
 		add_info_from_tdb(_tdb, metadata, gametdb_id)
 

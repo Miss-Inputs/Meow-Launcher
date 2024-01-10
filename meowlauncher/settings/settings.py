@@ -235,7 +235,7 @@ class MainConfig(Settings):
 
 	normalize_name_case: Literal[0, 1, 2, 3] = 0
 	"""Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)"""
-	# Should maybe be an enum?
+	# TODO: Should be an enum
 
 	libretro_database_path: Path | None = None
 	"""Path to libretro database for yoinking info from"""

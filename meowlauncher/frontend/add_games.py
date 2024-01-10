@@ -1,3 +1,5 @@
+"""The important part that actually scans games and creates launchers. 
+Uses two loggers with non-standard names: meowlauncher.frontend.progress and meowlauncher.frontend.time, to report progress and time taken to do each component respectively, so you may want to set those to be formatted differently"""
 import datetime
 import logging
 import time
@@ -8,9 +10,6 @@ from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import gog, itch_io, mame_software
 from meowlauncher.game_sources.all_sources import game_sources
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
-
-__doc__ = """The important part that actually scans games and creates launchers. 
-Uses two loggers with non-standard names: meowlauncher.frontend.progress and meowlauncher.frontend.time, to report progress and time taken to do each component respectively, so you may want to set those to be formatted differently"""
 
 logger = logging.getLogger(__name__)
 progress_logger = logging.getLogger('meowlauncher.frontend.progress')

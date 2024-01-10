@@ -1,12 +1,12 @@
-from collections.abc import Collection
-from enum import Enum, auto
-from typing import cast
-from dataclasses import dataclass, field
-
-__doc__ = """For autodetecting regions, languages, etc from filenames
+"""For autodetecting regions, languages, etc from filenames
 It's okay for a region to have None for its language if you can't make a reasonable assumption about the language
 For my own reference: Refer to http://www.bubblevision.com/PAL-NTSC.htm https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 to add new regions/languages that might end up needing to be here"""
+from collections.abc import Collection
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import cast
 
+#TODO: Don't be a dickhead, literally just use /usr/share/iso-codes/ stuff
 
 class TVSystem(Enum):
 	NTSC = auto()
@@ -14,7 +14,7 @@ class TVSystem(Enum):
 	Agnostic = auto()
 
 @dataclass(frozen=True)
-class Language():
+class Language:
 	english_name: str = field(compare=False)
 	native_name: str = field(compare=False)
 	short_code: str
@@ -23,7 +23,7 @@ class Language():
 		return self.native_name
 
 @dataclass(frozen=True)
-class Region():
+class Region:
 	name: str
 	short_code: str | None = field(compare=False)
 	tv_system: TVSystem | None = field(compare=False)

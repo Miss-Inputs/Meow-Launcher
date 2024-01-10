@@ -22,12 +22,13 @@ DuckStation database
 
 Libraries that might be installed that we can use, and they aren't really requirements:
 #TODO: These expected versions are out of date, which might break stuff
-#TODO: Should this be in a requirements.txt anyway? Is there a way to specify optional dependencies?
+#TODO: Put this into 
 py7zr >= 0.16.1 (speeds up 7z reading by saving you from having to fallback to subprocess 7zr)
 python-libarchive >= 4.0.1.post1 (speeds up archive reading)
 Pillow >= 8.0.0 (allows extracting of icons from games)
-steamfiles >= 0.1.4 (needed for Steam)
+steamfiles >= 0.1.4 (needed for Steam) (ah fuck it's borked, need to specify this as a Github URL for a fork, or just fuck it and rewrite it all)
 pycdlib >= 1.7.0 (gets more spicy info out of ROMs)
 pycrypto >= 2.6.1 (gets more spicy info out of ROMs)
 pefile >= 2019.4.18 (gets more spicy info out of DOS and Windows games)
 machfs >= 1.3 (needed for Mac)
+termcolor >= 2.3.0 (coloured logging)

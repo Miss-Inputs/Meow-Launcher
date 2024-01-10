@@ -8,7 +8,7 @@ import logging
 from collections.abc import Collection, Mapping, Sequence
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.exceptions import EmulationNotSupportedException
+from meowlauncher.exceptions import EmulationNotSupportedError
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import Software, get_software_list_by_name
@@ -39,7 +39,7 @@ def _quizwiz(software: 'SoftwareLauncher'):
 def _neo_geo(software: 'SoftwareLauncher'):
 	compat = software.software.compatibility
 	if compat and 'AES' not in compat:
-		raise EmulationNotSupportedException('Not compatible with AES')
+		raise EmulationNotSupportedError('Not compatible with AES')
 	return _launch_with_software('aes', software)
 
 def _super_cassette_vision(software: 'SoftwareLauncher'):
@@ -117,7 +117,7 @@ def add_software(software: SoftwareLauncher) -> None:
 
 	try:
 		software.make_launcher()
-	except EmulationNotSupportedException:
+	except EmulationNotSupportedError:
 		logger.exception('Could not launch %s', software.id)
 
 def add_software_list_platform(platform: SoftwareListPlatform) -> None:

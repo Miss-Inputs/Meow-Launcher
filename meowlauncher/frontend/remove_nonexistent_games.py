@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import logging
-import os
+from pathlib import Path
 
 from meowlauncher.config import main_config
 from meowlauncher.game_sources.all_sources import game_sources
@@ -26,7 +26,7 @@ def remove_nonexistent_games() -> None:
 
 		should_remove = False
 		if game_type in {'GOG', 'itch.io'}:
-			should_remove = not os.path.exists(game_id)
+			should_remove = not Path(game_id).exists()
 		else:
 			game_source = game_types.get(game_type)
 			if game_source:

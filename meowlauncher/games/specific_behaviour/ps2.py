@@ -14,6 +14,7 @@ from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.region_info import TVSystem
 
 from .common.playstation_common import parse_product_code
+import contextlib
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -42,10 +43,8 @@ def add_info_from_system_cnf(game_info: GameInfo, system_cnf: str) -> None:
 				if key == 'VER':
 					game_info.specific_info['Version'] = value
 				elif key == 'VMODE':
-					try:
+					with contextlib.suppress(ValueError):
 						game_info.specific_info['TV Type'] = TVSystem[value]
-					except ValueError:
-						pass
 
 def add_info_from_iso(iso: 'PyCdlib', metadata: 'GameInfo', object_for_warning: Any) -> None:
 	try:
@@ -60,7 +59,7 @@ def add_info_from_iso(iso: 'PyCdlib', metadata: 'GameInfo', object_for_warning: 
 		day = date_record.day_of_month
 		build_date = Date(year, month, day)
 		metadata.specific_info['Build Date'] = build_date
-		guessed_date = Date(year, month, day, True)
+		guessed_date = Date(year, month, day, is_guessed=True)
 		if guessed_date.is_better_than(metadata.release_date):
 			metadata.release_date = guessed_date
 	except PyCdlibInvalidInput:

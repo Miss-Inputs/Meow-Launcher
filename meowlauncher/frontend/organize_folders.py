@@ -3,6 +3,7 @@
 Consider it to be its own kind of frontend, perhaps.
 This code sucks titty balls, so it will probably all be thrown out the window and redone at some point"""
 
+import contextlib
 import datetime
 import logging
 import os
@@ -33,10 +34,8 @@ def _rmdir_recursive(path: Path) -> None:
 			_rmdir_recursive(f)
 		else:
 			f.unlink()
-	try:
+	with contextlib.suppress(FileNotFoundError):
 		path.rmdir()
-	except FileNotFoundError:
-		pass
 
 def _delete_existing_output_dir() -> None:
 	if main_config.organized_output_folder.is_dir():

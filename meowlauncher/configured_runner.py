@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 	from .runner import Runner
 
-class ConfiguredRunner():
+class ConfiguredRunner:
 	"""Combination of Runner (the info about it) and the configuration for it (including where it is etc), ready to be used to run things"""
 	def __init__(self, runner: 'Runner', config: 'RunnerConfig'):
 		self.runner = runner

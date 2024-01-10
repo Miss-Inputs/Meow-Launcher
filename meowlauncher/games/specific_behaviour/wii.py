@@ -10,16 +10,20 @@ try:
 except ModuleNotFoundError:
 	have_pycrypto = False
 
-from meowlauncher.settings.platform_config import platform_configs
+import contextlib
+
 from meowlauncher.games.roms.rom import FileROM, FolderROM
 from meowlauncher.info import Date
 from meowlauncher.platform_types import WiiTitleType
-from meowlauncher.util.utils import (NotAlphanumericException,
-                                     convert_alphanumeric, load_dict)
+from meowlauncher.settings.platform_config import platform_configs
+from meowlauncher.util.utils import NotAlphanumericException, convert_alphanumeric, load_dict
 
-from .common.gamecube_wii_common import (NintendoDiscRegion, _tdb,
-                                         add_gamecube_wii_disc_metadata,
-                                         just_read_the_wia_rvz_header_for_now)
+from .common.gamecube_wii_common import (
+	NintendoDiscRegion,
+	_tdb,
+	add_gamecube_wii_disc_metadata,
+	just_read_the_wia_rvz_header_for_now,
+)
 from .common.gametdb import add_info_from_tdb
 from .common.nintendo_common import AgeRatingStatus, NintendoAgeRatings, add_ratings_info
 
@@ -65,10 +69,8 @@ def _parse_tmd(metadata: 'GameInfo', tmd: bytes) -> None:
 	#IOS version: 388-396
 	#Title ID is just title type + hex product code, so don't worry about that
 
-	try:
+	with contextlib.suppress(ValueError):
 		metadata.specific_info['Title Type'] = WiiTitleType(int.from_bytes(tmd[396:400], 'big'))
-	except ValueError:
-		pass
 
 	product_code = None
 	try:
@@ -76,10 +78,8 @@ def _parse_tmd(metadata: 'GameInfo', tmd: bytes) -> None:
 		metadata.product_code = product_code
 
 		if product_code:
-			try:
+			with contextlib.suppress(ValueError):
 				metadata.specific_info['Virtual Console Platform'] = WiiVirtualConsolePlatform(product_code[0])
-			except ValueError:
-				pass
 	except UnicodeDecodeError:
 		pass
 	#Title flags: 404-408
@@ -97,10 +97,8 @@ def _parse_tmd(metadata: 'GameInfo', tmd: bytes) -> None:
 
 	#Unused: 410-412
 	region_code = int.from_bytes(tmd[412:414], 'big')
-	try:
+	with contextlib.suppress(ValueError):
 		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
-	except ValueError:
-		pass
 	add_ratings_info(metadata, WiiRatings(tmd[414:430]))
 	#Reserved: 430-442
 	#IPC mask: 442-454 (wat?)
@@ -196,7 +194,7 @@ def _add_wad_metadata(rom: FileROM, metadata: 'GameInfo') -> None:
 def add_wii_homebrew_metadata(rom: FolderROM, game_info: 'GameInfo') -> None:
 	game_info.specific_info['Executable Name'] = rom.relevant_files['boot.dol'].name
 
-	icon_path = rom.get_file('icon.png', True)
+	icon_path = rom.get_file('icon.png', ignore_case=True)
 	if icon_path:
 		game_info.images['Banner'] = icon_path
 		#Unfortunately the aspect ratio means it's not really great as an icon
@@ -306,7 +304,7 @@ def _add_wii_disc_metadata(rom: FileROM, game_info: 'GameInfo') -> None:
 				try:
 					d = datetime.strptime(apploader_date, '%Y/%m/%d')
 					game_info.specific_info['Build Date'] = Date(d.year, d.month, d.day)
-					guessed = Date(d.year, d.month, d.day, True)
+					guessed = Date(d.year, d.month, d.day, is_guessed=True)
 					if guessed.is_better_than(game_info.release_date):
 						game_info.release_date = guessed
 				except ValueError:
@@ -316,10 +314,8 @@ def _add_wii_disc_metadata(rom: FileROM, game_info: 'GameInfo') -> None:
 
 	#Unused (presumably would be region-related stuff): 0xe004:0xe010
 	region_code = int.from_bytes(wii_header[0xe000:0xe004], 'big')
-	try:
+	with contextlib.suppress(ValueError):
 		game_info.specific_info['Region Code'] = NintendoDiscRegion(region_code)
-	except ValueError:
-		pass
 	add_ratings_info(game_info, WiiRatings(wii_header[0xe010:0xe020]))
 
 def add_wii_custom_info(game: 'ROMGame') -> None:

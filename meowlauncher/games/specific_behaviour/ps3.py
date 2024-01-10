@@ -1,17 +1,16 @@
-from functools import lru_cache
 import json
 import logging
 import os
+from collections.abc import Mapping
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
-from collections.abc import Mapping
 
-from meowlauncher.settings.platform_config import platform_configs
-from meowlauncher.games.common.engine_detect import \
-    try_and_detect_engine_from_folder
+from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
 from meowlauncher.games.roms.rom import FolderROM
+from meowlauncher.settings.platform_config import platform_configs
 
 from .common.gametdb import TDB, add_info_from_tdb
 from .common.playstation_common import parse_param_sfo, parse_product_code
