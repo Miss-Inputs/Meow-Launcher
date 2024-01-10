@@ -329,7 +329,7 @@ _standalone_emulators: 'Collection[StandardEmulator]' = {
 	MAMEDriver('Select-a-Game', EmulatorStatus.Janky, simple_mame_driver('sag', 'cart'), {'bin'}),
 	#Is now a separate system as of 0.221 instead of sag_whatever individual machines
 	#See also Microvision, is similarly janky with needing artwork
-	MAMEDriver('Super A\'Can', EmulatorStatus.Experimental, simple_mame_driver('supracan', 'cart'), {'bin'}),
+	MAMEDriver("Super A'Can", EmulatorStatus.Experimental, simple_mame_driver('supracan', 'cart'), {'bin'}),
 	#Some things work, except with no sound, so... nah
 	MAMEDriver('TRS-80', EmulatorStatus.Experimental, simple_mame_driver('trs80l2', 'quik', has_keyboard=True), {'cmd'}),
 	#trs80 only has tapes I guess, there are lots of clones of trs80l2

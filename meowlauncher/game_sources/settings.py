@@ -5,6 +5,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from pydantic import Field
+
 from meowlauncher.settings import Settings
 
 

@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config import main_config
+from meowlauncher.config import main_config, current_config
 from meowlauncher.exceptions import (
 	GameNotSupportedException,
 	NotActuallyLaunchableGameException,
@@ -56,6 +56,7 @@ if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
 
 logger = logging.getLogger(__name__)
+steam_config = current_config(SteamConfig)
 
 
 class SteamState:
@@ -197,7 +198,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 			icon_exception = None
 			found_an_icon = True
 			break
-	if SteamSettings().warn_about_missing_icons:
+	if steam_config.warn_about_missing_icons:
 		if icon_exception:
 			logger.error(game, exc_info=icon_exception)
 		elif potentially_has_icon and not found_an_icon:
@@ -253,9 +254,9 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 			format_genre(id) for id in additional_genre_ids
 		)
 	if content_warning_ids:
-		game.info.specific_info['Content Warnings'] = set(
+		game.info.specific_info['Content Warnings'] = {
 			format_genre(id) for id in content_warning_ids
-		)
+		}
 	# "genre" doesn't look like a word anymore
 
 
@@ -271,7 +272,7 @@ def add_info_from_appinfo_common_section(game: 'SteamGame', common: Mapping[byte
 	# b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
 
 	oslist = common.get(b'oslist')
-	if not SteamConfig().use_steam_as_platform:
+	if not steam_config.use_steam_as_platform:
 		# It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
 		if oslist == b'windows':
 			game.info.platform = 'Windows'
@@ -615,7 +616,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 
 	if launcher.args and '-uplay_steam_mode' in launcher.args:
 		game.info.specific_info['Launcher'] = 'uPlay'
-	if not SteamConfig().use_steam_as_platform:
+	if not steam_config.use_steam_as_platform:
 		launcher_platform = launcher.platform
 		if launcher_platform:
 			if 'linux' in launcher_platform.lower():

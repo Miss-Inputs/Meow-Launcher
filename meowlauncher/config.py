@@ -1,8 +1,10 @@
+"""Instances of Settings are stored here"""
+
 from argparse import ArgumentParser
 from collections.abc import Collection
 from typing import TypeVar
 
-from meowlauncher.game_sources.settings import SteamConfig
+from meowlauncher.game_sources.settings import GOGConfig, ItchioConfig, SteamConfig
 from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
 from meowlauncher.games.roms.roms_config import ROMsConfig
 from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig
@@ -14,16 +16,13 @@ settings_classes: Collection[type[Settings]] = {
 	ROMsConfig,
 	SteamConfig,
 	ScummVMConfig,
+	GOGConfig,
+	ItchioConfig,
 }
 
 
 def _setup_config():
 	"""Initializes config with command line arguments, etc"""
-	# game_source_config_classes = {
-	# 	game_source
-	# 	for game_source in (game_source.config_class() for game_source in game_sources)
-	# 	if game_source
-	# }
 
 	_main_config = MainConfig()
 

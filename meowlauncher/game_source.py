@@ -22,7 +22,8 @@ class GameSource(ABC):
 	"""Base class for all game sources. For now you will need to put a reference to the GameSource in meowlauncher/game_sources/__init__.py, and a reference to the config class in meowlauncher/config.py"""
 
 	def __init__(self) -> None:
-		self.config = current_config(self.config_class()) if self.config_class() else None
+		config_class = self.config_class()
+		self.config = current_config(config_class) if config_class else None
 
 	@classmethod
 	def name(cls) -> str:

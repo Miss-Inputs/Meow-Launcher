@@ -2,6 +2,7 @@ from enum import Enum, IntEnum, auto
 
 from meowlauncher.util.utils import format_byte_size
 
+
 class ByteAmount(int):
 	"""For specific_info etc purposes, for storing sizes etc, so it can be formatted nicely"""
 
