@@ -13,8 +13,6 @@ from pydantic_settings import BaseSettings
 
 from meowlauncher.common_paths import config_dir, data_dir
 
-from ._config_utils import parse_value
-
 logger = logging.getLogger(__name__)
 # TODO: Prolly use toml instead of ini, might be nicer
 # TODO: Context manager to override settings, like matplotlib rc_context for example
@@ -69,6 +67,7 @@ def _remove_optional(annotation: type | None):
 		return args[0]
 	return annotation
 
+
 class Settings(BaseSettings):
 	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
 
@@ -82,7 +81,12 @@ class Settings(BaseSettings):
 	TODO: The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but like --duckstation:compat-db=<path> or something like that
 	"""
 
-	model_config = {'env_file_encoding': 'utf-8', 'env_prefix': 'MEOW_LAUNCHER_'}
+	# TODO: Can we have env_prefix dynamically set from cls.prefix(), but the rest of this stays the same?
+	model_config = {
+		'env_file_encoding': 'utf-8',
+		'env_prefix': 'MEOW_LAUNCHER_',
+		'validate_assignment': True,
+	}
 
 	# @classmethod
 	# def customize_sources(cls, _init_settings):
@@ -162,12 +166,11 @@ class Settings(BaseSettings):
 			else:
 				if not t:
 					logger.warning('%s in %s has no type annotation, defaulting to str', k, cls)
-					t = str
-				if not callable(t):
-					t = parse_value
+				#Let Pydantic convert it to whatever fancy type for us
+				t = str
 				group.add_argument(
 					option,
-					type=t,
+					type=str,
 					help=description,
 					default=default,
 					dest=destination_in_namespace,
