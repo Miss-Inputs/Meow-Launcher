@@ -3,27 +3,26 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 from meowlauncher.emulator import Emulator
+from meowlauncher.config import current_config
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping, Sequence
 
-	from meowlauncher.settings.settings import Settings
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.emulated_game import EmulatedGame
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 	from meowlauncher.emulator import LibretroCore
 	from meowlauncher.launcher import Launcher
+	from meowlauncher.settings.settings import Settings
 
 logger = logging.getLogger(__name__)
 
 
 class GameSource(ABC):
-	"""Base class for all game sources. For now you will need to put this in meowlauncher/game_sources/__init__.py"""
+	"""Base class for all game sources. For now you will need to put a reference to the GameSource in meowlauncher/game_sources/__init__.py, and a reference to the config class in meowlauncher/config.py"""
 
 	def __init__(self) -> None:
-		from meowlauncher.config import current_config
-
-		self.config = current_config.get(self)
+		self.config = current_config.get(self.config_class) if self.config_class else None
 
 	@classmethod
 	def name(cls) -> str:

@@ -3,8 +3,6 @@
 from collections.abc import Iterator
 
 from meowlauncher.config import main_config
-from meowlauncher.settings.emulator_config import emulator_configs
-from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.machines_with_inbuilt_games import (
 	InbuiltGame,
@@ -25,6 +23,8 @@ from meowlauncher.games.mame_common.machine import (
 	iter_machines_from_source_file,
 )
 from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
+from meowlauncher.settings.emulator_config import emulator_configs
+from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.desktop_files import has_been_done
 
 
