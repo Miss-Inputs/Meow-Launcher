@@ -21,11 +21,11 @@ def main() -> None:
 
 	progress_logger.info('Creating output folder')
 
-	if main_config.full_rescan:
-		if main_config.output_folder.is_dir():
-			for f in main_config.output_folder.iterdir():
-				#TODO: We should probably only do this if we know f is made by us, just in case someone wants to set output_folder to somewhere shared with other apps
-				f.unlink()
+	if main_config.full_rescan and main_config.output_folder.is_dir():
+		for f in main_config.output_folder.iterdir():
+			#TODO: We should probably only do this if we know f is made by us, just in case someone wants to set output_folder to somewhere shared with other apps
+			#TODO: Should be part of output class anyway
+			f.unlink()
 	main_config.output_folder.mkdir(exist_ok=True, parents=True)
 
 	add_games()

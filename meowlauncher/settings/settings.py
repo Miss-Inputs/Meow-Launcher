@@ -64,9 +64,10 @@ ignored_directories = _load_ignored_directories()
 def _remove_optional(annotation: type | None):
 	if not annotation:
 		return None
-	args = [arg for arg in get_args(annotation) if arg != type(None)]
-	return args[0] if len(args) == 1 else annotation
-
+	args = get_args(annotation)
+	if len(args) == 2 and args[1] == type(None):
+		return args[0]
+	return annotation
 
 class Settings(BaseSettings):
 	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
@@ -111,7 +112,11 @@ class Settings(BaseSettings):
 	@classmethod
 	def add_argparser_group(cls, argparser: ArgumentParser) -> None:
 		"""Adds a group for this config to an ArgumentParser. See config for how to parse it - to avoid namespace collisions, the qualified name of this class is added"""
-		group = argparser if cls.section() == MainConfig.section() else argparser.add_argument_group(cls.section(), description=cls.section_help())
+		group = (
+			argparser
+			if cls.section() == MainConfig.section()
+			else argparser.add_argument_group(cls.section(), description=cls.section_help())
+		)
 		prefix = cls.prefix()
 		docstrings = extract_docs_from_cls_obj(cls)
 
@@ -193,7 +198,9 @@ class MainConfig(Settings):
 	disambiguate: bool = True
 	"""After adding games, add info in brackets to the end of the names of games that have the same name to identify them (such as what type or platform they are), defaults to true"""
 
-	logging_level: str = Field(default_factory=lambda: logging.getLevelName(logger.getEffectiveLevel()))
+	logging_level: str = Field(
+		default_factory=lambda: logging.getLevelName(logger.getEffectiveLevel())
+	)
 	"""Logging level (e.g. INFO, DEBUG, WARNING, etc)"""
 
 	other_images_to_use_as_icons: Sequence[str] = Field(default_factory=list)

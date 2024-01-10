@@ -7,7 +7,7 @@ import meowlauncher
 from meowlauncher.frontend.main import main
 from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, '') #TODO: What do we need this for?
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(

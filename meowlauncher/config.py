@@ -53,4 +53,4 @@ def current_config(cls: type[T]) -> T:
 	return config
 
 
-main_config = current_config(MainConfig)
+main_config: MainConfig = current_config(MainConfig)
