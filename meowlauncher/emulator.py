@@ -248,6 +248,7 @@ class LibretroFrontend(Runner):
 		self.launch_command_func = launch_command_func
 		self.supported_compression = supported_compression if supported_compression else ()
 		self.config_name = name  # emulator_configs needs this, as we have decided that frontends can have their own config
+		self.configs = {} #TODO: XXX: this is just here to make it work for now
 		super().__init__(host_platform)
 
 	@property

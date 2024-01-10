@@ -503,7 +503,8 @@ libretro_frontends = {frontend.name: frontend for frontend in _libretro_frontend
 #Basically this is here for the purpose of generating configs
 #TODO: Return an iterator and make a "has config" interface so we don't have to invent _JustHereForConfigValues
 #all_emulators: 'MutableSequence[Emulator | LibretroFrontend]' = _standalone_emulators
-all_emulators: 'MutableSequence[Emulator[EmulatedGame] | LibretroFrontend | _JustHereForConfigValues]' = []
+all_emulators: 'MutableSequence[Emulator[EmulatedGame] | LibretroFrontend]' = []
+# all_emulators: 'MutableSequence[Emulator[EmulatedGame] | LibretroFrontend | _JustHereForConfigValues]' = []
 all_emulators += _standalone_emulators
 all_emulators += _libretro_cores
 all_emulators += _dos_emulators
@@ -521,5 +522,5 @@ class _JustHereForConfigValues(Runner):
 	@property
 	def name(self) -> str:
 		return self.config_name
-all_emulators.append(_JustHereForConfigValues('Mednafen', 'mednafen'))
-all_emulators.append(_JustHereForConfigValues('VICE'))
+# all_emulators.append(_JustHereForConfigValues('Mednafen', 'mednafen'))
+# all_emulators.append(_JustHereForConfigValues('VICE'))

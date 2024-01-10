@@ -62,6 +62,13 @@ ignored_directories = _load_ignored_directories()
 # TODO: Config.Config.customize_sources should return init_settings, argparser_settings, env_settings, some kind of extra settings, ini_settings
 
 
+def _remove_optional(annotation: type | None):
+	if not annotation:
+		return None
+	args = [arg for arg in get_args(annotation) if arg != type(None)]
+	return args[0] if len(args) == 1 else annotation
+
+
 class Settings(BaseSettings):
 	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
 
@@ -104,7 +111,7 @@ class Settings(BaseSettings):
 
 	@classmethod
 	def add_argparser_group(cls, argparser: ArgumentParser) -> None:
-		"""Adds a group for this config to an ArgumentParser. See __main__ for how to parse it - to avoid namespace collisions, the qualified name of this class is added"""
+		"""Adds a group for this config to an ArgumentParser. See config for how to parse it - to avoid namespace collisions, the qualified name of this class is added"""
 		group = argparser.add_argument_group(cls.section(), description=cls.section_help())
 		prefix = cls.prefix()
 		docstrings = extract_docs_from_cls_obj(cls)
@@ -118,7 +125,8 @@ class Settings(BaseSettings):
 			destination_in_namespace = f'{cls.__qualname__}.{k}'
 
 			default = v.default_factory() if callable(v.default_factory) else v.default
-			if v.annotation == bool:
+			t = _remove_optional(v.annotation)
+			if t == bool:
 				group.add_argument(
 					option,
 					action=BooleanOptionalAction,
@@ -127,7 +135,7 @@ class Settings(BaseSettings):
 					dest=destination_in_namespace,
 					metavar=k,
 				)
-			elif v.annotation == Sequence[Path]:
+			elif t == Sequence[Path]:
 				# TODO: It would be more useful to add to the default value
 				group.add_argument(
 					option,
@@ -138,7 +146,7 @@ class Settings(BaseSettings):
 					dest=destination_in_namespace,
 					metavar=k,
 				)
-			elif v.annotation == Sequence[str]:
+			elif t == Sequence[str]:
 				group.add_argument(
 					option,
 					nargs='*',
@@ -148,9 +156,7 @@ class Settings(BaseSettings):
 					metavar=k,
 				)
 			else:
-				if v.annotation:
-					t = v.annotation
-				else:
+				if not t:
 					logger.warning('%s in %s has no type annotation, defaulting to str', k, cls)
 					t = str
 				group.add_argument(

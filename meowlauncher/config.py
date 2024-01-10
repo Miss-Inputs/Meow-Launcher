@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from collections.abc import Collection
+from typing import TypeVar
 
 from meowlauncher.game_sources.settings import SteamConfig
 from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
@@ -42,4 +43,13 @@ def _setup_config():
 	return _main_config, settings
 
 
-main_config, current_config = _setup_config()
+main_config, __current_config = _setup_config()
+T = TypeVar('T', bound=Settings)
+
+
+def current_config(cls: type[T]) -> T:
+	config = __current_config.get(cls)
+	if not config:
+		return cls()
+	assert isinstance(config, cls)
+	return config

@@ -34,8 +34,8 @@ class EmulatorConfigs():
 		parser = NoNonsenseConfigParser(allow_no_value=True)
 		parser.read(_emulator_config_path)
 
-		# self.configs = {emulator.config_name: _get_config(parser, emulator.config_name, emulator.default_exe_name, emulator.configs) for emulator in all_emulators}
-		self.configs = {} #TODO: Rewrite all this
+		self.configs = {emulator.config_name: _get_config(parser, emulator.config_name, emulator.default_exe_name, emulator.configs) for emulator in all_emulators}
+		# self.configs = {} #TODO: Rewrite all this
 				
 	__instance = None
 

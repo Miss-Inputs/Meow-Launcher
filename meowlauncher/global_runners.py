@@ -11,10 +11,10 @@ from .runner import Runner
 class _Wine(Runner):
 	def __init__(self) -> None:
 		super().__init__()
-		self.configs.update({
-			#TODO: We should find a way to just get this description etc from main_config.wineprefix
-			'wineprefix': RunnerConfigValue(Path, None, 'WINEPREFIX env var')
-		})
+		# self.configs.update({
+		# 	#TODO: We should find a way to just get this description etc from main_config.wineprefix
+		# 	'wineprefix': RunnerConfigValue(Path, None, 'WINEPREFIX env var')
+		# })
 
 	@property
 	def name(self) -> str:

@@ -1,3 +1,8 @@
+"""Game source for installed itch.io games (anything installed with the client, and no weird games that use non-recommended install methods) that is not a GameSource yet
+TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
+#…But "find any executables in the game dir" is kind of what butler does, albeit with a bit more spicy
+#So given we have to filter out butler's detected executables anyway… might as well redo it
+#GOG would appreciate a "find likely executables in a folder" function too"""
 import copy
 import datetime
 import gzip
@@ -21,15 +26,9 @@ if TYPE_CHECKING:
 	from collections.abc import Collection, Iterator, Mapping
 	from typing import Any
 
-	from meowlauncher.game_sources.itch_io import ItchioConfig
+	from meowlauncher.game_sources.settings import ItchioConfig
 
 logger = logging.getLogger(__name__)
-
-__doc__ = """Game source for installed itch.io games (anything installed with the client, and no weird games that use non-recommended install methods) that is not a GameSource yet
-TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
-#…But "find any executables in the game dir" is kind of what butler does, albeit with a bit more spicy
-#So given we have to filter out butler's detected executables anyway… might as well redo it
-#GOG would appreciate a "find likely executables in a folder" function too"""
 
 @lru_cache(maxsize=1)
 def _find_butler() -> Path | None:

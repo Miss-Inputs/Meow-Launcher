@@ -5,7 +5,8 @@ from collections.abc import Sequence
 
 from meowlauncher.config import main_config
 from meowlauncher.game_source import CompoundGameSource, GameSource
-from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
+from meowlauncher.game_sources import gog, itch_io, mame_software
+from meowlauncher.game_sources.all_sources import game_sources
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
 
 __doc__ = """The important part that actually scans games and creates launchers. 
@@ -15,12 +16,13 @@ logger = logging.getLogger(__name__)
 progress_logger = logging.getLogger('meowlauncher.frontend.progress')
 time_logger = logging.getLogger('meowlauncher.frontend.time')
 
+
 def add_game_source(source: GameSource) -> int:
 	"""Add all games from a single game source.
 	Returns how many games were successfully added"""
 	time_started = time.perf_counter()
 	count = 0
-	
+
 	progress_logger.info('Adding %s', source.description())
 	if isinstance(source, CompoundGameSource):
 		count += sum(add_game_source(subsource) for subsource in source.sources)
@@ -33,14 +35,35 @@ def add_game_source(source: GameSource) -> int:
 	time_taken = datetime.timedelta(seconds=time_ended - time_started)
 
 	if count:
-		time_logger.info('Added %d %s in %s (%s per game)', count, source.description(), time_taken, time_taken / count)
+		time_logger.info(
+			'Added %d %s in %s (%s per game)',
+			count,
+			source.description(),
+			time_taken,
+			time_taken / count,
+		)
 	else:
 		logger.warning('Did not add any %s', source.description())
 	progress_logger.info('-' * 10)
 	return count
 
+
 def _get_game_source(name: str) -> type[GameSource] | None:
-	return next((source for source in game_sources if name in {source.name(), source.__name__, source.name().lower().replace(' ', '_'), source.__name__.lower()}), None)
+	return next(
+		(
+			source
+			for source in game_sources
+			if name
+			in {
+				source.name(),
+				source.__name__,
+				source.name().lower().replace(' ', '_'),
+				source.__name__.lower(),
+			}
+		),
+		None,
+	)
+
 
 def add_games() -> int:
 	"""Add all the games. Returns total amount of games successfully added"""
@@ -51,7 +74,7 @@ def add_games() -> int:
 	sources: Sequence[type[GameSource]]
 	if source_names:
 		source_names = list(source_names)
-		#TODO: Remove this once they are proper GameSources
+		# TODO: Remove this once they are proper GameSources
 		do_gog = False
 		do_itch_io = False
 		try:
@@ -86,7 +109,7 @@ def add_games() -> int:
 				logger.warning('Unknown game source: %s', source_name)
 				continue
 			sources.append(source_type)
-			
+
 	else:
 		do_gog = True
 		do_itch_io = True
@@ -98,22 +121,33 @@ def add_games() -> int:
 			logger.warning('%s was specified, but it is not available', game_source.name())
 			continue
 		total += add_game_source(game_source)
-	progress_logger.info('Added total of %d games', total) #Well other than those down below but sshhh pretend they aren't there
+	progress_logger.info(
+		'Added total of %d games', total
+	)  # Well other than those down below but sshhh pretend they aren't there
 
-	if do_gog:		
+	if do_gog:
 		progress_logger.info('Adding GOG games')
 		time_started = time.perf_counter()
 		gog.do_gog_games()
-		time_logger.info('GOG finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started))
-	if do_itch_io:		
+		time_logger.info(
+			'GOG finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started)
+		)
+	if do_itch_io:
 		progress_logger.info('Adding itch.io games')
 		time_started = time.perf_counter()
 		itch_io.do_itch_io_games()
-		time_logger.info('itch.io finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started))
+		time_logger.info(
+			'itch.io finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started)
+		)
 	if do_mame_software:
-		progress_logger.info('Adding MAME software, which is not finished yet and this might not work')
+		progress_logger.info(
+			'Adding MAME software, which is not finished yet and this might not work'
+		)
 		time_started = time.perf_counter()
 		mame_software.add_mame_software()
-		time_logger.info('MAME software finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started))
+		time_logger.info(
+			'MAME software finished in %s',
+			datetime.timedelta(seconds=time.perf_counter() - time_started),
+		)
 
 	return total

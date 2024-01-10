@@ -5,30 +5,10 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from meowlauncher.config import main_config
-from meowlauncher.settings.settings import Settings
 from meowlauncher.games.itch import ItchGame
 from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
-
-class ItchioConfig(Settings):
-	@classmethod
-	def section(cls) -> str:
-		return 'itch.io'
-
-	@classmethod
-	def prefix(cls) -> str | None:
-		return 'itch-io'
-		
-	@configoption(readable_name='itch.io folders') #itch.io
-	def itch_io_folders(self) -> Sequence[Path]:
-		"""Folders where itch.io games are installed"""
-		return ()
-
-	@configoption(readable_name='Use itch.io as platform') #itch.io
-	def use_itch_io_as_platform(self) -> bool:
-		"""Set platform in game info to itch.io instead of underlying platform"""
-		return False
 
 
 def scan_itch_dir(path: Path) -> ItchGame | None:
