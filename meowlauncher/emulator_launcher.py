@@ -4,12 +4,13 @@ from typing import TYPE_CHECKING
 from .launcher import Launcher
 
 if TYPE_CHECKING:
+	from collections.abc import Mapping
+
 	from meowlauncher.config_types import TypeOfConfigValue
 
 	from .configured_emulator import ConfiguredEmulator
 	from .emulated_game import EmulatedGame
 	from .launch_command import LaunchCommand
-	from collections.abc import Mapping
 
 class EmulatorLauncher(Launcher, ABC):
 	def __init__(self, game: 'EmulatedGame', emulator: 'ConfiguredEmulator', platform_config: 'Mapping[str, TypeOfConfigValue] | None'=None) -> None:

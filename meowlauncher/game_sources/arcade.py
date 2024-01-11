@@ -22,7 +22,7 @@ from meowlauncher.games.mame_common.machine import (
 	iter_machines,
 	iter_machines_from_source_file,
 )
-from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledError
 from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.desktop_files import has_been_done
@@ -39,7 +39,7 @@ class Arcade(GameSource):
 			mame_config = emulator_configs.get('MAME')
 			if mame_config:
 				self.emu = ConfiguredMAME(mame_config)
-		except MAMENotInstalledException:
+		except MAMENotInstalledError:
 			pass
 		self.platform_config = PlatformConfig(
 			'MAME', set(), (), {}
@@ -147,7 +147,7 @@ class MAMEInbuiltGames(GameSource):
 			mame_config = emulator_configs.get('MAME')
 			if mame_config:
 				self.emu = ConfiguredMAME(mame_config)
-		except MAMENotInstalledException:
+		except MAMENotInstalledError:
 			pass
 
 	@classmethod
@@ -188,18 +188,16 @@ class MAMEInbuiltGames(GameSource):
 
 	def iter_launchers(self) -> Iterator[MAMEInbuiltLauncher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
-			if not main_config.full_rescan:
-				if has_been_done('Inbuilt game', machine_name):
-					continue
+			if not main_config.full_rescan and has_been_done('Inbuilt game', machine_name):
+				continue
 			launcher = self._process_inbuilt_game(machine_name, inbuilt_game)
 			if launcher:
 				yield launcher
 		for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
-			if not main_config.full_rescan:
-				if has_been_done(
-					'Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]
-				):
-					continue
+			if not main_config.full_rescan and has_been_done(
+				'Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]
+			):
+				continue
 			launcher = self._process_inbuilt_game(
 				machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1]
 			)

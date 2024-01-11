@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 from meowlauncher.settings.settings import Settings
 
+
 class HostPlatform(Enum):
 	"""Platform this runner runs on"""
 	Linux = auto() #Assume this means x86 for now

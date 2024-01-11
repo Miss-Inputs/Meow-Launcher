@@ -1,17 +1,19 @@
+import contextlib
 from collections.abc import Collection, Sequence
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
-from meowlauncher.games.mame_common.machine import (Machine,
-                                                    does_machine_match_name,
-                                                    get_machine)
-from meowlauncher.games.mame_common.mame_executable import \
-    MachineNotFoundException
+from meowlauncher.games.mame_common.machine import Machine, does_machine_match_name, get_machine
+from meowlauncher.games.mame_common.mame_executable import MachineNotFoundError
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.util.detect_things_from_filename import (
-    get_date_from_filename_tags, get_languages_from_filename_tags,
-    get_license_from_filename_tags, get_regions_from_filename_tags,
-    get_revision_from_filename_tags, get_version_from_filename_tags)
+	get_date_from_filename_tags,
+	get_languages_from_filename_tags,
+	get_license_from_filename_tags,
+	get_regions_from_filename_tags,
+	get_revision_from_filename_tags,
+	get_version_from_filename_tags,
+)
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import load_list
 
@@ -28,10 +30,8 @@ def add_generic_software_info(software: 'Software', game_info: 'GameInfo') -> No
 	if 'pcb' in software.infos:
 		game_info.specific_info['PCB'] = software.get_info('pcb')
 	game_info.specific_info['Requirement'] = software.get_shared_feature('requirement')
-	try:
+	with contextlib.suppress(ValueError):
 		game_info.specific_info['TV Type'] = TVSystem(software.get_info('video'))
-	except ValueError:
-		pass
 	#TODO: Could add "slot" specifically as Mapper?
 	#TODO: Is there a better way to handle usage? It would be useful for other specific_behaviours things to use the below stuff but without re-adding usage
 	for info_name, info_value in software.infos.items():
@@ -45,7 +45,7 @@ def _match_arcade(software_name: str) -> Machine | None:
 	assert default_mame_executable, 'We are only calling this from a method that already checked…'
 	try:
 		return get_machine(software_name, default_mame_executable)
-	except MachineNotFoundException:
+	except MachineNotFoundError:
 		return None
 
 def find_equivalent_arcade_game(game_name: str, game_alt_names: Collection[str], software: 'Software') -> Machine | None:
@@ -150,9 +150,8 @@ def add_dump_status_info_from_tags(tags: Sequence[str], game_info: 'GameInfo') -
 
 def add_generic_info_from_filename_tags(tags: Sequence[str], game_info: 'GameInfo') -> None:
 	filename_date = get_date_from_filename_tags(tags)
-	if filename_date:
-		if filename_date.is_better_than(game_info.release_date):
-			game_info.release_date = filename_date
+	if filename_date and filename_date.is_better_than(game_info.release_date):
+		game_info.release_date = filename_date
 	
 	if 'Revision' not in game_info.specific_info:
 		game_info.specific_info['Revision'] = get_revision_from_filename_tags(tags)

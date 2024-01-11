@@ -6,18 +6,18 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
-from meowlauncher.util.region_info import (Language,
-                                           get_language_by_english_name)
+from meowlauncher.util.region_info import Language, get_language_by_english_name
 
 from .mame_helpers import default_mame_configuration
 
 if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 
-class HistoryXML():
+
+class HistoryXML:
 	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
-		
+
 		system_histories: MutableMapping[str, History] = {}
 		software_histories: MutableMapping[str, MutableMapping[str, History]] = {}
 		for entry in self.xml.iter('entry'):
@@ -28,14 +28,19 @@ class HistoryXML():
 
 			systems = entry.find('systems')
 			if systems is not None:
-				system_histories.update((system.attrib['name'], parsed) for system in systems.iter('system'))
+				system_histories.update(
+					(system.attrib['name'], parsed) for system in systems.iter('system')
+				)
 			softwares = entry.find('software')
 			if softwares is not None:
 				for item in softwares.iter('item'):
-					software_histories.setdefault(item.attrib['list'], {})[item.attrib['name']] = parsed
+					software_histories.setdefault(item.attrib['list'], {})[
+						item.attrib['name']
+					] = parsed
 		self.system_histories = system_histories
 		self.software_histories = software_histories
-	
+
+
 @functools.lru_cache(1)
 def get_default_history_xml() -> HistoryXML | None:
 	if not default_mame_configuration:
@@ -44,15 +49,16 @@ def get_default_history_xml() -> HistoryXML | None:
 	if not dat_paths:
 		return None
 	for dat_path in dat_paths:
-		historypath = Path(dat_path, 'history.xml')		
+		historypath = Path(dat_path, 'history.xml')
 		try:
 			return HistoryXML(historypath)
 		except FileNotFoundError:
 			continue
 	return None
 
+
 @dataclass(frozen=True)
-class History():
+class History:
 	description: str | None
 	cast: str | None
 	technical_info: str | None
@@ -63,6 +69,7 @@ class History():
 	series: str | None
 	staff: str | None
 	ports: str | None
+
 
 def parse_history(history: str) -> History:
 	lines = history.splitlines()
@@ -84,7 +91,7 @@ def parse_history(history: str) -> History:
 	end_line = len(lines) - 1
 	for i, line in enumerate(lines):
 		if line in {'- CAST OF CHARACTERS -', '- CAST OF ELEMENTS -'}:
-			#I think they are the same thing but only one will appear
+			# I think they are the same thing but only one will appear
 			cast_start = i
 		elif line == '- TECHNICAL -':
 			technical_start = i
@@ -103,10 +110,10 @@ def parse_history(history: str) -> History:
 		elif line == '- PORTS -':
 			ports_start = i
 		elif line == '- CONTRIBUTE -':
-			end_line = i #We don't care about things after this
-		#elif len(line) > 4 and line.startswith('-') and line.endswith('-') and line[2:-2].isupper():
-		#	print('Hmm', machine_or_softlist, software_name, 'has a new section', line)
-	
+			end_line = i  # We don't care about things after this
+		# elif len(line) > 4 and line.startswith('-') and line.endswith('-') and line[2:-2].isupper():
+		# print('Hmm', machine_or_softlist, software_name, 'has a new section', line)
+
 	section_starts = (
 		('description', description_start),
 		('cast', cast_start),
@@ -122,7 +129,9 @@ def parse_history(history: str) -> History:
 	)
 
 	description_end = next((section[1] for section in section_starts[1:] if section[1]), None)
-	if description_end is None: #Yes Future Megan, we do know how to use the second argument for next(), the issue is if cast_start is None etc etc
+	if (
+		description_end is None
+	):  # Yes Future Megan, we do know how to use the second argument for next(), the issue is if cast_start is None etc etc
 		description_end = end_line
 
 	sections: dict[str, str | None] = {}
@@ -130,18 +139,24 @@ def parse_history(history: str) -> History:
 		name, start = name_and_start
 		if i == 0:
 			if description_end - 1 > description_start:
-				sections[name] = '\n'.join(lines[description_start: description_end])
+				sections[name] = '\n'.join(lines[description_start:description_end])
 			else:
 				sections[name] = None
 		elif i < (len(section_starts) - 1):
 			if start:
-				end = next(section[1] for section in section_starts[i + 1:] if section[1])
-				sections[name] = '\n'.join(lines[start + 1: end])
+				end = next(section[1] for section in section_starts[i + 1 :] if section[1])
+				sections[name] = '\n'.join(lines[start + 1 : end])
 			else:
 				sections[name] = None
 	return History(**sections)
 
-def add_history(game_info: 'GameInfo', machine_or_softlist: str, software_name: str | None=None, history_xml: HistoryXML | None=None) -> None:
+
+def add_history(
+	game_info: 'GameInfo',
+	machine_or_softlist: str,
+	software_name: str | None = None,
+	history_xml: HistoryXML | None = None,
+) -> None:
 	"""Adds MAME history.xml to a GameInfo
 	:param game_info: GameInfo object to add history to
 	:param machine_or_softlist: Machine basename, or software list name depending on software_name
@@ -151,7 +166,9 @@ def add_history(game_info: 'GameInfo', machine_or_softlist: str, software_name: 
 	if not history_xml:
 		history_xml = get_default_history_xml()
 		if not history_xml:
-			raise FileNotFoundError('Need to specify history_xml if there is no ui.ini/historypath/history.xml')
+			raise FileNotFoundError(
+				'Need to specify history_xml if there is no ui.ini/historypath/history.xml'
+			)
 
 	if software_name:
 		softlist = history_xml.software_histories.get(machine_or_softlist)
@@ -163,7 +180,7 @@ def add_history(game_info: 'GameInfo', machine_or_softlist: str, software_name: 
 
 	if not history:
 		return
-	
+
 	if history.description:
 		if 'Description' in game_info.descriptions:
 			game_info.descriptions['History Description'] = history.description
@@ -179,6 +196,7 @@ def add_history(game_info: 'GameInfo', machine_or_softlist: str, software_name: 
 	if history.updates:
 		game_info.descriptions['Updates'] = history.updates
 
+
 def iter_default_mame_categories_folders() -> Iterator[Path]:
 	if not default_mame_configuration:
 		return
@@ -186,16 +204,17 @@ def iter_default_mame_categories_folders() -> Iterator[Path]:
 	categorypaths = ui_config.get('categorypath', ())
 	for path in categorypaths:
 		yield Path(os.path.expandvars(path))
-	
+
+
 def _parse_mame_cat_ini(path: Path) -> Mapping[str, Collection[str]]:
-	#utf-8 is actually a bad idea if series.ini breaks again, maybe
+	# utf-8 is actually a bad idea if series.ini breaks again, maybe
 	with path.open('rt', encoding='ascii') as f:
 		d: MutableMapping[str, set[str]] = {}
-		#d = {}
+		# d = {}
 		current_section = None
 		for line in f:
 			line = line.strip()
-			#Don't need to worry about FOLDER_SETTINGS or ROOT_FOLDER sections though I guess this code is gonna put them in there
+			# Don't need to worry about FOLDER_SETTINGS or ROOT_FOLDER sections though I guess this code is gonna put them in there
 			if line.startswith(';'):
 				continue
 			if line.startswith('['):
@@ -204,40 +223,47 @@ def _parse_mame_cat_ini(path: Path) -> Mapping[str, Collection[str]]:
 				d.setdefault(current_section, set()).add(line)
 		return d
 
+
 def get_mame_cat(name: str, category_folders: Iterator[Path]) -> Mapping[str, Collection[str]]:
 	for folder in category_folders:
 		cat_path = folder.joinpath(name + '.ini')
 		try:
-			return _parse_mame_cat_ini(cat_path)		
+			return _parse_mame_cat_ini(cat_path)
 		except FileNotFoundError:
 			continue
 	return {}
+
 
 @functools.cache
 def get_mame_cat_from_default_mame_config(name: str) -> Mapping[str, Collection[str]]:
 	return get_mame_cat(name, iter_default_mame_categories_folders())
 
-def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterator[Path]) -> Collection[str] | None:
+
+def get_machine_cat_from_category_folders(
+	basename: str, folder_name: str, category_folders: Iterator[Path]
+) -> Collection[str] | None:
 	folder = get_mame_cat(folder_name, category_folders)
 	if not folder:
 		return None
 	return {section for section, names in folder.items() if basename in names}
+
 
 def get_machine_cat(basename: str, folder_name: str) -> Collection[str] | None:
 	folder = get_mame_cat_from_default_mame_config(folder_name)
 	if not folder:
 		return None
 	return {section for section, names in folder.items() if basename in names}
-	
+
+
 @dataclass(frozen=True)
-class MachineCategory():
+class MachineCategory:
 	genre: str
 	subgenre: str
-	
+
 	@property
 	def is_arcade(self) -> bool:
 		return False
-	
+
 	@property
 	def is_pinball(self) -> bool:
 		"""There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set"""
@@ -250,22 +276,40 @@ class MachineCategory():
 
 	@property
 	def is_gambling(self) -> bool:
-		return self.is_arcade and ((self.genre == 'Casino') or (self.genre == 'Slot Machine') or (self.genre == 'Electromechanical' and self.subgenre == 'Reels') or (self.genre == 'Multiplay' and self.subgenre == 'Cards'))
+		return self.is_arcade and (
+			(self.genre == 'Casino')
+			or (self.genre == 'Slot Machine')
+			or (self.genre == 'Electromechanical' and self.subgenre == 'Reels')
+			or (self.genre == 'Multiplay' and self.subgenre == 'Cards')
+		)
 
 	@property
 	def is_plug_and_play(self) -> bool:
-		return (self.genre == 'Game Console' and self.subgenre in {'Home Videogame', 'MultiGames'}) or \
-			(self.genre == 'Handheld' and (self.subgenre.startswith("Plug n' Play TV Game") or self.subgenre == 'Console Cartridge')) or \
-				(self.genre == 'Rhythm' and self.subgenre == 'Dance') or (self.genre == 'MultiGame' and self.subgenre == 'Compilation') or (self.genre == 'Game Console' and self.subgenre == 'Fitness Game') or (self.genre == 'Music' and self.subgenre == 'Instruments')
-		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
-		
+		return (
+			(self.genre == 'Game Console' and self.subgenre in {'Home Videogame', 'MultiGames'})
+			or (
+				self.genre == 'Handheld'
+				and (
+					self.subgenre.startswith("Plug n' Play TV Game")
+					or self.subgenre == 'Console Cartridge'
+				)
+			)
+			or (self.genre == 'Rhythm' and self.subgenre == 'Dance')
+			or (self.genre == 'MultiGame' and self.subgenre == 'Compilation')
+			or (self.genre == 'Game Console' and self.subgenre == 'Fitness Game')
+			or (self.genre == 'Music' and self.subgenre == 'Instruments')
+		)
+		# MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
 
 	@property
 	def is_coin_pusher(self) -> bool:
-		return (self.genre == 'Misc.' and self.subgenre == 'Coin Pusher') or (self.genre == 'Coin Pusher' and self.subgenre == 'Misc.')
+		return (self.genre == 'Misc.' and self.subgenre == 'Coin Pusher') or (
+			self.genre == 'Coin Pusher' and self.subgenre == 'Misc.'
+		)
+
 
 class ArcadeCategory(MachineCategory):
-	def __init__(self, main_category: str, genre: str, subgenre: str, is_mature: bool) -> None:
+	def __init__(self, main_category: str, genre: str, subgenre: str, *, is_mature: bool) -> None:
 		super().__init__(genre, subgenre)
 		self.main_category = main_category
 		self.is_mature = is_mature
@@ -278,8 +322,9 @@ class ArcadeCategory(MachineCategory):
 	def is_plug_and_play(self) -> bool:
 		return False
 
+
 @dataclass(frozen=True)
-class OrganizedCatlist():
+class OrganizedCatlist:
 	platform: str | None
 	genre: str | None
 	subgenre: str | None
@@ -287,9 +332,10 @@ class OrganizedCatlist():
 	definite_platform: bool
 	definite_category: bool
 
+
 def get_category(basename: str) -> MachineCategory | None:
 	cats = get_machine_cat(basename, 'catlist')
-	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think, so we should just grab the first
+	# It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think, so we should just grab the first
 	if not cats:
 		return None
 	main_cat = None
@@ -298,7 +344,7 @@ def get_category(basename: str) -> MachineCategory | None:
 		break
 	if not main_cat:
 		return None
-	
+
 	if ': ' in main_cat:
 		category, _, genres = main_cat.partition(': ')
 		genre, _, subgenre = genres.partition(' / ')
@@ -307,11 +353,12 @@ def get_category(basename: str) -> MachineCategory | None:
 			is_mature = True
 			subgenre = subgenre.removesuffix('* Mature *')
 		genre.removeprefix('TTL * ')
-		
-		return ArcadeCategory(category, genre, subgenre, is_mature)
+
+		return ArcadeCategory(category, genre, subgenre, is_mature=is_mature)
 
 	genre, _, subgenre = main_cat.partition(' / ')
 	return MachineCategory(genre, subgenre)
+
 
 def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 	platform = None
@@ -322,46 +369,55 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 	category = None
 	definite_platform = True
 	definite_category = False
-	
-	#Fix some errata present in the default catlist.ini, maybe one day I should tell them about it, but I'm shy or maybe they're meant to be like that
+
+	# Fix some errata present in the default catlist.ini, maybe one day I should tell them about it, but I'm shy or maybe they're meant to be like that
 	if subgenre == 'Laser Disk Simulator':
-		#Both of these spellings appear twice...
+		# Both of these spellings appear twice...
 		subgenre = 'Laserdisc Simulator'
 	if subgenre == 'Punched Car':
 		subgenre = 'Punched Card'
-	#ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
-	#kuzmich is just Platform / Run Jump, it's an arcade machine though (but it kinda doesn't have coins at this point in time, and I dunno if it's supposed to, or it just be like that)
-	#evio is Music / Instruments which is the genre, yes, but it is indeed plug & play. Hmm...
+	# ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
+	# kuzmich is just Platform / Run Jump, it's an arcade machine though (but it kinda doesn't have coins at this point in time, and I dunno if it's supposed to, or it just be like that)
+	# evio is Music / Instruments which is the genre, yes, but it is indeed plug & play. Hmm...
 	if catlist.is_plug_and_play:
 		platform = 'Plug & Play'
 		category = 'Games'
 		if catlist.genre == 'Game Console' and catlist.subgenre == 'Home Videogame':
-			definite_platform = False #May be actually just a game console
+			definite_platform = False  # May be actually just a game console
 	if catlist.is_pinball:
 		platform = 'Pinball'
 	if catlist.is_handheld_game:
 		platform = 'Handheld'
 		category = 'Games'
 	if catlist.genre == 'Handheld' and catlist.subgenre == 'Home Videogame Console':
-		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
-		#Anyway that's why I put that there
-		#Other category.genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
+		# Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
+		# Anyway that's why I put that there
+		# Other category.genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
 		platform = 'Handheld'
 		definite_platform = False
-	if catlist.genre == 'Misc.' and catlist.subgenre in {'Electronic Game', 'Electronic Board Game'}:
-		#"Electronic Game" could also be considered Handheld
+	if catlist.genre == 'Misc.' and catlist.subgenre in {
+		'Electronic Game',
+		'Electronic Board Game',
+	}:
+		# "Electronic Game" could also be considered Handheld
 		platform = 'Board Game'
 		category = 'Games'
 
 	if catlist.genre == 'Utilities' and catlist.subgenre == 'Update':
 		definite_category = True
 		category = 'Applications'
-	
+
 	if catlist.genre == 'Misc.' and catlist.subgenre == 'Unknown':
 		genre = None
 		subgenre = None
 
-	if (catlist.is_arcade and (catlist.genre == 'Misc.' and catlist.subgenre in {'Laserdisc Simulator', 'Print Club', 'Redemption'})) or (catlist.genre == 'Music' and catlist.subgenre in {'Jukebox', 'JukeBox'}):
+	if (
+		catlist.is_arcade
+		and (
+			catlist.genre == 'Misc.'
+			and catlist.subgenre in {'Laserdisc Simulator', 'Print Club', 'Redemption'}
+		)
+	) or (catlist.genre == 'Music' and catlist.subgenre in {'Jukebox', 'JukeBox'}):
 		definite_category = True
 		category = catlist.subgenre
 
@@ -369,7 +425,9 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 		definite_category = True
 		category = 'Tests'
 
-	if catlist.genre == 'Electromechanical' or (catlist.is_arcade and catlist.genre in {'Medal Game', 'Utilities'}):
+	if catlist.genre == 'Electromechanical' or (
+		catlist.is_arcade and catlist.genre in {'Medal Game', 'Utilities'}
+	):
 		definite_category = True
 		category = catlist.genre
 		genre = catlist.subgenre
@@ -384,11 +442,14 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 		category = 'Gambling'
 
 	if catlist.subgenre.startswith("Plug n' Play TV Game /"):
-		#Oh hey we can actually have a genre now
+		# Oh hey we can actually have a genre now
 		genre = catlist.subgenre.split(' / ')[-1]
 		subgenre = None
 
-	return OrganizedCatlist(platform, genre, subgenre, category, definite_platform, definite_category)
+	return OrganizedCatlist(
+		platform, genre, subgenre, category, definite_platform, definite_category
+	)
+
 
 def get_languages(basename: str) -> Collection[Language] | None:
 	lang_names = get_machine_cat(basename, 'languages')

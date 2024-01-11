@@ -115,9 +115,8 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 				else self.emulators.get(emulator_name)
 			)
 
-			if not emulator:
-				if self.libretro_cores:
-					emulator = self.libretro_cores.get(emulator_name)
+			if not emulator and self.libretro_cores:
+				emulator = self.libretro_cores.get(emulator_name)
 			if not emulator:
 				logger.warning(
 					'Config warning: %s is not a known emulator, specified in %s',

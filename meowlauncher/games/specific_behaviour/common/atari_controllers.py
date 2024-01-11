@@ -1,6 +1,5 @@
+"""Stuff that goes in the Atari joystick port, shared across most Atari systems"""
 from meowlauncher import input_info
-
-#Stuff that goes in the Atari joystick port, shared across most Atari systems
 
 joystick = input_info.NormalController()
 joystick.dpads = 1
@@ -11,7 +10,7 @@ boostergrip.dpads = 1
 boostergrip.face_buttons = 3
 
 paddle = input_info.Paddle()
-#Note that this is 2 paddles per port
+"""Note that this is 2 paddles per port"""
 paddle.buttons = 2
 
 keypad = input_info.Keypad()

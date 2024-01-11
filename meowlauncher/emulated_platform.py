@@ -2,11 +2,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from meowlauncher.common_types import MediaType
-
 if TYPE_CHECKING:
 	from collections.abc import Callable, Collection, Mapping, MutableMapping
 
+	from meowlauncher.common_types import MediaType
 	from meowlauncher.games.roms.rom import ROM, FolderROM
 
 
@@ -65,16 +64,18 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 
 		if software_list_names:
 			self.options['find_software_by_name'] = PlatformConfigValue(
-				bool, False, 'Use game name to search software list'
+				bool, default_value=False, description='Use game name to search software list'
 			)
 			self.options['find_software_by_product_code'] = PlatformConfigValue(
-				bool, False, 'Use game product code to search software list'
+				bool,
+				default_value=False,
+				description='Use game product code to search software list',
 			)
 
 	def is_valid_file_type(self, extension: str) -> bool:
 		return any(extension in extensions for extensions in self.file_types.values())
 
-	def get_media_type(self, rom: 'ROM') -> MediaType | None:
+	def get_media_type(self, rom: 'ROM') -> 'MediaType | None':
 		return next(
 			(
 				media_type

@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.settings.emulator_config import emulator_configs
-from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.data.emulated_platforms import manually_specified_platforms
 from meowlauncher.exceptions import (
@@ -15,6 +13,8 @@ from meowlauncher.exceptions import (
 )
 from meowlauncher.game_source import ChooseableEmulatorGameSource
 from meowlauncher.manually_specified_game import ManuallySpecifiedGame, ManuallySpecifiedLauncher
+from meowlauncher.settings.emulator_config import emulator_configs
+from meowlauncher.settings.platform_config import platform_configs
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping, Sequence

@@ -27,8 +27,8 @@ except ImportError:
 
 from meowlauncher.common_types import ByteAmount
 from meowlauncher.info import Date
-from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
-                                                  ManuallySpecifiedLauncher)
+from meowlauncher.manually_specified_game import ManuallySpecifiedGame, ManuallySpecifiedLauncher
+import contextlib
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
@@ -46,9 +46,10 @@ def does_exist(hfv_path: Path, path: PathInsideHFS) -> bool:
 		try:
 			v = _machfs_read_file(hfv_path)
 			get_path(v, path)
-			return True
 		except KeyError:
 			return False
+		else:
+			return True
 	except FileNotFoundError:
 		return False
 		
@@ -66,7 +67,7 @@ def _get_macos_256_palette() -> Sequence[int]:
 	"""This is stored in the ROM as a clut resource otherwise
 	Yoinked from http://belkadan.com/blog/2018/01/Color-Palette-8/ and converted to make sense for Python"""
 	pal: MutableSequence[int] = []
-	for i in range(0, 215):
+	for i in range(215):
 		#Primary colours
 		red = (5 - (i // 36)) * 51
 		green = (5 - (i // 6 % 6)) * 51
@@ -253,9 +254,8 @@ class MacApp(ManuallySpecifiedGame):
 
 	@property
 	def fallback_name(self) -> str:
-		if have_machfs:
-			if self.path.endswith('.app'):
-				return self.path.split(':')[-1].removesuffix('.app')
+		if have_machfs and self.path.endswith('.app'):
+			return self.path.split(':')[-1].removesuffix('.app')
 		return self.path.split(':')[-1]
 
 	def _get_resources(self) -> Mapping[bytes, Mapping[int, 'macresources.Resource']]:
@@ -291,7 +291,7 @@ class MacApp(ManuallySpecifiedGame):
 					icon_local_id = int.from_bytes(fref[4:6], 'big')
 					bndl_type_count = int.from_bytes(bndl[6:8], 'big') + 1 #Why does it minus 1??? wtf
 					type_offset = 8
-					for _ in range(0, bndl_type_count):
+					for _ in range(bndl_type_count):
 						type_header = bndl[type_offset: type_offset + 6]
 						count_of_ids = int.from_bytes(type_header[4:6], 'big') + 1
 						ids = bndl[type_offset + 6: type_offset + 6 + (count_of_ids * 4)] #Array of two integers (local ID, resource ID)
@@ -316,10 +316,8 @@ class MacApp(ManuallySpecifiedGame):
 		version, revision = vers[0:2]
 		self.info.specific_info['Version'] = str(version) + '.' + '.'.join(f'{revision:x}')
 		if vers[2] != 0x80:
-			try:
+			with contextlib.suppress(ValueError):
 				self.info.specific_info['Build Stage'] = BuildStage(vers[2])
-			except ValueError:
-				pass
 			if not self.info.categories:
 				self.info.categories = ('Betas', )
 		if vers[3]: #"Non-release" / build number
@@ -438,7 +436,7 @@ class MacApp(ManuallySpecifiedGame):
 
 			#Can also get mddate if wanted
 			creation_datetime = mac_epoch + datetime.timedelta(seconds=self._file.crdate)
-			creation_date = Date(creation_datetime.year, creation_datetime.month, creation_datetime.day, True)
+			creation_date = Date(creation_datetime.year, creation_datetime.month, creation_datetime.day, is_guessed=True)
 			if creation_date.is_better_than(self.info.release_date):
 				self.info.release_date = creation_date
 

@@ -5,11 +5,11 @@ from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.launch_command import LaunchCommand
 
-from .mame import ConfiguredMAME
-
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.data.machines_with_inbuilt_games import InbuiltGame
+
+	from .mame import ConfiguredMAME
 
 class MAMEInbuiltGame(EmulatedGame):
 	def __init__(self, machine_name: str, inbuilt_game: 'InbuiltGame', platform_config: 'PlatformConfig', bios_name: str | None=None) -> None:
@@ -29,7 +29,7 @@ class MAMEInbuiltGame(EmulatedGame):
 		return self.inbuilt_game.name
 		
 class MAMEInbuiltLauncher(EmulatorLauncher):
-	def __init__(self, game: MAMEInbuiltGame, emulator: ConfiguredMAME) -> None:
+	def __init__(self, game: MAMEInbuiltGame, emulator: 'ConfiguredMAME') -> None:
 		self.game: MAMEInbuiltGame = game
 		super().__init__(game, emulator)
 

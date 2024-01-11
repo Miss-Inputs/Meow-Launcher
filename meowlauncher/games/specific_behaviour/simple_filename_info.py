@@ -17,16 +17,17 @@ def _atari_st_machine_from_tags(tags: 'Sequence[str]') -> str | None:
 	if '(STe)' in tags:
 		return 'STe'
 	if '(STE-Falcon)' in tags:
-		return 'Falcon' #TODO: This might be meant to be read as "STE/Falcon"
+		return 'Falcon'  # TODO: This might be meant to be read as "STE/Falcon"
 	if '(TT)' in tags:
 		return 'TT'
 
-	#Not all are in the TOSEC naming standard, but might appear in a filename for lack of a better place to have that info
+	# Not all are in the TOSEC naming standard, but might appear in a filename for lack of a better place to have that info
 	if '(Falcon)' in tags:
 		return 'Falcon'
 	if '(Falcon030)' in tags:
 		return 'Falcon030'
 	return None
+
 
 def add_atari_st_info(tags: 'Sequence[str]', metadata: 'GameInfo') -> None:
 	"""Sets intended machine (ST, STe, Falcon, etc) according to filename"""

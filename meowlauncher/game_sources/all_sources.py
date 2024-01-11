@@ -18,10 +18,9 @@ __all__ = ['game_sources']
 game_sources: 'Sequence[type[GameSource]]' = (
 	DOS,
 	Mac,
-	Arcade,
 	MAMEInbuiltGames,
 	ROMs,
 	ScummVM,
 	Steam,
-
+	Arcade,
 )

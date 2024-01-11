@@ -1,3 +1,4 @@
+import contextlib
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher.games.common.generic_info import add_generic_software_info
@@ -19,14 +20,10 @@ def add_info_from_lynx_header(header: bytes, game_info: 'GameInfo') -> None:
 	UBYTE   manufname[16];
 	UBYTE   rotation;
 	UBYTE   spare[5];"""
-	try:
+	with contextlib.suppress(UnicodeDecodeError):
 		game_info.add_alternate_name(header[0x0a:0x2a].rstrip(b'\0 ').decode('ascii', 'backslashreplace'), 'Header Title')
-	except UnicodeDecodeError:
-		pass	
-	try:
+	with contextlib.suppress(UnicodeDecodeError):
 		game_info.publisher = header[0x2a:0x3a].strip(b'\0').decode('ascii')
-	except UnicodeDecodeError:
-		pass
 	rotation = header[0x3a]
 	if rotation == 0:
 		game_info.specific_info['Display Rotation'] = 'None'

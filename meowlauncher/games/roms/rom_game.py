@@ -1,3 +1,4 @@
+import contextlib
 import re
 import tempfile
 from functools import cache
@@ -78,12 +79,10 @@ class ROMGame(EmulatedGame):
 
 		software_lists = self.related_software_lists
 		software = None
-		try:
+		with contextlib.suppress(NotImplementedError):
 			software = self.rom.get_software_list_entry(
 				software_lists, self.platform.databases_are_byteswapped
 			)
-		except NotImplementedError:
-			pass
 		if software:
 			return software
 

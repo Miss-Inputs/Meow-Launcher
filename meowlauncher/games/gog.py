@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config import main_config
-from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_info
 from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
@@ -24,6 +23,7 @@ from meowlauncher.util import name_utils, region_info
 if TYPE_CHECKING:
 	from collections.abc import Mapping, Sequence
 
+	from meowlauncher.configured_runner import ConfiguredRunner
 	from meowlauncher.game_sources.gog import GOGConfig
 
 logger = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ class Task:
 			return FileTask(json_object)
 		if task_type == 'URLTask':
 			return URLTask(json_object)
-		assert False, f'What the heck? task type is {task_type}'
+		raise AssertionError(f'What the heck? task type is {task_type}')
 
 
 class FileTask(Task):
@@ -307,7 +307,7 @@ class WineGOGGame(GOGGame):
 
 
 class LinuxGOGLauncher(Launcher):
-	def __init__(self, game: GOGGame, runner: ConfiguredRunner) -> None:
+	def __init__(self, game: GOGGame, runner: 'ConfiguredRunner') -> None:
 		self.game: GOGGame = game
 		super().__init__(game, runner)
 
@@ -478,7 +478,7 @@ class WindowsGOGGame(Game):
 			task_metadata.specific_info['Wrapper'] = 'ScummVM'
 		if task.is_residualvm and emulator_name != 'ScummVM':
 			task_metadata.specific_info['Wrapper'] = 'ResidualVM'
-		executable_name = os.path.basename(task.path)
+		executable_name = task.path.name
 		task_metadata.specific_info['Executable Name'] = executable_name
 		if os.path.extsep in executable_name:
 			task_metadata.specific_info['Extension'] = executable_name.rsplit(os.path.extsep, 1)[
@@ -508,11 +508,11 @@ class WindowsGOGGame(Game):
 		actual_tasks = set()
 		documents = set()
 		for task in self.json_info.play_tasks:
-			if task.category == 'document':
-				documents.add(task)
-			elif task.name and name_utils.is_probably_documentation(task.name):
-				documents.add(task)
-			elif isinstance(task, URLTask):
+			if (
+				task.category == 'document'
+				or (task.name and name_utils.is_probably_documentation(task.name))
+				or isinstance(task, URLTask)
+			):
 				documents.add(task)
 			elif task.is_hidden:
 				continue

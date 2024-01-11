@@ -1,10 +1,10 @@
 import logging
 from collections.abc import Mapping
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
-from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common.pc_common_info import look_for_icon_in_folder
 from meowlauncher.launch_command import LaunchCommand
@@ -12,6 +12,9 @@ from meowlauncher.launcher import Launcher
 from meowlauncher.util.region_info import Language, get_language_by_short_code
 
 from .scummvm_config import ScummVMConfig, scummvm_config
+
+if TYPE_CHECKING:
+	from meowlauncher.configured_runner import ConfiguredRunner
 
 logger = logging.getLogger(__name__)
 
@@ -72,8 +75,7 @@ class ScummVMGame(Game):
 	@property
 	def name(self) -> str:
 		name = self.options.get('description', self.game_id)
-		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc		
-		return name
+		return name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc		
 
 	def __str__(self) -> str:
 		return f'{self.name} ({self.game_id})'
@@ -196,7 +198,7 @@ class ScummVMGame(Game):
 
 class ScummVMLauncher(Launcher):
 	"""Launcher for a ScummVMGame launched with ScummVM"""
-	def __init__(self, game: ScummVMGame, runner: ConfiguredRunner) -> None:
+	def __init__(self, game: ScummVMGame, runner: 'ConfiguredRunner') -> None:
 		self.game: ScummVMGame = game
 		super().__init__(game, runner)
 

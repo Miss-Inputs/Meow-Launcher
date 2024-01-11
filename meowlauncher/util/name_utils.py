@@ -2,8 +2,7 @@ import re
 from collections.abc import Collection
 
 from meowlauncher import config
-from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
-    capitalized_words
+from meowlauncher.data.name_cleanup.capitalized_words_in_names import capitalized_words
 
 from .utils import convert_roman_numeral, is_roman_numeral, title_word
 

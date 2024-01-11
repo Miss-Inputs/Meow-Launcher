@@ -2,8 +2,8 @@ import shlex
 from collections.abc import Collection, Mapping, MutableMapping, Sequence
 from pathlib import Path, PurePath, PureWindowsPath
 
-# This is basically just here in case the path of a ROM changes between when we generate the LaunchCommand for the game and when we generate the actual launcher (as with compressed stuff where the emulator doesn't support that compression type)… it can't be just a sentinel object as sometimes you might want to replace something like "--arg=$<path>", unless I think of a better way to handle that
 rom_path_argument = '$<path>'
+"""This is basically just here in case the path of a ROM changes between when we generate the LaunchCommand for the game and when we generate the actual launcher (as with compressed stuff where the emulator doesn't support that compression type)… it can't be just a sentinel object as sometimes you might want to replace something like "--arg=$<path>", unless I think of a better way to handle that"""
 
 # I guess if one ever cared about Not Linux, you would need to split LaunchCommand into BaseLaunchCommand and subclasses, rename make_linux_command_string -> make_command_string, put in subclass
 

@@ -8,7 +8,7 @@ from meowlauncher.games.mame_common.machine import (
 	does_machine_match_name,
 	iter_machines_from_source_file,
 )
-from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledError
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import (
 	Software,
@@ -508,12 +508,12 @@ def find_equivalent_nes_arcade(name: str) -> Machine | None:
 	if not hasattr(find_equivalent_nes_arcade, 'playchoice10_games'):
 		try:
 			find_equivalent_nes_arcade.playchoice10_games = set(iter_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
-		except MAMENotInstalledException:
+		except MAMENotInstalledError:
 			find_equivalent_nes_arcade.playchoice10_games = set() #type: ignore[attr-defined]
 	if not hasattr(find_equivalent_nes_arcade, 'vsnes_games'):
 		try:
 			find_equivalent_nes_arcade.vsnes_games = set(iter_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
-		except MAMENotInstalledException:
+		except MAMENotInstalledError:
 			find_equivalent_nes_arcade.vsnes_games = set() #type: ignore[attr-defined]
 
 	for playchoice10_machine in find_equivalent_nes_arcade.playchoice10_games: #type: ignore[attr-defined]

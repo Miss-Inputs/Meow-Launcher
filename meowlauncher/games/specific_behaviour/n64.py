@@ -9,9 +9,12 @@ from meowlauncher import input_info
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.util.utils import (NoNonsenseConfigParser,
-                                     NotAlphanumericError, byteswap,
-                                     convert_alphanumeric)
+from meowlauncher.util.utils import (
+	NoNonsenseConfigParser,
+	NotAlphanumericError,
+	byteswap,
+	convert_alphanumeric,
+)
 
 if TYPE_CHECKING:
 	from collections.abc import Mapping

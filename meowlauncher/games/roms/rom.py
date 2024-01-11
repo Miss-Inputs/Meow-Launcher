@@ -1,6 +1,5 @@
 """Classes for abstracting various kinds of ROM files, etc"""
 import logging
-import os
 import zlib
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
@@ -10,7 +9,6 @@ from typing import TYPE_CHECKING
 
 from pydantic import ByteSize
 
-from meowlauncher.common_types import MediaType
 from meowlauncher.config import current_config
 from meowlauncher.games.mame_common.software_list import SoftwareMatcherArgs, find_in_software_lists
 from meowlauncher.util import archives, cd_read, io_utils
@@ -19,6 +17,7 @@ from meowlauncher.util.utils import byteswap
 from .roms_config import ROMsConfig
 
 if TYPE_CHECKING:
+	from meowlauncher.common_types import MediaType
 	from meowlauncher.games.mame_common.software_list import Software, SoftwareList
 
 logger = logging.getLogger(__name__)

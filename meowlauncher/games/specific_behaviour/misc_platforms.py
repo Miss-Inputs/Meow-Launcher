@@ -12,7 +12,7 @@ from meowlauncher.games.mame_common.machine import (
 	does_machine_match_name,
 	iter_machines_from_source_file,
 )
-from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledError
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
@@ -196,7 +196,7 @@ def _get_uapce_games() -> 'Collection[Machine]':
 		if not default_mame_executable:
 			return []
 		return set(iter_machines_from_source_file('uapce', default_mame_executable))
-	except MAMENotInstalledException:
+	except MAMENotInstalledError:
 		return []
 
 def find_equivalent_pc_engine_arcade(game_name: str) -> Machine | None:

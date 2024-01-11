@@ -1,8 +1,7 @@
 import zlib
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.games.mame_common.software_list import \
-    find_in_software_lists_with_custom_matcher
+from meowlauncher.games.mame_common.software_list import find_in_software_lists_with_custom_matcher
 from meowlauncher.games.roms.rom import FileROM
 
 from .simple_software_info import add_intellivision_software_info
@@ -32,7 +31,7 @@ def _does_intellivision_part_match(part: 'SoftwarePart', data: bytes) -> bool:
 		total_size += size
 
 		crc32 = rom.crc32
-		segment = data[offset: offset + size]
+		segment = data[offset : offset + size]
 		segment_crc32 = zlib.crc32(segment)
 		if segment_crc32 != crc32:
 			return False
@@ -47,10 +46,13 @@ def _does_intellivision_part_match(part: 'SoftwarePart', data: bytes) -> bool:
 
 	return True
 
+
 def add_intellivision_custom_info(game: 'ROMGame') -> None:
-	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
-	#Input info: Keyboard Module, ECS (49 keys), or 12-key keypad + 3 buttons + dpad (I don't think it's actually a paddle unless I'm proven otherwise), or Music Synthesizer (49 keys) (TODO add this I'm tired right now)
+	# There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
+	# Input info: Keyboard Module, ECS (49 keys), or 12-key keypad + 3 buttons + dpad (I don't think it's actually a paddle unless I'm proven otherwise), or Music Synthesizer (49 keys) (TODO add this I'm tired right now)
 	rom = cast(FileROM, game.rom)
-	software = find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_intellivision_part_match, [rom.read()])
+	software = find_in_software_lists_with_custom_matcher(
+		game.related_software_lists, _does_intellivision_part_match, [rom.read()]
+	)
 	if software:
 		add_intellivision_software_info(software, game.info)

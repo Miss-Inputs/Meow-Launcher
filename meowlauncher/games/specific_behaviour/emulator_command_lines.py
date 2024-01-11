@@ -16,10 +16,7 @@ from meowlauncher.data.emulated_platforms import (
 	working_msx2_drivers,
 	working_msx2plus_drivers,
 )
-from meowlauncher.exceptions import (
-	EmulationNotSupportedError,
-	NotActuallyLaunchableGameError,
-)
+from meowlauncher.exceptions import EmulationNotSupportedError, NotActuallyLaunchableGameError
 from meowlauncher.games.common.emulator_command_line_helpers import (
 	_is_software_available,
 	_verify_supported_gb_mappers,
@@ -1124,9 +1121,7 @@ def mame_snes(
 
 		bios_path = cast(Path | None, platform_config.get('sufami_turbo_bios_path', None))
 		if not bios_path:
-			raise EmulationNotSupportedError(
-				'Sufami Turbo BIOS not set up, check platforms.ini'
-			)
+			raise EmulationNotSupportedError('Sufami Turbo BIOS not set up, check platforms.ini')
 
 		# We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
 		return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': str(bios_path)})
@@ -1713,14 +1708,10 @@ def bsnes(
 	if game.platform.name == 'Game Boy':
 		sgb_bios_path = cast(Path | None, platform_config.get('super_game_boy_bios_path', None))
 		if not sgb_bios_path:
-			raise EmulationNotSupportedError(
-				'Super Game Boy BIOS not set up, check platforms.ini'
-			)
+			raise EmulationNotSupportedError('Super Game Boy BIOS not set up, check platforms.ini')
 		colour_flag = game.info.specific_info.get('Is Colour?', GameBoyColourFlag.No)
 		if colour_flag == GameBoyColourFlag.Required:
-			raise EmulationNotSupportedError(
-				'Super Game Boy is not compatible with GBC-only games'
-			)
+			raise EmulationNotSupportedError('Super Game Boy is not compatible with GBC-only games')
 		if colour_flag == GameBoyColourFlag.Yes and emulator_config.options.get(
 			'sgb_incompatible_with_gbc', True
 		):
@@ -1744,9 +1735,7 @@ def bsnes(
 	if game.rom.extension == 'st':
 		bios_path = cast(Path | None, platform_config.get('sufami_turbo_bios_path', None))
 		if not bios_path:
-			raise EmulationNotSupportedError(
-				'Sufami Turbo BIOS not set up, check platforms.ini'
-			)
+			raise EmulationNotSupportedError('Sufami Turbo BIOS not set up, check platforms.ini')
 		# We need two arguments (and the second argument has to exist), otherwise when you actually launch it you get asked for something to put in slot B and who says we ever wanted to put anything in slot B
 		# Can also use /dev/null but that's not portable and even if I don't care about that, it just gives me bad vibes
 		return LaunchCommand(
@@ -2034,9 +2023,7 @@ def fs_uae(
 						model = supported_model
 						break
 				else:
-					raise EmulationNotSupportedError(
-						f'FS-UAE does not emulate any of {machine}'
-					)
+					raise EmulationNotSupportedError(f'FS-UAE does not emulate any of {machine}')
 
 		else:
 			# TODO: It would be better if this didn't force specific models, but could look at what ROMs the user has for FS-UAE and determines which models are available that support the given chipset, falling back to backwards compatibility for newer models or throwing EmulationNotSupportedException as necessary
@@ -2417,14 +2404,14 @@ def basilisk_ii(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 		with Path('~/.basilisk_ii_prefs').expanduser().open('rt', encoding='utf-8') as f:
 			for line in f:
 				if line.startswith('extfs '):
-					shared_folder = line[6:-1]
+					shared_folder = Path(line[6:-1])
 					break
 	except FileNotFoundError:
 		pass
 	if not shared_folder:
 		raise EmulationNotSupportedError('You need to set up your shared folder first')
 
-	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
+	autoboot_txt_path = str(shared_folder / 'autoboot.txt')
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 
 
@@ -2433,17 +2420,17 @@ def sheepshaver(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 	# Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	shared_folder = None
 	try:
-		with open(os.path.expanduser('~/.sheepshaver_prefs'), 'rt', encoding='utf-8') as f:
+		with Path('~/.sheepshaver_prefs').open('rt', encoding='utf-8') as f:
 			for line in f:
 				if line.startswith('extfs '):
-					shared_folder = line[6:-1]
+					shared_folder = Path(line[6:-1])
 					break
 	except FileNotFoundError:
 		pass
 	if not shared_folder:
 		raise EmulationNotSupportedError('You need to set up your shared folder first')
 
-	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
+	autoboot_txt_path = str(shared_folder / 'autoboot.txt')
 
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 
@@ -2468,9 +2455,8 @@ def _last_unused_dosbox_drive(
 					automounted_letters.append(mount_line_match[1])
 
 	for letter in 'CDEFGHIJKLMNOPQRSTVWXY':
-		if used_letters:
-			if letter in used_letters:
-				continue
+		if used_letters and letter in used_letters:
+			continue
 		if letter not in automounted_letters:
 			return letter
 	raise EmulationNotSupportedError(
@@ -2593,9 +2579,8 @@ def retroarch(
 
 # Libretro cores
 def genesis_plus_gx(game: 'ROMGame', _, __) -> None:
-	if game.platform.name == 'Mega CD':
-		if game.info.specific_info.get('32X Only?', False):
-			raise EmulationNotSupportedError('32X not supported')
+	if game.platform.name == 'Mega CD' and game.info.specific_info.get('32X Only?', False):
+		raise EmulationNotSupportedError('32X not supported')
 
 
 def blastem(game: 'ROMGame', _, __) -> None:
@@ -2704,9 +2689,7 @@ def bsnes_libretro(
 	if game.platform.name == 'Game Boy':
 		colour_flag = game.info.specific_info.get('Is Colour?', GameBoyColourFlag.No)
 		if colour_flag == GameBoyColourFlag.Required:
-			raise EmulationNotSupportedError(
-				'Super Game Boy is not compatible with GBC-only games'
-			)
+			raise EmulationNotSupportedError('Super Game Boy is not compatible with GBC-only games')
 		if colour_flag == GameBoyColourFlag.Yes and emulator_config.options.get(
 			'sgb_incompatible_with_gbc', True
 		):

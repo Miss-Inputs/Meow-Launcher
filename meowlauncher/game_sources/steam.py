@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config import main_config, current_config
+from meowlauncher.config import current_config, main_config
 from meowlauncher.exceptions import (
 	GameNotSupportedError,
 	NotActuallyLaunchableGameError,
@@ -860,9 +860,7 @@ class Steam(GameSource):
 				game.info.specific_info['No Valid Launchers?'] = True
 				launcher = None
 				if not self.config.force_create_launchers:
-					raise GameNotSupportedError(
-						'Platform not supported and Steam Play not used'
-					)
+					raise GameNotSupportedError('Platform not supported and Steam Play not used')
 
 		if launcher:
 			process_launcher(game, launcher)

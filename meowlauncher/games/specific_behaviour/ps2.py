@@ -6,15 +6,17 @@ from typing import TYPE_CHECKING, Any
 try:
 	from pycdlib import PyCdlib
 	from pycdlib.pycdlibexception import PyCdlibInvalidInput, PyCdlibInvalidISO
+
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
+
+import contextlib
 
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.util.region_info import TVSystem
 
 from .common.playstation_common import parse_product_code
-import contextlib
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -25,6 +27,7 @@ _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 _other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
 _boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
+
 def add_info_from_system_cnf(game_info: GameInfo, system_cnf: str) -> None:
 	for line in system_cnf.splitlines():
 		boot_line_match = _boot_line_regex.match(line)
@@ -33,8 +36,10 @@ def add_info_from_system_cnf(game_info: GameInfo, system_cnf: str) -> None:
 			game_info.specific_info['Executable Name'] = filename
 			boot_file_match = _boot_file_regex.match(filename)
 			if boot_file_match:
-				game_info.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
-				#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
+				game_info.product_code = (
+					boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
+				)
+				# Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
 		else:
 			other_line_match = _other_systemcnf_line_regex.match(line)
 			if other_line_match:
@@ -46,14 +51,15 @@ def add_info_from_system_cnf(game_info: GameInfo, system_cnf: str) -> None:
 					with contextlib.suppress(ValueError):
 						game_info.specific_info['TV Type'] = TVSystem[value]
 
+
 def add_info_from_iso(iso: 'PyCdlib', metadata: 'GameInfo', object_for_warning: Any) -> None:
 	try:
-		#I dunno what the ;1 is for
+		# I dunno what the ;1 is for
 		with iso.open_file_from_iso(iso_path='/SYSTEM.CNF;1') as system_cnf_file:
 			system_cnf = system_cnf_file.read().decode('utf-8', errors='backslashreplace')
 		add_info_from_system_cnf(metadata, system_cnf)
 		date_record = iso.get_record(iso_path='/SYSTEM.CNF;1').date
-		#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
+		# This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
 		year = date_record.years_since_1900 + 1900
 		month = date_record.month
 		day = date_record.day_of_month
@@ -64,18 +70,19 @@ def add_info_from_iso(iso: 'PyCdlib', metadata: 'GameInfo', object_for_warning: 
 			metadata.release_date = guessed_date
 	except PyCdlibInvalidInput:
 		logger.info('%s has no SYSTEM.CNF inside', object_for_warning)
-	#Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
-	#TODO: Sometimes there is a system.ini that looks like this:
-	#[SYSTEM]
-	#NUMBER = SLUS-21448
-	#VERSION = 100
-	#VMODE = NTSC
-	#COUNTRY = AMERICA
-	#LANGUAGE = ENGLISH
-	#WARNING = NO
+	# Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
+	# TODO: Sometimes there is a system.ini that looks like this:
+	# [SYSTEM]
+	# NUMBER = SLUS-21448
+	# VERSION = 100
+	# VMODE = NTSC
+	# COUNTRY = AMERICA
+	# LANGUAGE = ENGLISH
+	# WARNING = NO
+
 
 def add_ps2_custom_info(game: 'ROMGame') -> None:
-	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
+	# .bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
 		with game.rom.path.open('rb') as iso_file:
 			try:
@@ -86,6 +93,6 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 				logger.info('%s is invalid ISO', game.rom, exc_info=True)
 			except struct.error:
 				logger.info('%s is invalid ISO and has some struct.error', game.rom)
-	#.elf is just a standard ordinary whole entire .elf
+	# .elf is just a standard ordinary whole entire .elf
 	if game.info.product_code:
 		parse_product_code(game.info, game.info.product_code)

@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-	from .launch_command import LaunchCommand
-	from .game import Game
 	from .configured_runner import ConfiguredRunner
+	from .game import Game
+	from .launch_command import LaunchCommand
 
 class Launcher(ABC):
 	"""Base class for Launcher - the actual output of Meow Launcher, which is generally something that launches a game, but may also include sub-games or variations"""

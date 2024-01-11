@@ -3,14 +3,16 @@ from typing import TYPE_CHECKING
 
 from meowlauncher import input_info
 from meowlauncher.common_types import ByteAmount, SaveType
-#We can then add more metadata on top of this, if we're fine with usage and such being unparsed and just added automatically
+
+# We can then add more metadata on top of this, if we're fine with usage and such being unparsed and just added automatically
 from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.info import GameInfo
 
-#Straightforward stuff that doesn't really warrant going into its own source file I think
+# Straightforward stuff that doesn't really warrant going into its own source file I think
+
 
 def add_pc_booter_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
@@ -18,20 +20,24 @@ def add_pc_booter_software_info(software: 'Software', metadata: 'GameInfo') -> N
 	if usage == 'PC Booter':
 		usage = software.infos.get('user_notes')
 	metadata.specific_info['Cracked By'] = software.infos.get('cracked')
-	#Other info strings seen:
-	#OEM = Mercer
-	#Original Publisher = Nihon Falcom
+	# Other info strings seen:
+	# OEM = Mercer
+	# Original Publisher = Nihon Falcom
 	metadata.specific_info['Version'] = software.infos.get('version')
+
 
 def add_super_cassette_vision_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	add_generic_software_info(software, metadata)
-	metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
+	metadata.specific_info['Has Extra RAM?'] = software.has_data_area(
+		'ram'
+	)  # Or feature "slot" ends with "_ram"
+
 
 def add_microtan_65_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires Joystick':
-		joystick = input_info.NormalController() #1 start button
+		joystick = input_info.NormalController()  # 1 start button
 		joystick.dpads = 1
 		joystick.face_buttons = 2
 		metadata.input_info.add_option(joystick)
@@ -39,28 +45,36 @@ def add_microtan_65_software_info(software: 'Software', metadata: 'GameInfo') ->
 		hex_keypad = input_info.Keypad()
 		hex_keypad.keys = 20
 		metadata.input_info.add_option(hex_keypad)
-	elif usage in {'Requires ASCII Keyboard', 'Requires ASCII Keyboard: A=Up, Z=Down, <=Left, >=Right'}:
+	elif usage in {
+		'Requires ASCII Keyboard',
+		'Requires ASCII Keyboard: A=Up, Z=Down, <=Left, >=Right',
+	}:
 		keyboard = input_info.Keyboard()
 		keyboard.keys = 62
 		metadata.input_info.add_option(keyboard)
 	else:
 		metadata.add_notes(usage)
 
+
 def add_pc_engine_cd_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
 	metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 	usage = software.get_info('usage')
 	if usage not in {'Game Express CD Card required', 'CD-Rom System Card required'}:
-		#This is already specified by "requirement"
+		# This is already specified by "requirement"
 		metadata.add_notes(usage)
-	
+
+
 def add_amstrad_pcw_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires CP/M':
 		metadata.specific_info['Requires CP/M?'] = True
 
+
 _requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
+
+
 def add_fm_towns_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
@@ -71,15 +85,17 @@ def add_fm_towns_software_info(software: 'Software', metadata: 'GameInfo') -> No
 			if match.end() < len(usage):
 				metadata.add_notes(usage)
 
+
 def add_sord_m5_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	#Input info if I cared: 55 key keyboard + 0 button joystick
+	# Input info if I cared: 55 key keyboard + 0 button joystick
 	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires 36k RAM':
 		metadata.specific_info['Minimum RAM'] = 36 * 1024
 	else:
 		metadata.add_notes(usage)
-	
+
+
 def add_msx_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
 	usage = software.get_info('usage')
@@ -95,47 +111,57 @@ def add_msx_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 		metadata.specific_info['PCB'] = cart_part.get_feature('pcb')
 		metadata.specific_info['Mapper'] = cart_part.get_feature('mapper')
 
+
 def add_sg1000_software_info(software: 'Software', metadata: 'GameInfo') -> None:
-	metadata.save_type = SaveType.Nothing #Until proven otherwise
+	metadata.save_type = SaveType.Nothing  # Until proven otherwise
 
 	software.add_standard_info(metadata)
 	uses_tablet = software.get_part_feature('peripheral') == 'tablet'
-	#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
+	# There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 
 	if uses_tablet:
-		#A drawing tablet, but that's more or less a touchscreen
-		#No buttons here?
+		# A drawing tablet, but that's more or less a touchscreen
+		# No buttons here?
 		metadata.input_info.add_option(input_info.Touchscreen())
 	else:
 		normal_controller = input_info.NormalController()
 		normal_controller.face_buttons = 2
 		normal_controller.dpads = 1
 		metadata.input_info.add_option(normal_controller)
-	
+
+
 def add_virtual_boy_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	add_generic_software_info(software, metadata)
-	
-	#We won't need to get serial here I guess
-	has_save_hardware = software.has_data_area('eeprom') or software.has_data_area('sram') or software.get_part_feature('battery')
-	#I am making assumptions about how saving works and I could be wrong
+
+	# We won't need to get serial here I guess
+	has_save_hardware = (
+		software.has_data_area('eeprom')
+		or software.has_data_area('sram')
+		or software.get_part_feature('battery')
+	)
+	# I am making assumptions about how saving works and I could be wrong
 	metadata.save_type = SaveType.Cart if has_save_hardware else SaveType.Nothing
+
 
 def add_atari_5200_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
 	uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
-	metadata.save_type = SaveType.Nothing #Probably
+	metadata.save_type = SaveType.Nothing  # Probably
 
-	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
+	# This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
 	metadata.specific_info['Uses Trackball?'] = uses_trackball
 
 	if uses_trackball:
 		metadata.input_info.add_option(input_info.Trackball())
 	else:
 		normal_controller = input_info.NormalController()
-		normal_controller.face_buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
+		normal_controller.face_buttons = (
+			2  # 1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
+		)
 		normal_controller.analog_sticks = 1
 		metadata.input_info.add_option(normal_controller)
+
 
 def add_intellivision_software_info(software: 'Software', metadata: 'GameInfo') -> None:
 	software.add_standard_info(metadata)
@@ -144,12 +170,12 @@ def add_intellivision_software_info(software: 'Software', metadata: 'GameInfo') 
 	if usage == 'Uses Intellivoice':
 		metadata.specific_info['Uses Intellivoice?'] = True
 	elif usage in {'Requires ECS and Keyboard', 'Requires ECS and Intellivoice'}:
-		#Both of these are functionally the same for our intent and purpose, as MAME's intvecs driver always has a keyboard and Intellivoice module. I dunno if an Intellivision ECS without a keyboard is even a thing.
+		# Both of these are functionally the same for our intent and purpose, as MAME's intvecs driver always has a keyboard and Intellivoice module. I dunno if an Intellivision ECS without a keyboard is even a thing.
 		metadata.specific_info['Uses ECS?'] = True
 
-	#Other usage notes:
-	#Will not run on Intellivision 2
-	#This cart has unique Left and Right overlays
-	#Requires ECS and Music Synthesizer
+	# Other usage notes:
+	# Will not run on Intellivision 2
+	# This cart has unique Left and Right overlays
+	# Requires ECS and Music Synthesizer
 
-	#We don't have any reason to use the intv2 driver so that's not a worry; overlays aren't really a concern either, and I dunno about this music synthesizer thing
+	# We don't have any reason to use the intv2 driver so that's not a worry; overlays aren't really a concern either, and I dunno about this music synthesizer thing

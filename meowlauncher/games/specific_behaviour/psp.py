@@ -35,9 +35,10 @@ def _load_image_from_bytes(data: bytes) -> 'Image.Image | None':
 	bitmap_data_io = io.BytesIO(data)
 	try:
 		image = Image.open(bitmap_data_io)
-		return image
 	except OSError:
 		return None
+	else:
+		return image
 
 def _add_info_from_pbp(rompath_just_for_warning: Any, game_info: 'GameInfo', pbp_file: bytes) -> None:
 	magic = pbp_file[:4]
@@ -82,10 +83,11 @@ def _get_image_from_iso(iso: 'PyCdlib', inner_path: str, object_for_warning: Any
 			try:
 				image = Image.open(image_data)
 				image.load() #Force Pillow to figure out if the image is valid or not, and also copy the image data
-				return image
 			except (OSError, SyntaxError):
 				logger.info('Error getting image %s inside ISO %s', inner_path, object_for_warning or iso)
 				return None
+			else:
+				return image
 	except PyCdlibInvalidInput:
 		#It is okay for a disc to be missing something
 		pass

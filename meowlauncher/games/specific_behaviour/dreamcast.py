@@ -1,3 +1,4 @@
+import contextlib
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -110,16 +111,14 @@ def _add_info_from_main_track(game_info: GameInfo, track_path: Path, sector_size
 		month = release_date[4:6]
 		day = release_date[6:8]
 		game_info.specific_info['Header Date'] = Date(year, month, day)
-		guessed = Date(year, month, day, True)
+		guessed = Date(year, month, day, is_guessed=True)
 		if guessed.is_better_than(game_info.release_date):
 			game_info.release_date = guessed
 	except ValueError:
 		pass
 	
-	try:
+	with contextlib.suppress(UnicodeDecodeError):
 		game_info.specific_info['Executable Name'] = header[96:112].rstrip(b' ').decode('ascii')
-	except UnicodeDecodeError:
-		pass
 
 	try:
 		maker = header[112:128].rstrip(b' ').decode('ascii')

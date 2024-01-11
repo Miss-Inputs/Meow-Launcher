@@ -166,7 +166,7 @@ class Settings(BaseSettings):
 			else:
 				if not t:
 					logger.warning('%s in %s has no type annotation, defaulting to str', k, cls)
-				#Let Pydantic convert it to whatever fancy type for us
+				# Let Pydantic convert it to whatever fancy type for us
 				t = str
 				group.add_argument(
 					option,

@@ -90,7 +90,7 @@ def _sectored_read(path: Path, raw_header_size: int, raw_footer_size: int, data_
 		result = f.read(data_size - start_offset_in_sector)
 
 		#Read any sectors between start and end
-		for i in range(0, num_sectors_to_read_from - 2):
+		for i in range(num_sectors_to_read_from - 2):
 			this_sector_start = _cooked_position_to_real(data_size * (start_sector + i + 1), raw_header_size, raw_footer_size, data_size)
 			f.seek(this_sector_start)
 			result += f.read(data_size)

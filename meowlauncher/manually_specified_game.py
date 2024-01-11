@@ -1,4 +1,3 @@
-import os
 from abc import ABC, abstractmethod
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, final
@@ -15,19 +14,29 @@ if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredEmulator
 
+
 class ManuallySpecifiedGame(EmulatedGame, ABC):
-	#TODO: Should not necessarily be emulated
+	# TODO: Should not necessarily be emulated
 	def __init__(self, json: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.json = json
 		self.is_on_cd: bool = json.get('is_on_cd', False)
-		self.path: str = json['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
+		self.path: str = json[
+			'path'
+		]  # Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
 		self.args = json.get('args', [])
 		self.cd_path: Path | None = None
-		self.other_cd_paths: 'Collection[PurePath]' = set() #Could be None I guess, if cd_path not in info
+		self.other_cd_paths: 'Collection[PurePath]' = (
+			set()
+		)  # Could be None I guess, if cd_path not in info
 		if 'cd_path' in json:
 			_cd_paths = json['cd_path'] if isinstance(json['cd_path'], list) else [json['cd_path']]
-			cd_paths = tuple(self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in _cd_paths)
+			cd_paths = tuple(
+				self.base_folder.joinpath(cd_path)
+				if self.base_folder and not cd_path.startswith('/')
+				else cd_path
+				for cd_path in _cd_paths
+			)
 			self.cd_path = Path(cd_paths[0])
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
@@ -56,10 +65,10 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 		By default, path stem
 		"""
 		return PurePath(self.path).stem
-	
+
 	@final
 	def add_info(self) -> None:
-		self.info.platform = self.platform_config.name #TODO Not necessarily a thing
+		self.info.platform = self.platform_config.name  # TODO Not necessarily a thing
 		self.info.media_type = MediaType.Executable
 		if 'developer' in self.json:
 			self.info.developer = self.json['developer']
@@ -79,23 +88,29 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 
 	@property
 	def is_valid(self) -> bool:
-		'To be overriden by subclass - return true if this config is pointing to something that actually exists'
-		return os.path.isfile(self.path)
+		"To be overriden by subclass - return true if this config is pointing to something that actually exists"
+		return Path(self.path).is_file()
 
 	@abstractmethod
 	def additional_info(self) -> None:
-		'To be overriden by subclass - optional, put any other platform-specific info you want in here'
+		"To be overriden by subclass - optional, put any other platform-specific info you want in here"
+
 
 class ManuallySpecifiedLauncher(EmulatorLauncher):
-	def __init__(self, app: ManuallySpecifiedGame, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
+	def __init__(
+		self,
+		app: ManuallySpecifiedGame,
+		emulator: 'ConfiguredEmulator',
+		platform_config: 'PlatformConfig',
+	) -> None:
 		self.game: ManuallySpecifiedGame = app
 		self.platform_name = platform_config.name
 		super().__init__(app, emulator, platform_config.options)
-		
+
 	@property
-	#Could do as a default, or maybe you should override it
+	# Could do as a default, or maybe you should override it
 	def game_id(self) -> str:
 		if self.game.is_on_cd:
-			#Need the game ID to show it's on a CD otherwise non_existent_games won't work
+			# Need the game ID to show it's on a CD otherwise non_existent_games won't work
 			return f'{self.game.cd_path}:{self.game.path}'
 		return self.game.path

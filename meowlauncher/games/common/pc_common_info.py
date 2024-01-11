@@ -35,8 +35,7 @@ def _get_pe_string_table(pe: 'pefile.PE') -> 'Mapping[str, str] | None':
 			for info in file_info:
 				if hasattr(info, 'StringTable'):
 					for string_table in info.StringTable:
-						d = {k.decode('ascii', 'backslashreplace'): v.rstrip(b'\0').decode('ascii', 'backslashreplace') for k, v in string_table.entries.items()}
-						return d
+						return {k.decode('ascii', 'backslashreplace'): v.rstrip(b'\0').decode('ascii', 'backslashreplace') for k, v in string_table.entries.items()}
 	except AttributeError:
 		pass
 	return None
@@ -91,7 +90,7 @@ def add_info_for_raw_exe(path: Path, game_info: 'GameInfo') -> None:
 			#If the date has not even happened yet, or is before Windows NT 3.1 and hence the PE format was even invented, I think the fuck not
 			build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
 			game_info.specific_info['Build Date'] = build_date
-			guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
+			guessed_date = Date(build_date.year, build_date.month, build_date.day, is_guessed=True)
 			if guessed_date.is_better_than(game_info.release_date):
 				game_info.release_date = guessed_date
 
@@ -176,7 +175,7 @@ def look_for_icon_for_file(path: Path) -> 'Path | Image.Image | None':
 		return exe_icon
 
 	parent_folder = path.parent
-	return next((f for f in parent_folder.iterdir() if f.stem.lower() == path.stem.lower() and f.suffix[1:].lower() in icon_extensions), look_for_icon_in_folder(parent_folder, False))
+	return next((f for f in parent_folder.iterdir() if f.stem.lower() == path.stem.lower() and f.suffix[1:].lower() in icon_extensions), look_for_icon_in_folder(parent_folder, look_for_any_ico=False))
 
 def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Path | None:
 	for f in folder.iterdir():

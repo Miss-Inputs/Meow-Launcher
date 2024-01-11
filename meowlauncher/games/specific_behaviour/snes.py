@@ -9,7 +9,7 @@ from meowlauncher.games.mame_common.machine import (
 	does_machine_match_name,
 	iter_machines_from_source_file,
 )
-from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledError
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.util.region_info import regions_by_name
@@ -31,7 +31,7 @@ class BadSNESHeaderError(Exception):
 	pass
 
 
-_ram_rom_sizes = {i: (1 << i) * 1024 for i in range(0, 256)}
+_ram_rom_sizes = {i: (1 << i) * 1024 for i in range(256)}
 
 _rom_layouts = {
 	0x20: 'LoROM',
@@ -349,7 +349,7 @@ def find_equivalent_snes_arcade(name: str) -> Machine | None:
 			find_equivalent_snes_arcade.nss_games = set(
 				iter_machines_from_source_file('nss', default_mame_executable)
 			)  # type: ignore[attr-defined]
-		except MAMENotInstalledException:
+		except MAMENotInstalledError:
 			find_equivalent_snes_arcade.nss_games = set()  # type: ignore[attr-defined]
 	if not hasattr(find_equivalent_snes_arcade, 'arcade_bootlegs'):
 		try:
@@ -359,7 +359,7 @@ def find_equivalent_snes_arcade(name: str) -> Machine | None:
 					iter_machines_from_source_file('snesb51', default_mame_executable),
 				)
 			)  # type: ignore[attr-defined]
-		except MAMENotInstalledException:
+		except MAMENotInstalledError:
 			find_equivalent_snes_arcade.arcade_bootlegs = set()  # type: ignore[attr-defined]
 
 	for machine in chain(

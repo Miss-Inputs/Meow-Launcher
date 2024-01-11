@@ -18,8 +18,9 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 if TYPE_CHECKING:
-	from meowlauncher.info import GameInfo
 	from collections.abc import Mapping
+
+	from meowlauncher.info import GameInfo
 
 def add_unity_metadata(data_folder: Path, game_info: 'GameInfo') -> None:
 	icon_path = data_folder.joinpath('Resources', 'UnityPlayer.png')

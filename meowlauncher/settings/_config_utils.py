@@ -1,7 +1,6 @@
+from collections.abc import Sequence
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
-
-from collections.abc import Sequence
 
 if TYPE_CHECKING:
 	import configparser

@@ -1,10 +1,10 @@
+import contextlib
 from typing import TYPE_CHECKING
 
-from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.util.utils import (NotAlphanumericError,
-                                     convert_alphanumeric, load_dict)
+from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric, load_dict
 
 if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.info import GameInfo
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -28,7 +28,7 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
-def add_virtual_boy_rom_info(rom: FileROM, metadata: 'GameInfo') -> None:
+def add_virtual_boy_rom_info(rom: 'FileROM', metadata: 'GameInfo') -> None:
 	rom_size = rom.size
 	header_start_position = rom_size - 544 #Wait wouldn't that make it a footer sorta
 	header = rom.read(seek_to=header_start_position, amount=32)
@@ -45,10 +45,8 @@ def add_virtual_boy_rom_info(rom: FileROM, metadata: 'GameInfo') -> None:
 	except NotAlphanumericError:
 		pass
 
-	try:
+	with contextlib.suppress(NotAlphanumericError):
 		metadata.product_code = convert_alphanumeric(header[27:31])
-	except NotAlphanumericError:
-		pass
 	#Can get country from product_code[3] if needed
 
 	metadata.specific_info['Revision'] = header[31]

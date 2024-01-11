@@ -1,9 +1,8 @@
 from typing import TYPE_CHECKING
-from meowlauncher.common_types import SaveType
 
+from meowlauncher.common_types import SaveType
 from meowlauncher.info import Date
-from meowlauncher.util.utils import (NotAlphanumericError,
-                                     convert_alphanumeric)
+from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM

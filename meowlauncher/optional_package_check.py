@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
+from importlib.util import find_spec
 
 from meowlauncher.game_sources.steam import have_steamfiles
 from meowlauncher.games.common.pc_common_info import have_pefile
@@ -18,12 +19,7 @@ except ImportError:
 else:
 	have_pillow = True
 
-try:
-	import pycdlib
-except ImportError:
-	have_pycdlib = False
-else:
-	have_pycdlib = True
+have_pycdlib = find_spec('pycdlib') is not None
 
 # TODO: Check for itch.io butler, once we refactor all that
 

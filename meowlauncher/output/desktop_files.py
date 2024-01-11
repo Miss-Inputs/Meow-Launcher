@@ -46,7 +46,7 @@ def _write_field(desktop: 'configparser.RawConfigParser', section_name: str, key
 		value_as_string = str(value)
 
 	cleaned_key_name = key_name.replace('_', '-').replace(' ', '-').replace('?', '').replace('/', '')
-	value_as_string = clean_string(value_as_string.strip(), True)
+	value_as_string = clean_string(value_as_string.strip(), preserve_newlines=True)
 
 	section_writer = desktop[section_prefix + section_name]
 	if '\n' in value_as_string or '\r' in value_as_string:
