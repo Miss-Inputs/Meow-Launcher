@@ -34,9 +34,10 @@ from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
-	from collections.abc import Collection, Iterator, Sequence
+	from collections.abc import Iterator, Sequence
 
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
+	from meowlauncher.game import Game
 
 logger = logging.getLogger(__name__)
 
@@ -80,135 +81,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def is_available(self) -> bool:
 		return self.platform_config.is_available
 
-	def _process_rom(self, rom: ROM, subfolders: 'Sequence[str]') -> ROMLauncher | None:
-		game = ROMGame(rom, self.platform, self.platform_config)
-
-		categories = (
-			subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
-		)
-		game.info.categories = categories
-
-		add_info(game)
-
-		if not game.info.categories and game.info.platform:
-			game.info.categories = (game.info.platform,)
-
-		exception_reason = None
-		launcher = None
-
-		chosen_emulator_names = []  # For warning message
-		for chosen_emulator in self.iter_chosen_emulators():
-			chosen_emulator_names.append(chosen_emulator.name)
-			try:
-				potential_emulator_config = _get_emulator_config(chosen_emulator)
-				potential_emulator: ConfiguredStandardEmulator
-				if isinstance(chosen_emulator, LibretroCore):
-					if not main_config.libretro_frontend:  # TODO: This should be in the config of LibretroCore actually, see secret evil plan
-						raise EmulationNotSupportedError(
-							'Must choose a frontend to run libretro cores'
-						)
-					frontend_config = emulator_configs[main_config.libretro_frontend]
-					frontend = libretro_frontends[main_config.libretro_frontend]
-					potential_emulator = LibretroCoreWithFrontend(
-						chosen_emulator, potential_emulator_config, frontend, frontend_config
-					)
-				else:
-					potential_emulator = ConfiguredStandardEmulator(
-						chosen_emulator, potential_emulator_config
-					)
-
-				if not potential_emulator.supports_rom(rom):
-					message = 'folders' if rom.is_folder else f'{rom.extension} extension'
-					raise ExtensionNotSupportedError(
-						f'{potential_emulator.name} does not support {message}'
-					)
-
-				potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
-				potential_launcher.command  # We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks #pylint: disable=pointless-statement
-				# TODO But is that really right?
-				launcher = potential_launcher
-				break
-			except (EmulationNotSupportedError, NotActuallyLaunchableGameError) as ex:
-				exception_reason = ex
-
-		if not launcher:
-			# TODO: We also need a warn_about_unemulated_extensions type thing
-			# Actually is it better to use some kind of custom level or logging field for that?
-			if isinstance(exception_reason, EmulationNotSupportedError):
-				if isinstance(exception_reason, ExtensionNotSupportedError):
-					logger.info(
-						'%s could not be launched by %s',
-						rom,
-						chosen_emulator_names,
-						exc_info=exception_reason,
-					)
-				else:
-					logger.warning(
-						'%s could not be launched by %s',
-						rom,
-						chosen_emulator_names,
-						exc_info=exception_reason,
-					)
-			else:
-				logger.debug(
-					'%s could not be launched by %s',
-					rom,
-					chosen_emulator_names,
-					exc_info=exception_reason,
-				)
-			return None
-
-		return launcher
-
-	def _process_file_list(
-		self, file_list: 'Collection[tuple[Path, Sequence[str]]]'
-	) -> 'Iterator[ROMLauncher]':
-		for path, subfolders in file_list:
-			try:
-				rom = get_rom(path)
-			except archives.BadArchiveError:
-				logger.exception(
-					'Uh oh fucky wucky! %s is an archive file that we tried to open to list its contents, but it was invalid',
-					path,
-				)
-				continue
-			except OSError:
-				logger.exception(
-					'Uh oh fucky wucky! %s is an archive file that has nothing in it or something else weird',
-					path,
-				)
-				continue
-
-			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
-				# TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
-				logger.debug(
-					'Invalid extension for this platform in %s %s: %s',
-					type(rom).__name__,
-					rom,
-					rom.extension,
-				)
-				continue
-
-			try:
-				if rom.should_read_whole_thing:
-					rom.read_whole_thing()
-			except Exception:  # pylint: disable=broad-except
-				logger.exception('Bother!!! Reading %s produced an error', rom)
-				continue
-
-			launcher = None
-			try:
-				launcher = self._process_rom(rom, subfolders)
-			except Exception:  # pylint: disable=broad-except
-				# It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-				logger.exception('FUCK!!!! %s', rom)
-
-			if launcher:
-				yield launcher
-
-	def iter_launchers(self) -> 'Iterator[ROMLauncher]':
-		file_list = []
-		# rom_list: list[tuple[ROM, Sequence[str]]] = []
+	def iter_roms_and_subfolders(self) -> 'Iterator[tuple[ROM, Sequence[str]]]':
 		for rom_dir in self.platform_config.paths:
 			if not rom_dir.is_dir():
 				logger.warning('Oh no %s has invalid ROM dir: %s', self.name(), rom_dir)
@@ -245,13 +118,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 							remaining_subdirs.append(d)
 							continue
 						folder_rom.media_type = media_type
-						# rom_list.append((folder_rom, subfolders))
-						launcher = self._process_rom(folder_rom, subfolders)
-						if launcher:
-							yield launcher
-							# file_list.append((folder_path, subfolders))
-						# Avoid descending further, even if we get a NotARomException
-						# This will not work well if we have multiple emulators for these folder-having systems and one supports folders and one doesn't, but eh, worry about that later I think
+						yield folder_rom, subfolders
 					dirs[:] = remaining_subdirs
 				dirs.sort()
 
@@ -265,8 +132,125 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					if not main_config.full_rescan and has_been_done('ROM', str(path)):
 						continue
 
-					file_list.append((path, subfolders))
-		yield from self._process_file_list(file_list)
+					try:
+						rom = get_rom(path)
+					except archives.BadArchiveError:
+						logger.exception(
+							'Uh oh fucky wucky! %s is an archive file that we tried to open to list its contents, but it was invalid',
+							path,
+						)
+						continue
+					except OSError:
+						logger.exception(
+							'Uh oh fucky wucky! %s is an archive file that has nothing in it or something else weird',
+							path,
+						)
+						continue
+
+					if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
+						# TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
+						logger.debug(
+							'Invalid extension for this platform in %s %s: %s',
+							type(rom).__name__,
+							rom,
+							rom.extension,
+						)
+						continue
+
+					try:
+						if rom.should_read_whole_thing:
+							rom.read_whole_thing()
+					except Exception:  # pylint: disable=broad-except
+						logger.exception('Bother!!! Reading %s produced an error', rom)
+						continue
+					yield rom, subfolders
+
+	def iter_games(self) -> 'Iterator[ROMGame]':
+		for rom, subfolders in self.iter_roms_and_subfolders():
+			# TODO: Should have a categories_from_subfolders option
+			game = ROMGame(rom, self.platform, self.platform_config)
+			categories = (
+				subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
+			)
+			game.info.categories = categories
+
+			add_info(game)
+
+			if not game.info.categories and game.info.platform:
+				game.info.categories = (game.info.platform,)
+			yield game
+
+	def try_emulator(self, game: ROMGame, chosen_emulator: StandardEmulator | LibretroCore) -> 'ROMLauncher':
+		potential_emulator_config = _get_emulator_config(chosen_emulator)
+		potential_emulator: ConfiguredStandardEmulator
+		if isinstance(chosen_emulator, LibretroCore):
+			if (
+				not main_config.libretro_frontend
+			):  # TODO: This should be in the config of LibretroCore actually, see secret evil plan
+				raise EmulationNotSupportedError('Must choose a frontend to run libretro cores')
+			frontend_config = emulator_configs[main_config.libretro_frontend]
+			frontend = libretro_frontends[main_config.libretro_frontend]
+			potential_emulator = LibretroCoreWithFrontend(
+				chosen_emulator, potential_emulator_config, frontend, frontend_config
+			)
+		else:
+			potential_emulator = ConfiguredStandardEmulator(
+				chosen_emulator, potential_emulator_config
+			)
+
+		if not potential_emulator.supports_rom(game.rom):
+			message = 'folders' if game.rom.is_folder else f'{game.rom.extension} extension'
+			raise ExtensionNotSupportedError(
+				f'{potential_emulator.name} does not support {message}'
+			)
+
+		potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
+		potential_launcher.command  # We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks #pylint: disable=pointless-statement #noqa: B018
+		# TODO Hrm, ideally ROMLauncher would either generate the launch command or store the generated launch command, but it's doing both? Probably need Emulator.launch(game)
+		return potential_launcher
+
+	def iter_launchers(self, game: 'Game') -> 'Iterator[ROMLauncher]':
+		if not isinstance(game, ROMGame):
+			raise TypeError(f'game should always be ROMGame, not {type(game)}')
+
+		exception = None
+		chosen_emulator_names = []  # For warning message
+		for emulator in self.iter_chosen_emulators():
+			chosen_emulator_names.append(emulator.name)
+			try:
+				launcher = self.try_emulator(game, emulator)
+			except (EmulationNotSupportedError, NotActuallyLaunchableGameError) as ex:
+				exception = ex
+			else:
+				yield launcher
+				# TODO: Some kind of option to generate launchers for the same game with different emulators, if you're into that sort of thing
+				return
+
+		# TODO: We also need a warn_about_unemulated_extensions type thing
+		# Actually is it better to use some kind of custom level or logging field for that?
+		if isinstance(exception, EmulationNotSupportedError):
+			if isinstance(exception, ExtensionNotSupportedError):
+				logger.info(
+					'%s could not be launched by %s',
+					game,
+					chosen_emulator_names,
+					exc_info=exception,
+				)
+			else:
+				logger.warning(
+					'%s could not be launched by %s',
+					game,
+					chosen_emulator_names,
+					exc_info=exception,
+				)
+		else:
+			logger.debug(
+				'%s could not be launched by %s', game, chosen_emulator_names, exc_info=exception
+			)
+
+	def iter_all_launchers(self) -> 'Iterator[ROMLauncher]':
+		for game in self.iter_games():
+			yield from self.iter_launchers(game)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not Path(game_id).exists()

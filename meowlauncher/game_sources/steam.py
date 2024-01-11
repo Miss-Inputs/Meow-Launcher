@@ -44,6 +44,9 @@ from meowlauncher.util.utils import remove_capital_article
 
 from .settings import SteamConfig
 
+if TYPE_CHECKING:
+	from meowlauncher.game import Game
+
 if have_steamfiles or TYPE_CHECKING:
 	# TODO: This isn't to avoid a circular import, it just assumes steamfiles can be imported because I can't be bothered doing "have_steamfiles" in there
 	# Maybe this should just require steamfiles anyway…
@@ -52,8 +55,6 @@ if have_steamfiles or TYPE_CHECKING:
 		IconNotFoundError,
 		SteamInstallation,
 	)
-if TYPE_CHECKING:
-	from meowlauncher.launcher import Launcher
 
 logger = logging.getLogger(__name__)
 steam_config = current_config(SteamConfig)
@@ -775,11 +776,11 @@ class Steam(GameSource):
 			return int(game_id) not in self._all_installed_appids
 		except ValueError:
 			return False
-
-	def iter_launchers(self) -> Iterator['Launcher']:
+		
+	def iter_games(self) -> Iterator[SteamGame]:
 		assert (
 			self._steam_installation
-		), 'Please do not call iter_launchers if is_available is false'
+		), 'Please do not call iter_games if is_available is false'
 		for folder, app_id, app_state in self._steam_installation.iter_steam_installed_appids():
 			if not main_config.full_rescan:
 				if has_been_done('Steam', str(app_id)):
@@ -793,20 +794,8 @@ class Steam(GameSource):
 				)
 				continue
 
-	def process_game(
-		self, appid: int, folder: Path, app_state: Mapping[str, Any]
-	) -> 'SteamLauncher':
-		# We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
-		assert (
-			self._steam_installation
-		), 'process_game called without checking steam_state.is_steam_installed'
-		game = SteamGame(appid, folder, app_state, self._steam_installation)
-		if self.config.use_steam_as_platform:
-			game.info.platform = 'Steam'
-		else:
-			# I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
-			game.info.platform = 'Windows'
-
+	def iter_launchers(self, game: 'SteamGame') -> Iterator[SteamLauncher]:
+		#TODO: Holy fuckballs this needs one motherfucker of a refactor LOL
 		appinfo_entry = game.appinfo
 		if appinfo_entry:
 			process_appinfo_config_section(game, appinfo_entry)
@@ -876,7 +865,28 @@ class Steam(GameSource):
 		if appinfo_entry:
 			add_info_from_appinfo(game, appinfo_entry)
 
-		return SteamLauncher(game)
+		yield SteamLauncher(game)
+
+	def iter_all_launchers(self) -> 'Iterator[SteamLauncher]':
+		for game in self.iter_games():
+			yield from self.iter_launchers(game)
+
+	def process_game(
+		self, appid: int, folder: Path, app_state: Mapping[str, Any]
+	) -> 'SteamGame':
+		# We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
+		assert (
+			self._steam_installation
+		), 'process_game called without checking steam_state.is_steam_installed'
+		game = SteamGame(appid, folder, app_state, self._steam_installation)
+		if self.config.use_steam_as_platform:
+			game.info.platform = 'Steam'
+		else:
+			# I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
+			game.info.platform = 'Windows'
+		yield game
+
+		
 
 	@classmethod
 	def config_class(cls) -> type[SteamConfig] | None:

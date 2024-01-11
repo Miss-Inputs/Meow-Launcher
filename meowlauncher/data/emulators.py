@@ -1345,12 +1345,14 @@ _dos_emulators = {
 		EmulatorStatus.Good,
 		'dosbox',
 		command_lines.dosbox_staging,
-		{
+		configs={
 			'cycles_for_477_mhz': RunnerConfigValue(
 				int, 245, 'CPU cycles to use to get as close as possible to 4.77MHz'
 			),
 			'noautoexec': RunnerConfigValue(
-				bool, False, 'Do not load [autoexec] section in config file'
+				bool,
+				default_value=False,
+				description='Do not load [autoexec] section in config file',
 			),
 			'overlay_path': RunnerConfigValue(
 				Path,
@@ -1367,11 +1369,11 @@ _mac_emulators = {
 		EmulatorStatus.Janky,
 		'BasiliskII',
 		command_lines.basilisk_ii,
-		{
+		configs={
 			'skip_if_ppc_enhanced': RunnerConfigValue(
 				bool,
-				False,
-				'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it',
+				default_value=False,
+				description='If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it',
 			)
 		},
 	),

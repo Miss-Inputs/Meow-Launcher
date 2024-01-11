@@ -59,7 +59,7 @@ class Emulator(Runner, Generic[EmulatorGameType_co]):
 		self.status = status
 		self.default_exe_name = default_exe_name
 		self.launch_command_func = launch_command_func
-		self.configs = configs or {}  # TODO: Use this, just leaving it here for now
+		self.configs = configs or {}
 
 	@property
 	def name(self) -> str:

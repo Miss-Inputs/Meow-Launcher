@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 from meowlauncher.config import current_config
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
 	from meowlauncher.emulated_game import EmulatedGame
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 	from meowlauncher.emulator import LibretroCore
+	from meowlauncher.game import Game
 	from meowlauncher.launcher import Launcher
 	from meowlauncher.settings.settings import Settings
 
@@ -52,10 +54,15 @@ class GameSource(ABC):
 	def no_longer_exists(self, game_id: str) -> bool:
 		"""Called when full_rescan is false, after checking the game type to see which class to go to. Checks if the game specified by game_id still exists (in the sense that it would be created if full_rescan was true), and deletes if not"""
 
-	# TODO: Should have has_been_done somewhere in here? Maybe
 	@abstractmethod
-	def iter_launchers(self) -> 'Iterator[Launcher]':
-		"""Create all the launchers and iterate over them"""
+	def iter_games(self) -> 'Iterator[Game]':
+		"""Yield all games from this source"""
+
+	# TODO: Should have has_been_done somewhere in here? Maybe
+
+	@abstractmethod
+	def iter_all_launchers(self) -> 'Iterator[Launcher]':
+		"""Yield all valid launchers for this source"""
 
 	def __hash__(self) -> int:
 		return self.name().__hash__()
@@ -77,10 +84,15 @@ class CompoundGameSource(GameSource, ABC):
 	def sources(self) -> 'Sequence[GameSource]':
 		"""Individual GameSources"""
 
-	def iter_launchers(self) -> 'Iterator[Launcher]':
+	def iter_games(self) -> 'Iterator[Game]':
 		for source in self.sources:
 			if source.is_available:
-				yield from source.iter_launchers()
+				yield from source.iter_games()
+
+	def iter_all_launchers(self) -> 'Iterator[Launcher]':
+		for source in self.sources:
+			if source.is_available:
+				yield from source.iter_all_launchers()
 
 	@property
 	def is_available(self) -> bool:

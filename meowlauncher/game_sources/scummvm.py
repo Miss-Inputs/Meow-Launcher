@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
 from meowlauncher import global_runners
@@ -7,11 +8,10 @@ from meowlauncher.config import main_config
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig, scummvm_config
 from meowlauncher.games.scummvm.scummvm_game import ScummVMGame, ScummVMLauncher
-from meowlauncher.settings.settings import Settings
 from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
-	from collections.abc import Iterator
+	from meowlauncher.settings.settings import Settings
 
 
 class ScummVM(GameSource):
@@ -24,7 +24,7 @@ class ScummVM(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return game_id not in scummvm_config.scummvm_ini.sections() if scummvm_config.have_scummvm else True
 
-	def iter_launchers(self) -> 'Iterator[ScummVMLauncher]':
+	def iter_games(self) -> Iterator[ScummVMGame]:
 		for section in scummvm_config.scummvm_ini.sections():
 			if section == 'scummvm':
 				#Skip the top section
@@ -35,11 +35,14 @@ class ScummVM(GameSource):
 			if not main_config.full_rescan and has_been_done('ScummVM', section):
 				continue
 
-			game = ScummVMGame(section)
+			yield ScummVMGame(section)
+
+	def iter_all_launchers(self) -> 'Iterator[ScummVMLauncher]':
+		for game in self.iter_games():
 			yield ScummVMLauncher(game, global_runners.scummvm)
 
 	@classmethod
-	def config_class(cls) -> type[Settings] | None:
+	def config_class(cls) -> type['Settings'] | None:
 		return ScummVMConfig
 
 __doc__ = ScummVM.__doc__ or ScummVM.__name__

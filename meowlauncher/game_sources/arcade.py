@@ -29,7 +29,7 @@ from meowlauncher.util.desktop_files import has_been_done
 
 
 class Arcade(GameSource):
-	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here as they are launchable by MAME (nitpicking is not allwoed)"""
+	"""Arcade machines, and also plug & play games and handhelds and other things that aren't arcade machines but would also logically go here as they are launchable by MAME (nitpicking is not allowed)"""
 
 	def __init__(self) -> None:
 		super().__init__()
@@ -62,7 +62,7 @@ class Arcade(GameSource):
 			return True
 		return not self.emu.executable.verifyroms(game_id)
 
-	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
+	def _process_machine(self, machine: Machine) -> MAMEGame | None:
 		"""Returns a launcher for this machine, or none if it can't/shouldn't/etc"""
 		assert (
 			self.emu
@@ -103,18 +103,17 @@ class Arcade(GameSource):
 			return None
 
 		add_info(game)
+		return game
 
-		return MAMELauncher(game, self.emu)
-
-	def iter_launchers(self) -> Iterator[MAMELauncher]:
+	def iter_games(self) -> Iterator['MAMEGame']:
 		assert (
 			self.emu
-		), 'Arcade.iter_launchers should never be called without checking is_available! What the'
+		), 'Arcade.iter_games should never be called without checking is_available! What the'
 		if self.config.drivers:
 			for driver_name in self.config.drivers:
-				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
-				if launcher:
-					yield launcher
+				game = self._process_machine(get_machine(driver_name, self.emu.executable))
+				if game:
+					yield game
 			return
 
 		for machine in (
@@ -127,9 +126,14 @@ class Arcade(GameSource):
 			):
 				continue
 
-			launcher = self._process_machine(machine)
-			if launcher:
-				yield launcher
+			game = self._process_machine(machine)
+			if game:
+				yield game
+
+	def iter_all_launchers(self) -> 'Iterator[MAMELauncher]':
+		assert self.emu, 'Arcade.iter_all_launchers should never be called without checking is_available! What the'
+		for game in self.iter_games():
+			yield MAMELauncher(game, self.emu)
 
 	@classmethod
 	def game_type(cls) -> str:
@@ -171,7 +175,7 @@ class MAMEInbuiltGames(GameSource):
 
 	def _process_inbuilt_game(
 		self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None = None
-	) -> MAMEInbuiltLauncher | None:
+	) -> MAMEInbuiltGame | None:
 		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
 		if not self.emu.executable.verifyroms(machine_name):
 			return None
@@ -184,22 +188,27 @@ class MAMEInbuiltGames(GameSource):
 
 		game = MAMEInbuiltGame(machine_name, inbuilt_game, platform_config, bios_name)
 		add_status(machine, game.info)
-		return MAMEInbuiltLauncher(game, self.emu)
+		return game
 
-	def iter_launchers(self) -> Iterator[MAMEInbuiltLauncher]:
+	def iter_games(self) -> 'Iterator[MAMEInbuiltGame]':
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 			if not main_config.full_rescan and has_been_done('Inbuilt game', machine_name):
 				continue
-			launcher = self._process_inbuilt_game(machine_name, inbuilt_game)
-			if launcher:
-				yield launcher
+			game = self._process_inbuilt_game(machine_name, inbuilt_game)
+			if game:
+				yield game
 		for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
 			if not main_config.full_rescan and has_been_done(
 				'Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]
 			):
 				continue
-			launcher = self._process_inbuilt_game(
+			game = self._process_inbuilt_game(
 				machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1]
 			)
-			if launcher:
-				yield launcher
+			if game:
+				yield game
+
+	def iter_all_launchers(self) -> 'Iterator[MAMEInbuiltLauncher]':
+		assert self.emu, 'MAMEInbuiltGames.iter_all_launchers should never be called without checking is_available! What the'
+		for game in self.iter_games():
+			yield MAMEInbuiltLauncher(game, self.emu)

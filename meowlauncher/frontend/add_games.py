@@ -26,7 +26,7 @@ def add_game_source(source: GameSource) -> int:
 	if isinstance(source, CompoundGameSource):
 		count += sum(add_game_source(subsource) for subsource in source.sources)
 	else:
-		for launcher in source.iter_launchers():
+		for launcher in source.iter_all_launchers():
 			count += 1
 			make_linux_desktop_for_launcher(launcher, source.game_type())
 
