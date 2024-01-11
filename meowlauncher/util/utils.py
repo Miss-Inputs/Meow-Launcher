@@ -4,6 +4,7 @@ import logging
 import re
 from collections.abc import Mapping, Sequence
 from configparser import RawConfigParser
+from importlib.abc import Traversable
 from typing import Any
 
 from meowlauncher.exceptions import NotLaunchableError
@@ -164,6 +165,13 @@ def byteswap(b: bytes) -> bytes:
 	return bytes(byte_array)
 
 
+def get_resource(subpackage: str | None, name: str) -> Traversable:
+	package = 'meowlauncher.data'
+	if subpackage:
+		package = f'{package}.{subpackage}'
+	return next(file for file in importlib.resources.files(package).iterdir() if file.name == name)
+
+
 _dict_line_regex = re.compile(
 	r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$'
 )
@@ -171,10 +179,7 @@ _dict_line_regex = re.compile(
 
 def load_dict(subpackage: str | None, resource: str) -> Mapping[int | str, str]:
 	d = {}
-	package = 'meowlauncher.data'
-	if subpackage:
-		package += '.' + subpackage
-	for line in importlib.resources.read_text(package, resource + '.dict').splitlines():
+	for line in get_resource(subpackage, resource + '.dict').read_text().splitlines():
 		if line.startswith('#'):
 			continue
 		match = _dict_line_regex.match(line)
@@ -187,26 +192,18 @@ def load_dict(subpackage: str | None, resource: str) -> Mapping[int | str, str]:
 
 
 def load_list(subpackage: str | None, resource: str) -> Sequence[str]:
-	package = 'meowlauncher.data'
-	if subpackage:
-		package += '.' + subpackage
 	return tuple(
 		line
 		for line in (
 			line.split('#', 1)[0]
-			for line in importlib.resources.read_text(package, resource + '.list').splitlines()
+			for line in get_resource(subpackage, resource + '.list').read_text().splitlines()
 		)
 		if line
 	)
 
 
 def load_json(subpackage: str | None, resource: str) -> Any:
-	package = 'meowlauncher.data'
-	if subpackage:
-		package += '.' + subpackage
-	with importlib.resources.open_binary(
-		package, resource
-	) as f:  # It would be text, but I don't know if I wanna accidentally fuck around with encodings
+	with get_resource(subpackage, resource).open('rb') as f:
 		return json.load(f)
 
 
