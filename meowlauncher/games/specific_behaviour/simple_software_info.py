@@ -1,3 +1,4 @@
+"""Straightforward stuff that doesn't really warrant going into its own source file I think"""
 import re
 from typing import TYPE_CHECKING
 
@@ -10,8 +11,6 @@ from meowlauncher.games.common.generic_info import add_generic_software_info
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.info import GameInfo
-
-# Straightforward stuff that doesn't really warrant going into its own source file I think
 
 
 def add_pc_booter_software_info(software: 'Software', metadata: 'GameInfo') -> None:

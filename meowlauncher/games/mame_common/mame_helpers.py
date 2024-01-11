@@ -1,4 +1,4 @@
-"""#Use this file for handy shortcuts with the default MAME config/executable
+"""Use this file for handy shortcuts with the default MAME config/executable
 But also don't because relying on default_mame_executable is a bit ehh"""
 import functools
 from pathlib import Path
