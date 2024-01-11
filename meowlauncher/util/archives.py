@@ -2,11 +2,6 @@
 Use inbuilt Python libraries for zip and gz
 Would libarchive be faster than inbuilt gzip/zipfile? Not even sure, haven't been bothered benchmarking it
 As a worst case scenario, try running 7z in a subprocess, which is slow and clunky but it will open… almost anything, in theory
-
-7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
-rar might need that one package and shouldn't exist but anyway
-We still do need to detect by extension, because otherwise .jar and .solarus and .dosz and other things deliberately acting as not a zip would be a zip
-For that reason this might not work as expected with ".tar.gz" instead of ".tgz" etc (but who stores their ROMs like that?)
 """
 import gzip
 import io
@@ -37,16 +32,28 @@ try:
 except ModuleNotFoundError:
 	have_python_libarchive = False
 
-try:
-	# I'm not aware of any other 7z command that avoids doing anything, so this will have to do, but it feels weird
-	subprocess.check_call(('7z', '--help'), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-	have_7z_command = True
-except (subprocess.CalledProcessError, OSError):
-	have_7z_command = False
+
+def check_7z_command():
+	"""Checks for the presence and working-ness of the 7z command. Returns (True, version) if successful, or (False, exception) if not"""
+	try:
+		proc = subprocess.run(
+			('7z', '--help'), check=True, capture_output=True, text=True
+		)
+	except (subprocess.CalledProcessError, OSError) as ex:
+		return False, ex
+	else:
+		return True, next((line for line in proc.stdout.splitlines() if line), None)
+
+
+have_7z_command = check_7z_command()[0]
 
 # compressed_list is only used in CompressedROM, so we can be useful and get the size and CRC so we don't have to read the archive twice, if possible
 FilenameWithMaybeSizeAndCRC = tuple[str, ByteAmount | None, int | None]
 
+"""7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
+rar might need that one package and shouldn't exist but anyway
+We still do need to detect by extension, because otherwise .jar and .solarus and .dosz and other things deliberately acting as not a zip would be a zip
+For that reason this might not work as expected with ".tar.gz" instead of ".tgz" etc (but who stores their ROMs like that?)"""
 compressed_exts = {'7z', 'zip', 'gz', 'bz2', 'xz', 'tar', 'tgz', 'tbz', 'txz', 'rar'}
 
 # -- Stuff to read archive files that have no native Python support via 7z command line (we still need this for some obscure types if we do have py7zr)
@@ -57,7 +64,7 @@ class BadSubprocessedArchiveError(Exception):
 
 
 class BadArchiveError(Exception):
-	pass
+	"""Something is wrong with this archive"""
 
 
 _sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
@@ -160,10 +167,7 @@ def subprocess_sevenzip_getsize(path: 'Path', filename: str) -> ByteAmount:
 
 def subprocess_sevenzip_crc(path: 'Path', filename: str) -> int:
 	proc = subprocess.run(
-		['7z', 'l', '-slt', '--', path, filename],
-		stdout=subprocess.PIPE,
-		text=True,
-		check=False,
+		['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, text=True, check=False
 	)
 	if proc.returncode != 0:
 		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout}')
