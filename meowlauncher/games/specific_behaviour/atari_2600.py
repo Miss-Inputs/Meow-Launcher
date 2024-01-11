@@ -230,7 +230,7 @@ def _parse_peripherals(metadata: 'GameInfo') -> None:
 		_add_input_info_from_peripheral(metadata, right)
 
 def add_atari_2600_custom_info(game: 'ROMGame') -> None:
-	stella_db = get_stella_database()
+	stella_db = get_stella_database(_stella_configs.exe_path)
 
 	whole_cart = cast(FileROM, game.rom).read()
 	if stella_db:

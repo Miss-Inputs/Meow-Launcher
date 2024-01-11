@@ -1,4 +1,5 @@
 import contextlib
+from functools import cache
 import logging
 import os
 import statistics
@@ -55,6 +56,7 @@ class WiiUVirtualConsolePlatform(Enum):
 	PCEngine = 'PCEngine'
 
 
+@cache
 def _load_tdb() -> TDB | None:
 	if 'Wii U' not in platform_configs:
 		return None
@@ -67,10 +69,6 @@ def _load_tdb() -> TDB | None:
 	except (ElementTree.ParseError, OSError):
 		logger.exception('Oh no failed to load Wii U TDB because')
 		return None
-
-
-_tdb = _load_tdb()
-
 
 def _add_cover(metadata: 'GameInfo', product_code: str, licensee_code: str) -> None:
 	# Intended for the covers database from GameTDB
@@ -101,7 +99,7 @@ def _add_meta_xml_metadata(metadata: 'GameInfo', meta_xml: ElementTree.ElementTr
 				metadata.product_code[6]
 			)
 		gametdb_id = product_code[-4:]
-		add_info_from_tdb(_tdb, metadata, gametdb_id)
+		add_info_from_tdb(_load_tdb(), metadata, gametdb_id)
 
 	company_code = meta_xml.findtext('company_code')
 	if company_code:

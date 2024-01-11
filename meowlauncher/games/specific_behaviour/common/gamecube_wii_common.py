@@ -2,6 +2,7 @@ import contextlib
 import logging
 import os
 from enum import IntEnum
+from functools import cache
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+
+
 class NintendoDiscRegion(IntEnum):
 	NTSC_J = 0
 	NTSC_U = 1
@@ -24,6 +27,8 @@ class NintendoDiscRegion(IntEnum):
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
 
+
+@cache
 def _load_tdb() -> TDB | None:
 	if 'Wii' not in platform_configs:
 		return None
@@ -37,7 +42,7 @@ def _load_tdb() -> TDB | None:
 	except (ElementTree.ParseError, OSError):
 		logger.exception('Oh no failed to load Wii TDB because')
 		return None
-_tdb = _load_tdb()
+
 
 def add_cover(game_info: 'GameInfo', product_code: str, licensee_code: str) -> None:
 	"""Intended for the covers database from GameTDB"""
@@ -54,9 +59,12 @@ def add_cover(game_info: 'GameInfo', product_code: str, licensee_code: str) -> N
 			game_info.images['Cover'] = potential_cover_path
 			return
 
+
 def add_gamecube_wii_disc_metadata(rom: 'FileROM', game_info: 'GameInfo', header: bytes) -> None:
 	internal_title = header[32:128]
-	game_info.specific_info['Internal Title'] = internal_title.rstrip(b'\0 ').decode('ascii', errors='backslashreplace')
+	game_info.specific_info['Internal Title'] = internal_title.rstrip(b'\0 ').decode(
+		'ascii', errors='backslashreplace'
+	)
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
 
@@ -77,7 +85,7 @@ def add_gamecube_wii_disc_metadata(rom: 'FileROM', game_info: 'GameInfo', header
 		game_info.product_code = product_code
 		game_info.publisher = publisher
 		if product_code and licensee_code:
-			add_info_from_tdb(_tdb, game_info, product_code + licensee_code)
+			add_info_from_tdb(_load_tdb(), game_info, product_code + licensee_code)
 			add_cover(game_info, product_code, licensee_code)
 
 	disc_number = header[6] + 1
@@ -86,12 +94,12 @@ def add_gamecube_wii_disc_metadata(rom: 'FileROM', game_info: 'GameInfo', header
 
 	game_info.specific_info['Revision'] = header[7]
 
-	#Audio streaming: header[8] > 1
-	#Audio streaming buffer size: header[9]
-	#Unused: 10-24
+	# Audio streaming: header[8] > 1
+	# Audio streaming buffer size: header[9]
+	# Unused: 10-24
 
-	is_wii = header[0x18:0x1c] == b']\x1c\x9e\xa3'
-	is_gamecube = header[0x1c:0x20] == b'\xc23\x9f='
+	is_wii = header[0x18:0x1C] == b']\x1c\x9e\xa3'
+	is_gamecube = header[0x1C:0x20] == b'\xc23\x9f='
 	# Is this ever set to both? In theory no, but... hmm
 
 	if not is_wii and not is_gamecube:
@@ -100,7 +108,8 @@ def add_gamecube_wii_disc_metadata(rom: 'FileROM', game_info: 'GameInfo', header
 		logger.info('%s lacks Wii disc magic', rom)
 	elif game_info.platform == 'GameCube' and not is_gamecube:
 		logger.info('%s lacks GameCube disc magic', rom)
-	
+
+
 def just_read_the_wia_rvz_header_for_now(rom: 'FileROM', game_info: 'GameInfo') -> None:
 	"""I'll get around to it I swear
 	TODO: Around to it"""

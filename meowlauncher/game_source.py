@@ -104,7 +104,9 @@ EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['EmulatedGame'], cov
 
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 	"""Game source that has options for the user to choose which emulators they use or prefer"""
-
+	#TODO: Maybe this should have try_emulator moved into here, all that kind of logic that checks whether each emulator will work
+	#TODO: Should also be possible to bump up or down a preference based on the game, if Emu A is usually preferred over Emu B but Emu B has support for some niche feature that only some games use (but they both play the game)
+	
 	def __init__(
 		self,
 		platform_config: 'PlatformConfig',

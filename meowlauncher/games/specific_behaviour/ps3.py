@@ -3,7 +3,7 @@ import logging
 import os
 from collections.abc import Mapping
 from enum import Enum
-from functools import lru_cache
+from functools import cache, lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 from xml.etree import ElementTree
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+@cache
 def _load_tdb() -> TDB | None:
 	if 'PS3' not in platform_configs:
 		return None
@@ -34,7 +35,6 @@ def _load_tdb() -> TDB | None:
 	except (ElementTree.ParseError, OSError):
 		logger.exception('Oh no failed to load PS3 TDB')
 		return None
-_tdb = _load_tdb()
 
 rpcs3_vfs_config_path = Path('~/.config/rpcs3/vfs.yml').expanduser()
 
@@ -145,5 +145,5 @@ def add_ps3_custom_info(game: 'ROMGame') -> None:
 		if compat:
 			game.info.specific_info['RPCS3 Compatibility'] = compat
 
-		add_info_from_tdb(_tdb, game.info, game.info.product_code)
+		add_info_from_tdb(_load_tdb(), game.info, game.info.product_code)
 		add_cover(game.info, game.info.product_code)

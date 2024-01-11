@@ -15,6 +15,7 @@ class MAMEGame(EmulatedGame):
 	"""Wrapper around Machine to add info fields and stuff I guess
 	Hmm… the class design here is probably not that good, but eh, it works I guess"""
 	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig', config: 'ArcadeMAMEConfig'):
+		#platform_config is just here because the constructor needs it, and does not actually contain any configs
 		super().__init__(platform_config)
 		self.machine = machine
 		self.info = GameInfo()

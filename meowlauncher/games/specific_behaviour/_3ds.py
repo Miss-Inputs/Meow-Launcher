@@ -6,6 +6,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import contextlib
+from functools import cache
 import logging
 import os
 from enum import Enum
@@ -74,7 +75,7 @@ languages = {
 }
 media_unit = 0x200
 
-
+@cache
 def _load_tdb() -> TDB | None:
 	_3ds_config = platform_configs.get('3DS')
 	if not _3ds_config:
@@ -95,10 +96,6 @@ def _load_tdb() -> TDB | None:
 	except (ElementTree.ParseError, OSError):
 		logger.exception('Oh no failed to load 3DS TDB')
 		return None
-
-
-_tdb = _load_tdb()
-
 
 def add_cover(metadata: 'GameInfo', product_code: str) -> None:
 	# Intended for the covers database from GameTDB
@@ -143,7 +140,7 @@ def _parse_ncch(rom: FileROM, game_info: 'GameInfo', offset: int) -> None:
 			)
 		if len(product_code) == 10 and '\0' not in product_code:
 			short_product_code = product_code[6:]
-			add_info_from_tdb(_tdb, game_info, short_product_code)
+			add_info_from_tdb(_load_tdb(), game_info, short_product_code)
 			add_cover(game_info, short_product_code)
 	except UnicodeDecodeError:
 		pass

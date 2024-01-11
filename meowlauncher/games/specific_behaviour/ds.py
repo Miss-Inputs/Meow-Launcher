@@ -1,3 +1,4 @@
+from functools import cache
 import logging
 import os
 import struct
@@ -32,6 +33,7 @@ _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 # For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now
 
 
+@cache
 def _load_tdb() -> TDB | None:
 	if 'DS' not in platform_configs:
 		return None
@@ -45,10 +47,6 @@ def _load_tdb() -> TDB | None:
 	except (ElementTree.ParseError, OSError):
 		logger.exception('Oh no failed to load DS TDB')
 		return None
-
-
-_tdb = _load_tdb()
-
 
 def _add_cover(metadata: 'GameInfo', product_code: str) -> None:
 	# Intended for the covers database from GameTDB
@@ -193,7 +191,7 @@ def _add_info_from_ds_header(rom: FileROM, metadata: 'GameInfo', header: bytes) 
 		try:
 			product_code = convert_alphanumeric(header[12:16])
 			metadata.product_code = product_code
-			add_info_from_tdb(_tdb, metadata, product_code)
+			add_info_from_tdb(_load_tdb(), metadata, product_code)
 			_add_cover(metadata, product_code)
 
 		except NotAlphanumericError:
