@@ -8,7 +8,10 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from meowlauncher.common_types import ByteAmount, MediaType
+from pydantic import ByteSize
+
+from meowlauncher.common_types import MediaType
+from meowlauncher.config import current_config
 from meowlauncher.games.mame_common.software_list import SoftwareMatcherArgs, find_in_software_lists
 from meowlauncher.util import archives, cd_read, io_utils
 from meowlauncher.util.utils import byteswap
@@ -19,7 +22,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software, SoftwareList
 
 logger = logging.getLogger(__name__)
-max_size_for_slurp = ROMsConfig().max_size_for_storing_in_memory
+max_size_for_slurp = current_config(ROMsConfig).max_size_for_storing_in_memory
 
 
 class ROM(ABC):
@@ -82,13 +85,13 @@ class ROM(ABC):
 		return None
 
 	@cached_property
-	def size(self) -> ByteAmount:
+	def size(self) -> ByteSize:
 		"""Total size of this ROM (and all contained files)"""
 		if self.contains_other_files:
-			return ByteAmount(
+			return ByteSize(
 				sum(contained_file.stat().st_size for contained_file in self.contained_files)
 			)
-		return ByteAmount(self.path.stat().st_size)
+		return ByteSize(self.path.stat().st_size)
 
 
 class FileROM(ROM):
@@ -124,13 +127,13 @@ class FileROM(ROM):
 			return self._entire_file[seek_to : seek_to + amount]
 		return self._read(seek_to, amount)
 
-	def _get_size(self) -> ByteAmount:
+	def _get_size(self) -> ByteSize:
 		return super().size
 
 	@property
-	def size(self) -> ByteAmount:
+	def size(self) -> ByteSize:
 		if self._store_entire_file:
-			return ByteAmount(len(self._entire_file))
+			return ByteSize(len(self._entire_file))
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
@@ -194,12 +197,8 @@ class CompressedROM(FileROM):
 		for name, size, crc32 in archives.compressed_list(self.path):
 			self._size = size
 			self._crc32 = crc32
-			if os.extsep in name:
-				self.inner_name, extension = name.rsplit(os.extsep, 1)
-				self.inner_extension = extension.lower()
-			else:
-				self.inner_name = name
-				self.inner_extension = ''
+			self.inner_name = name.stem
+			self.inner_extension = name.suffix[1:].lower()
 			self.inner_filename = name
 			# Only use the first file, if there is more, then you're weird
 			return
@@ -220,15 +219,15 @@ class CompressedROM(FileROM):
 	def _read(self, seek_to: int = 0, amount: int = -1) -> bytes:
 		return archives.compressed_get(self.path, self.inner_filename, seek_to, amount)
 
-	def _get_size(self) -> ByteAmount:
-		return ByteAmount(archives.compressed_getsize(self.path, self.inner_filename))
+	def _get_size(self) -> ByteSize:
+		return archives.compressed_getsize(self.path, self.inner_filename)
 
 	@cached_property
-	def compressed_size(self) -> ByteAmount:
-		return ByteAmount(self.path.stat().st_size)
+	def compressed_size(self) -> ByteSize:
+		return ByteSize(self.path.stat().st_size)
 
 	@property
-	def size(self) -> ByteAmount:
+	def size(self) -> ByteSize:
 		if self._size is None:
 			self._size = super().size
 		return self._size
@@ -243,11 +242,11 @@ class GCZFileROM(FileROM):
 		return False
 
 	@property
-	def size(self) -> ByteAmount:
-		return ByteAmount.from_bytes(self._read(seek_to=16, amount=8), 'little')
+	def size(self) -> ByteSize:
+		return ByteSize.from_bytes(self._read(seek_to=16, amount=8), 'little')
 
 	@property
-	def compressed_size(self) -> ByteAmount:
+	def compressed_size(self) -> ByteSize:
 		return super().size
 
 	def read(self, seek_to: int = 0, amount: int = -1) -> bytes:
@@ -423,14 +422,13 @@ def get_rom(path: Path) -> ROM:
 	"""Helper to construct the appropriate subclass of ROM"""
 	if path.is_dir():
 		return FolderROM(path)
-	ext = path.suffix
-	if ext:  # To be fair if it's '' it won't match any file ever… hmm
-		if ext[1:].lower() == 'gcz':
-			return GCZFileROM(path)
-		if ext[1:].lower() == 'chd':
-			return CHDFileROM(path)
-		if ext[1:].lower() in {'m3u', 'm3u8'}:
-			return M3UPlaylist(path)
-		if ext[1:].lower() in archives.compressed_exts:
-			return CompressedROM(path)
+	ext = path.suffix[1:].lower()
+	if ext == 'gcz':
+		return GCZFileROM(path)
+	if ext == 'chd':
+		return CHDFileROM(path)
+	if ext in {'m3u', 'm3u8'}:
+		return M3UPlaylist(path)
+	if ext in archives.compressed_exts:
+		return CompressedROM(path)
 	return FileROM(path)

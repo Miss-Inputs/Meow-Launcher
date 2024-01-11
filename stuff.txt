@@ -23,7 +23,7 @@ DuckStation database
 Libraries that might be installed that we can use, and they aren't really requirements:
 #TODO: These expected versions are out of date, which might break stuff
 #TODO: Put this into requirements.txt as extras (or do we need some other fancier config file for that)
-py7zr >= 0.16.1 (speeds up 7z reading by saving you from having to fallback to subprocess 7zr)
+py7zr >= 0.20.6 (speeds up 7z reading by saving you from having to fallback to subprocess 7zr)
 python-libarchive >= 4.0.1.post1 (speeds up archive reading)
 Pillow >= 8.0.0 (allows extracting of icons from games)
 steamfiles >= 0.1.4 (needed for Steam) (ah fuck it's borked, need to specify this as a Github URL for a fork, or just fuck it and rewrite it all)
