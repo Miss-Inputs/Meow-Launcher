@@ -168,19 +168,26 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def iter_games(self) -> 'Iterator[ROMGame]':
 		for rom, subfolders in self.iter_roms_and_subfolders():
 			# TODO: Should have a categories_from_subfolders option
-			game = ROMGame(rom, self.platform, self.platform_config)
-			categories = (
-				subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
-			)
-			game.info.categories = categories
+			try:
+				game = ROMGame(rom, self.platform, self.platform_config)
+				categories = (
+					subfolders[:-1]
+					if subfolders and subfolders[-1] == game.rom.name
+					else subfolders
+				)
+				game.info.categories = categories
 
-			add_info(game)
+				add_info(game)
 
-			if not game.info.categories and game.info.platform:
-				game.info.categories = (game.info.platform,)
-			yield game
+				if not game.info.categories and game.info.platform:
+					game.info.categories = (game.info.platform,)
+				yield game
+			except Exception:
+				logger.exception('Could not load %s as game', rom)
 
-	def try_emulator(self, game: ROMGame, chosen_emulator: StandardEmulator | LibretroCore) -> 'ROMLauncher':
+	def try_emulator(
+		self, game: ROMGame, chosen_emulator: StandardEmulator | LibretroCore
+	) -> 'ROMLauncher':
 		potential_emulator_config = _get_emulator_config(chosen_emulator)
 		potential_emulator: ConfiguredStandardEmulator
 		if isinstance(chosen_emulator, LibretroCore):
