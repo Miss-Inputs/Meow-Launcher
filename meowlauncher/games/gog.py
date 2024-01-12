@@ -15,7 +15,7 @@ from meowlauncher.config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_info
 from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
-from meowlauncher.launch_command import LaunchCommand, launch_with_wine
+from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util import name_utils, region_info

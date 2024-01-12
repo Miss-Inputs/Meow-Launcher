@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher.config_types import EmulatorConfig, TypeOfConfigValue
+from meowlauncher.config_types import TypeOfConfigValue
 
 from .configured_runner import ConfiguredRunner
 from .emulator import Emulator, LibretroCore, LibretroFrontend, StandardEmulator
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class ConfiguredEmulator(ConfiguredRunner):
-	def __init__(self, emulator: Emulator['EmulatedGame'], config: EmulatorConfig):
+	def __init__(self, emulator: Emulator['EmulatedGame'], config):
 		self.runner: Emulator['EmulatedGame'] = emulator
 		self.config: EmulatorConfig = config
 		super().__init__(emulator, config)
@@ -55,9 +55,9 @@ class LibretroCoreWithFrontend(ConfiguredStandardEmulator):
 	def __init__(
 		self,
 		core: LibretroCore,
-		core_config: EmulatorConfig,
+		core_config,
 		frontend: LibretroFrontend,
-		frontend_config: EmulatorConfig,
+		frontend_config,
 	):
 		self.core = core
 		self.frontend = frontend

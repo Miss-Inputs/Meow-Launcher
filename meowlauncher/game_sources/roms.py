@@ -6,17 +6,9 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 
 from meowlauncher.config import main_config
-from meowlauncher.config_types import EmulatorConfig, PlatformConfig, TypeOfConfigValue
-from meowlauncher.configured_emulator import ConfiguredStandardEmulator, LibretroCoreWithFrontend
 from meowlauncher.data.emulated_platforms import platforms
-from meowlauncher.data.emulators import emulators, libretro_cores, libretro_frontends
-from meowlauncher.emulator import (
-	LibretroCore,
-	MAMEDriver,
-	MednafenModule,
-	StandardEmulator,
-	ViceEmulator,
-)
+from meowlauncher.data.emulators import standalone_emulators_by_name
+from meowlauncher.emulator import LibretroCore, StandardEmulator
 from meowlauncher.exceptions import (
 	EmulationNotSupportedError,
 	ExtensionNotSupportedError,
@@ -27,7 +19,6 @@ from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.rom_info import add_info
 from meowlauncher.games.roms.roms_config import ROMsConfig
-from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.settings.settings import Settings, ignored_directories
 from meowlauncher.util import archives
@@ -42,7 +33,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _get_emulator_config(emulator: StandardEmulator | LibretroCore) -> EmulatorConfig:
+def _get_emulator_config(emulator: StandardEmulator | LibretroCore):
 	"""TODO: Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out"""
 	if isinstance(emulator, (MednafenModule, ViceEmulator, MAMEDriver)):
 		specific = emulator_configs[emulator.config_name]
@@ -67,15 +58,12 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	"""An emulated game system, as an individual source. Use with ROMs to cycle through all of them"""
 
 	def __init__(
-		self,
-		roms_config: ROMsConfig,
-		platform_config: PlatformConfig,
-		platform: 'StandardEmulatedPlatform',
+		self, roms_config: ROMsConfig, platform_config, platform: 'StandardEmulatedPlatform'
 	) -> None:
 		# Bit naughty, because it has a different signature? Hmm maybe not
 		self.platform: 'StandardEmulatedPlatform' = platform
 		self.roms_config = roms_config
-		super().__init__(platform_config, platform, emulators, libretro_cores)
+		super().__init__(platform_config, platform, standalone_emulators_by_name, {})
 
 	@property
 	def is_available(self) -> bool:
@@ -211,10 +199,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				f'{potential_emulator.name} does not support {message}'
 			)
 
-		potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
-		potential_launcher.command  # We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks #pylint: disable=pointless-statement #noqa: B018
-		# TODO Hrm, ideally ROMLauncher would either generate the launch command or store the generated launch command, but it's doing both? Probably need Emulator.launch(game)
-		return potential_launcher
+		return ROMLauncher(game, potential_emulator, self.platform_config)
 
 	def iter_launchers(self, game: 'Game') -> 'Iterator[ROMLauncher]':
 		if not isinstance(game, ROMGame):
@@ -223,7 +208,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		exception = None
 		chosen_emulator_names = []  # For warning message
 		for emulator in self.iter_chosen_emulators():
-			chosen_emulator_names.append(emulator.name)
+			chosen_emulator_names.append(emulator.name())
 			try:
 				launcher = self.try_emulator(game, emulator)
 			except (EmulationNotSupportedError, NotActuallyLaunchableGameError) as ex:

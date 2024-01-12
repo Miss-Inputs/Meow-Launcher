@@ -2,7 +2,7 @@ import shutil
 from pathlib import PurePath
 from typing import TYPE_CHECKING, final
 
-from .launch_command import LaunchCommand, MultiLaunchCommands, launch_with_wine
+from .launch_command import LaunchCommand, MultiLaunchCommands
 from .runner import HostPlatform
 
 if TYPE_CHECKING:

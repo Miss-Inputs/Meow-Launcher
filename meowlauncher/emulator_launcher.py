@@ -8,17 +8,13 @@ if TYPE_CHECKING:
 
 	from meowlauncher.config_types import TypeOfConfigValue
 
-	from .configured_emulator import ConfiguredEmulator
-	from .emulated_game import EmulatedGame
-	from .launch_command import LaunchCommand
+	from .emulator import Emulator
+	from .game import Game
 
 class EmulatorLauncher(Launcher, ABC):
-	def __init__(self, game: 'EmulatedGame', emulator: 'ConfiguredEmulator', platform_config: 'Mapping[str, TypeOfConfigValue] | None'=None) -> None:
-		self.game: 'EmulatedGame' = game
-		self.runner: 'ConfiguredEmulator' = emulator
+	def __init__(self, game: 'Game', emulator: 'Emulator', platform_config: 'Mapping[str, TypeOfConfigValue] | None'=None) -> None:
+		self.game: 'Game' = game
+		self.runner: 'Emulator' = emulator
 		self.platform_config = platform_config if platform_config else {}
 		super().__init__(game, emulator)
 
-	@property
-	def command(self) -> 'LaunchCommand':
-		return self.runner.get_launch_command_for_game(self.game, self.platform_config)

@@ -1,24 +1,23 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.info import Date, GameInfo
+from meowlauncher.game import Game
+from meowlauncher.info import Date
 
 if TYPE_CHECKING:
-	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.games.mame_common.machine import Machine
 
 	from .mame import ConfiguredMAME
 	from .mame_config import ArcadeMAMEConfig
 
-class MAMEGame(EmulatedGame):
+
+class MAMEGame(Game):
 	"""Wrapper around Machine to add info fields and stuff I guess
 	Hmm… the class design here is probably not that good, but eh, it works I guess"""
-	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig', config: 'ArcadeMAMEConfig'):
-		#platform_config is just here because the constructor needs it, and does not actually contain any configs
-		super().__init__(platform_config)
+
+	def __init__(self, machine: 'Machine', config: 'ArcadeMAMEConfig'):
+		super().__init__()
 		self.machine = machine
-		self.info = GameInfo()
 		self.config = config
 
 		self._add_metadata_fields()
@@ -46,7 +45,9 @@ class MAMEGame(EmulatedGame):
 			self.info.specific_info['Requires CHD?'] = True
 		if self.machine.romless:
 			self.info.specific_info['Romless'] = True
-		self.info.specific_info['Slot Names'] = {next(iter(slot.instances))[0] for slot in self.machine.media_slots if slot.instances} #I guess I only expect one?
+		self.info.specific_info['Slot Names'] = {
+			next(iter(slot.instances))[0] for slot in self.machine.media_slots if slot.instances
+		}  # I guess I only expect one?
 		self.info.specific_info['Software Lists'] = self.machine.software_list_names
 		self.info.series = self.machine.series
 		bios = self.machine.bios

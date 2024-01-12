@@ -18,7 +18,7 @@ from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_info import add_info_for_raw_exe, look_for_icon_for_file
 from meowlauncher.info import Date
-from meowlauncher.launch_command import LaunchCommand, launch_with_wine
+from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 

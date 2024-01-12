@@ -1,14 +1,8 @@
-from typing import TYPE_CHECKING
-
-from meowlauncher.configured_emulator import ConfiguredEmulator
-from meowlauncher.data.emulators import mame
+from meowlauncher.emulator import Emulator
 from meowlauncher.games.mame_common.mame_executable import MAMEExecutable
 
-if TYPE_CHECKING:
-	from meowlauncher.config_types import EmulatorConfig
 
-
-class ConfiguredMAME(ConfiguredEmulator):
-	def __init__(self, config: 'EmulatorConfig'):
+class ConfiguredMAME(Emulator):
+	def __init__(self, config):
 		self.executable = MAMEExecutable(config.exe_path)
 		super().__init__(mame, config)

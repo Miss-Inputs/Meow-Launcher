@@ -1,6 +1,5 @@
 import logging
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
 from typing import TYPE_CHECKING, Generic, TypeVar
 
 from meowlauncher.config import current_config
@@ -10,7 +9,6 @@ if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping, Sequence
 
 	from meowlauncher.config_types import PlatformConfig
-	from meowlauncher.emulated_game import EmulatedGame
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 	from meowlauncher.emulator import LibretroCore
 	from meowlauncher.game import Game
@@ -99,7 +97,7 @@ class CompoundGameSource(GameSource, ABC):
 		return any(source.is_available for source in self.sources)
 
 
-EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['EmulatedGame'], covariant=True)
+EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['Game'], covariant=True)
 
 
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
@@ -111,8 +109,8 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 		self,
 		platform_config: 'PlatformConfig',
 		platform: 'ChooseableEmulatedPlatform',
-		emulators: 'Mapping[str, EmulatorType_co]',
-		libretro_cores: 'Mapping[str, LibretroCore] | None' = None,
+		emulators: 'Mapping[str, type[EmulatorType_co]]',
+		libretro_cores: 'Mapping[str, type[LibretroCore]] | None' = None,
 	) -> None:
 		super().__init__()
 		self.platform_config = platform_config
@@ -123,15 +121,15 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 	def iter_chosen_emulators(self) -> 'Iterator[EmulatorType_co | LibretroCore]':
 		"""Gets the actual emulator objects for the user's choices, in order"""
 		for emulator_name in self.platform_config.chosen_emulators:
-			emulator = (
+			cls = (
 				self.libretro_cores.get(emulator_name.removesuffix(' (libretro)'))
 				if (self.libretro_cores and emulator_name.endswith(' (libretro)'))
 				else self.emulators.get(emulator_name)
 			)
 
-			if not emulator and self.libretro_cores:
-				emulator = self.libretro_cores.get(emulator_name)
-			if not emulator:
+			if not cls and self.libretro_cores:
+				cls = self.libretro_cores.get(emulator_name)
+			if not cls:
 				logger.warning(
 					'Config warning: %s is not a known emulator, specified in %s',
 					emulator_name,
@@ -139,16 +137,16 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 				)
 				continue
 
-			if emulator.config_name not in self.platform.valid_emulator_names:
+			if cls.name() not in self.platform.valid_emulator_names:
 				logger.warning(
 					'Config warning: %s is not a valid %s for %s',
 					emulator_name,
-					emulator.friendly_type_name,
+					cls.friendly_type_name,
 					self.name(),
 				)
 				continue
 
-			yield emulator
+			yield cls()
 
 
 __doc__ = GameSource.__doc__ or GameSource.__name__

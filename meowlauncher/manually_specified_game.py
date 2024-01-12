@@ -3,9 +3,9 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, final
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.emulated_game import EmulatedGame
-from meowlauncher.emulator_launcher import EmulatorLauncher
+from meowlauncher.game import Game
 from meowlauncher.info import Date
+from meowlauncher.launcher import Launcher
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
@@ -15,10 +15,9 @@ if TYPE_CHECKING:
 	from meowlauncher.configured_emulator import ConfiguredEmulator
 
 
-class ManuallySpecifiedGame(EmulatedGame, ABC):
-	# TODO: Should not necessarily be emulated
+class ManuallySpecifiedGame(Game, ABC):
 	def __init__(self, json: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
-		super().__init__(platform_config)
+		self.platform_config = platform_config
 		self.json = json
 		self.is_on_cd: bool = json.get('is_on_cd', False)
 		self.path: str = json[
@@ -96,7 +95,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 		"To be overriden by subclass - optional, put any other platform-specific info you want in here"
 
 
-class ManuallySpecifiedLauncher(EmulatorLauncher):
+class ManuallySpecifiedLauncher(Launcher):
 	def __init__(
 		self,
 		app: ManuallySpecifiedGame,
@@ -105,7 +104,7 @@ class ManuallySpecifiedLauncher(EmulatorLauncher):
 	) -> None:
 		self.game: ManuallySpecifiedGame = app
 		self.platform_name = platform_config.name
-		super().__init__(app, emulator, platform_config.options)
+		super().__init__(app, emulator)
 
 	@property
 	# Could do as a default, or maybe you should override it

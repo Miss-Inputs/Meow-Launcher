@@ -24,7 +24,7 @@ from meowlauncher.games.common.emulator_command_line_helpers import (
 	is_highscore_cart_available,
 	mame_base,
 	mame_driver,
-	mednafen_module,
+	mednafen_module_launch,
 	verify_mgba_mapper,
 )
 from meowlauncher.games.roms.rom import FileROM, FolderROM, M3UPlaylist
@@ -46,7 +46,8 @@ from meowlauncher.platform_types import (
 from meowlauncher.util.region_info import TVSystem
 
 if TYPE_CHECKING:
-	from meowlauncher.config_types import EmulatorConfig, TypeOfConfigValue
+	from meowlauncher.config_types import TypeOfConfigValue
+	from meowlauncher.emulator import Emulator
 	from meowlauncher.games.dos import DOSApp
 	from meowlauncher.games.mac import MacApp
 	from meowlauncher.games.mame.mame_game import MAMEGame
@@ -1269,7 +1270,7 @@ def mednafen_apple_ii(
 	if required_ram and required_ram > (64 * 1024):
 		raise EmulationNotSupportedError(f'Needs at least {required_ram} RAM')
 
-	return mednafen_module('apple2', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('apple2', exe_path=emulator_config.exe_path)
 
 
 def mednafen_game_gear(
@@ -1278,7 +1279,7 @@ def mednafen_game_gear(
 	mapper = game.info.specific_info.get('Mapper')
 	if mapper in {'Codemasters', 'EEPROM'}:
 		raise EmulationNotSupportedError(f'{mapper} mapper not supported')
-	return mednafen_module('gg', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('gg', exe_path=emulator_config.exe_path)
 
 
 def mednafen_gb(
@@ -1287,7 +1288,7 @@ def mednafen_gb(
 	_verify_supported_gb_mappers(
 		game, {'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'}, set()
 	)
-	return mednafen_module('gb', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('gb', exe_path=emulator_config.exe_path)
 
 
 def mednafen_gba(
@@ -1295,7 +1296,7 @@ def mednafen_gba(
 ) -> LaunchCommand:
 	if cast(FileROM, game.rom).size > (32 * 1024 * 1024):
 		raise EmulationNotSupportedError('64MB GBA Video carts not supported')
-	return mednafen_module('gba', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('gba', exe_path=emulator_config.exe_path)
 
 
 def mednafen_lynx(
@@ -1306,7 +1307,7 @@ def mednafen_lynx(
 	):
 		raise EmulationNotSupportedError('Needs to have .lnx header')
 
-	return mednafen_module('lynx', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('lynx', exe_path=emulator_config.exe_path)
 
 
 def mednafen_megadrive(
@@ -1340,7 +1341,7 @@ def mednafen_megadrive(
 	if mapper in unsupported_mappers:
 		raise EmulationNotSupportedError(mapper + ' not supported')
 
-	return mednafen_module('md', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('md', exe_path=emulator_config.exe_path)
 
 
 def mednafen_nes(
@@ -1505,7 +1506,7 @@ def mednafen_nes(
 		if mapper not in supported_unif_mappers:
 			raise EmulationNotSupportedError(f'Unsupported mapper: {mapper}')
 
-	return mednafen_module('nes', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('nes', exe_path=emulator_config.exe_path)
 
 
 def mednafen_snes_faust(
@@ -1523,7 +1524,7 @@ def mednafen_snes_faust(
 		SNESExpansionChip.S_DD1,
 	}:
 		raise EmulationNotSupportedError(f'{expansion_chip} not supported')
-	return mednafen_module('snes_faust', exe_path=emulator_config.exe_path)
+	return mednafen_module_launch('snes_faust', exe_path=emulator_config.exe_path)
 
 
 # VICE
@@ -2464,9 +2465,9 @@ def _last_unused_dosbox_drive(
 	)
 
 
-def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
+def dosbox_staging(app: 'DOSApp', emulator: 'Emulator') -> LaunchCommand:
 	args = ['-fullscreen', '-exit']
-	noautoexec = emulator_config.options['noautoexec']
+	noautoexec = emulator.config.noautoexec.options['noautoexec']
 	if noautoexec:
 		args.append('-noautoexec')
 
@@ -2536,7 +2537,7 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 	return launch_command
 
 
-def dosbox_x(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
+def dosbox_x(app: 'DOSApp', emulator: 'Emulator') -> LaunchCommand:
 	confs = {}
 
 	if app.is_on_cd:

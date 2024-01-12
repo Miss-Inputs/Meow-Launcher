@@ -10,7 +10,8 @@ class DOS(ManuallySpecifiedGameSource[DOSApp]):
 	def __init__(self) -> None:
 		super().__init__('DOS', DOSApp, ManuallySpecifiedLauncher, dos_emulators)
 
-#TODO Actually re-implement this, this is just old code and is only just there to refer to what logic I was using
+
+# TODO Actually re-implement this, this is just old code and is only just there to refer to what logic I was using
 # def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 # 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]
 # 	if not possible_games:

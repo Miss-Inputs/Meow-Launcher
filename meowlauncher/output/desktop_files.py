@@ -61,7 +61,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher', game_type: str) -> Non
 	name, filename_tags = find_tags(name)
 	
 	if isinstance(launcher.runner, Emulator):
-		launcher.game.info.emulator_name = launcher.runner.name
+		launcher.game.info.emulator_name = launcher.runner.info_name()
 	#TODO: Better way to put that information in there
 
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher

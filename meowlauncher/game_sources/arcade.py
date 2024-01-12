@@ -23,7 +23,6 @@ from meowlauncher.games.mame_common.machine import (
 	iter_machines_from_source_file,
 )
 from meowlauncher.games.mame_common.mame_executable import MAMENotInstalledError
-from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.settings.platform_config import platform_configs
 from meowlauncher.util.desktop_files import has_been_done
 
@@ -34,13 +33,7 @@ class Arcade(GameSource):
 	def __init__(self) -> None:
 		super().__init__()
 		self.config: ArcadeMAMEConfig
-		self.emu: ConfiguredMAME | None = None
-		try:
-			mame_config = emulator_configs.get('MAME')
-			if mame_config:
-				self.emu = ConfiguredMAME(mame_config)
-		except MAMENotInstalledError:
-			pass
+		self.emu: ConfiguredMAME | None = None  # TODO
 		self.platform_config = PlatformConfig(
 			'MAME', set(), (), {}
 		)  # TODO: Refactor EmulatedGame constructor so we don't do this
@@ -146,13 +139,7 @@ class MAMEInbuiltGames(GameSource):
 	def __init__(self) -> None:
 		super().__init__()
 		self.blank_platform_config = PlatformConfig('MAME', set(), (), {})
-		self.emu: ConfiguredMAME | None = None
-		try:
-			mame_config = emulator_configs.get('MAME')
-			if mame_config:
-				self.emu = ConfiguredMAME(mame_config)
-		except MAMENotInstalledError:
-			pass
+		self.emu: ConfiguredMAME | None = None  # TODO
 
 	@classmethod
 	def name(cls) -> str:

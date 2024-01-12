@@ -5,25 +5,33 @@ import sys
 from argparse import SUPPRESS, Action, ArgumentParser
 from collections import defaultdict
 from collections.abc import Collection, Mapping, Sequence
-from typing import TYPE_CHECKING, NoReturn, TypeVar
+from typing import TYPE_CHECKING, NoReturn, Protocol, TypeVar, runtime_checkable
 
 from meowlauncher.game_sources.settings import GOGConfig, ItchioConfig, SteamConfig
 from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
 from meowlauncher.games.roms.roms_config import ROMsConfig
-from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig
+from meowlauncher.global_runners import ScummVMConfig, WineConfig
 from meowlauncher.settings.settings import MainConfig, Settings, sentinel
 from meowlauncher.version import __version__
 
 if TYPE_CHECKING:
 	from argparse import _ArgumentGroup  # why did they make this private, anyway?
 
+T_co = TypeVar('T_co', bound=Settings, covariant=True)
+
+@runtime_checkable
+class HasConfigClass(Protocol[T_co]):
+	@classmethod
+	def config_class(cls) -> type[T_co]:
+		...
+
+
 _settings_classes: Mapping[str | None, Collection[type[Settings]]] = {
-	None: {MainConfig},
+	None: {MainConfig, WineConfig, ScummVMConfig},
 	'game-sources': {
 		ArcadeMAMEConfig,
 		ROMsConfig,
 		SteamConfig,
-		ScummVMConfig,
 		GOGConfig,
 		ItchioConfig,
 	},
@@ -31,9 +39,11 @@ _settings_classes: Mapping[str | None, Collection[type[Settings]]] = {
 """{help group, or None for settings that should show up in main --help: [settings in that help group]}"""
 
 
-def _format_group_help(parser: ArgumentParser, groups: 'Collection[_ArgumentGroup] | None' = None):
-	if groups is None:
-		groups = [parser._positionals, parser._optionals]
+def _format_group_help(
+	parser: ArgumentParser, groups: 'Collection[_ArgumentGroup]', *, add_root_section: bool = False
+):
+	if add_root_section:
+		groups = [parser._positionals, parser._optionals, *groups]
 	formatter = parser._get_formatter()
 	actions = list(itertools.chain.from_iterable(group._group_actions for group in groups))
 	formatter.add_usage(None, actions, parser._mutually_exclusive_groups)
@@ -50,7 +60,7 @@ def _format_group_help(parser: ArgumentParser, groups: 'Collection[_ArgumentGrou
 	return formatter.format_help()
 
 
-def _group_help_action(groups: 'Collection[_ArgumentGroup] | None' = None):
+def _group_help_action(groups: 'Collection[_ArgumentGroup]', *, add_root_section: bool = False):
 	class GroupHelpAction(Action):
 		def __init__(
 			self,
@@ -62,7 +72,10 @@ def _group_help_action(groups: 'Collection[_ArgumentGroup] | None' = None):
 			super().__init__(option_strings, dest, nargs=0, help=help, default=SUPPRESS)
 
 		def __call__(self, parser: ArgumentParser, *_args, **_kwargs) -> None:
-			print(_format_group_help(parser, groups), file=sys.stderr)
+			print(
+				_format_group_help(parser, groups, add_root_section=add_root_section),
+				file=sys.stderr,
+			)
 			parser.exit()
 
 	return GroupHelpAction
@@ -82,7 +95,7 @@ class DefaultHelpAction(Action):
 		parser.exit()
 
 
-def _setup_config():
+def _setup_config() -> dict[type, Settings]:
 	"""Initializes config with command line arguments, etc"""
 
 	parser = ArgumentParser(
@@ -93,16 +106,18 @@ def _setup_config():
 	option_to_config: dict[
 		str, tuple[type[Settings], str]
 	] = {}  # class name + key: (settings, key)
-	help_groups: defaultdict[str, set[_ArgumentGroup]] = defaultdict(set)
+	help_groups: defaultdict[str | None, set[_ArgumentGroup]] = defaultdict(set)
 	for help_group, classes in _settings_classes.items():
 		for cls in classes:
 			for k in cls.model_fields:
 				option_to_config[f'{cls.__qualname__}.{k}'] = (cls, k)
 			group = cls.add_argparser_group(parser)
-			if help_group:
+			if not isinstance(group, ArgumentParser):
 				help_groups[help_group].add(group)
 
 	for help_group, groups in help_groups.items():
+		if help_group is None:
+			continue
 		parser.add_argument(
 			f'--help-{help_group}',
 			action=_group_help_action(groups),
@@ -114,7 +129,10 @@ def _setup_config():
 		help='Show this help and help for all groups and exit',
 	)
 	parser.add_argument(
-		'--help', '-h', action=_group_help_action(None), help='Show this help and exit'
+		'--help',
+		'-h',
+		action=_group_help_action(help_groups[None], add_root_section=True),
+		help='Show this help and exit',
 	)
 
 	settings: dict[type, Settings] = {}
@@ -130,15 +148,15 @@ def _setup_config():
 
 
 __current_config = _setup_config()
-T = TypeVar('T', bound=Settings)
 
 
-def current_config(cls: type[T]) -> T:
-	if cls not in __current_config:
-		__current_config[cls] = cls()
-	config = __current_config[cls]
-	assert isinstance(config, cls)
+def current_config(cls: type[T_co] | HasConfigClass[T_co]) -> T_co:
+	cls_ = cls.config_class() if isinstance(cls, HasConfigClass) else cls
+	if cls_ not in __current_config:
+		__current_config[cls_] = cls_()
+	config = __current_config[cls_]
+	assert isinstance(config, cls_)
 	return config
 
 
-main_config: MainConfig = current_config(MainConfig)
+main_config = current_config(MainConfig)

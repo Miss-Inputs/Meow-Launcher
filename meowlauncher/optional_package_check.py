@@ -6,8 +6,8 @@ from importlib.util import find_spec
 from meowlauncher.game_sources.steam import have_steamfiles
 from meowlauncher.games.common.pc_common_info import have_pefile
 from meowlauncher.games.mac import have_machfs, have_macresources
-from meowlauncher.games.scummvm.scummvm_config import scummvm_config
 from meowlauncher.games.specific_behaviour.wii import have_pycrypto
+from meowlauncher.global_runners import ScummVM
 from meowlauncher.util.archives import check_7z_command, have_py7zr, have_python_libarchive
 from meowlauncher.util.utils import have_termcolor
 
@@ -47,8 +47,11 @@ def main() -> None:
 	except subprocess.CalledProcessError as ex:
 		print('MAME produced an error', ex)
 	# Hrm, these might not work from here, since they rely on config being loaded
-	print('ScummVM executable:', scummvm_config.have_scummvm_exe)
-	print('ScummVM is configured:', scummvm_config.have_scummvm_config)
+	
+	scummvm = ScummVM()
+	
+	print('ScummVM executable:', scummvm.is_path_valid)
+	print('ScummVM config file exists:', scummvm.config.scummvm_config_path.is_file())
 	# TODO: Check hactool/nstool, all the other various databases and things in stuff.txt
 
 

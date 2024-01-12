@@ -9,6 +9,7 @@ rom_path_argument = '$<path>'
 
 
 class LaunchCommand:
+	"""Stores executable name, args, and optionally env vars, and working directory"""
 	def __init__(
 		self,
 		exe_name: PurePath,
@@ -132,22 +133,3 @@ class MultiLaunchCommands(LaunchCommand):
 
 	def set_env_var(self, k: str, v: str) -> None:
 		self.main_command.set_env_var(k, v)
-
-
-def launch_with_wine(
-	wine_path: PurePath,
-	wineprefix: PurePath | None,
-	exe_path: PurePath,
-	exe_args: Collection[str],
-	working_directory: PureWindowsPath | None = None,
-) -> LaunchCommand:
-	env_vars = None
-	if wineprefix:
-		env_vars = {'WINEPREFIX': str(wineprefix)}
-
-	args = ['start']
-	if working_directory:
-		args += ['/d', str(working_directory)]
-	args += ('/unix', str(exe_path))
-	args += exe_args
-	return LaunchCommand(wine_path, args, env_vars)

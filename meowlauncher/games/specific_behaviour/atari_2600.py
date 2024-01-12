@@ -12,7 +12,6 @@ from meowlauncher.games.mame_common.software_list import (
 )
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import Atari2600Controller
-from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.util.region_info import TVSystem
 
 from .common import atari_controllers as controllers
@@ -22,8 +21,6 @@ if TYPE_CHECKING:
 
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.info import GameInfo
-
-_stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
 @cache

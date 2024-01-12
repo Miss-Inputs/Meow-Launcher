@@ -5,12 +5,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.data.emulated_platforms import manually_specified_platforms
 from meowlauncher.exceptions import EmulationNotSupportedError, NotActuallyLaunchableGameError
 from meowlauncher.game_source import ChooseableEmulatorGameSource
 from meowlauncher.manually_specified_game import ManuallySpecifiedGame, ManuallySpecifiedLauncher
-from meowlauncher.settings.emulator_config import emulator_configs
 from meowlauncher.settings.platform_config import platform_configs
 
 if TYPE_CHECKING:
@@ -73,14 +71,13 @@ class ManuallySpecifiedGameSource(
 		emulator: ConfiguredEmulator | None = None
 		exception_reason = None
 		for chosen_emulator in self.iter_chosen_emulators():
-			emulator_config = emulator_configs[chosen_emulator.config_name]
 			try:
 				if 'compat' in app.json:
 					if not app.json['compat'].get(chosen_emulator.config_name, True):
 						raise EmulationNotSupportedError('Apparently not supported')
-				potential_emulator = ConfiguredEmulator(chosen_emulator, emulator_config)
+				potential_emulator = chosen_emulator
 				# TODO: This doesn't seem right… why are we just throwing away the result here
-				potential_emulator.get_launch_command_for_game(app, self.platform_config.options)
+				potential_emulator.get_game_command(app, self.platform_config.options)
 				emulator = potential_emulator
 				break
 			except (EmulationNotSupportedError, NotActuallyLaunchableGameError) as ex:

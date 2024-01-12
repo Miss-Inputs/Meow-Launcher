@@ -2,24 +2,23 @@ from collections.abc import Collection, Mapping, Sequence
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.exceptions import EmulationNotSupportedError
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
-	from meowlauncher.config_types import EmulatorConfig, RunnerConfigValue
-	from meowlauncher.emulator import GenericLaunchCommandFunc
+	from meowlauncher.emulator import Emulator, GenericLaunchCommandFunc
+	from meowlauncher.game import Game
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 
-def _get_autoboot_script_by_name(name: str) -> str:
+def _get_autoboot_script_by_name(name: str) -> Path:
 	# Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
 	this_package = Path(__file__).parent
 	root_package = this_package.parent
 	root_dir = root_package.parent
-	return root_dir / 'mame_autoboot' / name + '.lua'
+	return root_dir / 'mame_autoboot' / (name + '.lua')
 
 
 def _verify_supported_gb_mappers(
@@ -89,7 +88,7 @@ def is_highscore_cart_available() -> bool:
 	# I truck an idea that might work! If we rewrite all this to take a MAME executable, and everything related to MameDriver is like that… maybe we can make everything take an option to use default_mame_executable or something else, and that may all work out
 
 
-def mednafen_module(module: str, exe_path: PurePath = PurePath('mednafen')) -> LaunchCommand:
+def mednafen_module_launch(module: str, exe_path: PurePath = PurePath('mednafen')) -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
 
@@ -171,8 +170,8 @@ def first_available_romset(driver_list: 'Collection[str]') -> str | None:
 def simple_emulator(args: 'Sequence[str] | None' = None) -> 'GenericLaunchCommandFunc[ROMGame]':
 	"""This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here"""
 
-	def inner(_, __, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
+	def inner(_: 'Game', emulator: 'Emulator') -> LaunchCommand:
+		return LaunchCommand(emulator.exe_path, args if args else [rom_path_argument])
 
 	return inner
 
@@ -180,9 +179,9 @@ def simple_emulator(args: 'Sequence[str] | None' = None) -> 'GenericLaunchComman
 def simple_gb_emulator(
 	args: Sequence[str], mappers: Collection[str], autodetected_mappers: Collection[str]
 ) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
+	def inner(game: 'ROMGame', emulator: 'Emulator') -> LaunchCommand:
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
-		return LaunchCommand(emulator_config.exe_path, args)
+		return LaunchCommand(emulator.exe_path, args)
 
 	return inner
 
@@ -190,11 +189,11 @@ def simple_gb_emulator(
 def simple_md_emulator(
 	args: Sequence[str], unsupported_mappers: Collection[str]
 ) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
+	def inner(game: 'ROMGame', emulator: 'Emulator') -> LaunchCommand:
 		mapper = game.info.specific_info.get('Mapper')
 		if mapper and mapper in unsupported_mappers:
 			raise EmulationNotSupportedError(mapper + ' not supported')
-		return LaunchCommand(emulator_config.exe_path, args)
+		return LaunchCommand(emulator.exe_path, args)
 
 	return inner
 
@@ -212,28 +211,3 @@ def simple_mame_driver(
 		)
 
 	return inner
-
-
-def simple_mednafen_module_args(module: str) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(_: 'ROMGame', __, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-		return mednafen_module(module, exe_path=emulator_config.exe_path)
-
-	return inner
-
-
-class SimpleMednafenModule(MednafenModule):
-	def __init__(
-		self,
-		name: str,
-		status: EmulatorStatus,
-		module: str,
-		supported_extensions: Collection[str],
-		configs: 'Mapping[str, RunnerConfigValue] | None' = None,
-	):
-		super().__init__(
-			name,
-			status,
-			supported_extensions,
-			params_func=simple_mednafen_module_args(module),
-			configs=configs,
-		)

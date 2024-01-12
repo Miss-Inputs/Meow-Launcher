@@ -8,10 +8,8 @@ from typing import cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
-from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
 
 logger = logging.getLogger(__name__)
-mame_config = ArcadeMAMEConfig()
 
 
 class MachineNotFoundError(Exception):

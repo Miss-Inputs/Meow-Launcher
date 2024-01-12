@@ -3,10 +3,10 @@
 import json
 import logging
 from abc import abstractmethod
-from argparse import ArgumentParser, BooleanOptionalAction
+from argparse import SUPPRESS, ArgumentParser, BooleanOptionalAction
 from collections.abc import Collection, Sequence
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Any, get_args, get_origin
+from typing import TYPE_CHECKING, Any, ClassVar, get_args, get_origin
 
 from class_doc import extract_docs_from_cls_obj
 from pydantic import Field
@@ -85,7 +85,7 @@ class IniSettingsSource(PydanticBaseSettingsSource):
 		self.options_path = (
 			options_file_name
 			if isinstance(options_file_name, Path) and options_file_name.is_absolute()
-			else config_dir / options_file_name
+			else config_dir / f'{options_file_name}.ini'
 		)
 		self.config_parser = NoNonsenseConfigParser(allow_no_value=True)
 		self.config_parser.read(self.options_path)
@@ -93,7 +93,6 @@ class IniSettingsSource(PydanticBaseSettingsSource):
 
 	def get_field_value(self, field: 'FieldInfo', field_name: str) -> tuple[Any, str, bool]:
 		# TODO: Look for field.alias too
-		#print('get_field_value', self.options_path, self.section_name, field.annotation, field_name, self.settings_cls, self.field_is_complex(field))
 		field_value = self.config_parser.get(self.section_name, field_name, fallback=None)
 		return field_value, field_name, self.field_is_complex(field)
 
@@ -119,19 +118,24 @@ class IniSettingsSource(PydanticBaseSettingsSource):
 
 		return d
 
-sentinel = object()
-class Settings(BaseSettings):
-	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
 
-	Loads from stuff in this order:
+sentinel = object()
+
+
+class Settings(BaseSettings):
+	"""Base class for instances of configuration. Implement section and ideally prefix, and config_file_name if you need to; put it in meowlauncher.config settings_classes and that should take care of it
+
+	Loads from stuff in this order (from least to highest priority):
 	default value
-	config.ini (or whatever --config-file specifies)
-	(TODO) additional config files
+	config_file_name
+	(TODO) additional config files, change config_dir, but that'll be screwy
 	environment variables
 	Command line arguments
 
 	TODO: The tricky part then is emulator config and platform config - is there a nice way to get them to use this? I'd like to have them settable from the command line but like --duckstation:compat-db=<path> or something like that
 	"""
+
+	_is_boilerplate: ClassVar[bool] = False
 
 	# TODO: Can we have env_prefix dynamically set from cls.prefix(), but the rest of this stays the same?
 	model_config = {
@@ -155,7 +159,7 @@ class Settings(BaseSettings):
 			init_settings,
 			env_settings,
 			dotenv_settings,
-			IniSettingsSource(settings_cls, cls.section(), cls.options_file_name()),
+			IniSettingsSource(settings_cls, cls.section(), cls.config_file_name()),
 			file_secret_settings,
 		)
 
@@ -175,9 +179,9 @@ class Settings(BaseSettings):
 		return None
 
 	@classmethod
-	def options_file_name(cls) -> str:
-		"""Name of the file to load options from. Defaults to config.ini"""
-		return 'config.ini'
+	def config_file_name(cls) -> str:
+		"""Name of the file to load config from. Defaults to config.ini"""
+		return 'config'
 
 	@classmethod
 	def add_argparser_group(cls, argparser: ArgumentParser):
@@ -194,11 +198,15 @@ class Settings(BaseSettings):
 			names = (k, v.alias) if v.alias else (k,)
 			options = [_field_name_to_cli_arg(name, prefix) for name in names]
 
-			description = v.description or (docstrings[k][0] if k in docstrings else None)
+			description: str
+			if cls._is_boilerplate:
+				description = SUPPRESS
+			else:
+				description = v.description or (docstrings[k][0] if k in docstrings else None)
 			destination_in_namespace = f'{cls.__qualname__}.{k}'
 
 			# default = v.get_default(call_default_factory=True)
-			default = sentinel #It's not particularly useful to just have everything in the Namespace regardless of if it was provided or not
+			default = sentinel  # It's not particularly useful to just have everything in the Namespace regardless of if it was provided or not
 			t = _remove_optional(v.annotation)
 			if t == bool:
 				group.add_argument(
@@ -291,14 +299,6 @@ class MainConfig(Settings):
 
 	sort_multiple_dev_names: bool = False
 	"""For games with multiple entities in developer/publisher field, sort alphabetically"""
-
-	wine_path: Path = Path('wine')
-	"""Path to Wine executable for Windows games/emulators
-	TODO: This should just be a config for a global Runner"""
-
-	wineprefix: Path | None = None
-	"""Optional Wine prefix to use for Wine
-	TODO: This should just be a config for a global Runner"""
 
 	simple_disambiguate: bool = True
 	"""Use a simpler method of disambiguating games with same names"""

@@ -6,8 +6,6 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config_types import RunnerConfig
-from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_info import check_for_interesting_things_in_folder
