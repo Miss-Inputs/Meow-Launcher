@@ -1,11 +1,9 @@
 import importlib.resources
-import json
 import logging
 import re
 from collections.abc import Mapping, Sequence
 from configparser import RawConfigParser
 from importlib.abc import Traversable
-from typing import Any
 
 from meowlauncher.exceptions import NotLaunchableError
 
@@ -70,6 +68,7 @@ junk_suffixes = re.compile(
 
 
 def pluralize(n: int, singular: str, plural: str | None = None) -> str:
+	"""Naive pluralization that just makes sure you don't have 1 Somethings, does not take into account wanky edge cases in the English language"""
 	if n == 1:
 		return singular
 	if not plural:
@@ -131,12 +130,13 @@ def is_roman_numeral(s: str) -> bool:
 
 
 def title_word(s: str) -> str:
-	"""Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns"""
+	"""Like str.title but actually bloody works how I expect for compound-words and contract'ns"""
 	actual_word_parts = re.split(r"([\w']+)", s)
 	return ''.join(part.capitalize() for part in actual_word_parts)
 
 
 def remove_capital_article(s: str | None) -> str:
+	"""Returns copy of s with words such as "the" or "a" at the beginning removed"""
 	if not s:
 		return ''
 
@@ -148,13 +148,16 @@ def remove_capital_article(s: str | None) -> str:
 	return ' '.join(new_words)
 
 
-def clean_string(s: str, preserve_newlines: bool = False) -> str:
+def clean_string(s: str, *, preserve_newlines: bool = False) -> str:
+	"""Returns a copy of s with all the unprintable characters removed"""
 	return ''.join(
 		c for c in s if c.isprintable() or c == '\t' or (c in {'\n', '\r'} and preserve_newlines)
 	)
 
 
 def byteswap(b: bytes) -> bytes:
+	"""Returns copy of b with every pair of bytes swapped"""
+	# Does it really make sense to byteswap an array with odd length? I guess it happens sometimes
 	bb = b if len(b) % 2 == 0 else b[:-1]
 	last_byte = b[-1]
 	byte_array = bytearray(bb)
@@ -166,6 +169,7 @@ def byteswap(b: bytes) -> bytes:
 
 
 def get_resource(subpackage: str | None, name: str) -> Traversable:
+	"""Gets a non-Python file from the data package"""
 	package = 'meowlauncher.data'
 	if subpackage:
 		package = f'{package}.{subpackage}'
@@ -202,11 +206,6 @@ def load_list(subpackage: str | None, resource: str) -> Sequence[str]:
 	)
 
 
-def load_json(subpackage: str | None, resource: str) -> Any:
-	with get_resource(subpackage, resource).open('rb') as f:
-		return json.load(f)
-
-
 def format_unit(
 	n: float, suffix: str, base_unit: int = 1000, singular_suffix: str | None = None
 ) -> str:
@@ -230,11 +229,14 @@ def format_unit(
 	)
 
 
-def format_byte_size(b: int, metric: bool = False) -> str:
+def format_byte_size(b: int, *, metric: bool = False) -> str:
+	"""Formats an int representing an amount of bytes as human-readable (actually understands the difference between SI prefixes and IEC binary prefixes, unlike e.g. bad file managers for bad operating systems)
+	Every library and its dog has something akin to this, so you may want to leverage pydantic.ByteSize instead if you can"""
 	return format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
 
 
 def decode_bcd(i: int) -> int:
+	"""Decodes a binary-coded decimal, which is used inside video games sometimes (mostly older ones before technology could just store larger numbers like a normal person)"""
 	hi = (i & 0xF0) >> 4
 	lo = i & 0x0F
 	return (hi * 10) + lo
@@ -243,21 +245,31 @@ def decode_bcd(i: int) -> int:
 class ColouredFormatter(logging.Formatter):
 	"""Formats stuff as different colours with termcolor (if it can) depending on log level"""
 
+	default_mapping: Mapping[int, str] = {
+		logging.WARNING: 'yellow',
+		logging.ERROR: 'red',
+		logging.DEBUG: 'green',
+	}
+
+	def __init__(
+		self, fmt: str | None = None, colour_mapping: Mapping[int, str] | None = None
+	) -> None:
+		""":param fmt: Logging format string, as per logging.Formatter
+		:param colour_mapping: Mapping of logging levels to termcolor values"""
+		# Yeah I'm taking out a lot of those default logging.Formatter constructor arguments, sue me
+		self.colour_mapping = colour_mapping if colour_mapping is not None else self.default_mapping
+		super().__init__(fmt)
+
 	def format(self, record: logging.LogRecord) -> str:
 		message = super().format(record)
 		if have_termcolor:
-			# TODO: Make this configurable lol whoops
-			message = termcolor.colored(
-				message,
-				{logging.WARNING: 'yellow', logging.ERROR: 'red', logging.DEBUG: 'green'}.get(
-					record.levelno
-				),
-			)
+			message = termcolor.colored(message, self.colour_mapping.get(record.levelno))
 		return message
 
 
 class NotLaunchableExceptionFormatter(ColouredFormatter):
 	"""Puts NotLaunchableException on one line as to read more naturally"""
+	#TODO: Have something in main config to change colour mapping
 
 	def format(self, record: logging.LogRecord) -> str:
 		if record.exc_info and isinstance(record.exc_info[1], NotLaunchableError):
@@ -274,6 +286,7 @@ class NoNonsenseConfigParser(RawConfigParser):
 	def __init__(
 		self,
 		defaults=None,
+		*,
 		allow_no_value=False,
 		strict=True,
 		empty_lines_in_values=True,
@@ -290,4 +303,5 @@ class NoNonsenseConfigParser(RawConfigParser):
 		)
 
 	def optionxform(self, optionstr: str) -> str:
+		#If you just create a RawConfigParser and then set configparser.optionxform = str, type checkers and linters will grouch at you, so we do it their way by making a whole ass class
 		return optionstr
