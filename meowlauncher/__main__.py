@@ -3,7 +3,7 @@
 import locale
 import logging
 
-import meowlauncher
+from meowlauncher.config import main_config
 from meowlauncher.frontend.main import main
 from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 
@@ -18,7 +18,7 @@ stream_handler.setFormatter(
 
 logger = logging.getLogger(__package__)
 logger.addHandler(stream_handler)
-logger.setLevel(meowlauncher.config.main_config.logging_level)
+logger.setLevel(main_config.logging_level)
 
 progress_logger = logging.getLogger('meowlauncher.frontend.progress')
 progress_logger.propagate = False

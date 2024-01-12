@@ -68,6 +68,13 @@ def _remove_optional(annotation: type | None):
 	return annotation
 
 
+def _field_name_to_cli_arg(s: str, prefix: str | None = None):
+	option = s.replace('_', '-')
+	if prefix:
+		option = f'{prefix}:{option}'
+	return f'--{option}'
+
+
 class Settings(BaseSettings):
 	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
 
@@ -114,7 +121,7 @@ class Settings(BaseSettings):
 		return 'config.ini'
 
 	@classmethod
-	def add_argparser_group(cls, argparser: ArgumentParser) -> None:
+	def add_argparser_group(cls, argparser: ArgumentParser):
 		"""Adds a group for this config to an ArgumentParser. See config for how to parse it - to avoid namespace collisions, the qualified name of this class is added"""
 		group = (
 			argparser
@@ -125,10 +132,9 @@ class Settings(BaseSettings):
 		docstrings = extract_docs_from_cls_obj(cls)
 
 		for k, v in cls.model_fields.items():
-			option = k.replace('_', '-')
-			if prefix:
-				option = f'{prefix}:{option}'
-			option = f'--{option}'
+			names = (k, v.alias) if v.alias else (k,)
+			options = [_field_name_to_cli_arg(name, prefix) for name in names]
+
 			description = v.description or (docstrings[k][0] if k in docstrings else None)
 			destination_in_namespace = f'{cls.__qualname__}.{k}'
 
@@ -136,7 +142,7 @@ class Settings(BaseSettings):
 			t = _remove_optional(v.annotation)
 			if t == bool:
 				group.add_argument(
-					option,
+					*options,
 					action=BooleanOptionalAction,
 					help=description,
 					default=default,
@@ -146,7 +152,7 @@ class Settings(BaseSettings):
 			elif t == Sequence[Path]:
 				# TODO: It would be more useful to add to the default value
 				group.add_argument(
-					option,
+					*options,
 					nargs='*',
 					type=Path,
 					help=description,
@@ -156,7 +162,7 @@ class Settings(BaseSettings):
 				)
 			elif t == Sequence[str]:
 				group.add_argument(
-					option,
+					*options,
 					nargs='*',
 					help=description,
 					default=default,
@@ -169,13 +175,14 @@ class Settings(BaseSettings):
 				# Let Pydantic convert it to whatever fancy type for us
 				t = str
 				group.add_argument(
-					option,
+					*options,
 					type=str,
 					help=description,
 					default=default,
 					dest=destination_in_namespace,
 					metavar=k,
 				)
+		return group
 
 
 class MainConfig(Settings):
@@ -197,14 +204,16 @@ class MainConfig(Settings):
 	sources: Sequence[str] = Field(default_factory=list)
 	"""If specified, only add games from GameSources with this name
 	Useful for testing and such"""
+	# TODO: Add validation so that Pydantic converts it to a GameSource for us (see add_games._get_game_source), though we will need to finish refactoring GOG/itch.io into being GameSources
 
 	disambiguate: bool = True
 	"""After adding games, add info in brackets to the end of the names of games that have the same name to identify them (such as what type or platform they are), defaults to true"""
 
 	logging_level: str = Field(
-		default_factory=lambda: logging.getLevelName(logger.getEffectiveLevel())
+		default_factory=lambda: logging.getLevelName(logger.getEffectiveLevel()), alias='log_level'
 	)
 	"""Logging level (e.g. INFO, DEBUG, WARNING, etc)"""
+	# TODO: There must be some way to make Pydantic accept both an int or a str and convert the right way
 
 	other_images_to_use_as_icons: Sequence[str] = Field(default_factory=list)
 	"""If there is no icon, use these images as icons, if they are there"""
@@ -217,7 +226,8 @@ class MainConfig(Settings):
 	It sucks, so it's turned off by default"""
 
 	get_series_from_name: bool = False
-	"""Attempt to get series from parsing name"""
+	"""Attempt to get series from parsing name
+	This code also sucks, so it's turned off by default"""
 
 	sort_multiple_dev_names: bool = False
 	"""For games with multiple entities in developer/publisher field, sort alphabetically"""
