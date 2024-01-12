@@ -2,16 +2,16 @@
 
 import itertools
 import sys
-from argparse import Action, ArgumentParser, FileType, Namespace
+from argparse import SUPPRESS, Action, ArgumentParser
 from collections import defaultdict
-from collections.abc import Callable, Collection, Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, NoReturn, TypeVar
+from collections.abc import Collection, Mapping, Sequence
+from typing import TYPE_CHECKING, NoReturn, TypeVar
 
 from meowlauncher.game_sources.settings import GOGConfig, ItchioConfig, SteamConfig
 from meowlauncher.games.mame.mame_config import ArcadeMAMEConfig
 from meowlauncher.games.roms.roms_config import ROMsConfig
 from meowlauncher.games.scummvm.scummvm_config import ScummVMConfig
-from meowlauncher.settings.settings import MainConfig, Settings
+from meowlauncher.settings.settings import MainConfig, Settings, sentinel
 from meowlauncher.version import __version__
 
 if TYPE_CHECKING:
@@ -39,7 +39,7 @@ def _format_group_help(parser: ArgumentParser, groups: 'Collection[_ArgumentGrou
 	formatter.add_usage(None, actions, parser._mutually_exclusive_groups)
 
 	formatter.add_text(parser.description)
-	
+
 	for group in groups:
 		formatter.start_section(group.title)
 		formatter.add_text(group.description)
@@ -55,19 +55,13 @@ def _group_help_action(groups: 'Collection[_ArgumentGroup] | None' = None):
 		def __init__(
 			self,
 			option_strings: Sequence[str],
-			dest: str,
+			dest: str = SUPPRESS,
 			help: str | None = None,  # noqa: A002 #ARGH you fucking dickheads
 		) -> None:
 			self.groups = groups
-			super().__init__(option_strings, dest, nargs=0, help=help)
+			super().__init__(option_strings, dest, nargs=0, help=help, default=SUPPRESS)
 
-		def __call__(
-			self,
-			parser: ArgumentParser,
-			namespace: Namespace,
-			values: str | Sequence[Any] | None,
-			option_string: str | None = None,
-		) -> None:
+		def __call__(self, parser: ArgumentParser, *_args, **_kwargs) -> None:
 			print(_format_group_help(parser, groups), file=sys.stderr)
 			parser.exit()
 
@@ -75,8 +69,13 @@ def _group_help_action(groups: 'Collection[_ArgumentGroup] | None' = None):
 
 
 class DefaultHelpAction(Action):
-	def __init__(self, option_strings: Sequence[str], dest: str, help: str | None = None) -> None:  # noqa: A002
-		super().__init__(option_strings, dest, nargs=0, help=help)
+	def __init__(
+		self,
+		option_strings: Sequence[str],
+		dest: str = SUPPRESS,
+		help: str | None = None,  # noqa: A002
+	) -> None:
+		super().__init__(option_strings, dest, nargs=0, help=help, default=SUPPRESS)
 
 	def __call__(self, parser: ArgumentParser, *_args, **_kwargs) -> NoReturn:
 		parser.print_help()
@@ -114,12 +113,19 @@ def _setup_config():
 		action=DefaultHelpAction,
 		help='Show this help and help for all groups and exit',
 	)
-	parser.add_argument('--help', '-h', action=_group_help_action(None), help='Show this help and exit')
+	parser.add_argument(
+		'--help', '-h', action=_group_help_action(None), help='Show this help and exit'
+	)
 
 	settings: dict[type, Settings] = {}
 	for k, v in vars(parser.parse_intermixed_args()).items():
+		if v is sentinel:
+			continue
 		cls, option_name = option_to_config[k]
-		setattr(settings.setdefault(cls, cls()), option_name, v)
+		if cls not in settings:
+			# setdefault will still run the constructor if it's in there, so that's probably not too  helpful
+			settings[cls] = cls()
+		setattr(settings[cls], option_name, v)
 	return settings
 
 
@@ -128,9 +134,9 @@ T = TypeVar('T', bound=Settings)
 
 
 def current_config(cls: type[T]) -> T:
-	config = __current_config.get(cls)
-	if not config:
-		return cls()
+	if cls not in __current_config:
+		__current_config[cls] = cls()
+	config = __current_config[cls]
 	assert isinstance(config, cls)
 	return config
 

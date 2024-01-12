@@ -1,36 +1,38 @@
 """Config options are defined here, other than those specific to emulators or platforms"""
 
+import json
 import logging
 from abc import abstractmethod
 from argparse import ArgumentParser, BooleanOptionalAction
 from collections.abc import Collection, Sequence
 from pathlib import Path, PurePath
-from typing import Literal, get_args
+from typing import TYPE_CHECKING, Any, get_args, get_origin
 
 from class_doc import extract_docs_from_cls_obj
 from pydantic import Field
 from pydantic_settings import BaseSettings
+from pydantic_settings.sources import PydanticBaseSettingsSource
 
 from meowlauncher.common_paths import config_dir, data_dir
+from meowlauncher.util.utils import NoNonsenseConfigParser
+
+if TYPE_CHECKING:
+	from pydantic.fields import FieldInfo
 
 logger = logging.getLogger(__name__)
 # TODO: Prolly use toml instead of ini, might be nicer
 # TODO: Context manager to override settings, like matplotlib rc_context for example
 
-_ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
-# TODO: Surely there is some way for this to be nicer
+_ignored_dirs_path = config_dir / 'ignored_directories.txt'
+# TODO: Allow setting ignored_directories by CLI arg, etc
 
 
 def _load_ignored_directories() -> Collection[PurePath]:
-	ignored_directories: set[PurePath] = set()
-
 	try:
 		with _ignored_dirs_path.open('rt', encoding='utf-8') as ignored_txt:
-			ignored_directories.update(PurePath(line.strip()) for line in ignored_txt)
+			return frozenset(PurePath(line.strip()) for line in ignored_txt)
 	except FileNotFoundError:
-		pass
-
-	return ignored_directories
+		return ()
 
 
 ignored_directories = _load_ignored_directories()
@@ -75,6 +77,49 @@ def _field_name_to_cli_arg(s: str, prefix: str | None = None):
 	return f'--{option}'
 
 
+class IniSettingsSource(PydanticBaseSettingsSource):
+	def __init__(
+		self, settings_cls: type[BaseSettings], section_name: str, options_file_name: str | Path
+	):
+		self.section_name = section_name
+		self.options_path = (
+			options_file_name
+			if isinstance(options_file_name, Path) and options_file_name.is_absolute()
+			else config_dir / options_file_name
+		)
+		self.config_parser = NoNonsenseConfigParser(allow_no_value=True)
+		self.config_parser.read(self.options_path)
+		super().__init__(settings_cls)
+
+	def get_field_value(self, field: 'FieldInfo', field_name: str) -> tuple[Any, str, bool]:
+		# TODO: Look for field.alias too
+		#print('get_field_value', self.options_path, self.section_name, field.annotation, field_name, self.settings_cls, self.field_is_complex(field))
+		field_value = self.config_parser.get(self.section_name, field_name, fallback=None)
+		return field_value, field_name, self.field_is_complex(field)
+
+	def decode_complex_value(self, field_name: str, field: 'FieldInfo', value: Any) -> Any:
+		# This will end up returning value as a string if it's not JSON, but it'll result in a better error message as it's a validation error and not a JSONDecodeError
+		try:
+			return super().decode_complex_value(field_name, field, value)
+		except json.JSONDecodeError:
+			base_type = get_origin(field.annotation)
+			if base_type is not None and issubclass(base_type, Sequence) and isinstance(value, str):
+				return value.split(';')
+			return value
+
+	def __call__(self) -> dict[str, Any]:
+		# Seems like this should be the default implementation of __call__ instead of being abstract, but I don't make the rules
+		d: dict[str, Any] = {}
+
+		for field_name, field in self.settings_cls.model_fields.items():
+			field_value, field_key, value_is_complex = self.get_field_value(field, field_name)
+			field_value = self.prepare_field_value(field_name, field, field_value, value_is_complex)
+			if field_value is not None:
+				d[field_key] = field_value
+
+		return d
+
+sentinel = object()
 class Settings(BaseSettings):
 	"""Base class for instances of configuration. Define things with @configoption and get a parser, then update config.values
 
@@ -93,12 +138,26 @@ class Settings(BaseSettings):
 		'env_file_encoding': 'utf-8',
 		'env_prefix': 'MEOW_LAUNCHER_',
 		'validate_assignment': True,
+		'populate_by_name': True,
 	}
 
-	# @classmethod
-	# def customize_sources(cls, _init_settings):
-	# 	pass
-	# TODO: Need an ini file settings source
+	@classmethod
+	def settings_customise_sources(
+		cls,
+		settings_cls: type[BaseSettings],
+		init_settings: PydanticBaseSettingsSource,
+		env_settings: PydanticBaseSettingsSource,
+		dotenv_settings: PydanticBaseSettingsSource,
+		file_secret_settings: PydanticBaseSettingsSource,
+	) -> tuple[PydanticBaseSettingsSource, ...]:
+		# Not actually sure why settings_cls is there, if it's always just cls? But that's just what pydantic_settings is cooking
+		return (
+			init_settings,
+			env_settings,
+			dotenv_settings,
+			IniSettingsSource(settings_cls, cls.section(), cls.options_file_name()),
+			file_secret_settings,
+		)
 
 	@classmethod
 	@abstractmethod
@@ -138,7 +197,8 @@ class Settings(BaseSettings):
 			description = v.description or (docstrings[k][0] if k in docstrings else None)
 			destination_in_namespace = f'{cls.__qualname__}.{k}'
 
-			default = v.get_default(call_default_factory=True)
+			# default = v.get_default(call_default_factory=True)
+			default = sentinel #It's not particularly useful to just have everything in the Namespace regardless of if it was provided or not
 			t = _remove_optional(v.annotation)
 			if t == bool:
 				group.add_argument(
@@ -243,7 +303,8 @@ class MainConfig(Settings):
 	simple_disambiguate: bool = True
 	"""Use a simpler method of disambiguating games with same names"""
 
-	normalize_name_case: Literal[0, 1, 2, 3] = 0
+	# normalize_name_case: Literal[0, 1, 2, 3] = 0
+	normalize_name_case: int = 0
 	"""Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)"""
 	# TODO: Should be an enum
 
