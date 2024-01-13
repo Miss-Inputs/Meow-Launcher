@@ -1,7 +1,7 @@
 import contextlib
 from typing import TYPE_CHECKING, Any, cast
-from meowlauncher.config import current_config
 
+from meowlauncher.config import current_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import (
 	company_name_overrides,
 )

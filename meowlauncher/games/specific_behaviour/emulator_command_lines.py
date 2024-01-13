@@ -22,7 +22,6 @@ from meowlauncher.games.common.emulator_command_line_helpers import (
 	_verify_supported_gb_mappers,
 	first_available_romset,
 	is_highscore_cart_available,
-	mame_base,
 	mame_driver,
 	mednafen_module_launch,
 	verify_mgba_mapper,
@@ -50,7 +49,7 @@ if TYPE_CHECKING:
 	from meowlauncher.emulator import Emulator
 	from meowlauncher.games.dos import DOSApp
 	from meowlauncher.games.mac import MacApp
-	from meowlauncher.games.mame.mame_game import MAMEGame
+	from meowlauncher.games.mame.mame_game import ArcadeGame
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 	PlatformConfigOptions = Mapping[str, TypeOfConfigValue]
@@ -2562,12 +2561,6 @@ def dosbox_x(app: 'DOSApp', emulator: 'Emulator') -> LaunchCommand:
 		args.append(f'{k}={v}')
 
 	return LaunchCommand(emulator_config.exe_path, [*args, app.path])
-
-
-# MAME itself
-def mame(game: 'MAMEGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	return LaunchCommand(emulator_config.exe_path, mame_base(game.machine.basename))
-
 
 # Libretro frontends
 def retroarch(

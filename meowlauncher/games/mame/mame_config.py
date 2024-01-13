@@ -42,9 +42,3 @@ class ArcadeMAMEConfig(Settings):
 
 	exclude_non_working: bool = False
 	'Skip any driver marked as not working'
-
-	use_xml_disk_cache: bool = True
-	"""Store machine XML files on disk
-	Maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)
-	Maybe it turns out _I'm_ the weird one for this being beneficial in my use case, and it shouldn't default to true? I dunno lol
-	Anyway TODO: This should be part of a Config associated with the MAME Emulator class, not the MAME GameSource class"""

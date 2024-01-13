@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 from functools import cache
-from typing import TYPE_CHECKING, Generic, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from meowlauncher.exceptions import EmulationNotSupportedError
 from meowlauncher.games.common.emulator_command_line_helpers import mednafen_module_launch
@@ -10,7 +10,7 @@ from meowlauncher.games.roms.rom_game import ROMGame
 from .game import Game
 from .runner import BaseRunnerConfig, HostPlatform, Runner
 
-EmulatorGameType_co = TypeVar('EmulatorGameType_co', bound=Game, covariant=True)
+EmulatorGameType = TypeVar('EmulatorGameType', bound=Game)
 if TYPE_CHECKING:
 	from collections.abc import Callable, Collection, Mapping
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 	]
 
 	GenericLaunchCommandFunc = Callable[
-		[EmulatorGameType_co, 'Emulator[EmulatorGameType_co]'], LaunchCommand
+		[EmulatorGameType, 'Emulator[EmulatorGameType]'], LaunchCommand
 	]
 	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame]
 
@@ -74,7 +74,7 @@ def _make_default_config(name: str) -> type[BaseEmulatorConfig]:
 	return EmulatorConfig
 
 
-class Emulator(Runner[EmulatorGameType_co], Generic[EmulatorGameType_co]):
+class Emulator(Runner[EmulatorGameType]):
 	@classmethod
 	def config_class(cls) -> type[BaseEmulatorConfig]:
 		return _make_default_config(cls.name())

@@ -32,7 +32,7 @@ from meowlauncher.util.utils import find_filename_tags_at_end, format_unit, plur
 if TYPE_CHECKING:
 	from meowlauncher.info import GameInfo
 
-	from .mame_game import MAMEGame
+	from .mame_game import ArcadeGame
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +161,7 @@ class DisplayCollection:
 		return _format_count(display.tag for display in self.displays if display.tag)
 
 
-def add_save_type(game: 'MAMEGame') -> None:
+def add_save_type(game: 'ArcadeGame') -> None:
 	if game.info.platform == 'Arcade':
 		has_memory_card = False
 		for media_slot in game.machine.media_slots:
@@ -219,7 +219,7 @@ def add_status(machine: Machine, game_info: 'GameInfo') -> None:
 		game_info.specific_info['MAME Imperfect Features'] = unemulated_features
 
 
-def add_metadata_from_category(game: 'MAMEGame', category: MachineCategory | None) -> None:
+def add_metadata_from_category(game: 'ArcadeGame', category: MachineCategory | None) -> None:
 	if not category:
 		# Not in catlist or user doesn't have catlist
 		return
@@ -236,7 +236,7 @@ def add_metadata_from_category(game: 'MAMEGame', category: MachineCategory | Non
 		game.info.categories = [catlist.category]
 
 
-def _add_info_from_catlist(game: 'MAMEGame') -> None:
+def _add_info_from_catlist(game: 'ArcadeGame') -> None:
 	category = get_category(game.machine.basename)
 	if not category and game.machine.has_parent:
 		category = get_category(cast(str, game.machine.parent_basename))
@@ -329,7 +329,7 @@ def _add_info_from_catlist(game: 'MAMEGame') -> None:
 	# Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
 
-def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
+def add_languages(game: 'ArcadeGame', name_tags: Sequence[str]) -> None:
 	languages = get_languages(game.machine.basename)
 	if languages:
 		game.info.languages = languages
@@ -349,7 +349,7 @@ def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
 				game.info.languages = {region_language}
 
 
-def add_images(game: 'MAMEGame') -> None:
+def add_images(game: 'ArcadeGame') -> None:
 	for image_name, config_key in image_config_keys.items():
 		image = get_image(config_key, game.machine.basename)
 		if image:
@@ -366,7 +366,7 @@ def add_images(game: 'MAMEGame') -> None:
 				game.info.images[image_name] = image
 
 
-def add_info(game: 'MAMEGame') -> None:
+def add_info(game: 'ArcadeGame') -> None:
 	add_images(game)
 	_add_info_from_catlist(game)
 
@@ -412,7 +412,7 @@ def add_info(game: 'MAMEGame') -> None:
 		game.info.specific_info['Display Tag'] = displays.display_tags
 
 
-def add_input_info(game: 'MAMEGame') -> None:
+def add_input_info(game: 'ArcadeGame') -> None:
 	game.info.input_info.set_inited()
 	if game.machine.input_element is None:
 		# Seems like this doesn't actually happen

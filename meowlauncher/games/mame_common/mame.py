@@ -3,37 +3,72 @@ import logging
 import re
 import subprocess
 from collections.abc import Iterator
-from pathlib import PurePath
+from functools import cached_property
 from typing import cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
+from meowlauncher.emulator import BaseEmulatorConfig, Emulator
+from meowlauncher.game import Game
+from meowlauncher.games.common.emulator_command_line_helpers import mame_base
+from meowlauncher.games.mame.mame_game import ArcadeGame
+from meowlauncher.games.mame.mame_inbuilt_game import MAMEInbuiltGame
+from meowlauncher.launch_command import LaunchCommand
 
 logger = logging.getLogger(__name__)
 
+# TODO: Potentially we want these methods to take a different path, or maybe Runner just needs an option to use a different config, etc
 
 
-class MAMEExecutable:
-	"""Represents a MAME executable that may or may not exist (raises MAMENotInstalledException in the constructor if it doesn't)"""
+class MachineNotFoundError(Exception):
+	"""This shouldn't be thrown unless I'm an idiot, but then of course that doesn't mean it won't happen
+	Although maybe it means I should use asserts instead"""
 
-	def __init__(self, path: PurePath = PurePath('mame')):
-		self.executable = path
-		self.version = self._get_version()
-		self._xml_cache_path = cache_dir.joinpath(self.version)
-		self._icons = None
 
-	def _get_version(self) -> str:
+class MAMENotInstalledError(Exception):
+	"""Not having MAME installed is a normal thing, even if suboptimal. So remember to always catch this one! Well, mostly a reminder to myself to actually test for that case"""
+
+
+class MAMEConfig(BaseEmulatorConfig):
+	@classmethod
+	def section(cls) -> str:
+		return 'MAME'
+
+	@classmethod
+	def prefix(cls) -> str:
+		return 'mame'
+
+	use_xml_disk_cache: bool = True
+	"""Store machine XML files on disk
+	Maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)
+	Maybe it turns out _I'm_ the weird one for this being beneficial in my use case, and it shouldn't default to true? I dunno lol"""
+
+
+class MAME(Emulator[Game]):
+	# We are generic with Game instead of ArcadeGame here, as it is more versatile than that
+	@classmethod
+	def exe_name(cls) -> str:
+		return 'mame'
+
+	@classmethod
+	def config_class(cls) -> type[MAMEConfig]:
+		return MAMEConfig
+
+	def __init__(self) -> None:
+		super().__init__()
+		self.config: MAMEConfig  # TODO: Is there really just no way to type that over and over and over again?
+		self._xml_cache_path = cache_dir / self.version
+
+	@cached_property
+	def version(self) -> str:
 		"""Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions"""
-		try:
-			version_proc = subprocess.run(
-				[self.executable, '-help'], stdout=subprocess.PIPE, text=True, check=True
-			)
-		except FileNotFoundError as e:
-			raise MAMENotInstalledError from e
+		version_proc = subprocess.run(
+			[self.exe_path, '-help'], stdout=subprocess.PIPE, text=True, check=True
+		)
 		return version_proc.stdout.splitlines()[0]
 
 	def _real_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
-		if mame_config.use_xml_disk_cache:
+		if self.config.use_xml_disk_cache:
 			logger.info(
 				'New MAME version found: %s; creating XML; this may take a while the first time it is run',
 				self.version,
@@ -41,7 +76,7 @@ class MAMEExecutable:
 			self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
 		with subprocess.Popen(
-			[self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+			[self.exe_path, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
 		) as proc:
 			# I'm doing what the documentation tells me to not do and effectively using proc.stdout.read
 			if not proc.stdout:
@@ -52,7 +87,7 @@ class MAMEExecutable:
 						my_copy = copy.copy(element)
 						machine_name = element.attrib['name']
 
-						if mame_config.use_xml_disk_cache:
+						if self.config.use_xml_disk_cache:
 							self._xml_cache_path.joinpath(machine_name + '.xml').write_bytes(
 								ElementTree.tostring(element)
 							)
@@ -61,7 +96,7 @@ class MAMEExecutable:
 			except ElementTree.ParseError:
 				# Hmm, this doesn't show us where the error really is
 				logger.exception('baaagh XML error in listxml')
-		if mame_config.use_xml_disk_cache:
+		if self.config.use_xml_disk_cache:
 			# Guard against the -listxml process being interrupted and screwing up everything, by only manually specifying it is done when we say it is done… wait does this work if it's an iterator? I guess it must if this exists
 			self._xml_cache_path.joinpath('is_done').touch()
 
@@ -73,13 +108,13 @@ class MAMEExecutable:
 			yield driver_name, ElementTree.parse(cached_file).getroot()
 
 	def iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
-		if not mame_config.use_xml_disk_cache or self._xml_cache_path.joinpath('is_done').is_file():
+		if self.config.use_xml_disk_cache and self._xml_cache_path.joinpath('is_done').is_file():
 			yield from self._cached_iter_mame_entire_xml()
 		else:
 			yield from self._real_iter_mame_entire_xml()
 
 	def get_mame_xml(self, driver: str) -> ElementTree.Element:
-		if mame_config.use_xml_disk_cache:
+		if self.config.use_xml_disk_cache:
 			cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
 			try:
 				return ElementTree.parse(cache_file_path).getroot()
@@ -88,7 +123,7 @@ class MAMEExecutable:
 
 		try:
 			proc = subprocess.run(
-				[self.executable, '-listxml', driver],
+				[self.exe_path, '-listxml', driver],
 				stdout=subprocess.PIPE,
 				stderr=subprocess.DEVNULL,
 				check=True,
@@ -105,7 +140,7 @@ class MAMEExecutable:
 
 	def listsource(self) -> Iterator[tuple[str, str]]:
 		proc = subprocess.run(
-			[self.executable, '-listsource'],
+			[self.exe_path, '-listsource'],
 			stdout=subprocess.PIPE,
 			stderr=subprocess.DEVNULL,
 			text=True,
@@ -121,7 +156,7 @@ class MAMEExecutable:
 	def verifysoftlist(self, software_list_name: str) -> Iterator[str]:
 		# Unfortunately it seems we cannot verify an individual software, which would probably take less time
 		proc = subprocess.run(
-			[self.executable, '-verifysoftlist', software_list_name],
+			[self.exe_path, '-verifysoftlist', software_list_name],
 			text=True,
 			stdout=subprocess.PIPE,
 			stderr=subprocess.DEVNULL,
@@ -129,11 +164,11 @@ class MAMEExecutable:
 		)
 		# Don't check return code - it'll return 2 if one software in the list is bad
 
+		software_verify_matcher = re.compile(
+			rf'romset {software_list_name}:(.+) is (?:good|best available)$'
+		)
 		for line in proc.stdout.splitlines():
 			# Bleh
-			software_verify_matcher = re.compile(
-				rf'romset {software_list_name}:(.+) is (?:good|best available)$'
-			)
 			line_match = software_verify_matcher.match(line)
 			if line_match:
 				yield line_match[1]
@@ -142,7 +177,7 @@ class MAMEExecutable:
 		try:
 			# Note to self: Stop wasting time thinking you can make this faster
 			subprocess.run(
-				[self.executable, '-verifyroms', basename],
+				[self.exe_path, '-verifyroms', basename],
 				stdout=subprocess.DEVNULL,
 				stderr=subprocess.DEVNULL,
 				check=True,
@@ -151,5 +186,13 @@ class MAMEExecutable:
 			return False
 		else:
 			return True
+
+	def get_game_command(self, game: Game) -> 'LaunchCommand':
+		# TODO: Launch ArcadeGame and MAMEInbuiltGame
+		if isinstance(game, ArcadeGame):
+			return LaunchCommand(self.exe_path, mame_base(game.machine.basename))
+		if isinstance(game, MAMEInbuiltGame):
+			return LaunchCommand(self.exe_path, mame_base(game.machine_name, bios=game.bios_name))
+		raise TypeError(f"Don't know how to launch {game}")
 
 	# Other frontend commands: listfull, listclones, listbrothers, listcrc, listroms, listsamples, verifysamples, romident, listdevices, listslots, listmedia, listsoftware, verifysoftware, getsoftlist

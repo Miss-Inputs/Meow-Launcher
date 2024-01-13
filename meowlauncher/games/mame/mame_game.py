@@ -6,12 +6,12 @@ from meowlauncher.info import Date
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.machine import Machine
+	from meowlauncher.games.mame_common.mame import MAME
 
-	from .mame import ConfiguredMAME
 	from .mame_config import ArcadeMAMEConfig
 
 
-class MAMEGame(Game):
+class ArcadeGame(Game):
 	"""Wrapper around Machine to add info fields and stuff I guess
 	Hmm… the class design here is probably not that good, but eh, it works I guess"""
 
@@ -92,8 +92,8 @@ class MAMEGame(Game):
 
 
 class MAMELauncher(EmulatorLauncher):
-	def __init__(self, game: MAMEGame, emulator: 'ConfiguredMAME') -> None:
-		self.game: MAMEGame = game
+	def __init__(self, game: ArcadeGame, emulator: 'MAME') -> None:
+		self.game: ArcadeGame = game
 		super().__init__(game, emulator)
 
 	@property

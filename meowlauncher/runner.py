@@ -58,10 +58,10 @@ def _make_default_config(name: str) -> type[BaseRunnerConfig]:
 	return RunnerConfig
 
 
-GameType_co = TypeVar('GameType_co', bound=Game, covariant=True)
+GameType = TypeVar('GameType', bound=Game)
 
 
-class Runner(ABC, Generic[GameType_co]):
+class Runner(ABC, Generic[GameType]):
 	"""Base class for a runner (an emulator, compatibility layer, anything that runs a thing)"""
 
 	def __init__(self) -> None:
@@ -134,7 +134,7 @@ class Runner(ABC, Generic[GameType_co]):
 			command.set_env_var('MESA_GL_VERSION_OVERRIDE', '4.3')
 		return command
 
-	def get_game_command(self, game: GameType_co) -> 'LaunchCommand':
+	def get_game_command(self, game: GameType) -> 'LaunchCommand':
 		"""Return a LaunchCommand for launching this game with this runner, or raise EmulationNotSupportedError, etc"""
 		raise EmulationNotSupportedError(
 			f'Default implementation of get_game_command does not launch anything, argument = {game}'

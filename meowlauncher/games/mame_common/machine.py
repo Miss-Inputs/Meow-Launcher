@@ -25,7 +25,7 @@ from .mame_support_files import (
 from .mame_utils import consistentify_manufacturer, untangle_manufacturer
 
 if TYPE_CHECKING:
-	from .mame_executable import MAMEExecutable
+	from .mame import MAME
 
 
 class MAMEStatus(Enum):
@@ -62,7 +62,8 @@ _bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
 
 
 class Machine:
-	def __init__(self, xml: ElementTree.Element, exe: 'MAMEExecutable'):
+	def __init__(self, xml: ElementTree.Element, exe: 'MAME'):
+		"""We need the MAME executable this came from, so it can get the XML for the parent too"""
 		self.xml = xml
 		self._exe = exe
 		# This can't be a property because we might need to override it later, so stop trying to do that
@@ -511,16 +512,16 @@ class Machine:
 		return catlist.is_pinball
 
 
-def iter_machines(exe: 'MAMEExecutable') -> Iterator[Machine]:
+def iter_machines(exe: 'MAME') -> Iterator[Machine]:
 	for _, xml in exe.iter_mame_entire_xml():
 		yield Machine(xml, exe)
 
 
-def get_machine(driver: str, exe: 'MAMEExecutable') -> Machine:
+def get_machine(driver: str, exe: 'MAME') -> Machine:
 	return Machine(exe.get_mame_xml(driver), exe)
 
 
-def iter_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterator[Machine]:
+def iter_machines_from_source_file(source_file: str, exe: 'MAME') -> Iterator[Machine]:
 	for machine_name, source_file_with_ext in exe.listsource():
 		if PurePath(source_file_with_ext).stem == source_file:
 			yield get_machine(machine_name, exe)

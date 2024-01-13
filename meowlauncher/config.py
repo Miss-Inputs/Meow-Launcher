@@ -17,12 +17,12 @@ from meowlauncher.version import __version__
 if TYPE_CHECKING:
 	from argparse import _ArgumentGroup  # why did they make this private, anyway?
 
-T_co = TypeVar('T_co', bound=Settings, covariant=True)
+SettingsType_co = TypeVar('SettingsType_co', bound=Settings, covariant=True)
 
 @runtime_checkable
-class HasConfigClass(Protocol[T_co]):
+class HasConfigClass(Protocol[SettingsType_co]):
 	@classmethod
-	def config_class(cls) -> type[T_co]:
+	def config_class(cls) -> type[SettingsType_co]:
 		...
 
 
@@ -150,7 +150,7 @@ def _setup_config() -> dict[type, Settings]:
 __current_config = _setup_config()
 
 
-def current_config(cls: type[T_co] | HasConfigClass[T_co]) -> T_co:
+def current_config(cls: type[SettingsType_co] | HasConfigClass[SettingsType_co]) -> SettingsType_co:
 	cls_ = cls.config_class() if isinstance(cls, HasConfigClass) else cls
 	if cls_ not in __current_config:
 		__current_config[cls_] = cls_()

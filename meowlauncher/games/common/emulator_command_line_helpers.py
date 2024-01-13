@@ -3,13 +3,13 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher.exceptions import EmulationNotSupportedError
-from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
 	from meowlauncher.emulator import Emulator, GenericLaunchCommandFunc
 	from meowlauncher.game import Game
+	from meowlauncher.games.mame_common.mame import MAME
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 
@@ -157,14 +157,10 @@ def mame_driver(
 	return LaunchCommand(emulator_config.exe_path, args)
 
 
-def first_available_romset(driver_list: 'Collection[str]') -> str | None:
-	"""TODO: This should be able to take MAMEExecutable as an argument, though this requires refactoring for launch_command_func to take an Emulator or rather ConfiguredEmulator instead of EmulatorConfig"""
-	if not default_mame_executable:
+def first_available_romset(driver_list: 'Collection[str]', mame: 'MAME') -> str | None:
+	if not mame.is_path_valid:
 		return None
-	for driver in driver_list:
-		if default_mame_executable.verifyroms(driver):
-			return driver
-	return None
+	return next((driver for driver in driver_list if mame.verifyroms(driver)), None)
 
 
 def simple_emulator(args: 'Sequence[str] | None' = None) -> 'GenericLaunchCommandFunc[ROMGame]':

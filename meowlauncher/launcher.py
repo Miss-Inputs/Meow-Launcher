@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 class Launcher(ABC):
 	"""Base class for Launcher - the actual output of Meow Launcher, which is generally something that launches a game, but may also include sub-games or variations"""
 
-	def __init__(self, game: 'Game', runner: 'Runner') -> None:
+	def __init__(self, game: 'Game', runner: 'Runner[Game]') -> None:
 		self.game = game
 		self.runner = runner
 

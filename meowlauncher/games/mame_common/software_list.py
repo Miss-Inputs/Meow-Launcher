@@ -23,7 +23,7 @@ from .mame_types import ROMStatus
 from .mame_utils import consistentify_manufacturer, image_config_keys
 
 if TYPE_CHECKING:
-	from .mame_executable import MAMEExecutable
+	from .mame import MAME
 
 
 SoftwareCustomMatcher = Callable[
@@ -615,7 +615,7 @@ class SoftwareList:
 
 	_verifysoftlist_result = None
 
-	def iter_available_software(self, mame_executable: 'MAMEExecutable') -> Iterator[Software]:
+	def iter_available_software(self, mame: 'MAME') -> Iterator[Software]:
 		# Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
 
 		for software_xml in self.xml.iter('software'):
@@ -626,7 +626,7 @@ class SoftwareList:
 				continue
 			else:
 				if self._verifysoftlist_result is None:
-					self._verifysoftlist_result = mame_executable.verifysoftlist(self.name)
+					self._verifysoftlist_result = mame.verifysoftlist(self.name)
 				if software.name in self._verifysoftlist_result:
 					yield software
 

@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 	from .game import Game
 
 class EmulatorLauncher(Launcher, ABC):
-	def __init__(self, game: 'Game', emulator: 'Emulator', platform_config: 'Mapping[str, TypeOfConfigValue] | None'=None) -> None:
+	def __init__(self, game: 'Game', emulator: 'Emulator[Game]', platform_config: 'Mapping[str, TypeOfConfigValue] | None'=None) -> None:
 		self.game: 'Game' = game
-		self.runner: 'Emulator' = emulator
+		self.runner: 'Emulator[Game]' = emulator
 		self.platform_config = platform_config if platform_config else {}
 		super().__init__(game, emulator)
 

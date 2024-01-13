@@ -4,13 +4,7 @@ import functools
 from pathlib import Path
 
 from .mame_configuration import MAMEConfiguration
-from .mame_executable import MAMEExecutable, MAMENotInstalledError
 
-default_mame_executable: MAMEExecutable | None
-try:
-	default_mame_executable = MAMEExecutable()
-except MAMENotInstalledError:
-	default_mame_executable = None
 default_mame_configuration: MAMEConfiguration | None
 try:
 	default_mame_configuration = MAMEConfiguration()

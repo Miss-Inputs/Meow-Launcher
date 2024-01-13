@@ -10,7 +10,6 @@ from collections.abc import Collection, Mapping, Sequence
 from meowlauncher.common_types import MediaType
 from meowlauncher.exceptions import EmulationNotSupportedError
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
-from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import Software, get_software_list_by_name
 from meowlauncher.info import GameInfo
 from meowlauncher.launch_command import LaunchCommand

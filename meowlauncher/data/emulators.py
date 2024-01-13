@@ -36,7 +36,7 @@ if TYPE_CHECKING:
 	from collections.abc import Collection, MutableSequence, Sequence
 
 	from meowlauncher.emulated_game import EmulatedGame
-	from meowlauncher.games.mame.mame_game import MAMEGame
+	from meowlauncher.games.mame.mame_game import ArcadeGame
 
 
 class BsnesConfig(BaseEmulatorConfig):
