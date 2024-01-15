@@ -1,17 +1,11 @@
 """Helpers for data/emulators.py to define emulators that don't need anything tricky"""
-from collections.abc import Callable, Collection, Mapping, Sequence
+from collections.abc import Callable, Collection, Sequence
 from functools import cache
 from pathlib import PurePath
 from typing import TYPE_CHECKING
 
-from meowlauncher.emulator import (
-	BaseEmulatorConfig,
-	Emulator,
-	EmulatorGameType_co,
-	EmulatorStatus,
-	StandardEmulator,
-)
-from meowlauncher.exceptions import EmulationNotSupportedError
+from meowlauncher.emulator import BaseEmulatorConfig, EmulatorStatus, LibretroCore, StandardEmulator
+from meowlauncher.exceptions import EmulationNotSupportedError, ExtensionNotSupportedError
 from meowlauncher.games.common.emulator_command_line_helpers import (
 	mame_driver_base,
 	mednafen_module_launch,
@@ -22,17 +16,9 @@ from meowlauncher.games.roms.rom_game import ROMGame
 from .launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
-	from meowlauncher.config_types import TypeOfConfigValue
 	from meowlauncher.game import Game
 	from meowlauncher.runner import HostPlatform
 
-	LibretroFrontendLaunchCommandFunc = Callable[
-		[Game, Mapping[str, TypeOfConfigValue]], LaunchCommand
-	]
-
-	GenericLaunchCommandFunc = Callable[
-		[EmulatorGameType_co, 'Emulator[EmulatorGameType_co]'], LaunchCommand
-	]
 	ROMGameLaunchFunc = Callable[[ROMGame, 'StandardEmulator'], LaunchCommand]
 _standalone_emulator_types: dict[str, type[StandardEmulator]] = {}
 
@@ -91,8 +77,8 @@ def standalone_emulator(
 				return LaunchCommand(self.exe_path, launch_game_func)
 			return launch_game_func(game, self)
 
-		@classmethod
-		def info_name(cls) -> str:
+		@property
+		def info_name(self) -> str:
 			return info_name if info_name else name
 
 		def check_game(self, game: ROMGame) -> None:
@@ -346,3 +332,42 @@ def simple_mega_drive_emulator(
 		host_platform,
 		check_game_func=check_func,
 	)
+
+
+_cores: dict[str, type[LibretroCore]] = {}
+
+
+def libretro_core(
+	name: str,
+	lib_name: str,
+	check_func: 'Callable[[ROMGame, LibretroCore], None] | None',
+	supported_extensions: Collection[str],
+	status: EmulatorStatus = EmulatorStatus.Good,
+) -> type[LibretroCore]:
+	if name in _cores:
+		return _cores[name]
+
+	class _LibretroCore(LibretroCore):
+		@classmethod
+		def name(cls) -> str:
+			return f'{name} (libretro)'
+
+		@classmethod
+		def exe_name(cls) -> str:
+			return lib_name
+
+		def check_game(self, game: 'Game'):
+			if not isinstance(game, ROMGame):
+				raise TypeError(f'{self} only supports ROMGame, not {type(game)}')
+			if game.rom.extension not in supported_extensions:
+				raise ExtensionNotSupportedError(
+					f'{self} does not support extension {game.rom.extension}'
+				)
+			if check_func:
+				check_func(game, self)
+
+		@classmethod
+		def status(cls) -> EmulatorStatus:
+			return status
+
+	return _cores.setdefault(name, _LibretroCore)

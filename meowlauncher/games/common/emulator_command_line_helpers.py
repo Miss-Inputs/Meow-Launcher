@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def verify_supported_gb_mappers(
-	game: 'ROMGame', supported_mappers: Collection[str], detected_mappers: Collection[str]
+	game: 'ROMGame', supported_mappers: Collection[str], detectable_mappers: Collection[str]
 ) -> None:
 	mapper = game.info.specific_info.get('Mapper', None)
 
@@ -27,12 +27,12 @@ def verify_supported_gb_mappers(
 		# Literally everything will work with this
 		return
 
-	if game.info.specific_info.get('Override Mapper?', False) and mapper not in detected_mappers:
+	if game.info.specific_info.get('Override Mapper?', False) and mapper not in detectable_mappers:
 		# If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
 		# But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
 		raise EmulationNotSupportedError(f'Overriding the mapper to {mapper} is not supported')
 
-	if mapper not in supported_mappers and mapper not in detected_mappers:
+	if mapper not in supported_mappers and mapper not in detectable_mappers:
 		raise EmulationNotSupportedError(f'Mapper {mapper} not supported')
 
 

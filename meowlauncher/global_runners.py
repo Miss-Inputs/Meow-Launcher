@@ -4,17 +4,17 @@ from functools import cached_property
 from pathlib import Path, PurePath, PureWindowsPath
 from typing import TYPE_CHECKING
 
-from meowlauncher.game import Game
 from meowlauncher.games.scummvm.scummvm_game import ScummVMGame
 from meowlauncher.launch_command import LaunchCommand
 
-from .runner import BaseRunnerConfig, Runner
+from .runnable import BaseRunnableConfig
+from .runner import Runnable, Runner
 
 if TYPE_CHECKING:
-	pass
+	from meowlauncher.game import Game
 
 
-class WineConfig(BaseRunnerConfig):
+class WineConfig(BaseRunnableConfig):
 	@classmethod
 	def section(cls) -> str:
 		return 'Wine'
@@ -27,7 +27,7 @@ class WineConfig(BaseRunnerConfig):
 	"""WINEPREFIX env var"""
 
 
-class Wine(Runner[Game]):
+class Wine(Runnable):
 	def __init__(self) -> None:
 		super().__init__()
 		self.config: WineConfig
@@ -43,7 +43,7 @@ class Wine(Runner[Game]):
 	def launch_windows_exe(
 		self,
 		exe_path: PurePath,
-		exe_args: Sequence[str],
+		exe_args: Sequence[str | PurePath],
 		working_directory: PureWindowsPath | None = None,
 	) -> LaunchCommand:
 		env_vars = None
@@ -58,7 +58,7 @@ class Wine(Runner[Game]):
 		return LaunchCommand(self.exe_path, args, env_vars)
 
 
-class ScummVMConfig(BaseRunnerConfig):
+class ScummVMConfig(BaseRunnableConfig):
 	"""Config options relating to ScummVM as a GameSource and a Runner"""
 
 	@classmethod
@@ -76,7 +76,7 @@ class ScummVMConfig(BaseRunnerConfig):
 	"""Path to scummvm.ini, if not the default"""
 
 
-class ScummVM(Runner):
+class ScummVM(Runner['Game']):
 	def __init__(self) -> None:
 		super().__init__()
 		self.config: ScummVMConfig

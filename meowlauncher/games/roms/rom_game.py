@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
-	from meowlauncher.emulator import StandardEmulator
+	from meowlauncher.emulator import LibretroCoreWithFrontend, StandardEmulator
 
 
 def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str) -> bool:
@@ -107,10 +107,13 @@ class ROMLauncher(EmulatorLauncher):
 	)  # You may notice that it doesn't even have spaces… just in case
 
 	def __init__(
-		self, game: ROMGame, emulator: 'StandardEmulator', platform_config: 'PlatformConfig'
+		self,
+		game: ROMGame,
+		emulator: 'StandardEmulator | LibretroCoreWithFrontend',
+		platform_config: 'PlatformConfig',
 	) -> None:
 		self.game: ROMGame = game
-		self.runner: StandardEmulator = emulator
+		self.runner: 'StandardEmulator | LibretroCoreWithFrontend' = emulator
 		super().__init__(game, emulator, platform_config.options)
 
 	@property

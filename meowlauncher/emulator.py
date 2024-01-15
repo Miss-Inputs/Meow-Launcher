@@ -2,13 +2,20 @@ from abc import abstractmethod
 from collections.abc import Collection
 from enum import Enum
 from functools import cache
-from typing import TypeVar
+from itertools import chain
+from pathlib import Path, PurePath
+from typing import TYPE_CHECKING, TypeVar
 
+from meowlauncher.config import main_config
 from meowlauncher.exceptions import ExtensionNotSupportedError
 from meowlauncher.games.roms.rom_game import ROMGame
 
 from .game import Game
-from .runner import BaseRunnerConfig, Runner
+from .runnable import BaseRunnableConfig, Runnable
+from .runner import Runner
+
+if TYPE_CHECKING:
+	from meowlauncher.launch_command import LaunchCommand
 
 EmulatorGameType_co = TypeVar('EmulatorGameType_co', bound=Game, covariant=True)
 
@@ -25,8 +32,8 @@ class EmulatorStatus(Enum):
 	Borked = 1
 
 
-class BaseEmulatorConfig(BaseRunnerConfig):
-	"""Not really much different than BaseRunnerConfig other than the default config_file_name, but might make things easier"""
+class BaseEmulatorConfig(BaseRunnableConfig):
+	"""Not really much different than BaseRunnableConfig other than the default config_file_name, but might make things easier"""
 
 	@classmethod
 	def section(cls) -> str:
@@ -68,10 +75,11 @@ class Emulator(Runner[EmulatorGameType_co]):
 	def status(cls) -> EmulatorStatus:
 		return EmulatorStatus.Good
 
-	@classmethod
-	def info_name(cls) -> str:
-		"""Return a name which should be added to the Emulator key of a launcher's info"""
-		return cls.name()
+	@property
+	def info_name(self) -> str:
+		"""Return a name which should be added to the Emulator key of a launcher's info
+		Basically, serves as the name after it's constructed"""
+		return self.name()
 
 
 class StandardEmulator(Emulator[ROMGame]):
@@ -108,56 +116,79 @@ class StandardEmulator(Emulator[ROMGame]):
 			)
 
 
-class LibretroCore(Emulator[Game]):
-	pass
-	# def __init__(
-	# 	self,
-	# 	name: str,
-	# 	status: EmulatorStatus,
-	# 	default_exe_name: str,
-	# 	launch_command_func: 'GenericLaunchCommandFunc[Game] | None',
-	# 	supported_extensions: 'Collection[str]',
-	# 	configs=None,
-	# ):
-	# 	self.supported_extensions = supported_extensions
+class LibretroCore(Runnable):
+	@classmethod
+	def status(cls) -> EmulatorStatus:
+		return EmulatorStatus.Good
 
-	# 	# TODO: XXX: main_config.libretro_cores_directory (need to screw around with circular imports)
-	# 	# Maybe resolve it somewhere else, since this would potentially be able to have its own Settings class
-	# 	default_path = default_exe_name + '_libretro.so'
-	# 	super().__init__(
-	# 		name,
-	# 		status,
-	# 		str(default_path),
-	# 		launch_command_func,
-	# 		config_name=name + ' (libretro)',
-	# 		configs=configs,
-	# 	)
+	@property
+	def exe_path(self) -> Path:
+		return (
+			self.config.path
+			if self.config.path
+			else main_config.libretro_cores_directory / f'{self.exe_name()}_libretro.so'
+		)
 
-	# @property
-	# def friendly_type_name(self) -> str:
-	# 	return 'libretro core'
+	@property
+	def is_path_valid(self) -> bool:
+		return self.exe_path.is_file()
+
+	@classmethod
+	def config_class(cls) -> type[BaseEmulatorConfig]:
+		return _make_default_config(cls.name())
+
+	def check_game(self, game: Game):
+		"""Override this if you need to check compatibility for a game"""
 
 
-class LibretroFrontend(Runner[Game]):
-	pass
-	# def __init__(
-	# 	self,
-	# 	name: str,
-	# 	status: EmulatorStatus,
-	# 	default_exe_name: str,
-	# 	launch_command_func: 'LibretroFrontendLaunchCommandFunc',
-	# 	supported_compression: 'Collection[str] | None' = None,
-	# 	host_platform: HostPlatform = HostPlatform.Linux,
-	# ):
-	# 	self._name = name
-	# 	self.status = status
-	# 	self.default_exe_name = default_exe_name
-	# 	self.launch_command_func = launch_command_func
-	# 	self.supported_compression = supported_compression if supported_compression else ()
-	# 	self.config_name = name  # emulator_configs needs this, as we have decided that frontends can have their own config
-	# 	self.configs = {}  # TODO: XXX: this is just here to make it work for now
-	# 	super().__init__(host_platform)
+class LibretroFrontend(Runnable):
+	@classmethod
+	def status(cls) -> EmulatorStatus:
+		return EmulatorStatus.Good
 
-	# @property
-	# def name(self) -> str:
-	# 	return self._name
+	@abstractmethod
+	def get_command(self, core_path: PurePath, game: 'Game | None' = None) -> 'LaunchCommand':
+		"""Return a command that launches core_path, and game if there is a game to launch"""
+
+	@classmethod
+	@abstractmethod
+	def supported_compression(cls) -> Collection[str]:
+		"""Extensions for archives that this fronted will uncompress for games"""
+
+	@classmethod
+	def config_class(cls) -> type[BaseEmulatorConfig]:
+		# Ensure we get a BaseEmulatorConfig instead, to read from emulators.ini, even if that's kind of weird
+		return _make_default_config(cls.name())
+
+
+class LibretroCoreWithFrontend(Emulator[Game]):
+	def __init__(self, frontend: LibretroFrontend, core: LibretroCore) -> None:
+		self.frontend = frontend
+		self.core = core
+		self._name = f'{frontend} + {core.name().removesuffix(" (libretro)")}'
+		super().__init__()
+		for k, v in chain(self.frontend.config, self.core.config):
+			setattr(self.config, k, v)
+
+	@property
+	def info_name(self) -> str:
+		return self._name
+
+	@property
+	def is_available(self) -> bool:
+		return self.frontend.is_available and self.core.is_available
+
+	@classmethod
+	def exe_name(cls) -> str:
+		raise NotImplementedError(
+			'Attempting to get exe_name of combined core + frontend, which should not happen'
+		)
+
+	def supports_compressed_extension(self, extension: str) -> bool:
+		return extension in self.frontend.supported_compression()
+
+	def check_game(self, game: Game) -> None:
+		self.core.check_game(game)
+
+	def get_game_command(self, game: Game) -> 'LaunchCommand':
+		return self.frontend.get_command(self.core.exe_path, game)

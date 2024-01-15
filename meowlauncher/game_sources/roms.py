@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from meowlauncher.config import main_config
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import libretro_cores_by_name, standalone_emulators_by_name
-from meowlauncher.emulator import LibretroCore, StandardEmulator
+from meowlauncher.emulator import LibretroCore, LibretroCoreWithFrontend, StandardEmulator
 from meowlauncher.exceptions import (
 	EmulationNotSupportedError,
 	ExtensionNotSupportedError,
@@ -56,7 +56,9 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 	@property
 	def is_available(self) -> bool:
-		return self.platform_config.is_available and any(emu.is_available for emu in self.iter_chosen_emulators())
+		return self.platform_config.is_available and any(
+			emu.is_available for emu in self.iter_chosen_emulators()
+		)
 
 	def iter_roms_and_subfolders(self) -> 'Iterator[tuple[ROM, Sequence[str]]]':
 		platform = self.platform()
@@ -164,24 +166,9 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			except Exception:
 				logger.exception('Could not load %s as game', rom)
 
-	def try_emulator(self, game: ROMGame, chosen_emulator: StandardEmulator) -> 'ROMLauncher':
-		# potential_emulator_config = _get_emulator_config(chosen_emulator)
-		# potential_emulator: ConfiguredStandardEmulator
-		# if isinstance(chosen_emulator, LibretroCore):
-		# 	if (
-		# 		not main_config.libretro_frontend
-		# 	):  # TODO: This should be in the config of LibretroCore actually, see secret evil plan
-		# 		raise EmulationNotSupportedError('Must choose a frontend to run libretro cores')
-		# 	frontend_config = emulator_configs[main_config.libretro_frontend]
-		# 	frontend = libretro_frontends[main_config.libretro_frontend]
-		# 	potential_emulator = LibretroCoreWithFrontend(
-		# 		chosen_emulator, potential_emulator_config, frontend, frontend_config
-		# 	)
-		# else:
-		# 	potential_emulator = ConfiguredStandardEmulator(
-		# 		chosen_emulator, potential_emulator_config
-		# 	)
-
+	def try_emulator(
+		self, game: ROMGame, chosen_emulator: StandardEmulator | LibretroCoreWithFrontend
+	) -> 'ROMLauncher':
 		chosen_emulator.check_game(game)
 
 		return ROMLauncher(game, chosen_emulator, self.platform_config)

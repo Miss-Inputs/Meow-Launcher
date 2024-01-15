@@ -2,15 +2,14 @@ import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, TypeVar
 
-from meowlauncher.config import current_config
-from meowlauncher.emulator import Emulator
+from meowlauncher.config import current_config, main_config
+from meowlauncher.emulator import Emulator, LibretroCore, LibretroCoreWithFrontend
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping, Sequence
 
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
-	from meowlauncher.emulator import LibretroCore
 	from meowlauncher.game import Game
 	from meowlauncher.launcher import Launcher
 	from meowlauncher.settings.settings import Settings
@@ -129,16 +128,16 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 		self.platform_config = platform_config
 		self.chosen_emulators = tuple(self.iter_chosen_emulators())
 
-	def _parse_chosen_emulator(self, emulator_name: str):
+	def _parse_chosen_emulator(self, emulator_name: str) -> type[LibretroCore] | type[EmulatorType_co] | None:
 		libretro_core_types = self.libretro_core_types()
-		cls = (
-			libretro_core_types.get(emulator_name.removesuffix(' (libretro)'))
-			if (libretro_core_types and emulator_name.endswith(' (libretro)'))
-			else self.emulator_types().get(emulator_name)
-		)
-
-		if not cls and libretro_core_types:
+		cls: type[LibretroCore | EmulatorType_co] | None
+		if libretro_core_types and emulator_name.endswith(' (libretro)'):
 			cls = libretro_core_types.get(emulator_name)
+		else:
+			cls = self.emulator_types().get(emulator_name)
+			if libretro_core_types and not cls:
+				cls = libretro_core_types.get(f'{emulator_name} (libretro)')
+
 		if not cls:
 			logger.warning(
 				'Config warning: %s is not a known emulator, specified in %s',
@@ -155,12 +154,27 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 
 		return cls
 
-	def iter_chosen_emulators(self) -> 'Iterator[EmulatorType_co | LibretroCore]':
+	def iter_chosen_emulators(self) -> 'Iterator[EmulatorType_co | LibretroCoreWithFrontend]':
 		"""Gets the actual emulator objects for the user's choices, in order"""
 		for emulator_name in self.platform_config.chosen_emulators:
 			cls = self._parse_chosen_emulator(emulator_name)
 			if cls:
-				yield cls()
+				if issubclass(cls, LibretroCore):
+					from meowlauncher.data.emulators import libretro_frontends
+
+					core = cls()
+					frontend_class = next(
+						(
+							f
+							for f in libretro_frontends
+							if f.name() == main_config.libretro_frontend
+						),
+						None,
+					)
+					if frontend_class:
+						yield LibretroCoreWithFrontend(frontend_class(), core)
+				else:
+					yield cls()
 
 
 __doc__ = GameSource.__doc__ or GameSource.__name__

@@ -47,8 +47,9 @@ from meowlauncher.util.region_info import TVSystem
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import TypeOfConfigValue
-	from meowlauncher.data.emulators import DOSBoxStaging
-	from meowlauncher.emulator import BaseMAMEDriver, Emulator, StandardEmulator
+	from meowlauncher.data.emulators import BsnesLibretro, DOSBoxStaging
+	from meowlauncher.emulator import Emulator, LibretroCore, StandardEmulator
+	from meowlauncher.emulator_helpers import BaseMAMEDriver
 	from meowlauncher.games.dos import DOSApp
 	from meowlauncher.games.mac import MacApp
 	from meowlauncher.games.mame.mame_game import ArcadeGame
@@ -763,11 +764,9 @@ def mame_msx2plus(game: 'ROMGame', emulator: 'BaseMAMEDriver') -> LaunchCommand:
 	return mame_driver_base(game, emulator, system, slot, slot_options, has_keyboard=True)
 
 
-def mame_n64(game: 'ROMGame', emulator: 'BaseMAMEDriver') -> LaunchCommand:
+def mame_n64_check(game: 'ROMGame', _):
 	if game.info.specific_info.get('TV Type') == TVSystem.PAL:
 		raise EmulationNotSupportedError('NTSC only')
-
-	return mame_driver_base(game, emulator, 'n64', 'cart')
 
 
 def mame_nes(game: 'ROMGame', emulator: 'BaseMAMEDriver') -> LaunchCommand:
@@ -1961,17 +1960,18 @@ def medusa(game: 'ROMGame', emulator: 'StandardEmulator') -> LaunchCommand:
 		verify_mgba_mapper(game)
 
 	args = ['-f']
-	if game.platform.name != 'DS':
+	if (game.platform.name != 'DS') and (
+		not game.info.specific_info.get('Nintendo Logo Valid?', True)
+	):
 		# (for GB/GBA stuff only, otherwise BIOS is mandatory whether you like it or not)
-		if not game.info.specific_info.get('Nintendo Logo Valid?', True):
-			args.append('-C')
-			args.append('useBios=0')
+		args.append('-C')
+		args.append('useBios=0')
 
 	args.append(rom_path_argument)
 	return LaunchCommand(emulator.exe_path, args)
 
 
-def melonds(game: 'ROMGame', emulator: 'StandardEmulator') -> LaunchCommand:
+def melonds_check(game: 'ROMGame', _):
 	if game.platform.name == 'DSi':
 		raise EmulationNotSupportedError(
 			"DSi is too experimental so let's say for all intents and purposes it doesn't work"
@@ -1980,16 +1980,20 @@ def melonds(game: 'ROMGame', emulator: 'StandardEmulator') -> LaunchCommand:
 		# Maybe it is if you use an iQue firmware?
 		raise EmulationNotSupportedError('iQue DS not supported')
 
+
+def melonds(_, emulator: 'StandardEmulator') -> LaunchCommand:
 	# No argument for fullscreen here yet
 	# It looks like you can pass a GBA cart via the second argument, so that might get interesting
 
 	return LaunchCommand(emulator.exe_path, [rom_path_argument])
 
 
-def mgba(game: 'ROMGame', emulator: 'StandardEmulator') -> LaunchCommand:
+def mgba_check(game: 'ROMGame', _):
 	if game.platform.name == 'Game Boy':
 		verify_mgba_mapper(game)
 
+
+def mgba(game: 'ROMGame', emulator: 'StandardEmulator') -> LaunchCommand:
 	args = ['-f']
 	if not game.info.specific_info.get('Nintendo Logo Valid?', True):
 		args.append('-C')
@@ -2413,41 +2417,41 @@ def retroarch(
 
 
 # Libretro cores
-def genesis_plus_gx(game: 'ROMGame', _, __) -> None:
+# Note that these only ever check things
+def genesis_plus_gx(game: 'ROMGame', _) -> None:
 	if game.platform.name == 'Mega CD' and game.info.specific_info.get('32X Only?', False):
 		raise EmulationNotSupportedError('32X not supported')
 
 
-def blastem(game: 'ROMGame', _, __) -> None:
+def blastem(game: 'ROMGame', _) -> None:
 	if game.platform.name == 'Mega Drive':
 		if game.info.specific_info.get('Expansion Chip', None) == 'SVP':
 			# This should work, but doesn't?
 			raise EmulationNotSupportedError('Seems SVP chip not supported?')
 		mapper = game.info.specific_info.get('Mapper')
-		if mapper:
+		if mapper and mapper not in {
 			# Some probably only work with rom.db being there, this assumes it is
 			# Some bootleg mappers don't seem to have any indication that they should work but seem to
-			if mapper not in {
-				'EEPROM',
-				'J-Cart',
-				'J-Cart + EEPROM',
-				'ssf2',
-				'cslam',
-				'hardbl95',
-				'blara',
-				'mcpir',
-				'realtec',
-				'sbubl',
-				'squir',
-				'elfwor',
-				'kof99',
-				'smouse',
-				'sk',
-			}:
-				raise EmulationNotSupportedError(mapper)
+			'EEPROM',
+			'J-Cart',
+			'J-Cart + EEPROM',
+			'ssf2',
+			'cslam',
+			'hardbl95',
+			'blara',
+			'mcpir',
+			'realtec',
+			'sbubl',
+			'squir',
+			'elfwor',
+			'kof99',
+			'smouse',
+			'sk',
+		}:
+			raise EmulationNotSupportedError(mapper)
 
 
-def mesen(game: 'ROMGame', _, __) -> None:
+def mesen(game: 'ROMGame', _) -> None:
 	unsupported_mappers = {124, 237, 256, 257, 389}
 	unsupported_mappers.update(
 		{
@@ -2512,13 +2516,13 @@ def mesen(game: 'ROMGame', _, __) -> None:
 			raise EmulationNotSupportedError(f'Unsupported mapper: {mapper}')
 
 
-def prosystem(game: 'ROMGame', _, __) -> None:
+def prosystem(game: 'ROMGame', _) -> None:
 	if not game.info.specific_info.get('Headered?', False):
 		# Seems to support unheadered if and only if in the internal database? Assume it isn't otherwise that gets weird
 		raise EmulationNotSupportedError('No header')
 
 
-def bsnes_libretro(game: 'ROMGame', emulator: 'StandardEmulator') -> None:
+def bsnes_libretro(game: 'ROMGame', emulator: 'BsnesLibretro') -> None:
 	if game.platform.name == 'Game Boy':
 		colour_flag = game.info.specific_info.get('Is Colour?', GameBoyColourFlag.No)
 		if colour_flag == GameBoyColourFlag.Required:
@@ -2542,7 +2546,11 @@ def bsnes_libretro(game: 'ROMGame', emulator: 'StandardEmulator') -> None:
 		raise EmulationNotSupportedError('No Sufami Turbo for libretro core')
 
 	slot = game.info.specific_info.get('Slot')
-	if slot:
-		# Presume this is the same as with standalone
-		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
-			raise EmulationNotSupportedError(f'{slot} mapper not supported')
+	# Presume this is the same as with standalone
+	if slot and slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
+		raise EmulationNotSupportedError(f'{slot} mapper not supported')
+
+def picodrive_libretro(game: 'ROMGame', _):
+	mapper = game.info.specific_info.get('Mapper')
+	if mapper and mapper in {'pokestad', 'lion3'}:
+		raise EmulationNotSupportedError(f'{mapper} not supported')
