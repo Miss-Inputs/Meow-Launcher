@@ -12,9 +12,11 @@ from typing import TYPE_CHECKING, Any
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config import main_config
+from meowlauncher.exceptions import GameNotSupportedError
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_info
 from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
+from meowlauncher.global_runners import Wine
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
 from meowlauncher.output.desktop_files import make_launcher
@@ -23,7 +25,6 @@ from meowlauncher.util import name_utils, region_info
 if TYPE_CHECKING:
 	from collections.abc import Mapping, Sequence
 
-	from meowlauncher.configured_runner import ConfiguredRunner
 	from meowlauncher.game_sources.gog import GOGConfig
 
 logger = logging.getLogger(__name__)
@@ -307,9 +308,9 @@ class WineGOGGame(GOGGame):
 
 
 class LinuxGOGLauncher(Launcher):
-	def __init__(self, game: GOGGame, runner: 'ConfiguredRunner') -> None:
+	def __init__(self, game: GOGGame) -> None:
 		self.game: GOGGame = game
-		super().__init__(game, runner)
+		super().__init__(game, None)
 
 	@property
 	def game_id(self) -> str:
@@ -449,9 +450,10 @@ class WindowsGOGGame(Game):
 				_find_subpath_case_insensitive(self.folder, task.working_directory)
 			)
 
-		return launch_with_wine(
-			main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory
-		)
+		wine = Wine()
+		if wine.is_path_valid:
+			return wine.launch_windows_exe(exe_path, task.args, working_directory)
+		raise GameNotSupportedError(f'GOG game {self.name} needs Wine')
 
 	def get_launcher_params(self, task: FileTask) -> tuple[str, LaunchCommand | None]:
 		if self.config.use_system_dosbox and task.is_dosbox:
@@ -527,3 +529,14 @@ class WindowsGOGGame(Game):
 				)
 		for task in actual_tasks:
 			self.make_launcher(task)
+
+
+class WindowsGOGLauncher(Launcher):
+	# TODO
+	def __init__(self, game: WindowsGOGGame) -> None:
+		self.game: WindowsGOGGame = game
+		super().__init__(game, None)
+
+	@property
+	def game_id(self) -> str:
+		return str(self.game.folder)

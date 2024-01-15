@@ -96,15 +96,19 @@ class CompoundGameSource(GameSource, ABC):
 	def is_available(self) -> bool:
 		return any(source.is_available for source in self.sources)
 
+	def no_longer_exists(self, game_id: str) -> bool:
+		return all(source.no_longer_exists(game_id) for source in self.sources)
+
 
 EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['Game'], covariant=True)
 
 
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 	"""Game source that has options for the user to choose which emulators they use or prefer"""
-	#TODO: Maybe this should have try_emulator moved into here, all that kind of logic that checks whether each emulator will work
-	#TODO: Should also be possible to bump up or down a preference based on the game, if Emu A is usually preferred over Emu B but Emu B has support for some niche feature that only some games use (but they both play the game)
-	
+
+	# TODO: Maybe this should have try_emulator moved into here, all that kind of logic that checks whether each emulator will work
+	# TODO: Should also be possible to bump up or down a preference based on the game, if Emu A is usually preferred over Emu B but Emu B has support for some niche feature that only some games use (but they both play the game)
+
 	def __init__(
 		self,
 		platform_config: 'PlatformConfig',

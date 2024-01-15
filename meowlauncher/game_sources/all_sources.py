@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from .arcade import Arcade, MAMEInbuiltGames
 from .dos import DOS
+from .gog import GOG
 from .mac import Mac
 from .roms import ROMs
 from .scummvm import ScummVM
@@ -16,7 +17,9 @@ if TYPE_CHECKING:
 __all__ = ['game_sources']
 
 game_sources: 'Sequence[type[GameSource]]' = (
+	#Note that there is not really any reason for this to be a sequence type
 	DOS,
+	GOG,
 	Mac,
 	MAMEInbuiltGames,
 	ROMs,

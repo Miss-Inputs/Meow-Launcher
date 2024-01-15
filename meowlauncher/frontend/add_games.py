@@ -6,6 +6,7 @@ import time
 from collections.abc import Sequence
 
 from meowlauncher.config import main_config
+from meowlauncher.exceptions import GameNotSupportedError
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import gog, itch_io, mame_software
 from meowlauncher.game_sources.all_sources import game_sources
@@ -27,8 +28,12 @@ def add_game_source(source: GameSource) -> int:
 		count += sum(add_game_source(subsource) for subsource in source.sources)
 	else:
 		for launcher in source.iter_all_launchers():
-			count += 1
-			make_linux_desktop_for_launcher(launcher, source.game_type())
+			try:
+				make_linux_desktop_for_launcher(launcher, source.game_type())
+			except GameNotSupportedError:
+				logger.exception('Game %s not supported:', launcher.game)
+			else:
+				count += 1
 
 	time_ended = time.perf_counter()
 	time_taken = datetime.timedelta(seconds=time_ended - time_started)
@@ -74,20 +79,7 @@ def add_games() -> int:
 	if source_names:
 		source_names = list(source_names)
 		# TODO: Remove this once they are proper GameSources
-		do_gog = False
 		do_itch_io = False
-		try:
-			source_names.remove('GOG')
-		except ValueError:
-			pass
-		else:
-			do_gog = True
-		try:
-			source_names.remove('gog')
-		except ValueError:
-			pass
-		else:
-			do_gog = True
 		try:
 			source_names.remove('itch.io')
 		except ValueError:
@@ -110,7 +102,6 @@ def add_games() -> int:
 			sources.append(source_type)
 
 	else:
-		do_gog = True
 		do_itch_io = True
 		sources = game_sources
 
@@ -124,13 +115,6 @@ def add_games() -> int:
 		'Added total of %d games', total
 	)  # Well other than those down below but sshhh pretend they aren't there
 
-	if do_gog:
-		progress_logger.info('Adding GOG games')
-		time_started = time.perf_counter()
-		gog.do_gog_games()
-		time_logger.info(
-			'GOG finished in %s', datetime.timedelta(seconds=time.perf_counter() - time_started)
-		)
 	if do_itch_io:
 		progress_logger.info('Adding itch.io games')
 		time_started = time.perf_counter()

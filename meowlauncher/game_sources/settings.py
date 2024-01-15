@@ -3,8 +3,9 @@
 
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Annotated
 
-from pydantic import Field
+from pydantic import AfterValidator, Field
 
 from meowlauncher.settings import Settings
 
@@ -43,13 +44,13 @@ class GOGConfig(Settings):
 	def prefix(cls) -> str | None:
 		return 'gog'
 
-	folders: Sequence[Path] = (default_gog_folder,)
+	folders: Sequence[Annotated[Path, AfterValidator(Path.expanduser)]] = (default_gog_folder,)
 	'Folders where GOG games are installed'
 
 	use_gog_as_platform: bool = Field(default=False, title='Use GOG as platform')
 	'Set platform in game info to GOG instead of underlying platform'
 
-	windows_gog_folders: Sequence[Path] = (default_wine_gog_folder,)
+	windows_gog_folders: Sequence[Annotated[Path, AfterValidator(Path.expanduser)]] = (default_wine_gog_folder,)
 	"""Folders where Windows GOG games are installed"""
 
 	use_system_dosbox: bool = True
