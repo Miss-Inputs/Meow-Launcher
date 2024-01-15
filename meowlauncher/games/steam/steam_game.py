@@ -158,9 +158,7 @@ class _SteamRunner(Runner):
 class SteamLauncher(Launcher):
 	def __init__(self, game: SteamGame) -> None:
 		self.game: SteamGame = game
-		runner = _SteamRunner()
-		configured_runner = ConfiguredRunner(runner, RunnerConfig(Path('steam')))
-		super().__init__(game, configured_runner)
+		super().__init__(game, _SteamRunner())
 
 	@property
 	def game_id(self) -> str:

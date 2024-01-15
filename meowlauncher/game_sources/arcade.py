@@ -44,10 +44,10 @@ class Arcade(GameSource):
 
 	@property
 	def is_available(self) -> bool:
-		return self.emu.is_path_valid
+		return self.emu.is_available
 
 	def no_longer_exists(self, game_id: str) -> bool:
-		if not self.emu.is_path_valid:
+		if not self.emu.is_available:
 			return True
 		return not self.emu.verifyroms(game_id)
 
@@ -144,10 +144,10 @@ class MAMEInbuiltGames(GameSource):
 
 	@property
 	def is_available(self) -> bool:
-		return self.emu.is_path_valid
+		return self.emu.is_available
 
 	def no_longer_exists(self, game_id: str) -> bool:
-		return not self.emu.is_path_valid or not self.emu.verifyroms(game_id.split(':')[0])
+		return not self.emu.is_available or not self.emu.verifyroms(game_id.split(':')[0])
 
 	def _process_inbuilt_game(
 		self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str | None = None

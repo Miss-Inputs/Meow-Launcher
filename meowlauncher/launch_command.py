@@ -10,10 +10,11 @@ rom_path_argument = '$<path>'
 
 class LaunchCommand:
 	"""Stores executable name, args, and optionally env vars, and working directory"""
+
 	def __init__(
 		self,
 		exe_name: PurePath,
-		exe_args: Sequence[str],
+		exe_args: Sequence[str | PurePath],
 		env_vars: MutableMapping[str, str] | None = None,
 		working_directory: PurePath | None = None,
 	):
@@ -27,7 +28,7 @@ class LaunchCommand:
 		return self._exe_name
 
 	@property
-	def exe_args(self) -> Sequence[str]:
+	def exe_args(self) -> Sequence[str | PurePath]:
 		return self._exe_args
 
 	@property
@@ -35,7 +36,7 @@ class LaunchCommand:
 		return self._env_vars
 
 	def make_linux_command_string(self) -> str:
-		exe_args_quoted = ' '.join(shlex.quote(arg) for arg in self.exe_args)
+		exe_args_quoted = ' '.join(shlex.quote(str(arg)) for arg in self.exe_args)
 		exe_name_quoted = shlex.quote(str(self.exe_name))
 		if self.env_vars:
 			environment_vars = ' '.join(shlex.quote(k + '=' + v) for k, v in self.env_vars.items())
@@ -44,8 +45,7 @@ class LaunchCommand:
 
 	def wrap(self, command: PurePath) -> 'LaunchCommand':
 		"""Uses command as the executable which then has this command as arguments"""
-		new_args = [str(self.exe_name)]
-		new_args.extend(self._exe_args)
+		new_args = [str(self.exe_name), *self._exe_args]
 		return LaunchCommand(command, new_args)
 
 	def prepend_command(self, prepended_command: 'LaunchCommand') -> 'LaunchCommand':
@@ -55,9 +55,8 @@ class LaunchCommand:
 		return MultiLaunchCommands((), self, (appended_params,))
 
 	def replace_path_argument(self, path: PurePath) -> 'LaunchCommand':
-		path_arg = str(path)
-		replaced_args = tuple(
-			path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg)
+		replaced_args: Sequence[str, PurePath] = tuple(
+			path if arg == rom_path_argument else str(arg).replace(rom_path_argument, str(path))
 			for arg in self.exe_args
 		)
 		return LaunchCommand(self.exe_name, replaced_args, self._env_vars)

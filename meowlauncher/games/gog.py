@@ -451,7 +451,7 @@ class WindowsGOGGame(Game):
 			)
 
 		wine = Wine()
-		if wine.is_path_valid:
+		if wine.is_available:
 			return wine.launch_windows_exe(exe_path, task.args, working_directory)
 		raise GameNotSupportedError(f'GOG game {self.name} needs Wine')
 

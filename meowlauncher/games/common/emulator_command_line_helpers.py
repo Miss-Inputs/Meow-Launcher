@@ -1,13 +1,14 @@
 from collections.abc import Collection, Mapping, Sequence
+from functools import cache
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from meowlauncher.exceptions import EmulationNotSupportedError
-from meowlauncher.games.mame_common.software_list import get_software_list_by_name
+from meowlauncher.games.mame_common.software_list import Software, get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
-	from meowlauncher.emulator import Emulator, GenericLaunchCommandFunc
+	from meowlauncher.emulator import BaseMAMEDriver, Emulator, GenericLaunchCommandFunc
 	from meowlauncher.game import Game
 	from meowlauncher.games.mame_common.mame import MAME
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -68,17 +69,18 @@ def verify_mgba_mapper(game: 'ROMGame') -> None:
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
 
+@cache
 def _is_software_available(software_list_name: str, software_name: str) -> bool:
 	# TODO: This should take a ConfiguredMAME (or both configuration/executable, get the software list from the configuration and use executable instead of default)
-	if not default_mame_executable:
+	mame = MAME()
+	if not mame.is_available:
 		return False
 
 	software_list = get_software_list_by_name(software_list_name)
 	if not software_list:
 		return False
 	return any(
-		software.name == software_name
-		for software in software_list.iter_available_software(default_mame_executable)
+		software.name == software_name for software in software_list.iter_available_software(mame)
 	)
 
 
@@ -88,7 +90,7 @@ def is_highscore_cart_available() -> bool:
 	# I truck an idea that might work! If we rewrite all this to take a MAME executable, and everything related to MameDriver is like that… maybe we can make everything take an option to use default_mame_executable or something else, and that may all work out
 
 
-def mednafen_module_launch(module: str, exe_path: PurePath = PurePath('mednafen')) -> LaunchCommand:
+def mednafen_module_launch(module: str, exe_path: PurePath) -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
 
@@ -96,18 +98,18 @@ def mame_base(
 	driver: str,
 	slot: str | None = None,
 	slot_options: Mapping[str, str] | None = None,
+	*,
 	has_keyboard: bool = False,
 	autoboot_script: str | None = None,
 	software: str | None = None,
 	bios: str | None = None,
-) -> Sequence[str]:
-	args = ['-skip_gameinfo']
+) -> Sequence[str | PurePath]:
+	args: list[str | PurePath] = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
 
 	if bios:
-		args.append('-bios')
-		args.append(bios)
+		args += ['-bios', bios]
 
 	args.append(driver)
 	if software:
@@ -117,59 +119,51 @@ def mame_base(
 		for name, value in slot_options.items():
 			if not value:
 				value = ''
-			args.append('-' + name)
-			args.append(value)
+			args += [f'-{name}', value]
 
 	if slot:
-		args.append('-' + slot)
-		args.append(rom_path_argument)
+		args += [f'-{slot}', rom_path_argument]
 
 	if autoboot_script:
-		args.append('-autoboot_script')
-		args.append(_get_autoboot_script_by_name(autoboot_script))
+		args += ['-autoboot_script', _get_autoboot_script_by_name(autoboot_script)]
 
 	return args
 
 
 def mame_driver(
 	game: 'ROMGame',
-	emulator_config: 'EmulatorConfig',
+	emulator: 'BaseMAMEDriver',
 	driver: str,
 	slot: str | None = None,
 	slot_options: Mapping[str, str] | None = None,
+	*,
 	has_keyboard: bool = False,
 	autoboot_script: str | None = None,
 ) -> LaunchCommand:
 	# Hmm I might need to refactor this and mame_system when I figure out what I'm doing
-	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
-	software = game.info.specific_info.get('MAME Software')
-	if software and compat_threshold > -1:
+	software: Software | None = game.info.specific_info.get('MAME Software')
+	if software and emulator.config.software_compatibility_threshold > -1:
 		# We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
 		game_compatibility = software.emulation_status
-		if game_compatibility and game_compatibility < compat_threshold:
+		if (
+			game_compatibility
+			and game_compatibility < emulator.config.software_compatibility_threshold
+		):
 			raise EmulationNotSupportedError(f'{software.name} is {game_compatibility.name}')
 
-	skip_unknown = emulator_config.options.get('skip_unknown_stuff', False)
-	if skip_unknown and not software:
+	if emulator.config.skip_unknown and not software:
 		raise EmulationNotSupportedError('Does not match anything in software list')
 
-	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
-	return LaunchCommand(emulator_config.exe_path, args)
+	args = mame_base(
+		driver, slot, slot_options, has_keyboard=has_keyboard, autoboot_script=autoboot_script
+	)
+	return LaunchCommand(emulator.exe_path, args)
 
 
 def first_available_romset(driver_list: 'Collection[str]', mame: 'MAME') -> str | None:
-	if not mame.is_path_valid:
+	if not mame.is_available:
 		return None
 	return next((driver for driver in driver_list if mame.verifyroms(driver)), None)
-
-
-def simple_emulator(args: 'Sequence[str] | None' = None) -> 'GenericLaunchCommandFunc[ROMGame]':
-	"""This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here"""
-
-	def inner(_: 'Game', emulator: 'Emulator') -> LaunchCommand:
-		return LaunchCommand(emulator.exe_path, args if args else [rom_path_argument])
-
-	return inner
 
 
 def simple_gb_emulator(

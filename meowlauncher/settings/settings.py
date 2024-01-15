@@ -272,7 +272,8 @@ class MainConfig(Settings):
 	sources: Sequence[str] = Field(default_factory=list)
 	"""If specified, only add games from GameSources with this name
 	Useful for testing and such"""
-	# TODO: Add validation so that Pydantic converts it to a GameSource for us (see add_games._get_game_source), though we will need to finish refactoring GOG/itch.io into being GameSources
+	# TODO: Add validation so that Pydantic converts it to a GameSource for us (see add_games._get_game_source), though we will need to finish refactoring itch.io/MAME software into being GameSources
+	#TODO: Also requires everything being a GameSource properly, but this should be the way the user specifies the order of sources and not just for testing, and they can specify * to fill in with all the game sources they didn't explicitly specify (so you can have do_this_first,*,do_this_last)
 
 	disambiguate: bool = True
 	"""After adding games, add info in brackets to the end of the names of games that have the same name to identify them (such as what type or platform they are), defaults to true"""

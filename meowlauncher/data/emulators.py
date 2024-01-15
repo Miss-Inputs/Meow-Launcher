@@ -1,27 +1,27 @@
 from pathlib import Path
 from typing import TYPE_CHECKING
-from meowlauncher.game import Game
-from meowlauncher.games.dos import DOSApp
-from meowlauncher.games.mac import MacApp
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
 from meowlauncher.emulator import (
 	BaseEmulatorConfig,
+	BaseMAMEDriverConfig,
 	Emulator,
 	EmulatorStatus,
 	LibretroCore,
 	LibretroFrontend,
 	StandardEmulator,
+	mame_driver,
 	mednafen_module,
 	standalone_emulator,
 	vice_emulator,
 )
+from meowlauncher.exceptions import EmulationNotSupportedError
 from meowlauncher.games.common.emulator_command_line_helpers import (
-	simple_emulator,
 	simple_gb_emulator,
-	simple_mame_driver,
 	simple_md_emulator,
 )
+from meowlauncher.games.dos import DOSApp
+from meowlauncher.games.mac import MacApp
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 from meowlauncher.runner import HostPlatform
 
@@ -33,10 +33,11 @@ from .format_info import (
 )
 
 if TYPE_CHECKING:
-	from collections.abc import Collection, MutableSequence, Sequence
+	from collections.abc import Collection, Sequence
 
 	from meowlauncher.emulated_game import EmulatedGame
 	from meowlauncher.games.mame.mame_game import ArcadeGame
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 
 class BsnesConfig(BaseEmulatorConfig):
@@ -95,6 +96,45 @@ class RPCS3Config(BaseEmulatorConfig):
 	# TODO: Take RPCS3Compatibility out of ps3.py and use that
 
 
+class MAMEGameBoyConfig(BaseMAMEDriverConfig):
+	use_gbc_for_dmg: bool = True
+	"""Use MAME GBC driver for DMG games"""
+	prefer_sgb_over_gbc: bool = False
+	'If a game is both SGB and GBC enhanced, use MAME SGB driver instead of GBC'
+
+
+class DuckStation(StandardEmulator):
+	config: DuckStationConfig
+
+	@classmethod
+	def exe_name(cls) -> str:
+		return 'duckstation-qt'
+
+	@classmethod
+	def supported_extensions(cls) -> 'Collection[str]':
+		return {'bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'}
+
+	@classmethod
+	def config_class(cls) -> type[DuckStationConfig]:
+		return DuckStationConfig
+
+	def check_game(self, game: 'ROMGame') -> None:
+		if (
+			self.config.consider_unknown_games_incompatible
+			and 'DuckStation Compatibility' not in game.info.specific_info
+		):
+			raise EmulationNotSupportedError('Not in compatibility DB')
+		threshold = self.config.compatibility_threshold
+		if threshold:
+			game_compat = game.info.specific_info.get('DuckStation Compatibility')
+			if game_compat and game_compat < threshold:
+				raise EmulationNotSupportedError(f'Game is only {game_compat.name} status')
+		super().check_game(game)
+
+	def get_game_command(self, _) -> LaunchCommand:
+		return LaunchCommand(self.exe_path, ['-batch', '-fullscreen', rom_path_argument])
+
+
 standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 	# TODO: A lot of info in the comments is very probably out of date
 	standalone_emulator(
@@ -116,18 +156,13 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 		'dolphin-emu',
 		command_lines.dolphin,
 		{'iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'},
+		check_game_func=command_lines.dolphin_check,
 	),
-	standalone_emulator(
-		'DuckStation',
-		'duckstation-qt',
-		command_lines.duckstation,
-		{'bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'},
-		config_class=DuckStationConfig,
-	),
+	DuckStation,
 	standalone_emulator(
 		'Flycast',
 		'flycast',
-		simple_emulator(['-config', 'window:fullscreen=yes', rom_path_argument]),
+		['-config', 'window:fullscreen=yes', rom_path_argument],
 		{'gdi', 'cdi', 'chd', 'cue'},
 	),
 	standalone_emulator(
@@ -190,10 +225,7 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 		'PCSX2', 'pcsx2', command_lines.pcsx2, {'iso', 'cso', 'bin', 'elf', 'irx', 'chd'}, {'gz'}
 	),  # Only reads the bin of bin/cues and not the cue
 	standalone_emulator(
-		'Pico-8',
-		'pico8',
-		simple_emulator(['-windowed', '0', '-run', rom_path_argument]),
-		{'p8', 'p8.png'},
+		'Pico-8', 'pico8', ['-windowed', '0', '-run', rom_path_argument], {'p8', 'p8.png'}
 	),
 	standalone_emulator(
 		'PokeMini', 'PokeMini', command_lines.pokemini, {'min'}, {'zip'}
@@ -201,12 +233,12 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 	standalone_emulator('PPSSPP', 'ppsspp-qt', command_lines.ppsspp, {'iso', 'pbp', 'cso', '/'}),
 	standalone_emulator('Reicast', 'reicast', command_lines.reicast, {'gdi', 'cdi', 'chd'}),
 	standalone_emulator(
-		'Ruffle', 'ruffle', simple_emulator(), {'swf'}, status=EmulatorStatus.Imperfect
+		'Ruffle', 'ruffle', None, {'swf'}, status=EmulatorStatus.Imperfect
 	),  # No way to start off in fullscreen…
 	standalone_emulator(
 		'SimCoupe',
 		'simcoupe',
-		simple_emulator(['-fullscreen', 'yes', rom_path_argument]),
+		['-fullscreen', 'yes', rom_path_argument],
 		{'mgt', 'sad', 'dsk', 'sbt'},
 		{'zip', 'gz'},
 	),
@@ -217,7 +249,7 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 		# TODO: This will need to be moved out of this list and made into a normal class so Atari 2600 info can use it (and it can have a listrominfo() function)
 		'Stella',
 		'stella',
-		simple_emulator(['-fullscreen', '1', rom_path_argument]),
+		['-fullscreen', '1', rom_path_argument],
 		{'a26', 'bin', 'rom'}.union(atari_2600_cartridge_extensions),
 		{'gz', 'zip'},
 	),
@@ -282,7 +314,8 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 		# Seems fine but no Apple IIe/128K?
 		'Apple II',
 		{'woz', 'dsk', 'po', 'do', 'd13', '2mg'},
-		command_lines.mednafen_apple_ii,
+		'apple2',
+		check_game_func=command_lines.mednafen_apple_ii_check,
 	),
 	mednafen_module(
 		'Lynx', {'lnx', 'o'}, command_lines.mednafen_lynx
@@ -304,329 +337,208 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 	mednafen_module(
 		'WonderSwan', {'ws', 'wsc', 'bin', 'pc2'}, 'wswan'
 	),  # Based on Cygne, definitely heavily modified by now
-	# MAMEDriver(
-	# 	'Amstrad GX4000',
-	# 	EmulatorStatus.Imperfect,
-	# 	simple_mame_driver('gx4000', 'cart'),
-	# 	{'bin', 'cpr'},
-	# ),
-	# # MT06201 (issue with emulated monochrome monitor), MT6509 lists various compatibility issues
-	# MAMEDriver('APF-MP1000', simple_mame_driver('apfm1000', 'cart'), {'bin'}),
-	# MAMEDriver(
-	# 	'Apple II',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_apple_ii,
-	# 	mame_floppy_formats.union({'nib', 'do', 'po', 'woz', '2mg'}),
-	# ),  # nib support only >= 0.229
-	# MAMEDriver(
-	# 	'Apple IIgs',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('apple2gsr1', 'flop3', {'gameio': 'joy'}, has_keyboard=True),
-	# 	mame_floppy_formats.union({'2mg', '2img', 'dc', 'woz'}),
-	# ),
-	# # Rev 1 is needed because some stuff doesn't work on rev 3 (happens in real life), flop1 and flop2 are for Apple II-not-GS software
-	# # ramsize can go up to 8M if need be and there are a lot of slot options (4play might be useful for our 1337 pro gaming purposes? arcbd sounds cool?)
-	# MAMEDriver(
-	# 	'Apple III',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('apple3', 'flop1', has_keyboard=True),
-	# 	mame_floppy_formats.union({'do', 'po'}),
-	# ),
-	# MAMEDriver('Arcadia 2001', simple_mame_driver('arcadia', 'cart'), {'bin'}),
-	# # Can also use bndarc for Bandai version but that doesn't seem to make any difference at all
-	# # MT06642: Wrong background colours
-	# MAMEDriver(
-	# 	'Astrocade',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('astrocde', 'cart', {'exp': 'rl64_ram'}),
-	# 	{'bin'},
-	# ),
-	# # There's a keypad there which is used for game selection/setup, otherwise it just uses a paddle with a button (the actual controllers IRL were wacky, but for emulation purposes are otherwise pretty normal).  Hopefully adding that RAM expansion won't hurt?  Some games (Chicken) seem to be broken anyway with expansion or without whoops
-	# MAMEDriver('Atari 2600', command_lines.mame_atari_2600, {'bin', 'a26'}),
-	# MAMEDriver(
-	# 	'Atari 5200',
-	# 	EmulatorStatus.Imperfect,
-	# 	simple_mame_driver('a5200', 'cart'),
-	# 	{'bin', 'rom', 'car', 'a52'},
-	# ),
-	# # Could use -sio casette -cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory (or is that just there because Atari 8-bit computers can do that)
-	# # MT06972: Nondescript input issues; MT07248: Galaxian doesn't work
-	# MAMEDriver('Atari 7800', command_lines.mame_atari_7800, {'a78'}),
-	# MAMEDriver(
-	# 	'Atari 8-bit',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_atari_8bit,
-	# 	{'bin', 'rom', 'car', 'atr', 'dsk'},
-	# ),
-	# # Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
-	# MAMEDriver(
-	# 	'Bandai Super Vision 8000',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('sv8000', 'cart'),
-	# 	{'bin'},
-	# ),
-	# MAMEDriver('BBC Bridge Companion', simple_mame_driver('bbcbc', 'cart'), {'bin'}),
-	# MAMEDriver('Casio PV-1000', simple_mame_driver('pv1000', 'cart'), {'bin'}),
-	# MAMEDriver(
-	# 	'Champion 2711',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('unichamp', 'cart'),
-	# 	generic_cart_extensions,
-	# ),
-	# MAMEDriver('Channel F', simple_mame_driver('channelf', 'cart'), {'bin', 'chf'}),
-	# MAMEDriver('ColecoVision', command_lines.mame_colecovision, {'bin', 'col', 'rom'}),
-	# # MT06554: Roller controller is inaccurate
-	# MAMEDriver(
-	# 	'Coleco Adam',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_coleco_adam,
-	# 	{'wav', 'ddp'}.union(mame_floppy_formats),
-	# ),
-	# # Both disks and tapes autoboot. Woohoo!
-	# MAMEDriver(
-	# 	'Entex Adventure Vision',
-	# 	EmulatorStatus.Imperfect,
-	# 	simple_mame_driver('advision', 'cart'),
-	# 	{'bin'},
-	# ),
-	# MAMEDriver(
-	# 	'FM-7',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('fm77av', 'flop1', has_keyboard=True),
-	# 	mame_floppy_formats,
-	# ),
-	# # Tapes work, but they require run"" and then pressing play on the tape, the latter not being Lua-autoboot-scriptable yet.
-	# # Difference between fm7 and fmnew7 seems to be that the latter boots into BASIC by default (there's dip switches involved) instead of DOS, which seems to be required for tapes to work; and disks just autoboot anyway. FM-77AV is used here despite its allegedly imperfect graphics as there are games which won't work on earlier systems and there doesn't seem to be a programmatic way to tell, and it seems backwards compatibility is fine
-	# # Joystick only works with fm7/fmnew7 -centronics dsjoy... whoops; not sure what the builtin joystick does then
-	# MAMEDriver('G7400', simple_mame_driver('g7400', 'cart'), {'bin', 'rom'}),
-	# # There is also an unreleased odyssey3 prototype if that is useful for USA (presumably unreleased) games, also jotac for France
-	# # Should this be merged with Odyssey 2 if it's compatible like that?
-	# MAMEDriver('Gamate', simple_mame_driver('gamate', 'cart'), {'bin'}),
-	# MAMEDriver(
-	# 	'Game Boy',
-	# 	EmulatorStatus.Imperfect,
-	# 	command_lines.mame_game_boy,
-	# 	{'bin', 'gb', 'gbc'},
-	# 	{
-	# 		'use_gbc_for_dmg': RunnerConfigValue(bool, True, 'Use MAME GBC driver for DMG games'),
-	# 		'prefer_sgb_over_gbc': RunnerConfigValue(
-	# 			bool,
-	# 			False,
-	# 			'If a game is both SGB and GBC enhanced, use MAME SGB driver instead of GBC',
-	# 		),
-	# 	},
-	# ),
-	# # This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC (MT06441, MT04949)
-	# # There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
-	# MAMEDriver('Game.com', simple_mame_driver('gamecom', 'cart1'), {'bin', 'tgc'}),
-	# # I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything.
-	# MAMEDriver('Game Gear', command_lines.mame_game_gear, {'bin', 'gg'}),
-	# MAMEDriver(
-	# 	'Epoch Game Pocket Computer',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('gamepock', 'cart'),
-	# 	{'bin'},
-	# ),
-	# MAMEDriver('GBA', simple_mame_driver('gba', 'cart'), {'bin', 'gba'}),
-	# # Does not let you do GBA-enhanced GBC games
-	# MAMEDriver(
-	# 	'IBM PCjr',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_ibm_pcjr,
-	# 	mame_floppy_formats.union({'img', 'bin', 'jrc'}),
-	# ),
-	# MAMEDriver(
-	# 	'Intellivision',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_intellivision,
-	# 	{'bin', 'int', 'rom', 'itv'},
-	# ),
-	# MAMEDriver(
-	# 	'Jupiter Ace',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('jupace', 'dump', {'ramsize': '48K'}, has_keyboard=True),
-	# 	{'ace'},
-	# ),
-	# MAMEDriver('Lynx', command_lines.mame_lynx, {'lnx', 'lyx', 'o'}),
-	# # Could be weird where rotation is involved
-	# MAMEDriver('Magnavox Odyssey²', command_lines.mame_odyssey2, {'bin', 'rom'}),
-	# MAMEDriver('Master System', command_lines.mame_master_system, {'bin', 'sms'}),
-	# MAMEDriver('Mattel Juice Box', simple_mame_driver('juicebox', 'memcard'), {'smc'}),
-	# MAMEDriver('Mega Drive', command_lines.mame_megadrive, {'bin', 'md', 'smd', 'gen'}),
-	# MAMEDriver('Mega Duck', simple_mame_driver('megaduck', 'cart'), {'bin'}),
-	# MAMEDriver('Memorex VIS', simple_mame_driver('vis', 'cdrom'), mame_cdrom_formats),
-	# MAMEDriver(
-	# 	'MSX',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_msx1,
-	# 	generic_cart_extensions.union(mame_floppy_formats),
-	# ),
-	# MAMEDriver(
-	# 	'MSX2',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_msx2,
-	# 	generic_cart_extensions.union(mame_floppy_formats),
-	# ),
-	# MAMEDriver(
-	# 	'MSX2+',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_msx2plus,
-	# 	generic_cart_extensions.union(mame_floppy_formats),
-	# ),
-	# MAMEDriver('Neo Geo CD', simple_mame_driver('neocdz', 'cdrom'), mame_cdrom_formats),
-	# # Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
-	# MAMEDriver(
-	# 	'Neo Geo Pocket',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('ngpc', 'cart'),
-	# 	{'bin', 'ngp', 'npc', 'ngc'},
-	# ),
-	# MAMEDriver('NES', command_lines.mame_nes, {'nes', 'unf', 'unif', 'fds'}),
-	# # Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
-	# MAMEDriver('Nichibutsu My Vision', simple_mame_driver('myvision', 'cart'), {'bin'}),
-	# MAMEDriver('PC Engine', command_lines.mame_pc_engine, {'pce', 'bin', 'sgx'}),
-	# MAMEDriver(
-	# 	'SAM Coupé',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True),
-	# 	mame_floppy_formats,
-	# ),
-	# MAMEDriver(
-	# 	'SG-1000',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_sg1000,
-	# 	{'bin', 'sg', 'sc', 'sf', 'sf7'}.union(mame_floppy_formats),
-	# ),
-	# MAMEDriver(
-	# 	'Sharp X1',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('x1turbo40', 'flop1', has_keyboard=True),
-	# 	mame_floppy_formats.union({'2d'}),
-	# ),
-	# # x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve (hope there's no compatibility shenanigans)
-	# MAMEDriver(
-	# 	'Sharp X68000',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_sharp_x68000,
-	# 	mame_floppy_formats.union({'xdf', 'hdm', '2hd', 'dim', 'm3u'}),
-	# ),
-	# # It doesn't	really support m3u, but I'm going to make it so it does (multi-disk games seem fairly common)
-	# # All the other models of X68000 (x68030, x68ksupr, x68kxvi) don't work yet
-	# MAMEDriver('SNES', command_lines.mame_snes, {'sfc', 'bs', 'st', 'smc', 'swc'}),
-	# MAMEDriver('Sord M5', command_lines.mame_sord_m5, {'bin'}),
-	# MAMEDriver(
-	# 	'Super Cassette Vision',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_super_cassette_vision,
-	# 	{'bin'},
-	# ),
-	# MAMEDriver('SVI-3x8', simple_mame_driver('svi328', 'cart'), {'bin', 'rom'}),
-	# MAMEDriver(
-	# 	'Squale',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('squale', 'cart', has_keyboard=True),
-	# 	{'bin'},
-	# ),
-	# MAMEDriver(
-	# 	'Tandy CoCo',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('coco3', 'cart', has_keyboard=True),
-	# 	{'ccc', 'rom', 'bin'},
-	# ),
-	# # There is a coco3p, but it apparently runs at 60Hz too, so I'm not sure if it's needed
-	# MAMEDriver(
-	# 	'Thomson MO5',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('mo5', 'flop1', has_keyboard=True),
-	# 	{'fd', 'sap'}.union(mame_floppy_formats),
-	# ),
-	# # Cartridges do not work (or on MO6) but floppies do autoboot, cassettes do not like to load either (would need to type LOAD and enter but then it plays it for you, but then stops because I guess it's broken) (MO6 is broken as well); qd would not work without setting the floppy type to quad density in Machine Configuration which we cannot do programmatically
-	# # Use mo5e for export version or mo5nr for network version (I don't know what they would be useful for)
-	# MAMEDriver(
-	# 	'Tomy Tutor',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'),
-	# 	{'bin'},
-	# ),
-	# # There is pyuuta if you want to read Japanese instead
-	# MAMEDriver('VC 4000', simple_mame_driver('vc4000', 'cart'), {'bin', 'rom'}),
-	# # There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. Seems that all models use 50Hz display so there shouldn't need to be model switching based on TV type
-	# # TODO: Quickload slot (.pgm, .tvc)
-	# MAMEDriver('Vectrex', simple_mame_driver('vectrex', 'cart'), {'bin', 'gam', 'vec'}),
-	# # Includes overlays as selectable artwork, but that has to be done by the user from the menu
-	# MAMEDriver(
-	# 	'VIC-10',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('vic10', 'cart', {'joy1': 'joy', 'joy2': 'joy'}, has_keyboard=True),
-	# 	{'crt', '80', 'e0'},
-	# ),
-	# # More similar to the C64 (works and performs just as well as that driver) than the VIC-20, need to plug a joystick into both ports because once again games can use either port and thanks I hate it. At least there's only one TV type
-	# # Sometimes I see this called the Commodore MAX Machine or Ultimax or VC-10, but... well, I'm not sure where the VIC-10 name comes from other than that's what the driver's called
-	# MAMEDriver(
-	# 	'VIC-20',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_vic_20,
-	# 	{'20', '40', '60', '70', 'a0', 'b0', 'crt'},
-	# ),
-	# MAMEDriver(
-	# 	'V.Smile',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('vsmile', 'cart'),
-	# 	generic_cart_extensions,
-	# ),
-	# MAMEDriver(
-	# 	'V.Smile Motion',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('vsmilem', 'cart'),
-	# 	generic_cart_extensions,
-	# ),
-	# # No motion controls, but the games are playable without them
-	# MAMEDriver(
-	# 	'VZ-200',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('vz200', 'dump', {'io': 'joystick', 'mem': 'laser_64k'}, True),
-	# 	{'vz'},
-	# ),
-	# # In the Laser 200/Laser 210 family, but Dick Smith variant should do.
-	# # Joystick interface doesn't seem to be used by any games, but I guess it does more than leaving the IO slot unfilled. That sucks, because otherwise no game ever uses the keyboard consistently, because of course not. Even modern homebrew games. Why y'all gotta be like that?
-	# # Some games will need you to type RUN to run them, not sure how to detect that.
-	# MAMEDriver(
-	# 	'Watara Supervision',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('svision', 'cart'),
-	# 	{'bin', 'ws', 'sv'},
-	# ),
-	# # I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes the colours look even worse (they're all inverted and shit)
-	# MAMEDriver(
-	# 	'WonderSwan',
-	# 	EmulatorStatus.Good,
-	# 	simple_mame_driver('wscolor', 'cart'),
-	# 	{'ws', 'wsc', 'bin', 'pc2'},
-	# ),
-	# # Could also be weird where rotation is involved, but at least it selects the right way around on startup
-	# MAMEDriver(
-	# 	'ZX Spectrum',
-	# 	EmulatorStatus.Good,
-	# 	command_lines.mame_zx_spectrum,
-	# 	{
-	# 		'ach',
-	# 		'frz',
-	# 		'plusd',
-	# 		'prg',
-	# 		'sem',
-	# 		'sit',
-	# 		'sna',
-	# 		'snp',
-	# 		'snx',
-	# 		'sp',
-	# 		'z80',
-	# 		'zx',
-	# 		'bin',
-	# 		'rom',
-	# 		'raw',
-	# 		'scr',
-	# 	}.union(mame_floppy_formats),
-	# ),
+	mame_driver(
+		'Amstrad GX4000', ('gx4000', 'cart'), {'bin', 'cpr'}, status=EmulatorStatus.Imperfect
+	),
+	# MT06201 (issue with emulated monochrome monitor), MT6509 lists various compatibility issues
+	mame_driver('APF-MP1000', ('apfm1000', 'cart'), {'bin'}),
+	mame_driver(
+		'Apple II',
+		command_lines.mame_apple_ii,
+		mame_floppy_formats.union({'nib', 'do', 'po', 'woz', '2mg'}),
+	),  # nib support only >= 0.229
+	mame_driver(
+		'Apple IIgs',
+		('apple2gsr1', 'flop3'),
+		mame_floppy_formats.union({'2mg', '2img', 'dc', 'woz'}),
+		slot_options={'gameio': 'joy'},
+		has_keyboard=True,
+	),
+	# Rev 1 is needed because some stuff doesn't work on rev 3 (happens in real life), flop1 and flop2 are for Apple II-not-GS software
+	# ramsize can go up to 8M if need be and there are a lot of slot options (4play might be useful for our 1337 pro gaming purposes? arcbd sounds cool?)
+	mame_driver(
+		'Apple III', ('apple3', 'flop1'), mame_floppy_formats.union({'do', 'po'}), has_keyboard=True
+	),
+	mame_driver('Arcadia 2001', ('arcadia', 'cart'), {'bin'}),
+	# Can also use bndarc for Bandai version but that doesn't seem to make any difference at all
+	# MT06642: Wrong background colours
+	mame_driver('Astrocade', ('astrocde', 'cart'), {'bin'}, slot_options={'exp': 'rl64_ram'}),
+	# There's a keypad there which is used for game selection/setup, otherwise it just uses a paddle with a button (the actual controllers IRL were wacky, but for emulation purposes are otherwise pretty normal).  Hopefully adding that RAM expansion won't hurt?  Some games (Chicken) seem to be broken anyway with expansion or without whoops
+	mame_driver('Atari 2600', command_lines.mame_atari_2600, {'bin', 'a26'}),
+	mame_driver(
+		'Atari 5200',
+		('a5200', 'cart'),
+		{'bin', 'rom', 'car', 'a52'},
+		status=EmulatorStatus.Imperfect,
+	),
+	# Could use -sio casette -cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory (or is that just there because Atari 8-bit computers can do that)
+	# MT06972: Nondescript input issues; MT07248: Galaxian doesn't work
+	mame_driver('Atari 7800', command_lines.mame_atari_7800, {'a78'}),
+	mame_driver('Atari 8-bit', command_lines.mame_atari_8bit, {'bin', 'rom', 'car', 'atr', 'dsk'}),
+	# Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
+	mame_driver('Bandai Super Vision 8000', ('sv8000', 'cart'), {'bin'}),
+	mame_driver('BBC Bridge Companion', ('bbcbc', 'cart'), {'bin'}),
+	mame_driver('Casio PV-1000', ('pv1000', 'cart'), {'bin'}),
+	mame_driver('Champion 2711', ('unichamp', 'cart'), generic_cart_extensions),
+	mame_driver('Channel F', ('channelf', 'cart'), {'bin', 'chf'}),
+	mame_driver('ColecoVision', command_lines.mame_colecovision, {'bin', 'col', 'rom'}),
+	# MT06554: Roller controller is inaccurate
+	mame_driver(
+		'Coleco Adam', command_lines.mame_coleco_adam, {'wav', 'ddp'}.union(mame_floppy_formats)
+	),
+	# Both disks and tapes autoboot. Woohoo!
+	mame_driver(
+		'Entex Adventure Vision', ('advision', 'cart'), {'bin'}, status=EmulatorStatus.Imperfect
+	),
+	mame_driver('FM-7', ('fm77av', 'flop1'), mame_floppy_formats, has_keyboard=True),
+	# Tapes work, but they require run"" and then pressing play on the tape, the latter not being Lua-autoboot-scriptable yet.
+	# Difference between fm7 and fmnew7 seems to be that the latter boots into BASIC by default (there's dip switches involved) instead of DOS, which seems to be required for tapes to work; and disks just autoboot anyway. FM-77AV is used here despite its allegedly imperfect graphics as there are games which won't work on earlier systems and there doesn't seem to be a programmatic way to tell, and it seems backwards compatibility is fine
+	# Joystick only works with fm7/fmnew7 -centronics dsjoy... whoops; not sure what the builtin joystick does then
+	mame_driver('G7400', ('g7400', 'cart'), {'bin', 'rom'}),
+	# There is also an unreleased odyssey3 prototype if that is useful for USA (presumably unreleased) games, also jotac for France
+	# Should this be merged with Odyssey 2 if it's compatible like that?
+	mame_driver('Gamate', ('gamate', 'cart'), {'bin'}),
+	mame_driver(
+		'Game Boy',
+		command_lines.mame_game_boy,
+		{'bin', 'gb', 'gbc'},
+		MAMEGameBoyConfig,
+		EmulatorStatus.Imperfect,
+	),
+	# This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC (MT06441, MT04949)
+	# There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
+	mame_driver('Game.com', ('gamecom', 'cart1'), {'bin', 'tgc'}),
+	# I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything.
+	mame_driver('Game Gear', command_lines.mame_game_gear, {'bin', 'gg'}),
+	mame_driver('Epoch Game Pocket Computer', ('gamepock', 'cart'), {'bin'}),
+	mame_driver('GBA', ('gba', 'cart'), {'bin', 'gba'}),
+	# Does not let you do GBA-enhanced GBC games
+	mame_driver(
+		'IBM PCjr', command_lines.mame_ibm_pcjr, mame_floppy_formats.union({'img', 'bin', 'jrc'})
+	),
+	mame_driver('Intellivision', command_lines.mame_intellivision, {'bin', 'int', 'rom', 'itv'}),
+	mame_driver(
+		'Jupiter Ace',
+		('jupace', 'dump'),
+		{'ace'},
+		slot_options={'ramsize': '48K'},
+		has_keyboard=True,
+	),
+	mame_driver('Lynx', command_lines.mame_lynx, {'lnx', 'lyx', 'o'}),
+	# Could be weird where rotation is involved
+	mame_driver('Magnavox Odyssey²', command_lines.mame_odyssey2, {'bin', 'rom'}),
+	mame_driver('Master System', command_lines.mame_master_system, {'bin', 'sms'}),
+	mame_driver('Mattel Juice Box', ('juicebox', 'memcard'), {'smc'}),
+	mame_driver('Mega Drive', command_lines.mame_megadrive, {'bin', 'md', 'smd', 'gen'}),
+	mame_driver('Mega Duck', ('megaduck', 'cart'), {'bin'}),
+	mame_driver('Memorex VIS', ('vis', 'cdrom'), mame_cdrom_formats),
+	mame_driver('MSX', command_lines.mame_msx1, generic_cart_extensions.union(mame_floppy_formats)),
+	mame_driver(
+		'MSX2', command_lines.mame_msx2, generic_cart_extensions.union(mame_floppy_formats)
+	),
+	mame_driver(
+		'MSX2+', command_lines.mame_msx2plus, generic_cart_extensions.union(mame_floppy_formats)
+	),
+	mame_driver('Neo Geo CD', ('neocdz', 'cdrom'), mame_cdrom_formats),
+	# Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
+	mame_driver('Neo Geo Pocket', ('ngpc', 'cart'), {'bin', 'ngp', 'npc', 'ngc'}),
+	mame_driver('NES', command_lines.mame_nes, {'nes', 'unf', 'unif', 'fds'}),
+	# Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
+	mame_driver('Nichibutsu My Vision', ('myvision', 'cart'), {'bin'}),
+	mame_driver('PC Engine', command_lines.mame_pc_engine, {'pce', 'bin', 'sgx'}),
+	mame_driver(
+		'SAM Coupé',
+		('samcoupe', 'flop1'),
+		mame_floppy_formats,
+		autoboot_script='sam_coupe',
+		has_keyboard=True,
+	),
+	mame_driver(
+		'SG-1000',
+		command_lines.mame_sg1000,
+		{'bin', 'sg', 'sc', 'sf', 'sf7'}.union(mame_floppy_formats),
+	),
+	mame_driver(
+		'Sharp X1', ('x1turbo40', 'flop1'), mame_floppy_formats.union({'2d'}), has_keyboard=True
+	),
+	# x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve (hope there's no compatibility shenanigans)
+	mame_driver(
+		# It doesn't really support m3u, but I'm going to make it so it does (multi-disk games seem fairly common)
+		# All the other models of X68000 (x68030, x68ksupr, x68kxvi) don't work yet
+		'Sharp X68000',
+		command_lines.mame_sharp_x68000,
+		mame_floppy_formats.union({'xdf', 'hdm', '2hd', 'dim', 'm3u'}),
+	),
+	mame_driver('SNES', command_lines.mame_snes, {'sfc', 'bs', 'st', 'smc', 'swc'}),
+	mame_driver('Sord M5', command_lines.mame_sord_m5, {'bin'}),
+	mame_driver('Super Cassette Vision', command_lines.mame_super_cassette_vision, {'bin'}),
+	mame_driver('SVI-3x8', ('svi328', 'cart'), {'bin', 'rom'}),
+	mame_driver('Squale', ('squale', 'cart'), {'bin'}, has_keyboard=True),
+	mame_driver('Tandy CoCo', ('coco3', 'cart'), {'ccc', 'rom', 'bin'}, has_keyboard=True),
+	# There is a coco3p, but it apparently runs at 60Hz too, so I'm not sure if it's needed
+	mame_driver(
+		'Thomson MO5', ('mo5', 'flop1'), {'fd', 'sap'}.union(mame_floppy_formats), has_keyboard=True
+	),
+	# Cartridges do not work (or on MO6) but floppies do autoboot, cassettes do not like to load either (would need to type LOAD and enter but then it plays it for you, but then stops because I guess it's broken) (MO6 is broken as well); qd would not work without setting the floppy type to quad density in Machine Configuration which we cannot do programmatically
+	# Use mo5e for export version or mo5nr for network version (I don't know what they would be useful for)
+	mame_driver(
+		'Tomy Tutor', ('tutor', 'cart'), {'bin'}, has_keyboard=True, autoboot_script='tomy_tutor'
+	),
+	# There is pyuuta if you want to read Japanese instead
+	mame_driver('VC 4000', ('vc4000', 'cart'), {'bin', 'rom'}),
+	# There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. Seems that all models use 50Hz display so there shouldn't need to be model switching based on TV type
+	# TODO: Quickload slot (.pgm, .tvc)
+	mame_driver('Vectrex', ('vectrex', 'cart'), {'bin', 'gam', 'vec'}),
+	# Includes overlays as selectable artwork, but that has to be done by the user from the menu
+	mame_driver(
+		'VIC-10',
+		('vic10', 'cart'),
+		{'crt', '80', 'e0'},
+		has_keyboard=True,
+		slot_options={'joy1': 'joy', 'joy2': 'joy'},
+	),
+	# More similar to the C64 (works and performs just as well as that driver) than the VIC-20, need to plug a joystick into both ports because once again games can use either port and thanks I hate it. At least there's only one TV type
+	# Sometimes I see this called the Commodore MAX Machine or Ultimax or VC-10, but... well, I'm not sure where the VIC-10 name comes from other than that's what the driver's called
+	mame_driver('VIC-20', command_lines.mame_vic_20, {'20', '40', '60', '70', 'a0', 'b0', 'crt'}),
+	mame_driver('V.Smile', ('vsmile', 'cart'), generic_cart_extensions),
+	mame_driver('V.Smile Motion', ('vsmilem', 'cart'), generic_cart_extensions),
+	# No motion controls, but the games are playable without them
+	mame_driver(
+		'VZ-200',
+		('vz200', 'dump'),
+		{'vz'},
+		slot_options={'io': 'joystick', 'mem': 'laser_64k'},
+		has_keyboard=True,
+	),
+	# In the Laser 200/Laser 210 family, but Dick Smith variant should do.
+	# Joystick interface doesn't seem to be used by any games, but I guess it does more than leaving the IO slot unfilled. That sucks, because otherwise no game ever uses the keyboard consistently, because of course not. Even modern homebrew games. Why y'all gotta be like that?
+	# Some games will need you to type RUN to run them, not sure how to detect that.
+	mame_driver('Watara Supervision', ('svision', 'cart'), {'bin', 'ws', 'sv'}),
+	# I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes the colours look even worse (they're all inverted and shit)
+	mame_driver('WonderSwan', ('wscolor', 'cart'), {'ws', 'wsc', 'bin', 'pc2'}),
+	# Could also be weird where rotation is involved, but at least it selects the right way around on startup
+	mame_driver(
+		'ZX Spectrum',
+		command_lines.mame_zx_spectrum,
+		{
+			'ach',
+			'frz',
+			'plusd',
+			'prg',
+			'sem',
+			'sit',
+			'sna',
+			'snp',
+			'snx',
+			'sp',
+			'z80',
+			'zx',
+			'bin',
+			'rom',
+			'raw',
+			'scr',
+		}.union(mame_floppy_formats),
+	),
 	# .trd would be doable with -exp beta128, but that only autoboots on Spectrum 48K (128K needs 128 Basic > "randomize usr 15616" > j > enter) and everything is designed for 128K
 	# .opu .opd might work with -exp opus, but that seems to only work on 48K and one must type "run"
 	# ----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
@@ -684,338 +596,242 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 		command_lines.mednafen_snes_faust,
 		status=EmulatorStatus.ExperimentalButSeemsOkay,
 	),
-	# MAMEDriver(
-	# 	'32X', EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_32x, {'32x', 'bin'}
-	# ),
-	# # Higher host CPU requirements than what you might expect
-	# MAMEDriver(
-	# 	'Amstrad PCW',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	command_lines.mame_amstrad_pcw,
-	# 	mame_floppy_formats,
-	# ),
-	# MAMEDriver(
-	# 	'Bandai RX-78',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('rx78', 'cart', has_keyboard=True),
-	# 	{'bin', 'rom'},
-	# ),  # Supports savestate but otherwise emulation = preliminary
-	# MAMEDriver(
-	# 	'Casio PV-2000',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('pv2000', 'cart', has_keyboard=True),
-	# 	{'bin'},
-	# ),
-	# # Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
-	# MAMEDriver(
-	# 	'CD-i',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('cdimono1', 'cdrom'),
-	# 	mame_cdrom_formats,
-	# ),  # This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound, no digital video stuff
-	# MAMEDriver(
-	# 	'Dreamcast VMU',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('svmu', 'quik', {'bios': 'dev1004'}),
-	# 	{'vms', 'bin'},
-	# ),
-	# # This doesn't save the RTC so you have to set that every time you boot it up, which would be too annoying… but this development BIOS instantly boots up whatever game is in the flash; claims to have no sound but it does do the sound? Unless it's supposed to have more sound than just beep
-	# MAMEDriver(
-	# 	'FM Towns',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	command_lines.mame_fm_towns,
-	# 	mame_cdrom_formats.union(mame_floppy_formats).union({'bin'}),
-	# ),
-	# MAMEDriver(
-	# 	'FM Towns Marty',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	command_lines.mame_fm_towns_marty,
-	# 	mame_cdrom_formats.union(mame_floppy_formats).union({'bin'}),
-	# ),
-	# # As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
-	# MAMEDriver(
-	# 	'Gachinko Contest! Slot Machine TV',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('gcslottv', 'cart'),
-	# 	generic_cart_extensions,
-	# ),
-	# # Not working and imperfect sound
-	# MAMEDriver(
-	# 	'GameKing',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('gameking', 'cart'),
-	# 	{'bin', 'gk'},
-	# ),
-	# MAMEDriver(
-	# 	'GameKing 3',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('gamekin3', 'cart'),
-	# 	{'bin', 'gk3'},
-	# ),
-	# MAMEDriver(
-	# 	'GP32', EmulatorStatus.ExperimentalButSeemsOkay, simple_mame_driver('gp32', 'memc'), {'smc'}
-	# ),
-	# # Bad performance (60-ish% on i5-9600kf) but otherwise might kinda work?
-	# MAMEDriver(
-	# 	'Hartung Game Master',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('gmaster', 'cart'),
-	# 	{'bin'},
-	# ),
-	# # Hmm... says not working and imperfect sound. I guess it does run the games, though
-	# MAMEDriver(
-	# 	'Microbee',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	command_lines.mame_microbee,
-	# 	{'mwb', 'com', 'bee'}.union(mame_floppy_formats),
-	# ),
-	# MAMEDriver(
-	# 	'PC-6001',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('pc6001', 'cart1', has_keyboard=True),
-	# 	{'bin', 'rom'},
-	# ),
-	# # Preliminary and notes in source file comments it doesn't load tapes yet (the cart2 slot seems to be a hack that does that)
-	# # Use pc6001a for USA version if needed, pc6001mk2 and pc6001sr might also do something, pc6601 should have a floppy drive but doesn't yet
-	# MAMEDriver(
-	# 	'PC-88',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('pc8801', 'flop1', has_keyboard=True),
-	# 	mame_floppy_formats,
-	# ),
-	# # TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book
-	# MAMEDriver(
-	# 	'Sharp MZ-2000',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('mz2200', 'flop1', has_keyboard=True),
-	# 	mame_floppy_formats.union({'2d'}),
-	# ),
-	# # Autoboots floppies unless they have more than one thing to boot on them, which I guess makes sense
-	# # Apparently not working (mz2000 is not either), so I dunno
-	# MAMEDriver(
-	# 	'Sony SMC-777',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('smc777', 'flop1', has_keyboard=True),
-	# 	mame_floppy_formats.union({'1dd'}),
-	# ),
-	# MAMEDriver(
-	# 	'Uzebox',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('uzebox', 'cart'),
-	# 	{'bin', 'uze'},
-	# ),
-	# MAMEDriver(
-	# 	'V.Tech Socrates',
-	# 	EmulatorStatus.ExperimentalButSeemsOkay,
-	# 	simple_mame_driver('socrates', 'cart'),
-	# 	{'bin'},
-	# ),
-	# # Marked as not working.union(imperfect) sound, possibly because of missing speech (also mouse is missing)
-	# MAMEDriver(
-	# 	'Amiga CD32', EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats
-	# ),
-	# # Hmm boots only a few things I guess
-	# MAMEDriver(
-	# 	'CreatiVision',
-	# 	EmulatorStatus.Janky,
-	# 	simple_mame_driver('crvision', 'cart', has_keyboard=True),
-	# 	{'bin', 'rom'},
-	# ),
-	# # The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it; anyway it works
-	# MAMEDriver(
-	# 	'Dreamcast', EmulatorStatus.Experimental, command_lines.mame_dreamcast, mame_cdrom_formats
-	# ),
-	# # Sloooow, marked as non-working.union(imperfect) sound
-	# MAMEDriver(
-	# 	'IBM PC',
-	# 	EmulatorStatus.Janky,
-	# 	simple_mame_driver('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True),
-	# 	mame_floppy_formats.union({'img'}),
-	# ),
-	# # Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
-	# MAMEDriver(
-	# 	'Jaguar',
-	# 	EmulatorStatus.Experimental,
-	# 	command_lines.mame_atari_jaguar,
-	# 	{'j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg'},
-	# ),
-	# # Hmm. Mostly not working. Some stuff does though
-	# MAMEDriver('KC-85', EmulatorStatus.Experimental, simple_mame_driver('kc85_3', 'quik'), {'kcc'}),
-	# # All marked as MACHINE_NOT_WORKING (some stuff doesn't seem to have sound or boot)
-	# MAMEDriver(
-	# 	'Mattel Aquarius',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('aquarius', 'cart', has_keyboard=True),
-	# 	{'bin', 'rom'},
-	# ),
-	# # Controllers aren't emulated yet (and they're necessary for a lot of things)
-	# MAMEDriver(
-	# 	'Mattel HyperScan',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('hyprscan', 'cdrom'),
-	# 	mame_cdrom_formats,
-	# ),
-	# # Not going to bother about handling the cards, since logically you want to use those in the middle of the game and so you'd swap those in and out with the MAME file management menu
-	# # No sound and a bit slow (the latter is made worse with this console having shit loading speed)
-	# MAMEDriver(
-	# 	'Mega CD', EmulatorStatus.Experimental, command_lines.mame_mega_cd, mame_cdrom_formats
-	# ),
-	# # Hmm sometimes works and sometimes does not (when does it not? Elaborate, past self)
-	# MAMEDriver(
-	# 	'Microtan 65',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('mt65', 'dump', has_keyboard=True),
-	# 	{'dmp', 'm65'},
-	# ),
-	# # System name was "microtan" prior to 0.212
-	# # Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know…
-	# MAMEDriver(
-	# 	'Microvision',
-	# 	EmulatorStatus.Janky,
-	# 	simple_mame_driver('microvsn', 'cart'),
-	# 	generic_cart_extensions,
-	# ),
-	# # You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
-	# MAMEDriver(
-	# 	'N64',
-	# 	EmulatorStatus.Experimental,
-	# 	command_lines.mame_n64,
-	# 	{'v64', 'z64', 'rom', 'n64', 'bin'},
-	# ),
-	# # Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working.union(imperfect) graphics
-	# MAMEDriver(
-	# 	'Pokémon Mini',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('pokemini', 'cart'),
-	# 	{'bin', 'min'},
-	# ),
-	# # Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
-	# MAMEDriver(
-	# 	'Saturn', EmulatorStatus.Experimental, command_lines.mame_saturn, mame_cdrom_formats
-	# ),
-	# # Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
-	# MAMEDriver('Sega Pico', EmulatorStatus.Janky, command_lines.mame_pico, {'bin', 'md'}),
-	# # Seems like a lot of stuff doesn't get anywhere? Probably needs the book part
-	# MAMEDriver('Select-a-Game', EmulatorStatus.Janky, simple_mame_driver('sag', 'cart'), {'bin'}),
-	# # Is now a separate system as of 0.221 instead of sag_whatever individual machines
-	# # See also Microvision, is similarly janky with needing artwork
-	# MAMEDriver(
-	# 	"Super A'Can", EmulatorStatus.Experimental, simple_mame_driver('supracan', 'cart'), {'bin'}
-	# ),
-	# # Some things work, except with no sound, so... nah
-	# MAMEDriver(
-	# 	'TRS-80',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('trs80l2', 'quik', has_keyboard=True),
-	# 	{'cmd'},
-	# ),
-	# # trs80 only has tapes I guess, there are lots of clones of trs80l2
-	# # I didn't manage to figure out disks, tapes of course require typing non-programmatically-typeable things
-	# # TRS-80 Model 3 is there but sound seems to not work for backwards compatibility so like I dunno, still need to figure out if I want it as a separate system entirely
-	# MAMEDriver(
-	# 	'V.Smile Baby',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('vsmileb', 'cart'),
-	# 	{'u1', 'u3', 'bin'},
-	# ),
-	# # Seems to crash on some titles, also everything in software list is supported=no?
-	# MAMEDriver(
-	# 	'VideoBrain',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('vidbrain', 'cart', has_keyboard=True),
-	# 	{'bin'},
-	# ),
-	# # Has some hella glitchy graphics and I'm not gonna call it a playable experience at this point (also it does say not working)
-	# MAMEDriver(
-	# 	'Videoton TVC',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('tvc64', 'cart', has_keyboard=True),
-	# 	{'bin', 'rom', 'crt'},
-	# ),
-	# MAMEDriver(
-	# 	'Virtual Boy',
-	# 	EmulatorStatus.Experimental,
-	# 	simple_mame_driver('vboy', 'cart'),
-	# 	{'bin', 'vb'},
-	# ),
-	# # Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
-	# # TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
-	# # Just here for future use or the fun of creating launchers really; these straight up don't work:
-	# MAMEDriver(
-	# 	'3DO', EmulatorStatus.Borked, simple_mame_driver('3do', 'cdrom'), mame_cdrom_formats
-	# ),  # Should switch to 3do_pal when needed, but it doesn't really matter at this point
-	# MAMEDriver(
-	# 	'Buzztime Home Trivia System',
-	# 	EmulatorStatus.Borked,
-	# 	simple_mame_driver('buzztime', 'cart'),
-	# 	{'bin'},
-	# ),
-	# # Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
-	# MAMEDriver(
-	# 	'C64', EmulatorStatus.Borked, command_lines.mame_c64, {'80', 'a0', 'e0', 'crt'}
-	# ),  # Doesn't load carts anymore
-	# MAMEDriver(
-	# 	'Casio Loopy', EmulatorStatus.Borked, simple_mame_driver('casloopy', 'cart'), {'bin'}
-	# ),
-	# # Just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
-	# MAMEDriver(
-	# 	'Commodore CDTV',
-	# 	EmulatorStatus.Borked,
-	# 	simple_mame_driver('cdtv', 'cdrom'),
-	# 	mame_cdrom_formats,
-	# ),
-	# # This one works less than CD32; just takes you to the default boot screen like no CD was inserted
-	# MAMEDriver(
-	# 	'Copera', EmulatorStatus.Borked, simple_mame_driver('copera', 'cart'), {'bin', 'md'}
-	# ),
-	# # Displays the logo and then displays nothing
-	# MAMEDriver(
-	# 	'GoGo TV Video Vision', EmulatorStatus.Borked, simple_mame_driver('tvgogo', 'cart'), {'bin'}
-	# ),
-	# MAMEDriver(
-	# 	'Jaguar CD',
-	# 	EmulatorStatus.Borked,
-	# 	simple_mame_driver('jaguarcd', 'cdrom'),
-	# 	mame_cdrom_formats,
-	# ),  # Also has cartridge port, as it is a Jaguar addon
-	# MAMEDriver('Koei PasoGo', EmulatorStatus.Borked, simple_mame_driver('pasogo', 'cart'), {'bin'}),
-	# # No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
-	# MAMEDriver('Tomy Prin-C', EmulatorStatus.Borked, simple_mame_driver('princ', 'cart'), {'bin'}),
-	# # Skeleton driver that displays a green background and then doesn't go anywhere
-	# # Doesn't even display graphics, I'm just feeling like adding stuff at this point
-	# MAMEDriver(
-	# 	'Advanced Pico Beena', EmulatorStatus.Borked, simple_mame_driver('beena', 'cart'), {'bin'}
-	# ),  # Segfaults
-	# MAMEDriver('C2 Color', EmulatorStatus.Borked, simple_mame_driver('c2color', 'cart'), {'bin'}),
-	# MAMEDriver('Didj', EmulatorStatus.Borked, simple_mame_driver('didj', 'cart'), {'bin'}),
-	# MAMEDriver('Konami Picno', EmulatorStatus.Borked, simple_mame_driver('picno', 'cart'), {'bin'}),
-	# MAMEDriver('LeapPad', EmulatorStatus.Borked, simple_mame_driver('leappad', 'cart'), {'bin'}),
-	# MAMEDriver(
-	# 	'Leapster', EmulatorStatus.Borked, simple_mame_driver('leapster', 'cart'), {'bin'}
-	# ),  # Sometimes crashes, appears to be executing the CPU and printing debug stuff
-	# MAMEDriver('MobiGo', EmulatorStatus.Borked, simple_mame_driver('mobigo', 'cart'), {'bin'}),
-	# MAMEDriver(
-	# 	'Monon Color', EmulatorStatus.Borked, simple_mame_driver('mononcol', 'cart'), {'bin'}
-	# ),
-	# MAMEDriver(
-	# 	'My First LeapPad', EmulatorStatus.Borked, simple_mame_driver('mfleappad', 'cart'), {'bin'}
-	# ),
-	# MAMEDriver(
-	# 	'Pippin', EmulatorStatus.Borked, simple_mame_driver('pippin', 'cdrom'), mame_cdrom_formats
-	# ),
-	# MAMEDriver(
-	# 	'Pocket Challenge W',
-	# 	EmulatorStatus.Borked,
-	# 	simple_mame_driver('pockchal', 'cart'),
-	# 	{'bin', 'pcw'},
-	# ),
-	# MAMEDriver('V.Reader', EmulatorStatus.Borked, simple_mame_driver('vreader', 'cart'), {'bin'}),
-	# MAMEDriver(
-	# 	'V.Smile Pro',
-	# 	EmulatorStatus.Borked,
-	# 	simple_mame_driver('vsmilpro', 'cdrom'),
-	# 	mame_cdrom_formats,
-	# ),
+	mame_driver(
+		'32X',
+		command_lines.mame_32x,
+		{'32x', 'bin'},
+		status=EmulatorStatus.ExperimentalButSeemsOkay,
+	),
+	# Higher host CPU requirements than what you might expect
+	mame_driver(
+		'Amstrad PCW',
+		command_lines.mame_amstrad_pcw,
+		mame_floppy_formats,
+		status=EmulatorStatus.ExperimentalButSeemsOkay,
+	),
+	mame_driver(
+		# Supports savestate but otherwise emulation = preliminary
+		'Bandai RX-78',
+		('rx78', 'cart'),
+		{'bin', 'rom'},
+		status=EmulatorStatus.ExperimentalButSeemsOkay,
+		has_keyboard=True,
+	),
+	mame_driver(
+		# Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
+		'Casio PV-2000',
+		('pv2000', 'cart'),
+		{'bin'},
+		has_keyboard=True,
+		status=EmulatorStatus.ExperimentalButSeemsOkay,
+	),
+	mame_driver(
+		'CD-i', EmulatorStatus.ExperimentalButSeemsOkay, ('cdimono1', 'cdrom'), mame_cdrom_formats
+	),  # This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound, no digital video stuff
+	mame_driver(
+		'Dreamcast VMU',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		('svmu', 'quik', {'bios': 'dev1004'}),
+		{'vms', 'bin'},
+	),
+	# This doesn't save the RTC so you have to set that every time you boot it up, which would be too annoying… but this development BIOS instantly boots up whatever game is in the flash; claims to have no sound but it does do the sound? Unless it's supposed to have more sound than just beep
+	mame_driver(
+		'FM Towns',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		command_lines.mame_fm_towns,
+		mame_cdrom_formats.union(mame_floppy_formats).union({'bin'}),
+	),
+	mame_driver(
+		'FM Towns Marty',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		command_lines.mame_fm_towns_marty,
+		mame_cdrom_formats.union(mame_floppy_formats).union({'bin'}),
+	),
+	# As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
+	mame_driver(
+		'Gachinko Contest! Slot Machine TV',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		('gcslottv', 'cart'),
+		generic_cart_extensions,
+	),
+	# Not working and imperfect sound
+	mame_driver(
+		'GameKing', EmulatorStatus.ExperimentalButSeemsOkay, ('gameking', 'cart'), {'bin', 'gk'}
+	),
+	mame_driver(
+		'GameKing 3', EmulatorStatus.ExperimentalButSeemsOkay, ('gamekin3', 'cart'), {'bin', 'gk3'}
+	),
+	mame_driver('GP32', EmulatorStatus.ExperimentalButSeemsOkay, ('gp32', 'memc'), {'smc'}),
+	# Bad performance (60-ish% on i5-9600kf) but otherwise might kinda work?
+	mame_driver(
+		'Hartung Game Master', EmulatorStatus.ExperimentalButSeemsOkay, ('gmaster', 'cart'), {'bin'}
+	),
+	# Hmm... says not working and imperfect sound. I guess it does run the games, though
+	mame_driver(
+		'Microbee',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		command_lines.mame_microbee,
+		{'mwb', 'com', 'bee'}.union(mame_floppy_formats),
+	),
+	mame_driver(
+		'PC-6001',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		('pc6001', 'cart1', True),
+		{'bin', 'rom'},
+	),
+	# Preliminary and notes in source file comments it doesn't load tapes yet (the cart2 slot seems to be a hack that does that)
+	# Use pc6001a for USA version if needed, pc6001mk2 and pc6001sr might also do something, pc6601 should have a floppy drive but doesn't yet
+	mame_driver(
+		'PC-88',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		('pc8801', 'flop1', True),
+		mame_floppy_formats,
+	),
+	# TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book
+	mame_driver(
+		'Sharp MZ-2000',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		('mz2200', 'flop1', True),
+		mame_floppy_formats.union({'2d'}),
+	),
+	# Autoboots floppies unless they have more than one thing to boot on them, which I guess makes sense
+	# Apparently not working (mz2000 is not either), so I dunno
+	mame_driver(
+		'Sony SMC-777',
+		EmulatorStatus.ExperimentalButSeemsOkay,
+		('smc777', 'flop1', True),
+		mame_floppy_formats.union({'1dd'}),
+	),
+	mame_driver(
+		'Uzebox', EmulatorStatus.ExperimentalButSeemsOkay, ('uzebox', 'cart'), {'bin', 'uze'}
+	),
+	mame_driver(
+		'V.Tech Socrates', EmulatorStatus.ExperimentalButSeemsOkay, ('socrates', 'cart'), {'bin'}
+	),
+	# Marked as not working.union(imperfect) sound, possibly because of missing speech (also mouse is missing)
+	mame_driver(
+		'Amiga CD32', EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats
+	),
+	# Hmm boots only a few things I guess
+	mame_driver('CreatiVision', EmulatorStatus.Janky, ('crvision', 'cart', True), {'bin', 'rom'}),
+	# The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it; anyway it works
+	mame_driver(
+		'Dreamcast', EmulatorStatus.Experimental, command_lines.mame_dreamcast, mame_cdrom_formats
+	),
+	# Sloooow, marked as non-working.union(imperfect) sound
+	mame_driver(
+		'IBM PC',
+		EmulatorStatus.Janky,
+		('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, True),
+		mame_floppy_formats.union({'img'}),
+	),
+	# Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
+	mame_driver(
+		'Jaguar',
+		EmulatorStatus.Experimental,
+		command_lines.mame_atari_jaguar,
+		{'j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg'},
+	),
+	# Hmm. Mostly not working. Some stuff does though
+	mame_driver('KC-85', EmulatorStatus.Experimental, ('kc85_3', 'quik'), {'kcc'}),
+	# All marked as MACHINE_NOT_WORKING (some stuff doesn't seem to have sound or boot)
+	mame_driver(
+		'Mattel Aquarius', EmulatorStatus.Experimental, ('aquarius', 'cart', True), {'bin', 'rom'}
+	),
+	# Controllers aren't emulated yet (and they're necessary for a lot of things)
+	mame_driver(
+		'Mattel HyperScan', EmulatorStatus.Experimental, ('hyprscan', 'cdrom'), mame_cdrom_formats
+	),
+	# Not going to bother about handling the cards, since logically you want to use those in the middle of the game and so you'd swap those in and out with the MAME file management menu
+	# No sound and a bit slow (the latter is made worse with this console having shit loading speed)
+	mame_driver(
+		'Mega CD', EmulatorStatus.Experimental, command_lines.mame_mega_cd, mame_cdrom_formats
+	),
+	# Hmm sometimes works and sometimes does not (when does it not? Elaborate, past self)
+	mame_driver('Microtan 65', EmulatorStatus.Experimental, ('mt65', 'dump', True), {'dmp', 'm65'}),
+	# System name was "microtan" prior to 0.212
+	# Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know…
+	mame_driver('Microvision', EmulatorStatus.Janky, ('microvsn', 'cart'), generic_cart_extensions),
+	# You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
+	mame_driver(
+		'N64',
+		EmulatorStatus.Experimental,
+		command_lines.mame_n64,
+		{'v64', 'z64', 'rom', 'n64', 'bin'},
+	),
+	# Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working.union(imperfect) graphics
+	mame_driver('Pokémon Mini', EmulatorStatus.Experimental, ('pokemini', 'cart'), {'bin', 'min'}),
+	# Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
+	mame_driver(
+		'Saturn', EmulatorStatus.Experimental, command_lines.mame_saturn, mame_cdrom_formats
+	),
+	# Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
+	mame_driver('Sega Pico', EmulatorStatus.Janky, command_lines.mame_pico, {'bin', 'md'}),
+	# Seems like a lot of stuff doesn't get anywhere? Probably needs the book part
+	mame_driver('Select-a-Game', EmulatorStatus.Janky, ('sag', 'cart'), {'bin'}),
+	# Is now a separate system as of 0.221 instead of sag_whatever individual machines
+	# See also Microvision, is similarly janky with needing artwork
+	mame_driver("Super A'Can", EmulatorStatus.Experimental, ('supracan', 'cart'), {'bin'}),
+	# Some things work, except with no sound, so... nah
+	mame_driver('TRS-80', EmulatorStatus.Experimental, ('trs80l2', 'quik', True), {'cmd'}),
+	# trs80 only has tapes I guess, there are lots of clones of trs80l2
+	# I didn't manage to figure out disks, tapes of course require typing non-programmatically-typeable things
+	# TRS-80 Model 3 is there but sound seems to not work for backwards compatibility so like I dunno, still need to figure out if I want it as a separate system entirely
+	mame_driver(
+		'V.Smile Baby', EmulatorStatus.Experimental, ('vsmileb', 'cart'), {'u1', 'u3', 'bin'}
+	),
+	# Seems to crash on some titles, also everything in software list is supported=no?
+	mame_driver('VideoBrain', EmulatorStatus.Experimental, ('vidbrain', 'cart', True), {'bin'}),
+	# Has some hella glitchy graphics and I'm not gonna call it a playable experience at this point (also it does say not working)
+	mame_driver(
+		'Videoton TVC', EmulatorStatus.Experimental, ('tvc64', 'cart', True), {'bin', 'rom', 'crt'}
+	),
+	mame_driver('Virtual Boy', EmulatorStatus.Experimental, ('vboy', 'cart'), {'bin', 'vb'}),
+	# Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
+	# TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
+	# Just here for future use or the fun of creating launchers really; these straight up don't work:
+	mame_driver(
+		'3DO', EmulatorStatus.Borked, ('3do', 'cdrom'), mame_cdrom_formats
+	),  # Should switch to 3do_pal when needed, but it doesn't really matter at this point
+	mame_driver(
+		'Buzztime Home Trivia System', EmulatorStatus.Borked, ('buzztime', 'cart'), {'bin'}
+	),
+	# Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
+	mame_driver(
+		'C64', EmulatorStatus.Borked, command_lines.mame_c64, {'80', 'a0', 'e0', 'crt'}
+	),  # Doesn't load carts anymore
+	mame_driver('Casio Loopy', EmulatorStatus.Borked, ('casloopy', 'cart'), {'bin'}),
+	# Just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
+	mame_driver('Commodore CDTV', EmulatorStatus.Borked, ('cdtv', 'cdrom'), mame_cdrom_formats),
+	# This one works less than CD32; just takes you to the default boot screen like no CD was inserted
+	mame_driver('Copera', EmulatorStatus.Borked, ('copera', 'cart'), {'bin', 'md'}),
+	# Displays the logo and then displays nothing
+	mame_driver('GoGo TV Video Vision', EmulatorStatus.Borked, ('tvgogo', 'cart'), {'bin'}),
+	mame_driver(
+		'Jaguar CD', EmulatorStatus.Borked, ('jaguarcd', 'cdrom'), mame_cdrom_formats
+	),  # Also has cartridge port, as it is a Jaguar addon
+	mame_driver('Koei PasoGo', EmulatorStatus.Borked, ('pasogo', 'cart'), {'bin'}),
+	# No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
+	mame_driver('Tomy Prin-C', EmulatorStatus.Borked, ('princ', 'cart'), {'bin'}),
+	# Skeleton driver that displays a green background and then doesn't go anywhere
+	# Doesn't even display graphics, I'm just feeling like adding stuff at this point
+	mame_driver(
+		'Advanced Pico Beena', EmulatorStatus.Borked, ('beena', 'cart'), {'bin'}
+	),  # Segfaults
+	mame_driver('C2 Color', EmulatorStatus.Borked, ('c2color', 'cart'), {'bin'}),
+	mame_driver('Didj', EmulatorStatus.Borked, ('didj', 'cart'), {'bin'}),
+	mame_driver('Konami Picno', EmulatorStatus.Borked, ('picno', 'cart'), {'bin'}),
+	mame_driver('LeapPad', EmulatorStatus.Borked, ('leappad', 'cart'), {'bin'}),
+	mame_driver(
+		'Leapster', EmulatorStatus.Borked, ('leapster', 'cart'), {'bin'}
+	),  # Sometimes crashes, appears to be executing the CPU and printing debug stuff
+	mame_driver('MobiGo', EmulatorStatus.Borked, ('mobigo', 'cart'), {'bin'}),
+	mame_driver('Monon Color', EmulatorStatus.Borked, ('mononcol', 'cart'), {'bin'}),
+	mame_driver('My First LeapPad', EmulatorStatus.Borked, ('mfleappad', 'cart'), {'bin'}),
+	mame_driver('Pippin', EmulatorStatus.Borked, ('pippin', 'cdrom'), mame_cdrom_formats),
+	mame_driver('Pocket Challenge W', EmulatorStatus.Borked, ('pockchal', 'cart'), {'bin', 'pcw'}),
+	mame_driver('V.Reader', EmulatorStatus.Borked, ('vreader', 'cart'), {'bin'}),
+	mame_driver('V.Smile Pro', EmulatorStatus.Borked, ('vsmilpro', 'cdrom'), mame_cdrom_formats),
 	# TODO: Comments from systems that indicate I feel the need to create an autoboot for stuff (because I guess typing arcane shit just sucks too much, and yeah it does make me think that some tapes_are_okay or menus_are_okay option is needed)
 	# z88: 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
 	# mo6: #Floppies work (and cassettes and carts have same problem as MO5), but this time we need to press the F1 key and I don't waaaanna do that myself
@@ -1061,222 +877,205 @@ standalone_emulators: 'Collection[type[StandardEmulator]]' = {
 }
 standalone_emulators_by_name = {emu.name(): emu for emu in standalone_emulators}
 
-# libretro_cores = {
-# 	LibretroCore('81', '81', None, {'p', 'tzx', 't81'}),
-# 	LibretroCore('Beetle Cygne', 'mednafen_cygne', None, {'ws', 'wsc', 'pc2'}),
-# 	LibretroCore('Beetle NeoPop', 'mednafen_ngp', None, {'ngp', 'ngc', 'ngpc', 'npc'}),
-# 	LibretroCore(
-# 		'Beetle PCE Fast',
-# 		EmulatorStatus.Good,
-# 		'mednafen_pce_fast',
-# 		None,
-# 		{'pce', 'cue', 'ccd', 'toc', 'm3u', 'chd'},
-# 	),
-# 	LibretroCore(
-# 		'Beetle PCE',
-# 		EmulatorStatus.Good,
-# 		'mednafen_pce',
-# 		None,
-# 		{'pce', 'cue', 'ccd', 'sgx', 'toc', 'm3u', 'chd'},
-# 	),
-# 	LibretroCore(
-# 		'Beetle PC-FX',
-# 		EmulatorStatus.Good,
-# 		'mednafen_pcfx',
-# 		None,
-# 		{'cue', 'ccd', 'toc', 'chd', 'm3u'},
-# 	),
-# 	LibretroCore(
-# 		'Beetle PSX HW',
-# 		EmulatorStatus.Good,
-# 		'mednafen_psx_hw',
-# 		None,
-# 		{'cue', 'chd', 'ccd', 'toc', 'm3u', 'exe', 'pbp'},
-# 	),  # needs_fullpath=true
-# 	LibretroCore(
-# 		'Beetle Saturn',
-# 		EmulatorStatus.Good,
-# 		'mednafen_saturn',
-# 		None,
-# 		{'cue', 'chd', 'ccd', 'toc', 'm3u'},
-# 	),  # needs_fullpath=true
-# 	LibretroCore('Beetle VB', 'mednafen_vb', None, {'vb', 'vboy', 'bin'}),
-# 	LibretroCore(
-# 		'BlastEm',
-# 		EmulatorStatus.Good,
-# 		'blastem',
-# 		command_lines.blastem,
-# 		{'md', 'bin', 'smd', 'gen', 'sms'},
-# 	),  # Does not claim to support Master System in info file, but does
-# 	LibretroCore(
-# 		'blueMSX',
-# 		EmulatorStatus.Good,
-# 		'bluemsx',
-# 		None,
-# 		{'dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u'},
-# 	),  # Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves; needs_fullpath=true
-# 	LibretroCore(
-# 		'bsnes',
-# 		EmulatorStatus.Good,
-# 		'bsnes',
-# 		command_lines.bsnes_libretro,
-# 		{'sfc', 'smc', 'gb', 'gbc', 'bs'},
-# 		configs=_bsnes_options,
-# 	),
-# 	LibretroCore(
-# 		'bsnes-hd beta',
-# 		EmulatorStatus.Good,
-# 		'bsnes_hd_beta',
-# 		command_lines.bsnes_libretro,
-# 		{'sfc', 'smc', 'gb', 'gbc', 'bs'},
-# 		configs=_bsnes_options,
-# 	),  # Does not claim to support .bs, but does
-# 	LibretroCore(
-# 		'Caprice32',
-# 		EmulatorStatus.Good,
-# 		'cap32',
-# 		None,
-# 		{'dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u'},
-# 	),  # cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks; needs_fullpath=true
-# 	LibretroCore('ChaiLove', 'chailove', None, {'chai', 'chailove'}),  # needs_fullpath=true
-# 	LibretroCore('Dinothawr', 'dinothawr', None, {'game'}),
-# 	LibretroCore('fMSX', 'fmsx', None, {'rom', 'mx1', 'mx2', 'dsk', 'm3u', 'cas', 'fdi'}),
-# 	LibretroCore('FreeChaF', 'freechaf', None, {'bin', 'chf'}),
-# 	LibretroCore('FreeIntv', EmulatorStatus.Janky, 'freeintv', None, {'int', 'bin', 'rom'}),
-# 	LibretroCore(
-# 		'FreeJ2ME', EmulatorStatus.Imperfect, 'freej2me', None, {'jar'}
-# 	),  # Seems to require a JDK
-# 	LibretroCore('FUSE', 'fuse', None, {'tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk'}),
-# 	LibretroCore(
-# 		'Gearboy',
-# 		EmulatorStatus.Good,
-# 		'gearboy',
-# 		simple_gb_emulator([], {'MBC1', 'MBC2', 'MBC3', 'MBC5'}, {'MBC1 Multicart'}),
-# 		{'gb', 'dmg', 'gbc', 'cgb', 'sgb'},
-# 	),
-# 	LibretroCore(
-# 		'Genesis Plus GX',
-# 		EmulatorStatus.Good,
-# 		'genesis_plus_gx',
-# 		command_lines.genesis_plus_gx,
-# 		{
-# 			'mdx',
-# 			'md',
-# 			'smd',
-# 			'gen',
-# 			'bin',
-# 			'cue',
-# 			'iso',
-# 			'sms',
-# 			'bms',
-# 			'gg',
-# 			'sg',
-# 			'68k',
-# 			'chd',
-# 			'm3u',
-# 		},
-# 	),  # needs_fullpath=true (but is that just for CD)
-# 	LibretroCore(
-# 		'Hatari', 'hatari', None, {'st', 'msa', 'stx', 'dim', 'm3u'}
-# 	),  # Theoretically supports .ipf but that is not compiled in with the build from the core downloader; needs_fullpath=true
-# 	LibretroCore('LowRes NX', 'lowresnx', None, {'nx'}),
-# 	LibretroCore('Mesen', 'mesen', command_lines.mesen, {'nes', 'fds', 'unf', 'unif'}),
-# 	LibretroCore(
-# 		'melonDS', 'melonds', command_lines.melonds, {'nds'}
-# 	),  # Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
-# 	LibretroCore('mGBA', 'mgba', command_lines.mgba, {'gb', 'gbc', 'gba'}),
-# 	LibretroCore(
-# 		'Mu', EmulatorStatus.Janky, 'mu', None, {'prc', 'pqa', 'img', 'pdb'}
-# 	),  # Still need to select application manually from emulated menu
-# 	LibretroCore(
-# 		'Mupen64Plus-Next',
-# 		EmulatorStatus.Good,
-# 		'mupen64plus_next',
-# 		None,
-# 		{'n64', 'v64', 'z64', 'bin', 'u1'},
-# 	),  # TODO: Command line function to reject roms with no detectable endianness
-# 	LibretroCore('NeoCD', 'neocd', None, {'cue', 'chd'}),
-# 	LibretroCore('O2EM', 'o2em', None, {'bin'}),
-# 	LibretroCore(
-# 		'Opera', EmulatorStatus.Imperfect, 'opera', None, {'iso', 'chd', 'bin', 'cue'}
-# 	),  # needs_fullpath=true
-# 	LibretroCore(
-# 		'PicoDrive',
-# 		EmulatorStatus.Good,
-# 		'picodrive',
-# 		simple_md_emulator([], {'pokestad', 'lion3'}),
-# 		{'bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u'},
-# 	),  # Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper; needs_fullpath=true (for CDs?)
-# 	LibretroCore('PokeMini', 'pokemini', None, {'min'}),
-# 	LibretroCore('Potator', 'potator', None, {'bin', 'sv'}),
-# 	LibretroCore('ProSystem', 'prosystem', command_lines.prosystem, {'a78', 'bin'}),
-# 	LibretroCore(
-# 		'PUAE',
-# 		EmulatorStatus.Good,
-# 		'puae',
-# 		None,
-# 		{
-# 			'adf',
-# 			'adz',
-# 			'dms',
-# 			'fdi',
-# 			'ipf',
-# 			'hdf',
-# 			'hdz',
-# 			'lha',
-# 			'slave',
-# 			'info',
-# 			'cue',
-# 			'ccd',
-# 			'nrg',
-# 			'mds',
-# 			'iso',
-# 			'chd',
-# 			'uae',
-# 			'm3u',
-# 			'rp9',
-# 		},
-# 	),  # Does require you to switch between RetroPad and CD32 pad accordingly…; needs_fullpath=true
-# 	LibretroCore(
-# 		'PX68k',
-# 		EmulatorStatus.Good,
-# 		'px68k',
-# 		None,
-# 		{'dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u'},
-# 	),  # needs_fullpath=true (tricky thing is that it might overwrite your uncompressed files if you leave them uncompressed? or something)
-# 	LibretroCore(
-# 		'SameBoy',
-# 		EmulatorStatus.Good,
-# 		'sameboy',
-# 		simple_gb_emulator(
-# 			[],
-# 			{'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'},
-# 			{'MBC1 Multicart'},
-# 		),
-# 		{'gb', 'gbc'},
-# 	),
-# 	LibretroCore('SameDuck', 'sameduck', None, {'bin'}),
-# 	LibretroCore('Stella', 'stella', None, {'a26', 'bin'}),
-# 	LibretroCore('Uzem', 'uzem', None, {'uze'}),
-# 	LibretroCore('Vecx', 'vecx', None, {'vec', 'bin'}),
-# 	LibretroCore(
-# 		'VeMUlator', EmulatorStatus.Imperfect, 'vemulator', None, {'vms', 'dci', 'bin'}
-# 	),  # Does a heckin bzzzz with a lot of things
-# 	LibretroCore(
-# 		'Virtual Jaguar',
-# 		EmulatorStatus.Imperfect,
-# 		'virtualjaguar',
-# 		None,
-# 		{'j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg'},
-# 	),
-# 	LibretroCore(
-# 		'X Millennium',
-# 		EmulatorStatus.Good,
-# 		'x1',
-# 		None,
-# 		{'dx1', '2d', '2hd', 'tfd', 'd88', '88d', 'hdm', 'xdf', 'dup', 'cmd'},
-# 	),  # Claims to support tap but doesn't
-# }
+libretro_cores: 'Collection[type[LibretroCore]]' = {
+	# 	LibretroCore('81', '81', None, {'p', 'tzx', 't81'}),
+	# 	LibretroCore('Beetle Cygne', 'mednafen_cygne', None, {'ws', 'wsc', 'pc2'}),
+	# 	LibretroCore('Beetle NeoPop', 'mednafen_ngp', None, {'ngp', 'ngc', 'ngpc', 'npc'}),
+	# 	LibretroCore(
+	# 		'Beetle PCE Fast',
+	# 			# 		'mednafen_pce_fast',
+	# 		None,
+	# 		{'pce', 'cue', 'ccd', 'toc', 'm3u', 'chd'},
+	# 	),
+	# 	LibretroCore(
+	# 		'Beetle PCE',
+	# 			# 		'mednafen_pce',
+	# 		None,
+	# 		{'pce', 'cue', 'ccd', 'sgx', 'toc', 'm3u', 'chd'},
+	# 	),
+	# 	LibretroCore(
+	# 		'Beetle PC-FX',
+	# 			# 		'mednafen_pcfx',
+	# 		None,
+	# 		{'cue', 'ccd', 'toc', 'chd', 'm3u'},
+	# 	),
+	# 	LibretroCore(
+	# 		'Beetle PSX HW',
+	# 			# 		'mednafen_psx_hw',
+	# 		None,
+	# 		{'cue', 'chd', 'ccd', 'toc', 'm3u', 'exe', 'pbp'},
+	# 	),  # needs_fullpath=true
+	# 	LibretroCore(
+	# 		'Beetle Saturn',
+	# 			# 		'mednafen_saturn',
+	# 		None,
+	# 		{'cue', 'chd', 'ccd', 'toc', 'm3u'},
+	# 	),  # needs_fullpath=true
+	# 	LibretroCore('Beetle VB', 'mednafen_vb', None, {'vb', 'vboy', 'bin'}),
+	# 	LibretroCore(
+	# 		'BlastEm',
+	# 			# 		'blastem',
+	# 		command_lines.blastem,
+	# 		{'md', 'bin', 'smd', 'gen', 'sms'},
+	# 	),  # Does not claim to support Master System in info file, but does
+	# 	LibretroCore(
+	# 		'blueMSX',
+	# 			# 		'bluemsx',
+	# 		None,
+	# 		{'dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u'},
+	# 	),  # Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves; needs_fullpath=true
+	# 	LibretroCore(
+	# 		'bsnes',
+	# 			# 		'bsnes',
+	# 		command_lines.bsnes_libretro,
+	# 		{'sfc', 'smc', 'gb', 'gbc', 'bs'},
+	# 		configs=_bsnes_options,
+	# 	),
+	# 	LibretroCore(
+	# 		'bsnes-hd beta',
+	# 			# 		'bsnes_hd_beta',
+	# 		command_lines.bsnes_libretro,
+	# 		{'sfc', 'smc', 'gb', 'gbc', 'bs'},
+	# 		configs=_bsnes_options,
+	# 	),  # Does not claim to support .bs, but does
+	# 	LibretroCore(
+	# 		'Caprice32',
+	# 			# 		'cap32',
+	# 		None,
+	# 		{'dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u'},
+	# 	),  # cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks; needs_fullpath=true
+	# 	LibretroCore('ChaiLove', 'chailove', None, {'chai', 'chailove'}),  # needs_fullpath=true
+	# 	LibretroCore('Dinothawr', 'dinothawr', None, {'game'}),
+	# 	LibretroCore('fMSX', 'fmsx', None, {'rom', 'mx1', 'mx2', 'dsk', 'm3u', 'cas', 'fdi'}),
+	# 	LibretroCore('FreeChaF', 'freechaf', None, {'bin', 'chf'}),
+	# 	LibretroCore('FreeIntv', EmulatorStatus.Janky, 'freeintv', None, {'int', 'bin', 'rom'}),
+	# 	LibretroCore(
+	# 		'FreeJ2ME', EmulatorStatus.Imperfect, 'freej2me', None, {'jar'}
+	# 	),  # Seems to require a JDK
+	# 	LibretroCore('FUSE', 'fuse', None, {'tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk'}),
+	# 	LibretroCore(
+	# 		'Gearboy',
+	# 			# 		'gearboy',
+	# 		simple_gb_emulator([], {'MBC1', 'MBC2', 'MBC3', 'MBC5'}, {'MBC1 Multicart'}),
+	# 		{'gb', 'dmg', 'gbc', 'cgb', 'sgb'},
+	# 	),
+	# 	LibretroCore(
+	# 		'Genesis Plus GX',
+	# 			# 		'genesis_plus_gx',
+	# 		command_lines.genesis_plus_gx,
+	# 		{
+	# 			'mdx',
+	# 			'md',
+	# 			'smd',
+	# 			'gen',
+	# 			'bin',
+	# 			'cue',
+	# 			'iso',
+	# 			'sms',
+	# 			'bms',
+	# 			'gg',
+	# 			'sg',
+	# 			'68k',
+	# 			'chd',
+	# 			'm3u',
+	# 		},
+	# 	),  # needs_fullpath=true (but is that just for CD)
+	# 	LibretroCore(
+	# 		'Hatari', 'hatari', None, {'st', 'msa', 'stx', 'dim', 'm3u'}
+	# 	),  # Theoretically supports .ipf but that is not compiled in with the build from the core downloader; needs_fullpath=true
+	# 	LibretroCore('LowRes NX', 'lowresnx', None, {'nx'}),
+	# 	LibretroCore('Mesen', 'mesen', command_lines.mesen, {'nes', 'fds', 'unf', 'unif'}),
+	# 	LibretroCore(
+	# 		'melonDS', 'melonds', command_lines.melonds, {'nds'}
+	# 	),  # Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
+	# 	LibretroCore('mGBA', 'mgba', command_lines.mgba, {'gb', 'gbc', 'gba'}),
+	# 	LibretroCore(
+	# 		'Mu', EmulatorStatus.Janky, 'mu', None, {'prc', 'pqa', 'img', 'pdb'}
+	# 	),  # Still need to select application manually from emulated menu
+	# 	LibretroCore(
+	# 		'Mupen64Plus-Next',
+	# 			# 		'mupen64plus_next',
+	# 		None,
+	# 		{'n64', 'v64', 'z64', 'bin', 'u1'},
+	# 	),  # TODO: Command line function to reject roms with no detectable endianness
+	# 	LibretroCore('NeoCD', 'neocd', None, {'cue', 'chd'}),
+	# 	LibretroCore('O2EM', 'o2em', None, {'bin'}),
+	# 	LibretroCore(
+	# 		'Opera', EmulatorStatus.Imperfect, 'opera', None, {'iso', 'chd', 'bin', 'cue'}
+	# 	),  # needs_fullpath=true
+	# 	LibretroCore(
+	# 		'PicoDrive',
+	# 			# 		'picodrive',
+	# 		simple_md_emulator([], {'pokestad', 'lion3'}),
+	# 		{'bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u'},
+	# 	),  # Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper; needs_fullpath=true (for CDs?)
+	# 	LibretroCore('PokeMini', 'pokemini', None, {'min'}),
+	# 	LibretroCore('Potator', 'potator', None, {'bin', 'sv'}),
+	# 	LibretroCore('ProSystem', 'prosystem', command_lines.prosystem, {'a78', 'bin'}),
+	# 	LibretroCore(
+	# 		'PUAE',
+	# 			# 		'puae',
+	# 		None,
+	# 		{
+	# 			'adf',
+	# 			'adz',
+	# 			'dms',
+	# 			'fdi',
+	# 			'ipf',
+	# 			'hdf',
+	# 			'hdz',
+	# 			'lha',
+	# 			'slave',
+	# 			'info',
+	# 			'cue',
+	# 			'ccd',
+	# 			'nrg',
+	# 			'mds',
+	# 			'iso',
+	# 			'chd',
+	# 			'uae',
+	# 			'm3u',
+	# 			'rp9',
+	# 		},
+	# 	),  # Does require you to switch between RetroPad and CD32 pad accordingly…; needs_fullpath=true
+	# 	LibretroCore(
+	# 		'PX68k',
+	# 			# 		'px68k',
+	# 		None,
+	# 		{'dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u'},
+	# 	),  # needs_fullpath=true (tricky thing is that it might overwrite your uncompressed files if you leave them uncompressed? or something)
+	# 	LibretroCore(
+	# 		'SameBoy',
+	# 			# 		'sameboy',
+	# 		simple_gb_emulator(
+	# 			[],
+	# 			{'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'},
+	# 			{'MBC1 Multicart'},
+	# 		),
+	# 		{'gb', 'gbc'},
+	# 	),
+	# 	LibretroCore('SameDuck', 'sameduck', None, {'bin'}),
+	# 	LibretroCore('Stella', 'stella', None, {'a26', 'bin'}),
+	# 	LibretroCore('Uzem', 'uzem', None, {'uze'}),
+	# 	LibretroCore('Vecx', 'vecx', None, {'vec', 'bin'}),
+	# 	LibretroCore(
+	# 		'VeMUlator', EmulatorStatus.Imperfect, 'vemulator', None, {'vms', 'dci', 'bin'}
+	# 	),  # Does a heckin bzzzz with a lot of things
+	# 	LibretroCore(
+	# 		'Virtual Jaguar',
+	# 		EmulatorStatus.Imperfect,
+	# 		'virtualjaguar',
+	# 		None,
+	# 		{'j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg'},
+	# 	),
+	# 	LibretroCore(
+	# 		'X Millennium',
+	# 			# 		'x1',
+	# 		None,
+	# 		{'dx1', '2d', '2hd', 'tfd', 'd88', '88d', 'hdm', 'xdf', 'dup', 'cmd'},
+	# 	),  # Claims to support tap but doesn't
+}
+libretro_cores_by_name = {core.name(): core for core in libretro_cores}
 
 
 class DOSBoxStagingConfig(BaseEmulatorConfig):
@@ -1388,7 +1187,7 @@ mac_emulators = {BasiliskII, SheepShaver}
 
 # Basically this is here for the purpose of generating configs
 # TODO: Return an iterator and make a "has config" interface so we don't have to invent _JustHereForConfigValues
-all_emulators: 'Sequence[type[Emulator]]' = (*standalone_emulators, dos_emulators, mac_emulators)
+all_emulators: 'Sequence[type[Emulator]]' = (*standalone_emulators, *dos_emulators, *mac_emulators)
 # libretro_cores, libretro_frontends
 # all_emulators: 'MutableSequence[Emulator | LibretroFrontend]' = _standalone_emulators
 # all_emulators: 'MutableSequence[Emulator[EmulatedGame] | LibretroFrontend]' = []

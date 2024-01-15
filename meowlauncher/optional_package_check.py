@@ -50,7 +50,7 @@ def main() -> None:
 	
 	scummvm = ScummVM()
 	
-	print('ScummVM executable:', scummvm.is_path_valid)
+	print('ScummVM executable:', scummvm.is_available)
 	print('ScummVM config file exists:', scummvm.config.scummvm_config_path.is_file())
 	# TODO: Check hactool/nstool, all the other various databases and things in stuff.txt
 

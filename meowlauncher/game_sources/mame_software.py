@@ -6,6 +6,7 @@ TODO: Don't blow up if MAME's not installed or anything like that
 TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such, which isn't in there anyway). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't"""
 import logging
 from collections.abc import Collection, Mapping, Sequence
+from pathlib import PurePath
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.exceptions import EmulationNotSupportedError
@@ -31,7 +32,7 @@ class SoftwareListPlatform:
 		return self.launch_params_function(software)
 
 
-def _launch_with_software(system_name: str, software: 'SoftwareLauncher') -> Sequence[str]:
+def _launch_with_software(system_name: str, software: 'SoftwareLauncher') -> Sequence[str | PurePath]:
 	# Use fully qualified id with : here to avoid ambiguity
 	return mame_base(system_name, software=software.id)
 

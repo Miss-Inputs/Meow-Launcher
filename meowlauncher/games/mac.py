@@ -25,14 +25,15 @@ try:
 except ImportError:
 	have_pillow = False
 
+import contextlib
+
 from meowlauncher.common_types import ByteAmount
 from meowlauncher.info import Date
 from meowlauncher.manually_specified_game import ManuallySpecifiedGame, ManuallySpecifiedLauncher
-import contextlib
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
-	from meowlauncher.configured_emulator import ConfiguredEmulator
+	from meowlauncher.emulator import Emulator
 
 logger = logging.getLogger(__name__)
 
@@ -450,7 +451,7 @@ class MacApp(ManuallySpecifiedGame):
 			self.info.specific_info['Architecture'] = self.json['arch']
 				
 class MacLauncher(ManuallySpecifiedLauncher):
-	def __init__(self, app: MacApp, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
+	def __init__(self, app: MacApp, emulator: 'Emulator[MacApp]', platform_config: 'PlatformConfig') -> None:
 		self.game: MacApp = app
 		super().__init__(app, emulator, platform_config)
 

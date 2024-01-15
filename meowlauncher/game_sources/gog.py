@@ -157,7 +157,7 @@ class WindowsGOG(GameSource):
 			try:
 				yield WindowsGOGLauncher(game)
 			except GameNotSupportedError:
-				logger.exception('Game %s not supported:', game)
+				logger.exception('Game %s not supported', game)
 
 
 class GOG(CompoundGameSource):

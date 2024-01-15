@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from meowlauncher.config import main_config
 from meowlauncher.exceptions import GameNotSupportedError
 from meowlauncher.game_source import CompoundGameSource, GameSource
-from meowlauncher.game_sources import gog, itch_io, mame_software
+from meowlauncher.game_sources import itch_io, mame_software
 from meowlauncher.game_sources.all_sources import game_sources
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
 
@@ -31,7 +31,7 @@ def add_game_source(source: GameSource) -> int:
 			try:
 				make_linux_desktop_for_launcher(launcher, source.game_type())
 			except GameNotSupportedError:
-				logger.exception('Game %s not supported:', launcher.game)
+				logger.exception('Game %s not supported', launcher.game)
 			else:
 				count += 1
 

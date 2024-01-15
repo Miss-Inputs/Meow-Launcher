@@ -1,13 +1,13 @@
-#!/usr/bin/env python3
-
 import logging
 import os
+from abc import abstractmethod
+from collections.abc import Mapping
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING
 
 from meowlauncher.config import main_config
 from meowlauncher.data.emulated_platforms import platforms
-from meowlauncher.data.emulators import standalone_emulators_by_name
+from meowlauncher.data.emulators import libretro_cores_by_name, standalone_emulators_by_name
 from meowlauncher.emulator import LibretroCore, StandardEmulator
 from meowlauncher.exceptions import (
 	EmulationNotSupportedError,
@@ -33,43 +33,33 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _get_emulator_config(emulator: StandardEmulator | LibretroCore):
-	"""TODO: Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out"""
-	if isinstance(emulator, (MednafenModule, ViceEmulator, MAMEDriver)):
-		specific = emulator_configs[emulator.config_name]
-		global_config = emulator_configs[emulator.name]
-		combined: dict[str, TypeOfConfigValue] = {}
-		combined.update(global_config.options)
-		combined.update(specific.options)
-		if isinstance(emulator, ViceEmulator):
-			exe_path = specific.exe_path  # It does not make sense to specify path for VICE globally
-		else:
-			# By default, use global Mednafen/MAME path (if it is set), but if it is set to something specific, use that
-			exe_path = (
-				specific.exe_path
-				if specific.exe_path != emulator.default_exe_name
-				else global_config.exe_path
-			)
-		return EmulatorConfig(exe_path, combined)
-	return emulator_configs[emulator.config_name]
-
-
 class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	"""An emulated game system, as an individual source. Use with ROMs to cycle through all of them"""
 
-	def __init__(
-		self, roms_config: ROMsConfig, platform_config, platform: 'StandardEmulatedPlatform'
-	) -> None:
+	@classmethod
+	def emulator_types(cls) -> Mapping[str, type[StandardEmulator]]:
+		return standalone_emulators_by_name
+
+	@classmethod
+	def libretro_core_types(cls) -> Mapping[str, type[LibretroCore]] | None:
+		return libretro_cores_by_name
+
+	@classmethod
+	@abstractmethod
+	def platform(cls) -> 'StandardEmulatedPlatform':
+		...
+
+	def __init__(self, roms_config: ROMsConfig, platform_config) -> None:
 		# Bit naughty, because it has a different signature? Hmm maybe not
-		self.platform: 'StandardEmulatedPlatform' = platform
 		self.roms_config = roms_config
-		super().__init__(platform_config, platform, standalone_emulators_by_name, {})
+		super().__init__(platform_config)
 
 	@property
 	def is_available(self) -> bool:
 		return self.platform_config.is_available
 
 	def iter_roms_and_subfolders(self) -> 'Iterator[tuple[ROM, Sequence[str]]]':
+		platform = self.platform()
 		for rom_dir in self.platform_config.paths:
 			if not rom_dir.is_dir():
 				logger.warning('Oh no %s has invalid ROM dir: %s', self.name(), rom_dir)
@@ -91,7 +81,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				):
 					continue
 
-				folder_check = self.platform.folder_check
+				folder_check = platform.folder_check
 				if folder_check:
 					remaining_subdirs = []  # The subdirectories of rom_dir that aren't folder ROMs
 					for d in dirs:
@@ -113,9 +103,9 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				for name in sorted(files):
 					path = Path(root, name)
 					# TODO: We might actually want to do something with associated documents later, but for now, we know we aren't doing anything with them
-					if (
-						not self.platform.is_valid_file_type(path.suffix[1:].lower())
-					) and path.suffix[1:].lower() in {'txt', 'md', 'jpg', 'nfo', 'gif', 'bmp'}:
+					if (not platform.is_valid_file_type(path.suffix[1:].lower())) and path.suffix[
+						1:
+					].lower() in {'txt', 'md', 'jpg', 'nfo', 'gif', 'bmp'}:
 						continue
 					if not main_config.full_rescan and has_been_done('ROM', str(path)):
 						continue
@@ -135,7 +125,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 						)
 						continue
 
-					if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
+					if not rom.is_folder and not platform.is_valid_file_type(rom.extension):
 						# TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
 						logger.debug(
 							'Invalid extension for this platform in %s %s: %s',
@@ -154,10 +144,11 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					yield rom, subfolders
 
 	def iter_games(self) -> 'Iterator[ROMGame]':
+		platform = self.platform()
 		for rom, subfolders in self.iter_roms_and_subfolders():
 			# TODO: Should have a categories_from_subfolders option
 			try:
-				game = ROMGame(rom, self.platform, self.platform_config)
+				game = ROMGame(rom, platform, self.platform_config)
 				categories = (
 					subfolders[:-1]
 					if subfolders and subfolders[-1] == game.rom.name
@@ -173,33 +164,27 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			except Exception:
 				logger.exception('Could not load %s as game', rom)
 
-	def try_emulator(
-		self, game: ROMGame, chosen_emulator: StandardEmulator | LibretroCore
-	) -> 'ROMLauncher':
-		potential_emulator_config = _get_emulator_config(chosen_emulator)
-		potential_emulator: ConfiguredStandardEmulator
-		if isinstance(chosen_emulator, LibretroCore):
-			if (
-				not main_config.libretro_frontend
-			):  # TODO: This should be in the config of LibretroCore actually, see secret evil plan
-				raise EmulationNotSupportedError('Must choose a frontend to run libretro cores')
-			frontend_config = emulator_configs[main_config.libretro_frontend]
-			frontend = libretro_frontends[main_config.libretro_frontend]
-			potential_emulator = LibretroCoreWithFrontend(
-				chosen_emulator, potential_emulator_config, frontend, frontend_config
-			)
-		else:
-			potential_emulator = ConfiguredStandardEmulator(
-				chosen_emulator, potential_emulator_config
-			)
+	def try_emulator(self, game: ROMGame, chosen_emulator: StandardEmulator) -> 'ROMLauncher':
+		# potential_emulator_config = _get_emulator_config(chosen_emulator)
+		# potential_emulator: ConfiguredStandardEmulator
+		# if isinstance(chosen_emulator, LibretroCore):
+		# 	if (
+		# 		not main_config.libretro_frontend
+		# 	):  # TODO: This should be in the config of LibretroCore actually, see secret evil plan
+		# 		raise EmulationNotSupportedError('Must choose a frontend to run libretro cores')
+		# 	frontend_config = emulator_configs[main_config.libretro_frontend]
+		# 	frontend = libretro_frontends[main_config.libretro_frontend]
+		# 	potential_emulator = LibretroCoreWithFrontend(
+		# 		chosen_emulator, potential_emulator_config, frontend, frontend_config
+		# 	)
+		# else:
+		# 	potential_emulator = ConfiguredStandardEmulator(
+		# 		chosen_emulator, potential_emulator_config
+		# 	)
 
-		if not potential_emulator.supports_rom(game.rom):
-			message = 'folders' if game.rom.is_folder else f'{game.rom.extension} extension'
-			raise ExtensionNotSupportedError(
-				f'{potential_emulator.name} does not support {message}'
-			)
+		chosen_emulator.check_game(game)
 
-		return ROMLauncher(game, potential_emulator, self.platform_config)
+		return ROMLauncher(game, chosen_emulator, self.platform_config)
 
 	def iter_launchers(self, game: 'Game') -> 'Iterator[ROMLauncher]':
 		if not isinstance(game, ROMGame):
@@ -207,7 +192,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 		exception = None
 		chosen_emulator_names = []  # For warning message
-		for emulator in self.iter_chosen_emulators():
+		for emulator in self.chosen_emulators:
 			chosen_emulator_names.append(emulator.name())
 			try:
 				launcher = self.try_emulator(game, emulator)
@@ -252,13 +237,17 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		return 'ROMs'
 
 
-def _rom_platform(platform: str) -> type[ROMPlatform]:
+def _rom_platform(platform: 'StandardEmulatedPlatform') -> type[ROMPlatform]:
 	"""Using this because otherwise I'm not sure how I get name to return the platform name since that requires construction
 	This feels REALLY cursed"""
 
 	class _ROMPlatform(ROMPlatform):
 		@classmethod
 		def name(cls) -> str:
+			return platform.name
+
+		@classmethod
+		def platform(cls) -> 'StandardEmulatedPlatform':
 			return platform
 
 	return _ROMPlatform
@@ -267,36 +256,29 @@ def _rom_platform(platform: str) -> type[ROMPlatform]:
 class ROMs(CompoundGameSource):
 	"""Source for emulated games that are "normal" and are mostly just one file for each game (if not a folder or a few files), and are simple conceptually"""
 
+	config: ROMsConfig
+
 	def _iter_platform_sources(self) -> 'Iterator[ROMPlatform]':
 		"""Returns an iterator for a ROMPlatform for every platform in platform_configs, excpet DOS/Mac/etc and anything in main_config.excluded_platforms"""
-		for platform_name, platform_config in platform_configs.items():
-			platform = platforms.get(platform_name)
-			if not platform:
-				# As DOS, Mac, etc would be in platform_configs too
-				continue
-			if platform_name in self.config.excluded_platforms:
-				continue
-			platform_source = _rom_platform(platform_name)(self.config, platform_config, platform)
-			if not platform_source.is_available:
-				continue
-			yield platform_source
 
-	def __init__(self) -> None:
-		super().__init__()
-		self.config: ROMsConfig
+		if self.config.platforms:
+			for platform_name in self.config.platforms:
+				yield _rom_platform(platforms[platform_name])(
+					self.config, platform_configs[platform_name]
+				)
+		else:
+			for platform_name, platform_config in platform_configs.items():
+				platform = platforms.get(platform_name)
+				if not platform:
+					# As DOS, Mac, etc would be in platform_configs too
+					continue
+				if platform_name in self.config.excluded_platforms:
+					continue
+				yield _rom_platform(platform)(self.config, platform_config)
 
 	@property
 	def sources(self) -> 'Sequence[GameSource]':
-		return tuple(
-			(
-				_rom_platform(only_platform)(
-					self.config, platform_configs[only_platform], platforms[only_platform]
-				)
-				for only_platform in self.config.platforms
-			)
-			if self.config.platforms
-			else self._iter_platform_sources()
-		)
+		return [platform for platform in self._iter_platform_sources() if platform.is_available]
 
 	@classmethod
 	def description(cls) -> str:

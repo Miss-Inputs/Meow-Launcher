@@ -1,31 +1,35 @@
 from abc import abstractmethod
+from collections.abc import Sequence
 from enum import Enum
 from functools import cache
+from pathlib import PurePath
 from typing import TYPE_CHECKING, TypeVar
 
-from meowlauncher.exceptions import EmulationNotSupportedError
-from meowlauncher.games.common.emulator_command_line_helpers import mednafen_module_launch
+from meowlauncher.exceptions import EmulationNotSupportedError, ExtensionNotSupportedError
+from meowlauncher.games.common.emulator_command_line_helpers import (
+	mame_base,
+	mednafen_module_launch,
+)
 from meowlauncher.games.roms.rom_game import ROMGame
 
 from .game import Game
+from .launch_command import LaunchCommand, rom_path_argument
 from .runner import BaseRunnerConfig, HostPlatform, Runner
 
-EmulatorGameType = TypeVar('EmulatorGameType', bound=Game)
+EmulatorGameType_co = TypeVar('EmulatorGameType_co', bound=Game, covariant=True)
 if TYPE_CHECKING:
 	from collections.abc import Callable, Collection, Mapping
 
 	from meowlauncher.config_types import TypeOfConfigValue
-
-	from .launch_command import LaunchCommand
 
 	LibretroFrontendLaunchCommandFunc = Callable[
 		[Game, Mapping[str, TypeOfConfigValue]], LaunchCommand
 	]
 
 	GenericLaunchCommandFunc = Callable[
-		[EmulatorGameType, 'Emulator[EmulatorGameType]'], LaunchCommand
+		[EmulatorGameType_co, 'Emulator[EmulatorGameType_co]'], LaunchCommand
 	]
-	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame]
+	ROMGameLaunchFunc = Callable[[ROMGame, 'StandardEmulator'], LaunchCommand]
 
 
 class EmulatorStatus(Enum):
@@ -74,7 +78,7 @@ def _make_default_config(name: str) -> type[BaseEmulatorConfig]:
 	return EmulatorConfig
 
 
-class Emulator(Runner[EmulatorGameType]):
+class Emulator(Runner[EmulatorGameType_co]):
 	@classmethod
 	def config_class(cls) -> type[BaseEmulatorConfig]:
 		return _make_default_config(cls.name())
@@ -101,6 +105,27 @@ class StandardEmulator(Emulator[ROMGame]):
 	def supported_compression(cls) -> 'Collection[str]':
 		return frozenset()
 
+	def supports_extension(self, extension: str) -> bool:
+		# Is there a need for this to be a method and not classmethod? Would we ever change it dynamically depending on config?
+		return extension in self.supported_extensions()
+
+	def supports_compressed_extension(self, extension: str) -> bool:
+		return extension in self.supported_compression()
+
+	@property
+	def supports_folders(self) -> bool:
+		return '/' in self.supported_extensions()
+
+	def check_game(self, game: ROMGame) -> None:
+		"""Raises GameNotSupportedError/ExtensionNotSupportedError/etc for any reason the game is not supported, or do nothing if the game is supported
+		:raises GameNotSupportedError: If the game is not supported"""
+		if game.rom.is_folder and not self.supports_folders:
+			raise ExtensionNotSupportedError(f'{self} does not support folders')
+		if not self.supports_extension(game.rom.extension):
+			raise ExtensionNotSupportedError(
+				f'{self} does not support extension {game.rom.extension}'
+			)
+
 
 _standalone_emulator_types: dict[str, type[StandardEmulator]] = {}
 
@@ -108,13 +133,14 @@ _standalone_emulator_types: dict[str, type[StandardEmulator]] = {}
 def standalone_emulator(
 	name: str,
 	exe_name: str,
-	launch_game_func: 'ROMGameLaunchFunc',
+	launch_game_func: 'ROMGameLaunchFunc | Sequence[str | PurePath] | None',
 	supported_extensions: 'Collection[str]',
 	supported_compression: 'Collection[str] | None' = None,
 	status: EmulatorStatus = EmulatorStatus.Good,
 	config_class: type[BaseEmulatorConfig] | None = None,
 	host_platform: HostPlatform | None = None,
 	info_name: str | None = None,
+	check_game_func: 'Callable[[ROMGame, StandardEmulator], None] | None' = None,
 ) -> type[StandardEmulator]:
 	"""Creates a simple StandaloneEmulator, because typing them all out would suck a lot of balls"""
 
@@ -150,17 +176,28 @@ def standalone_emulator(
 			return config_class if config_class else super().config_class()
 
 		def get_game_command(self, game: ROMGame) -> 'LaunchCommand':
+			if launch_game_func is None:
+				return LaunchCommand(self.exe_path, [rom_path_argument])
+			if isinstance(launch_game_func, Sequence):
+				return LaunchCommand(self.exe_path, launch_game_func)
 			return launch_game_func(game, self)
 
 		@classmethod
 		def info_name(cls) -> str:
 			return info_name if info_name else name
 
+		def check_game(self, game: ROMGame) -> None:
+			if check_game_func:
+				check_game_func(game, self)
+			return super().check_game(game)
+
 	return _standalone_emulator_types.setdefault(name, StandaloneEmulator)
 
 
 class MednafenConfig(BaseEmulatorConfig):
 	"""Config shared between all Mednafen modules"""
+
+	# TODO: Override __init__ or settings_customize_sources or whichever to update from a global [Mednafen] config section
 
 	@classmethod
 	def section(cls) -> str:
@@ -177,11 +214,12 @@ def mednafen_module(
 	launch_game_func: 'ROMGameLaunchFunc | str',
 	supported_compression: 'Collection[str] | None' = None,
 	status: EmulatorStatus = EmulatorStatus.Good,
+	check_game_func: 'Callable[[ROMGame, StandardEmulator], None] | None' = None,
 ) -> type[StandardEmulator]:
 	class MednafenModule(StandardEmulator):
 		@classmethod
 		def name(cls) -> str:
-			return name
+			return f'Mednafen ({name})'
 
 		@classmethod
 		def exe_name(cls) -> str:
@@ -213,10 +251,16 @@ def mednafen_module(
 				return mednafen_module_launch(launch_game_func, self.exe_path)
 			return launch_game_func(game, self)
 
+		def check_game(self, game: ROMGame) -> None:
+			if check_game_func:
+				check_game_func(game, self)
+			return super().check_game(game)
+
 	return _standalone_emulator_types.setdefault(name, MednafenModule)
 
 
 class BaseMAMEDriverConfig(BaseEmulatorConfig):
+	# TODO: Override __init__ or settings_customize_sources or whichever to update from global MAME config
 	software_compatibility_threshold: int | None = 1
 	# TODO: This should be an enum, and also make sure there's a way to set None in the ini file that will be validated properly
 	"""0 = broken 1 = imperfect 2 = working other value = ignore; anything in the software list needs this to be considered compatible or None to ignore"""
@@ -237,25 +281,51 @@ def _make_mame_driver_config(name: str) -> type[BaseMAMEDriverConfig]:
 	return MAMEDriverConfig
 
 
+class BaseMAMEDriver(StandardEmulator):
+	config: BaseMAMEDriverConfig
+
+	@classmethod
+	def exe_name(cls) -> str:
+		return 'mame'
+
+	@classmethod
+	def supported_compression(cls) -> 'Collection[str]':
+		return {'7z', 'zip'}
+
+
 def mame_driver(
 	name: str,
-	launch_params: 'ROMGameLaunchFunc',
+	launch_game_func: 'Callable[[ROMGame, BaseMAMEDriver], LaunchCommand] | tuple[str, str]',
 	supported_extensions: 'Collection[str]',
-	config_class: BaseMAMEDriverConfig | None = None,
-):
-	raise NotImplementedError()
+	config_class: type[BaseMAMEDriverConfig] | None = None,
+	status: EmulatorStatus = EmulatorStatus.Good,
+	**kwargs
+) -> type[BaseMAMEDriver]:
+	class MAMEDriver(BaseMAMEDriver):
+		@classmethod
+		def name(cls) -> str:
+			return f'MAME ({name})'
 
-	# StandardEmulator.__init__(
-	# 	self,
-	# 	'MAME',
-	# 	status,
-	# 	'mame',
-	# 	launch_params,
-	# 	supported_extensions,
-	# 	{'7z', 'zip'},
-	# 	_configs,
-	# 	config_name=f'MAME ({name})',
-	# )
+		@classmethod
+		def supported_extensions(cls) -> 'Collection[str]':
+			return supported_extensions
+
+		@classmethod
+		def status(cls) -> EmulatorStatus:
+			return status
+
+		@classmethod
+		def config_class(cls) -> type[BaseMAMEDriverConfig]:
+			return config_class if config_class else _make_mame_driver_config(name)
+
+		def get_game_command(self, game: ROMGame) -> 'LaunchCommand':
+			if isinstance(launch_game_func, tuple):
+				driver, slot = launch_game_func
+				return LaunchCommand(self.exe_path, mame_base(driver, slot, **kwargs))
+			return launch_game_func(game, self)
+
+	_standalone_emulator_types[name] = MAMEDriver
+	return MAMEDriver
 
 
 def vice_emulator(
@@ -264,6 +334,7 @@ def vice_emulator(
 	func: 'ROMGameLaunchFunc',
 	status: EmulatorStatus = EmulatorStatus.Good,
 ) -> type[StandardEmulator]:
+	# TODO: Override __init__ or settings_customize_sources or whichever to update from global [VICE] config section
 	vice_extensions = {
 		'd64',
 		'g64',
@@ -298,53 +369,55 @@ def vice_emulator(
 
 
 class LibretroCore(Emulator[Game]):
-	def __init__(
-		self,
-		name: str,
-		status: EmulatorStatus,
-		default_exe_name: str,
-		launch_command_func: 'GenericLaunchCommandFunc[Game] | None',
-		supported_extensions: 'Collection[str]',
-		configs=None,
-	):
-		self.supported_extensions = supported_extensions
+	pass
+	# def __init__(
+	# 	self,
+	# 	name: str,
+	# 	status: EmulatorStatus,
+	# 	default_exe_name: str,
+	# 	launch_command_func: 'GenericLaunchCommandFunc[Game] | None',
+	# 	supported_extensions: 'Collection[str]',
+	# 	configs=None,
+	# ):
+	# 	self.supported_extensions = supported_extensions
 
-		# TODO: XXX: main_config.libretro_cores_directory (need to screw around with circular imports)
-		# Maybe resolve it somewhere else, since this would potentially be able to have its own Settings class
-		default_path = default_exe_name + '_libretro.so'
-		super().__init__(
-			name,
-			status,
-			str(default_path),
-			launch_command_func,
-			config_name=name + ' (libretro)',
-			configs=configs,
-		)
+	# 	# TODO: XXX: main_config.libretro_cores_directory (need to screw around with circular imports)
+	# 	# Maybe resolve it somewhere else, since this would potentially be able to have its own Settings class
+	# 	default_path = default_exe_name + '_libretro.so'
+	# 	super().__init__(
+	# 		name,
+	# 		status,
+	# 		str(default_path),
+	# 		launch_command_func,
+	# 		config_name=name + ' (libretro)',
+	# 		configs=configs,
+	# 	)
 
-	@property
-	def friendly_type_name(self) -> str:
-		return 'libretro core'
+	# @property
+	# def friendly_type_name(self) -> str:
+	# 	return 'libretro core'
 
 
 class LibretroFrontend(Runner):
-	def __init__(
-		self,
-		name: str,
-		status: EmulatorStatus,
-		default_exe_name: str,
-		launch_command_func: 'LibretroFrontendLaunchCommandFunc',
-		supported_compression: 'Collection[str] | None' = None,
-		host_platform: HostPlatform = HostPlatform.Linux,
-	):
-		self._name = name
-		self.status = status
-		self.default_exe_name = default_exe_name
-		self.launch_command_func = launch_command_func
-		self.supported_compression = supported_compression if supported_compression else ()
-		self.config_name = name  # emulator_configs needs this, as we have decided that frontends can have their own config
-		self.configs = {}  # TODO: XXX: this is just here to make it work for now
-		super().__init__(host_platform)
+	pass
+	# def __init__(
+	# 	self,
+	# 	name: str,
+	# 	status: EmulatorStatus,
+	# 	default_exe_name: str,
+	# 	launch_command_func: 'LibretroFrontendLaunchCommandFunc',
+	# 	supported_compression: 'Collection[str] | None' = None,
+	# 	host_platform: HostPlatform = HostPlatform.Linux,
+	# ):
+	# 	self._name = name
+	# 	self.status = status
+	# 	self.default_exe_name = default_exe_name
+	# 	self.launch_command_func = launch_command_func
+	# 	self.supported_compression = supported_compression if supported_compression else ()
+	# 	self.config_name = name  # emulator_configs needs this, as we have decided that frontends can have their own config
+	# 	self.configs = {}  # TODO: XXX: this is just here to make it work for now
+	# 	super().__init__(host_platform)
 
-	@property
-	def name(self) -> str:
-		return self._name
+	# @property
+	# def name(self) -> str:
+	# 	return self._name

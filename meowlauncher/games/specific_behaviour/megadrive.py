@@ -14,6 +14,7 @@ from meowlauncher.games.mame_common.machine import (
 	does_machine_match_name,
 	iter_machines_from_source_file,
 )
+from meowlauncher.games.mame_common.mame import MAME
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.info import Date, GameInfo
 from meowlauncher.platform_types import MegadriveRegionCodes
@@ -244,23 +245,26 @@ def _get_smd_header(rom: FileROM) -> bytes:
 
 @lru_cache(maxsize=1)
 def _get_megaplay_games() -> Collection[Machine]:
-	if not default_mame_executable:
+	mame = MAME()
+	if not mame.is_available:
 		return []
-	return set(iter_machines_from_source_file('megaplay', default_mame_executable))
+	return frozenset(iter_machines_from_source_file('megaplay', mame))
 
 
 @lru_cache(maxsize=1)
 def _get_megatech_games() -> Collection[Machine]:
-	if not default_mame_executable:
+	mame = MAME()
+	if not mame.is_available:
 		return []
-	return set(iter_machines_from_source_file('megatech', default_mame_executable))
+	return frozenset(iter_machines_from_source_file('megatech', mame))
 
 
 @lru_cache(maxsize=1)
 def _get_megadrive_arcade_bootlegs() -> Collection[Machine]:
-	if not default_mame_executable:
+	mame = MAME()
+	if not mame.is_available:
 		return []
-	return set(iter_machines_from_source_file('megadriv_acbl', default_mame_executable))
+	return set(iter_machines_from_source_file('megadriv_acbl', mame))
 
 
 def find_equivalent_mega_drive_arcade(game_name: str) -> Machine | None:

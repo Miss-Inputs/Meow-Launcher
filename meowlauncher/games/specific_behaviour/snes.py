@@ -1,5 +1,6 @@
 import calendar
 from dataclasses import dataclass
+from functools import lru_cache
 from itertools import chain
 from typing import TYPE_CHECKING, Any
 
@@ -9,6 +10,7 @@ from meowlauncher.games.mame_common.machine import (
 	does_machine_match_name,
 	iter_machines_from_source_file,
 )
+from meowlauncher.games.mame_common.mame import MAME
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.util.region_info import regions_by_name
 from meowlauncher.util.utils import NotAlphanumericError, convert_alphanumeric, load_dict
@@ -338,31 +340,27 @@ def _add_satellaview_metadata(rom: 'FileROM', metadata: 'GameInfo') -> None:
 		metadata.specific_info['Month'] = header_data.get('Month')
 
 
-def find_equivalent_snes_arcade(name: str) -> Machine | None:
-	if not default_mame_executable:
-		# CBF tbhkthbai
-		return None
-	if not hasattr(find_equivalent_snes_arcade, 'nss_games'):
-		try:
-			find_equivalent_snes_arcade.nss_games = set(
-				iter_machines_from_source_file('nss', default_mame_executable)
-			)  # type: ignore[attr-defined]
-		except MAMENotInstalledError:
-			find_equivalent_snes_arcade.nss_games = set()  # type: ignore[attr-defined]
-	if not hasattr(find_equivalent_snes_arcade, 'arcade_bootlegs'):
-		try:
-			find_equivalent_snes_arcade.arcade_bootlegs = set(
-				chain(
-					iter_machines_from_source_file('snesb', default_mame_executable),
-					iter_machines_from_source_file('snesb51', default_mame_executable),
-				)
-			)  # type: ignore[attr-defined]
-		except MAMENotInstalledError:
-			find_equivalent_snes_arcade.arcade_bootlegs = set()  # type: ignore[attr-defined]
+@lru_cache(1)
+def _get_nss_machines():
+	mame = MAME()
+	if not mame.is_available:
+		return []
+	return frozenset(iter_machines_from_source_file('nss', mame))
 
-	for machine in chain(
-		find_equivalent_snes_arcade.nss_games, find_equivalent_snes_arcade.arcade_bootlegs
-	):  # type: ignore[attr-defined]
+
+@lru_cache(1)
+def _get_snes_arcade_bootlegs():
+	mame = MAME()
+	if not mame.is_available:
+		return []
+	return (
+		*iter_machines_from_source_file('snesb', mame),
+		*iter_machines_from_source_file('snesb51', mame),
+	)
+
+
+def find_equivalent_snes_arcade(name: str) -> Machine | None:
+	for machine in chain(_get_nss_machines(), _get_snes_arcade_bootlegs()):
 		if does_machine_match_name(name, machine):
 			return machine
 

@@ -68,9 +68,9 @@ class ManuallySpecifiedGameSource(
 		return self._is_available
 
 	def _get_launcher(self, app: ManuallySpecifiedGame) -> ManuallySpecifiedLauncher | None:
-		emulator: ConfiguredEmulator | None = None
+		emulator: Emulator | None = None
 		exception_reason = None
-		for chosen_emulator in self.iter_chosen_emulators():
+		for chosen_emulator in self.chosen_emulators:
 			try:
 				if 'compat' in app.json:
 					if not app.json['compat'].get(chosen_emulator.config_name, True):

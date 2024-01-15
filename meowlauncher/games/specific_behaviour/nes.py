@@ -1,3 +1,5 @@
+from collections.abc import Collection
+from functools import lru_cache
 import zlib
 from typing import TYPE_CHECKING, cast
 
@@ -8,6 +10,7 @@ from meowlauncher.games.mame_common.machine import (
 	does_machine_match_name,
 	iter_machines_from_source_file,
 )
+from meowlauncher.games.mame_common.mame import MAME
 from meowlauncher.games.mame_common.software_list import (
 	Software,
 	SoftwarePart,
@@ -519,30 +522,28 @@ def add_unif_metadata(rom: FileROM, game_info: GameInfo) -> None:
 		pos += 8 + chunk_length
 
 
-def find_equivalent_nes_arcade(name: str) -> Machine | None:
-	if not default_mame_executable:
-		# CBF tbhkthbai
-		return None
-	if not hasattr(find_equivalent_nes_arcade, 'playchoice10_games'):
-		try:
-			find_equivalent_nes_arcade.playchoice10_games = set(
-				iter_machines_from_source_file('playch10', default_mame_executable)
-			)  # type: ignore[attr-defined]
-		except MAMENotInstalledError:
-			find_equivalent_nes_arcade.playchoice10_games = set()  # type: ignore[attr-defined]
-	if not hasattr(find_equivalent_nes_arcade, 'vsnes_games'):
-		try:
-			find_equivalent_nes_arcade.vsnes_games = set(
-				iter_machines_from_source_file('vsnes', default_mame_executable)
-			)  # type: ignore[attr-defined]
-		except MAMENotInstalledError:
-			find_equivalent_nes_arcade.vsnes_games = set()  # type: ignore[attr-defined]
+@lru_cache(1)
+def _get_playchoice_10() -> Collection[Machine]:
+	mame = MAME()
+	if not mame.is_available:
+		return []
+	return frozenset(iter_machines_from_source_file('playch10', mame))
 
-	for playchoice10_machine in find_equivalent_nes_arcade.playchoice10_games:  # type: ignore[attr-defined]
+
+@lru_cache(1)
+def _get_vs_system() -> Collection[Machine]:
+	mame = MAME()
+	if not mame.is_available:
+		return []
+	return frozenset(iter_machines_from_source_file('vsnes', mame))
+
+
+def find_equivalent_nes_arcade(name: str) -> Machine | None:
+	for playchoice10_machine in _get_playchoice_10():
 		if does_machine_match_name(name, playchoice10_machine):
 			return playchoice10_machine
 
-	for vsnes_machine in find_equivalent_nes_arcade.vsnes_games:  # type: ignore[attr-defined]
+	for vsnes_machine in _get_vs_system():
 		if does_machine_match_name(name, vsnes_machine, match_vs_system=True):
 			return vsnes_machine
 

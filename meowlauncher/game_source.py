@@ -109,48 +109,58 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 	# TODO: Maybe this should have try_emulator moved into here, all that kind of logic that checks whether each emulator will work
 	# TODO: Should also be possible to bump up or down a preference based on the game, if Emu A is usually preferred over Emu B but Emu B has support for some niche feature that only some games use (but they both play the game)
 
-	def __init__(
-		self,
-		platform_config: 'PlatformConfig',
-		platform: 'ChooseableEmulatedPlatform',
-		emulators: 'Mapping[str, type[EmulatorType_co]]',
-		libretro_cores: 'Mapping[str, type[LibretroCore]] | None' = None,
-	) -> None:
+	@classmethod
+	@abstractmethod
+	def platform(cls) -> 'ChooseableEmulatedPlatform':
+		...
+
+	@classmethod
+	@abstractmethod
+	def emulator_types(cls) -> 'Mapping[str, type[EmulatorType_co]]':
+		"""All possible emulator classes for EmulatorType_co. I'm not sure how much sense this makes"""
+
+	@classmethod
+	@abstractmethod
+	def libretro_core_types(cls) -> 'Mapping[str, type[LibretroCore]] | None':
+		"""All possible emulator classes for EmulatorType_co that are libretro cores. Yeah this definitely doesn't make sense"""
+
+	def __init__(self, platform_config: 'PlatformConfig') -> None:
 		super().__init__()
 		self.platform_config = platform_config
-		self.platform = platform
-		self.emulators = emulators
-		self.libretro_cores = libretro_cores
+		self.chosen_emulators = tuple(self.iter_chosen_emulators())
+
+	def _parse_chosen_emulator(self, emulator_name: str):
+		libretro_core_types = self.libretro_core_types()
+		cls = (
+			libretro_core_types.get(emulator_name.removesuffix(' (libretro)'))
+			if (libretro_core_types and emulator_name.endswith(' (libretro)'))
+			else self.emulator_types().get(emulator_name)
+		)
+
+		if not cls and libretro_core_types:
+			cls = libretro_core_types.get(emulator_name)
+		if not cls:
+			logger.warning(
+				'Config warning: %s is not a known emulator, specified in %s',
+				emulator_name,
+				self.name(),
+			)
+			return None
+
+		if cls.name() not in self.platform().valid_emulator_names:
+			logger.warning(
+				'Config warning: %s is not a valid emulator for %s', emulator_name, self.name()
+			)
+			return None
+
+		return cls
 
 	def iter_chosen_emulators(self) -> 'Iterator[EmulatorType_co | LibretroCore]':
 		"""Gets the actual emulator objects for the user's choices, in order"""
 		for emulator_name in self.platform_config.chosen_emulators:
-			cls = (
-				self.libretro_cores.get(emulator_name.removesuffix(' (libretro)'))
-				if (self.libretro_cores and emulator_name.endswith(' (libretro)'))
-				else self.emulators.get(emulator_name)
-			)
-
-			if not cls and self.libretro_cores:
-				cls = self.libretro_cores.get(emulator_name)
-			if not cls:
-				logger.warning(
-					'Config warning: %s is not a known emulator, specified in %s',
-					emulator_name,
-					self.name(),
-				)
-				continue
-
-			if cls.name() not in self.platform.valid_emulator_names:
-				logger.warning(
-					'Config warning: %s is not a valid %s for %s',
-					emulator_name,
-					cls.friendly_type_name,
-					self.name(),
-				)
-				continue
-
-			yield cls()
+			cls = self._parse_chosen_emulator(emulator_name)
+			if cls:
+				yield cls()
 
 
 __doc__ = GameSource.__doc__ or GameSource.__name__

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 	from collections.abc import Collection, Mapping
 
 	from meowlauncher.config_types import PlatformConfig
-	from meowlauncher.configured_emulator import ConfiguredEmulator
+	from meowlauncher.emulator import Emulator
 
 
 class ManuallySpecifiedGame(Game, ABC):
@@ -99,7 +99,7 @@ class ManuallySpecifiedLauncher(Launcher):
 	def __init__(
 		self,
 		app: ManuallySpecifiedGame,
-		emulator: 'ConfiguredEmulator',
+		emulator: 'Emulator[Game]',
 		platform_config: 'PlatformConfig',
 	) -> None:
 		self.game: ManuallySpecifiedGame = app

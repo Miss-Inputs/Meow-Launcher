@@ -58,10 +58,10 @@ def _make_default_config(name: str) -> type[BaseRunnerConfig]:
 	return RunnerConfig
 
 
-GameType = TypeVar('GameType', bound=Game)
+GameType_co = TypeVar('GameType_co', bound=Game, covariant=True)
 
 
-class Runner(ABC, Generic[GameType]):
+class Runner(ABC, Generic[GameType_co]):
 	"""Base class for a runner (an emulator, compatibility layer, anything that runs a thing)"""
 
 	def __init__(self) -> None:
@@ -90,6 +90,9 @@ class Runner(ABC, Generic[GameType]):
 		"""If you have special settings, derive from BaseRunnerConfig and put them in here"""
 		return _make_default_config(cls.name())
 
+	def __str__(self) -> str:
+		return self.name()
+
 	@property
 	def is_path_valid(self) -> bool:
 		"""Returns true if the default exe name is available on the system path, or if the configured exe path points to a valid executable"""
@@ -98,6 +101,11 @@ class Runner(ABC, Generic[GameType]):
 			if self.config.path
 			else shutil.which(self.exe_name()) is not None
 		)
+
+	@property
+	def is_available(self) -> bool:
+		"""Override if this should check something other than is_path_valid"""
+		return self.is_path_valid
 
 	@property
 	def exe_path(self) -> Path:
@@ -134,7 +142,7 @@ class Runner(ABC, Generic[GameType]):
 			command.set_env_var('MESA_GL_VERSION_OVERRIDE', '4.3')
 		return command
 
-	def get_game_command(self, game: GameType) -> 'LaunchCommand':
+	def get_game_command(self, game: GameType_co) -> 'LaunchCommand':
 		"""Return a LaunchCommand for launching this game with this runner, or raise EmulationNotSupportedError, etc"""
 		raise EmulationNotSupportedError(
 			f'Default implementation of get_game_command does not launch anything, argument = {game}'

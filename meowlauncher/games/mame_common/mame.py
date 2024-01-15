@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class MachineNotFoundError(Exception):
-	"""This shouldn't be thrown unless I'm an idiot, but then of course that doesn't mean it won't happen
-	Although maybe it means I should use asserts instead"""
+	"""This shouldn't be seen by the end user, ideally not actually thrown so maybe asserts are a better idea"""
 
 
 class MAMENotInstalledError(Exception):

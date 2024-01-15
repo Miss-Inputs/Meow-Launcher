@@ -24,8 +24,8 @@ if TYPE_CHECKING:
 	from collections.abc import Collection
 
 	from meowlauncher.config_types import PlatformConfig
-	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
+	from meowlauncher.emulator import StandardEmulator
 
 
 def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str) -> bool:
@@ -107,13 +107,10 @@ class ROMLauncher(EmulatorLauncher):
 	)  # You may notice that it doesn't even have spaces… just in case
 
 	def __init__(
-		self,
-		game: ROMGame,
-		emulator: 'ConfiguredStandardEmulator',
-		platform_config: 'PlatformConfig',
+		self, game: ROMGame, emulator: 'StandardEmulator', platform_config: 'PlatformConfig'
 	) -> None:
 		self.game: ROMGame = game
-		self.runner: 'ConfiguredStandardEmulator' = emulator
+		self.runner: StandardEmulator = emulator
 		super().__init__(game, emulator, platform_config.options)
 
 	@property
@@ -144,12 +141,11 @@ class ROMLauncher(EmulatorLauncher):
 			command = command.replace_path_argument(extracted_path)
 			command = command.prepend_command(
 				LaunchCommand(
-					PurePath('7z'),
-					['x', '-o' + str(temp_extraction_folder), str(self.game.rom.path)],
+					PurePath('7z'), ['x', '-o' + str(temp_extraction_folder), self.game.rom.path]
 				)
 			)
 			command = command.append_command(
-				LaunchCommand(PurePath('rm'), ['-rf', str(temp_extraction_folder)])
+				LaunchCommand(PurePath('rm'), ['-rf', temp_extraction_folder])
 			)
 		else:
 			command = command.replace_path_argument(self.game.rom.path)

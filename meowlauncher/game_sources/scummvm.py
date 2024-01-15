@@ -27,7 +27,7 @@ class ScummVM(GameSource):
 
 	@property
 	def is_available(self) -> bool:
-		return self.ini.has_section('scummvm') and self.scummvm.is_path_valid
+		return self.ini.has_section('scummvm') and self.scummvm.is_available
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return game_id not in self.ini.sections() if self.is_available else True
