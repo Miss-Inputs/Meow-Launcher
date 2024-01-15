@@ -11,8 +11,6 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class PlatformConfigValue:
-	"""This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno"""
-
 	type: type
 	default_value: Any
 	description: str

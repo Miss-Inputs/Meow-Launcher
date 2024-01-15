@@ -56,7 +56,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 	@property
 	def is_available(self) -> bool:
-		return self.platform_config.is_available
+		return self.platform_config.is_available and any(emu.is_available for emu in self.iter_chosen_emulators())
 
 	def iter_roms_and_subfolders(self) -> 'Iterator[tuple[ROM, Sequence[str]]]':
 		platform = self.platform()

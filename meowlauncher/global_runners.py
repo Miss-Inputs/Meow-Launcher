@@ -50,10 +50,10 @@ class Wine(Runner[Game]):
 		if self.config.wineprefix:
 			env_vars = {'WINEPREFIX': str(self.config.wineprefix)}
 
-		args = ['start']
+		args: list[str | PurePath] = ['start']
 		if working_directory:
 			args += ['/d', str(working_directory)]
-		args += ('/unix', str(exe_path))
+		args += ('/unix', exe_path)
 		args += exe_args
 		return LaunchCommand(self.exe_path, args, env_vars)
 

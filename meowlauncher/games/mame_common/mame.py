@@ -2,18 +2,18 @@ import copy
 import logging
 import re
 import subprocess
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping, Sequence
 from functools import cached_property
+from pathlib import Path, PurePath
 from typing import cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
 from meowlauncher.emulator import BaseEmulatorConfig, Emulator
 from meowlauncher.game import Game
-from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.games.mame.mame_game import ArcadeGame
 from meowlauncher.games.mame.mame_inbuilt_game import MAMEInbuiltGame
-from meowlauncher.launch_command import LaunchCommand
+from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +41,14 @@ class MAMEConfig(BaseEmulatorConfig):
 	"""Store machine XML files on disk
 	Maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)
 	Maybe it turns out _I'm_ the weird one for this being beneficial in my use case, and it shouldn't default to true? I dunno lol"""
+
+
+def _get_autoboot_script_by_name(name: str) -> Path:
+	# Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
+	mame_common = Path(__file__).parent
+	games_package = mame_common.parent
+	meowlauncher_package = games_package.parent
+	return meowlauncher_package / 'data' / 'mame_autoboot' / (name + '.lua')
 
 
 class MAME(Emulator[Game]):
@@ -186,12 +194,51 @@ class MAME(Emulator[Game]):
 		else:
 			return True
 
+	@classmethod
+	def launch_args(
+		cls,
+		driver: str,
+		slot: str | None = None,
+		slot_options: Mapping[str, str] | None = None,
+		*,
+		has_keyboard: bool = False,
+		autoboot_script: str | None = None,
+		software: str | None = None,
+		bios: str | None = None,
+	) -> Sequence[str | PurePath]:
+		args: list[str | PurePath] = ['-skip_gameinfo']
+		if has_keyboard:
+			args.append('-ui_active')
+
+		if bios:
+			args += ['-bios', bios]
+
+		args.append(driver)
+		if software:
+			args.append(software)
+
+		if slot_options:
+			for name, value in slot_options.items():
+				if not value:
+					value = ''
+				args += [f'-{name}', value]
+
+		if slot:
+			args += [f'-{slot}', rom_path_argument]
+
+		if autoboot_script:
+			args += ['-autoboot_script', _get_autoboot_script_by_name(autoboot_script)]
+
+		return args
+
 	def get_game_command(self, game: Game) -> 'LaunchCommand':
 		# TODO: Launch ArcadeGame and MAMEInbuiltGame
 		if isinstance(game, ArcadeGame):
-			return LaunchCommand(self.exe_path, mame_base(game.machine.basename))
+			return LaunchCommand(self.exe_path, self.launch_args(game.machine.basename))
 		if isinstance(game, MAMEInbuiltGame):
-			return LaunchCommand(self.exe_path, mame_base(game.machine_name, bios=game.bios_name))
+			return LaunchCommand(
+				self.exe_path, self.launch_args(game.machine_name, bios=game.bios_name)
+			)
 		raise TypeError(f"Don't know how to launch {game}")
 
 	# Other frontend commands: listfull, listclones, listbrothers, listcrc, listroms, listsamples, verifysamples, romident, listdevices, listslots, listmedia, listsoftware, verifysoftware, getsoftlist

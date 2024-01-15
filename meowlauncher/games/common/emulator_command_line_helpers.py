@@ -1,28 +1,20 @@
-from collections.abc import Collection, Mapping, Sequence
+from collections.abc import Collection, Mapping
 from functools import cache
-from pathlib import Path, PurePath
+from itertools import chain
+from pathlib import PurePath
 from typing import TYPE_CHECKING
 
 from meowlauncher.exceptions import EmulationNotSupportedError
+from meowlauncher.games.mame_common.mame import MAME
 from meowlauncher.games.mame_common.software_list import Software, get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
-	from meowlauncher.emulator import BaseMAMEDriver, Emulator, GenericLaunchCommandFunc
-	from meowlauncher.game import Game
-	from meowlauncher.games.mame_common.mame import MAME
+	from meowlauncher.emulator_helpers import BaseMAMEDriver
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 
-def _get_autoboot_script_by_name(name: str) -> Path:
-	# Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
-	this_package = Path(__file__).parent
-	root_package = this_package.parent
-	root_dir = root_package.parent
-	return root_dir / 'mame_autoboot' / (name + '.lua')
-
-
-def _verify_supported_gb_mappers(
+def verify_supported_gb_mappers(
 	game: 'ROMGame', supported_mappers: Collection[str], detected_mappers: Collection[str]
 ) -> None:
 	mapper = game.info.specific_info.get('Mapper', None)
@@ -66,7 +58,7 @@ def verify_mgba_mapper(game: 'ROMGame') -> None:
 		'Hitek',
 	}
 
-	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
+	verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
 
 @cache
@@ -94,43 +86,7 @@ def mednafen_module_launch(module: str, exe_path: PurePath) -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
 
-def mame_base(
-	driver: str,
-	slot: str | None = None,
-	slot_options: Mapping[str, str] | None = None,
-	*,
-	has_keyboard: bool = False,
-	autoboot_script: str | None = None,
-	software: str | None = None,
-	bios: str | None = None,
-) -> Sequence[str | PurePath]:
-	args: list[str | PurePath] = ['-skip_gameinfo']
-	if has_keyboard:
-		args.append('-ui_active')
-
-	if bios:
-		args += ['-bios', bios]
-
-	args.append(driver)
-	if software:
-		args.append(software)
-
-	if slot_options:
-		for name, value in slot_options.items():
-			if not value:
-				value = ''
-			args += [f'-{name}', value]
-
-	if slot:
-		args += [f'-{slot}', rom_path_argument]
-
-	if autoboot_script:
-		args += ['-autoboot_script', _get_autoboot_script_by_name(autoboot_script)]
-
-	return args
-
-
-def mame_driver(
+def mame_driver_base(
 	game: 'ROMGame',
 	emulator: 'BaseMAMEDriver',
 	driver: str,
@@ -142,7 +98,7 @@ def mame_driver(
 ) -> LaunchCommand:
 	# Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	software: Software | None = game.info.specific_info.get('MAME Software')
-	if software and emulator.config.software_compatibility_threshold > -1:
+	if software and emulator.config.software_compatibility_threshold is not None:
 		# We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
 		game_compatibility = software.emulation_status
 		if (
@@ -154,50 +110,15 @@ def mame_driver(
 	if emulator.config.skip_unknown and not software:
 		raise EmulationNotSupportedError('Does not match anything in software list')
 
-	args = mame_base(
+	args = MAME.launch_args(
 		driver, slot, slot_options, has_keyboard=has_keyboard, autoboot_script=autoboot_script
 	)
 	return LaunchCommand(emulator.exe_path, args)
 
 
-def first_available_romset(driver_list: 'Collection[str]', mame: 'MAME') -> str | None:
+def first_available_romset(*driver_list: 'Collection[str]', mame: 'MAME') -> str | None:
 	if not mame.is_available:
 		return None
-	return next((driver for driver in driver_list if mame.verifyroms(driver)), None)
-
-
-def simple_gb_emulator(
-	args: Sequence[str], mappers: Collection[str], autodetected_mappers: Collection[str]
-) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', emulator: 'Emulator') -> LaunchCommand:
-		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
-		return LaunchCommand(emulator.exe_path, args)
-
-	return inner
-
-
-def simple_md_emulator(
-	args: Sequence[str], unsupported_mappers: Collection[str]
-) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', emulator: 'Emulator') -> LaunchCommand:
-		mapper = game.info.specific_info.get('Mapper')
-		if mapper and mapper in unsupported_mappers:
-			raise EmulationNotSupportedError(mapper + ' not supported')
-		return LaunchCommand(emulator.exe_path, args)
-
-	return inner
-
-
-def simple_mame_driver(
-	driver: str,
-	slot: str | None = None,
-	slot_options: 'Mapping[str, str] | None' = None,
-	has_keyboard: bool = False,
-	autoboot_script: str | None = None,
-) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-		return mame_driver(
-			game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script
-		)
-
-	return inner
+	return next(
+		(driver for driver in chain.from_iterable(driver_list) if mame.verifyroms(driver)), None
+	)

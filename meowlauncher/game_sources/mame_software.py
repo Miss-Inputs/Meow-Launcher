@@ -10,7 +10,7 @@ from pathlib import PurePath
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.exceptions import EmulationNotSupportedError
-from meowlauncher.games.common.emulator_command_line_helpers import mame_base
+from meowlauncher.games.mame_common.mame import MAME
 from meowlauncher.games.mame_common.software_list import Software, get_software_list_by_name
 from meowlauncher.info import GameInfo
 from meowlauncher.launch_command import LaunchCommand
@@ -32,9 +32,11 @@ class SoftwareListPlatform:
 		return self.launch_params_function(software)
 
 
-def _launch_with_software(system_name: str, software: 'SoftwareLauncher') -> Sequence[str | PurePath]:
+def _launch_with_software(
+	system_name: str, software: 'SoftwareLauncher'
+) -> Sequence[str | PurePath]:
 	# Use fully qualified id with : here to avoid ambiguity
-	return mame_base(system_name, software=software.id)
+	return MAME.launch_args(system_name, software=software.id)
 
 
 def _quizwiz(software: 'SoftwareLauncher'):
