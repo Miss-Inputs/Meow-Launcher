@@ -6,10 +6,10 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import contextlib
-from functools import cache
 import logging
 import os
 from enum import Enum
+from functools import cache
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 

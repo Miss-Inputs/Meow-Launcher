@@ -1,8 +1,8 @@
-from functools import cache
 import logging
 import os
 import struct
 from collections.abc import Collection, Sequence
+from functools import cache
 from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
 
@@ -48,6 +48,7 @@ def _load_tdb() -> TDB | None:
 		logger.exception('Oh no failed to load DS TDB')
 		return None
 
+
 def _add_cover(metadata: 'GameInfo', product_code: str) -> None:
 	# Intended for the covers database from GameTDB
 	covers_path = platform_configs['DS'].options.get('covers_path')
@@ -61,7 +62,7 @@ def _add_cover(metadata: 'GameInfo', product_code: str) -> None:
 			break
 
 
-def _convert_ds_colour_to_rgba(colour: int, is_transparent: bool) -> tuple[int, int, int, int]:
+def _convert_ds_colour_to_rgba(colour: int, *, is_transparent: bool) -> tuple[int, int, int, int]:
 	red = (colour & 0b_00000_00000_11111) << 3
 	green = (colour & 0b_00000_11111_00000) >> 2
 	blue = (colour & 0b_11111_00000_00000) >> 7
@@ -74,14 +75,14 @@ def _decode_icon(bitmap: bytes, palette: Sequence[int]) -> 'Image.Image':
 
 	rgb_palette = [(0, 0, 0, 0)] * 16
 	for i, colour in enumerate(palette):
-		rgb_palette[i] = _convert_ds_colour_to_rgba(colour, i == 0)
+		rgb_palette[i] = _convert_ds_colour_to_rgba(colour, is_transparent=i == 0)
 
 	pos = 0
 	data = [(0, 0, 0, 0)] * 32 * 32
-	for tile_y in range(0, 4):
-		for tile_x in range(0, 4):
-			for y in range(0, 8):
-				for x in range(0, 4):
+	for tile_y in range(4):
+		for tile_x in range(4):
+			for y in range(8):
+				for x in range(4):
 					pixel_x = (x * 2) + (8 * tile_x)
 					pixel_y = y + (8 * tile_y)
 					data[pixel_y * 32 + pixel_x] = rgb_palette[bitmap[pos] & 0x0F]
